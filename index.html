@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>防災情報センター｜トップページ</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#04080f; --surface:#080f1e; --surface2:#0c1628;
+  --accent:#ff2d2d; --accent2:#ff8c00; --safe:#00e87a;
+  --blue:#00b4ff; --cyan:#00ffe0; --text:#ffffff; --muted:#a0bcd8;
+  --border:rgba(0,180,255,0.15);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.05) 2px,rgba(0,0,0,0.05) 4px);pointer-events:none;z-index:999;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,180,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,180,255,0.03) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;}
+
+header{position:sticky;top:0;z-index:200;background:rgba(4,8,15,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
+.logo-ring-wrap{position:relative;width:40px;height:40px;display:flex;align-items:center;justify-content:center;}
+.logo-ring{position:absolute;width:40px;height:40px;border:2px solid var(--blue);border-radius:50%;animation:spin 8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.logo-dot{width:10px;height:10px;background:var(--blue);border-radius:50%;box-shadow:0 0 10px var(--blue);}
+.logo-text{font-family:'Orbitron',monospace;font-size:14px;font-weight:700;color:var(--text);letter-spacing:0.06em;}
+.logo-sub{font-family:'Share Tech Mono',monospace;font-size:10px;color:#a0c8ff;letter-spacing:0.15em;display:block;margin-top:2px;}
+.nav-links{display:flex;gap:20px;}
+.nav-link{font-family:'Orbitron',monospace;font-size:11px;letter-spacing:0.1em;color:var(--muted);text-decoration:none;transition:color 0.2s;padding:6px 0;}
+.nav-link:hover{color:var(--blue);}
+
+main{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:40px 24px 80px;}
+.hero{text-align:center;padding:60px 0 80px;}
+.hero-label{font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:0.4em;color:var(--cyan);display:block;margin-bottom:16px;}
+.hero h1{font-family:'Orbitron',monospace;font-size:clamp(28px,6vw,48px);font-weight:900;letter-spacing:0.02em;margin-bottom:18px;text-shadow:0 0 40px rgba(0,180,255,0.2);}
+.hero p{font-size:14px;color:var(--muted);line-height:1.8;max-width:600px;margin:0 auto;}
+
+.layout{display:grid;grid-template-columns:1fr 320px;gap:40px;}
+@media(max-width:900px){.layout{grid-template-columns:1fr;}}
+
+.section-title{font-family:'Orbitron',monospace;font-size:12px;letter-spacing:0.2em;color:var(--cyan);margin-bottom:24px;display:flex;align-items:center;gap:12px;}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.blog-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+@media(max-width:640px){.blog-grid{grid-template-columns:1fr;}}
+
+/* --- ブログカード構造の安定化 --- */
+.blog-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all 0.2s;display:flex;flex-direction:column;}
+.blog-card:hover{border-color:rgba(0,180,255,0.28);box-shadow:0 0 20px rgba(0,180,255,0.05);}
+.blog-card-header{padding:20px;flex:1;}
+.blog-emoji{font-size:28px;margin-bottom:12px;}
+.blog-card-tag{display:inline-block;font-size:10px;letter-spacing:0.08em;padding:2px 10px;border-radius:20px;font-weight:700;margin-bottom:10px;background:rgba(0,232,122,0.12);color:var(--safe);}
+.blog-card-tag.info-tag{background:rgba(255,140,0,0.12);color:var(--accent2);}
+.blog-card-tag.tips-tag{background:rgba(0,180,255,0.12);color:var(--blue);}
+.blog-card h3{font-size:15px;font-weight:700;line-height:1.45;margin-bottom:6px;}
+.blog-card .blog-subtitle{font-size:12px;font-weight:400;color:var(--blue);margin-bottom:8px;line-height:1.4;}
+
+/* 改行を100%維持し、溢れた分をCSSで隠す設定 */
+.blog-body-text {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+  white-space: pre-wrap; /* 改行をそのまま表示 */
+  word-wrap: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* 最初は3行だけ見せる */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+/* ボタンが押されたら全行表示するクラス */
+.blog-body-text.expanded {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
+}
+
+.blog-card-footer{padding:14px 20px;background:rgba(0,180,255,0.02);display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(0,180,255,0.05);margin-top:auto;}
+.blog-card-date{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);}
+.blog-card-link,.read-more-btn{font-size:11px;font-weight:700;color:var(--blue);text-decoration:none;background:none;border:none;cursor:pointer;padding:4px 0;}
+.blog-card-link:hover,.read-more-btn:hover{color:var(--cyan);}
+
+.side-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;display:flex;gap:14px;align-items:center;text-decoration:none;color:inherit;transition:all 0.2s;}
+.side-item:hover{border-color:rgba(0,180,255,0.25);background:var(--surface2);}
+.side-icon{font-size:22px;background:rgba(0,180,255,0.06);width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.side-title{font-size:12px;font-weight:700;line-height:1.4;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.side-date{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);}
+
+footer{border-top:1px solid var(--border);background:rgba(4,8,15,0.5);padding:40px 24px;text-align:center;}
+.footer-links{display:flex;justify-content:center;gap:24px;margin-bottom:20px;font-size:12px;}
+.footer-links a{color:var(--muted);text-decoration:none;}
+.footer-links a:hover{color:var(--text);}
+.copy{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.05em;}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">
+    <div class="logo-ring-wrap"><div class="logo-ring"></div><div class="logo-dot"></div></div>
+    <div><div class="logo-text">防災情報センター</div><span class="logo-sub">BOUSAI INFORMATION CENTER</span></div>
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">HOME</a>
+    <a href="index3.html" class="nav-link">CONTACT</a>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <span class="hero-label">// EMERGENCY BROADCAST SYSTEM</span>
+    <h1>BOUSAI PORTAL SITE</h1>
+    <p>総合防災情報ポータルへようこそ。このサイトでは、日頃から備えておくべき防災コラムや最新の災害対策記事をリアルタイムで配信しています。</p>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="section-title">// ARTICLE ARCHIVE</div>
+      <div class="blog-grid" id="blogGrid"></div>
+    </div>
+
+    <div>
+      <div class="section-title">// RECENT POSTS</div>
+      <div id="sidePostList"></div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-links">
+    <a href="index3.html">お問い合わせフォーム</a>
+    <a href="index2.html" style="color:#ff8c00;">🔒 管理者ページ</a>
+  </div>
+  <div class="copy">&copy; 2026 BOUSAI INFORMATION CENTER. ALL RIGHTS RESERVED.</div>
+</footer>
+
+<script>
+const TAG_OPTIONS = [{val:'prep',label:'備え'},{val:'info',label:'情報'},{val:'tips',label:'ヒント'}];
+
+const defaultBlogCards = [
+  {icon:'🎒',tag:'prep',title:'非常用持ち出し袋に入れるべき10のアイテム',subtitle:'防災リュックの決定版！いざという時に迷わず動ける厳選リスト',body:'地震・水害など、いざという時に必要なものをリストアップ。\n定期的な見直し方法も解説します。',link:'',updated:'2026.05.18'},
+  {icon:'🏠',tag:'prep',title:'自宅の耐震化チェックリスト【2026年版】',subtitle:'',body:'築年数別の耐震基準と、自分でできる簡単な補強ポイントをわかりやすく紹介します。',link:'',updated:'2026.05.14'},
+  {icon:'💧',tag:'prep',title:'水の備蓄はどのくらい必要か？正しい保管方法',subtitle:'',body:'一人あたりの必要量、ペットボトルの保管場所、ローリングストック法を詳しく解説。',link:'',updated:'2026.05.10'},
+  {icon:'📱',tag:'info',title:'災害時に使える無料アプリ5選【Android/iOS】',subtitle:'',body:'緊急速報、避難経路検索、オフラインマップなど、スマホに入れておくべき防災アプリを紹介。',link:'',updated:'2026.05.07'},
+];
+
+const defaultPosts = [
+  {icon:'🔋',tag:'prep',title:'停電時に備えるモバイルバッテリーの選び方',updated:'2026.05.20',link:''},
+  {icon:'📋',tag:'info',title:'令和6年能登半島地震から1年：復興の現状と教訓',updated:'2026.05.16',link:''},
+  {icon:'👨‍👩‍👧',tag:'tips',title:'子どもと一緒にできる防災訓練3つのアイデア',updated:'2026.05.12',link:''},
+  {icon:'🐶',tag:'prep',title:'ペットと一緒に避難するときの注意点まとめ',updated:'2026.05.08',link:''},
+];
+
+let blogCards = JSON.parse(localStorage.getItem('blogCards') || 'null') || defaultBlogCards;
+let postItems = JSON.parse(localStorage.getItem('postItems') || 'null') || defaultPosts;
+
+// HTML特殊文字のエスケープ関数（安全対策・改行はそのまま保持）
+function safeOutput(str) {
+  return (str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ===================== RENDER BLOG =====================
+function renderBlog() {
+  const grid = document.getElementById('blogGrid');
+  
+  grid.innerHTML = blogCards.map((c, i) => {
+    const tc = c.tag==='prep'?'':c.tag==='info'?'info-tag':'tips-tag';
+    const tagLabel = TAG_OPTIONS.find(t=>t.val===c.tag)?.label||c.tag;
+    const bodyText = c.body || '';
+    
+    return `<div class="blog-card">
+      <div class="blog-card-header">
+        <div class="blog-emoji">${c.icon}</div>
+        <span class="blog-card-tag ${tc}">${tagLabel}</span>
+        <h3>${safeOutput(c.title)}</h3>
+        ${c.subtitle?`<div class="blog-subtitle">${safeOutput(c.subtitle)}</div>`:''}
+        <div class="blog-body-wrap">
+          <p class="blog-body-text" id="btext${i}">${safeOutput(bodyText)}</p>
+        </div>
+      </div>
+      <div class="blog-card-footer">
+        <span class="blog-card-date">🕐 ${safeOutput(c.updated)}</span>
+        ${c.link
+          ? `<a class="blog-card-link" href="${c.link}" target="_blank">リンクを開く →</a>`
+          : `<button class="read-more-btn" id="rbtn${i}" onclick="toggleReadMore(${i})">続きを読む →</button>`
+        }
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleReadMore(i) {
+  const textP = document.getElementById(`btext${i}`);
+  const btn = document.getElementById(`rbtn${i}`);
+  
+  if (textP.classList.contains('expanded')) {
+    textP.classList.remove('expanded');
+    btn.textContent = '続きを読む →';
+  } else {
+    textP.classList.add('expanded');
+    btn.textContent = '閉じる ←';
+  }
+}
+
+// ===================== RENDER SIDEPOSTS =====================
+function renderSidePosts() {
+  const list = document.getElementById('sidePostList');
+  list.innerHTML = postItems.map(p => {
+    const hrefAttr = p.link ? `href="${p.link}" target="_blank"` : 'href="#" onclick="return false;"';
+    return `<a class="side-item" ${hrefAttr}>
+      <div class="side-icon">${p.icon}</div>
+      <div>
+        <div class="side-title">${safeOutput(p.title)}</div>
+        <div class="side-date">🕐 ${safeOutput(p.updated)}</div>
+      </div>
+    </a>`;
+  }).join('');
+}
+
+// 初期化実行
+renderBlog();
+renderSidePosts();
+</script>
+</body>
+</html>
