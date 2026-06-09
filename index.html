@@ -89,7 +89,7 @@ html.light .logo-img {
   .live-badge { font-size: 8px; padding: 2px 8px; }
 }
 .header-status { display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
-.header-live-row { display:flex; align-items:center; gap:10px; margin-top:12px; }
+.header-live-row { display:flex; align-items:center; gap:10px; margin-top:6px; }
 .header-ctrl-row { display:flex; align-items:center; gap:8px; }
 .live-badge { display:flex; align-items:center; gap:6px; font-family:'Orbitron',monospace; font-size:9px; font-weight:700; letter-spacing:0.15em; color:var(--accent); background:rgba(255,45,45,0.1); border:1px solid rgba(255,45,45,0.3); border-radius:4px; padding:3px 10px; }
 .live-dot { width:6px; height:6px; background:var(--accent); border-radius:50%; animation:livePulse 1s ease-in-out infinite; }
@@ -102,7 +102,7 @@ html.light .logo-img {
 .ticker { background:linear-gradient(90deg,rgba(255,45,45,0.15),rgba(255,45,45,0.05)); border-bottom:1px solid rgba(255,45,45,0.2); padding:8px 0; overflow:hidden; position:relative; z-index:10; display:flex; align-items:center; }
 .ticker-label { font-family:'Orbitron',monospace; font-size:11px; font-weight:700; letter-spacing:0.15em; color:var(--accent); background:rgba(255,45,45,0.15); padding:4px 16px; white-space:nowrap; border-right:1px solid rgba(255,45,45,0.25); flex-shrink:0; }
 .ticker-scroll { overflow:hidden; flex:1; }
-.ticker-text { font-family:'Share Tech Mono',monospace; font-size:12px; white-space:nowrap; animation:ticker 28s linear infinite; display:inline-block; }
+.ticker-text { font-family:'Share Tech Mono',monospace; font-size:12px; white-space:nowrap; animation:ticker 35s linear infinite; display:inline-block; }
 @keyframes ticker { 0%{transform:translateX(100vw);} 100%{transform:translateX(-100%);} }
 
 /* MAIN LAYOUT */
@@ -589,7 +589,7 @@ html.light #tsunamiBanner.warn-major .tsunami-link:hover { background:rgba(200,2
 /* ===================== SETTINGS PANEL ===================== */
 .settings-btn {
   display:flex; align-items:center; justify-content:center;
-  width:16px; height:16px; border-radius:50%;
+  width:17px; height:17px; border-radius:50%;
   border:1px solid var(--border); background:var(--surface);
   color:var(--text); font-size:8px; cursor:pointer;
   transition:all 0.25s; flex-shrink:0;
@@ -797,7 +797,7 @@ html.light .weather-day { background:var(--surface2); }
 /* ===================== HAMBURGER MENU ===================== */
 .hamburger-btn {
   display:flex; flex-direction:column; justify-content:center; gap:2.5px;
-  width:16px; height:16px; padding:3px; border-radius:4px;
+  width:17px; height:17px; padding:3px; border-radius:4px;
   border:1px solid var(--border); background:var(--surface); cursor:pointer;
   transition:all 0.2s;
 }
