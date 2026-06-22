@@ -7871,6 +7871,7 @@ loadNotices();
 // ==================== ポップアップ等のリンクから特定モーダルを開く ====================
 // URL末尾のハッシュ（#open-stamp など）を見て、対応するモーダルを開く。
 // 例: https://bousai0111.info/#open-stamp → スタンプカードを開く
+// ★一度開いたらハッシュを消すので、更新ボタンや再読み込みで再表示されません。
 function openModalFromHash(){
   try {
     var hash = String(location.hash || '').replace(/^#/, '').toLowerCase();
@@ -7882,6 +7883,15 @@ function openModalFromHash(){
       'open-post':    function(){ if(typeof openPostModal==='function') openPostModal(); }
     };
     if(map[hash]){
+      // 先にハッシュをURLから消す（履歴を汚さず、再読み込み時の再発を防ぐ）
+      try {
+        history.replaceState(null, '', location.pathname + location.search);
+      } catch(e){
+        // 古いブラウザ用フォールバック（スクロール位置は維持）
+        var sx = window.scrollX, sy = window.scrollY;
+        location.hash = '';
+        window.scrollTo(sx, sy);
+      }
       // 他の起動処理と競合しないよう少し待ってから開く
       setTimeout(map[hash], 400);
     }
