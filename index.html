@@ -6861,6 +6861,7 @@ function startSettingsTour(){
   showTourStep();
   window.addEventListener('resize', positionTour);
   window.addEventListener('scroll', positionTour, true);
+  _bindTourLeaveHandlers();
 }
 // 設定内チュートリアル中：設定オーバーレイをマスクより前面に持ち上げる
 function liftSettingsForTour(){
@@ -6907,6 +6908,29 @@ function trackTourPosition(){
   if(Date.now() < _tourTrackUntil) requestAnimationFrame(trackTourPosition);
 }
 
+// チュートリアルが表示中（メイン／設定どちらか）かどうか
+function _tourIsActive(){
+  return document.body.classList.contains('tour-open');
+}
+// 画面を消した（タブ非表示・アプリ背面化）／ページ離脱したらチュートリアルを終了する。
+// completed=false で終了するので、最後まで見ていなければ次回また表示される。
+function _abortTourOnLeave(){
+  if(!_tourIsActive()) return;
+  try { endTour(false); } catch(e){}
+}
+function _onTourVisibilityChange(){
+  if(document.hidden) _abortTourOnLeave();
+}
+// チュートリアル中断用リスナーの登録／解除（多重登録を避けるため毎回付け外し）
+function _bindTourLeaveHandlers(){
+  document.addEventListener('visibilitychange', _onTourVisibilityChange);
+  window.addEventListener('pagehide', _abortTourOnLeave);
+}
+function _unbindTourLeaveHandlers(){
+  document.removeEventListener('visibilitychange', _onTourVisibilityChange);
+  window.removeEventListener('pagehide', _abortTourOnLeave);
+}
+
 function startTour(){
   _settingsTour = false;
   _activeSteps = tourSteps;
@@ -6924,6 +6948,7 @@ function startTour(){
   showTourStep();
   window.addEventListener('resize', positionTour);
   window.addEventListener('scroll', positionTour, true);
+  _bindTourLeaveHandlers();
 }
 
 function endTour(completed){
@@ -6934,6 +6959,7 @@ function endTour(completed){
   try { resetSettingsLift(); } catch(e){}
   window.removeEventListener('resize', positionTour);
   window.removeEventListener('scroll', positionTour, true);
+  _unbindTourLeaveHandlers();
   const panel = document.querySelector('#settingsOverlay .settings-panel');
   if(panel) panel.removeEventListener('scroll', positionTour, true);
 
@@ -7032,6 +7058,34 @@ function _tourTargetEl(step){
   return pick(step.sel) || pick(step.selAlt);
 }
 
+// ツアーで対象を指す前に、スクロール演出（.anim-ready=opacity:0／translateY）を
+// 強制的に「表示完了」状態へ送る。アニメ途中の transform で getBoundingClientRect が
+// ズレ、ハイライト枠が対象とずれる／画面外に出るのを防ぐ。
+// 対象自身・先祖・配下の .anim-ready をまとめて確定させる。
+function _forceRevealForTour(el){
+  if(!el) return;
+  var targets = [];
+  // 自身
+  if(el.classList && el.classList.contains('anim-ready')) targets.push(el);
+  // 先祖（セクション全体が anim-ready のことがある）
+  var p = el.parentElement;
+  while(p){
+    if(p.classList && p.classList.contains('anim-ready')) targets.push(p);
+    p = p.parentElement;
+  }
+  // 配下（リストカードなど）
+  if(el.querySelectorAll){
+    el.querySelectorAll('.anim-ready').forEach(function(n){ targets.push(n); });
+  }
+  targets.forEach(function(n){
+    n.classList.add('anim-visible');     // animation-fill-mode:both で最終状態へ
+    n.style.opacity = '1';               // 念のため不透明に
+    n.style.animation = 'none';          // 進行中アニメを止めて transform を解除
+    n.style.transform = 'none';
+    n.style.willChange = 'auto';
+  });
+}
+
 function showTourStep(){
   const step = _activeSteps[_tourIndex];
   // パスワード説明ステップ以外に移ったら、持ち上げたスタンプカードを元に戻す
@@ -7042,7 +7096,11 @@ function showTourStep(){
   if(step.onShow !== openHamburgerForTour){
     try { resetHamburgerLift(); } catch(e){}
   }
-  if(typeof step.onShow === 'function'){ try { step.onShow(); } catch(e){} }
+  if(typeof step.onShow === 'function'){
+    // onShow（独自スクロール）が位置を測る前に、対象のスクロール演出を確定させておく
+    try { _forceRevealForTour(_tourTargetEl(step)); } catch(e){}
+    try { step.onShow(); } catch(e){}
+  }
   // プレゼントBOXは、専用ステップになったときだけ表示（それ以外は隠す）
   const fabEl = document.getElementById('stampFab');
   if(fabEl) fabEl.style.display = step.showStamp ? 'block' : 'none';
@@ -7073,6 +7131,8 @@ function showTourStep(){
   //   尊重し、ここでの再スクロールで上書きしない。
   const el = _tourTargetEl(step);
   const HEADER_OFFSET = 100; // ヘッダー等に隠れない余白
+  // 位置を測る前にスクロール演出を確定させ、transform由来のズレを防ぐ
+  try { _forceRevealForTour(el); } catch(e){}
   if(el && !step.onShow){
     const vh = window.innerHeight;
     const r0 = el.getBoundingClientRect();
