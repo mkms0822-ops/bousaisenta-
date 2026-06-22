@@ -444,7 +444,7 @@ body { font-family:var(--user-font); background:var(--bg); color:var(--text); mi
 body::after { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,var(--scanline-color) 2px,var(--scanline-color) 4px); pointer-events:none; z-index:999; }
 body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(var(--grid-color) 1px,transparent 1px),linear-gradient(90deg,var(--grid-color) 1px,transparent 1px); background-size:48px 48px; pointer-events:none; z-index:0; }
 /* HEADER */
-header { position:relative; z-index:200; background:linear-gradient(rgba(4,8,15,0.32),rgba(4,8,15,0.48)), url("header-bg.webp") center/cover no-repeat, var(--header-bg); background-blend-mode:normal; backdrop-filter:blur(16px); border-bottom:1px solid var(--border); padding:0 28px; min-height:150px; display:flex; align-items:center; justify-content:space-between; transition:background 0.3s; }
+header { position:relative; z-index:200; background:linear-gradient(rgba(4,8,15,0.32),rgba(4,8,15,0.48)), url("dwa-header-bg-v2.webp") center/cover no-repeat, var(--header-bg); background-blend-mode:normal; backdrop-filter:blur(16px); border-bottom:1px solid var(--border); padding:0 28px; min-height:150px; display:flex; align-items:center; justify-content:space-between; transition:background 0.3s; }
 .logo { display:flex; align-items:center; gap:14px; }
 
 /* ===== ヘッダー開閉 ===== */
@@ -1745,7 +1745,7 @@ html.light #updatePromptOverlay { background:rgba(10,20,35,0.5); }
 .stamp-cell.gift{border-color:#f5b945;color:#f5b945;font-size:16px}
 .stamp-cell.filled{border:2px solid var(--sc1);background:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.18);flex-direction:column;gap:0}
 .stamp-cell.filled.gift{border-color:#f5b945}
-.stamp-mark{width:78%;height:58%;background-color:var(--sc2);-webkit-mask:url(stamp-mask-1.png) center/contain no-repeat;mask:url(stamp-mask-2.png) center/contain no-repeat;transform:rotate(-8deg)}
+.stamp-mark{width:78%;height:58%;background-color:var(--sc2);-webkit-mask:url(dwa-stamp-mask-1-v2.png) center/contain no-repeat;mask:url(dwa-stamp-mask-2-v2.png) center/contain no-repeat;transform:rotate(-8deg)}
 .stamp-cell.filled .stamp-date{font-size:8px;font-weight:800;color:var(--sc2);line-height:1;margin-top:2px;letter-spacing:0}
 .hanko-img{position:absolute;pointer-events:none;user-select:none}
 .stamp-cell.filled.gift{background:linear-gradient(135deg,#ffd36b,#f5a623);box-shadow:0 3px 10px rgba(245,166,35,0.5)}
@@ -2205,8 +2205,8 @@ html.mode-chat.chat-split #modeChatScreen .mc-title{ font-size:13px; margin-bott
 <!-- ===== SPLASH SCREEN ===== -->
 <div id="splashScreen">
   <div id="splashDoors">
-    <div class="splash-door splash-door-l"><img src="splash-door-l.webp" alt=""></div>
-    <div class="splash-door splash-door-r"><img src="splash-door-r.webp" alt=""></div>
+    <div class="splash-door splash-door-l"><img src="dwa-splash-l-v2.webp" alt=""></div>
+    <div class="splash-door splash-door-r"><img src="dwa-splash-r-v2.webp" alt=""></div>
     <div class="splash-seam"></div>
   </div>
   <div class="splash-flash"></div>
@@ -2310,7 +2310,7 @@ html.mode-chat.chat-split #modeChatScreen .mc-title{ font-size:13px; margin-bott
   <div class="plate-nav" data-tour="logo">
     <div class="plate-item">
     <a class="dwa-plate dwa-plate-emg" data-tour="emg-plate" href="https://mkms0822-ops.github.io/kinkyuutaioumanyuaru/" target="_blank" rel="noopener" title="緊急対応マニュアル">
-      <img class="dwa-plate-img" src="plate-manual.webp" alt="緊急対応" />
+      <img class="dwa-plate-img" src="dwa-plate-manual-v2.webp" alt="緊急対応" />
       <span class="dwa-light dwa-light-red"></span>
       <span class="dwa-light dwa-light-amber"></span>
       <span class="dwa-light dwa-light-green"></span>
@@ -2323,7 +2323,7 @@ html.mode-chat.chat-split #modeChatScreen .mc-title{ font-size:13px; margin-bott
     </div>
     <div class="plate-item plate-item-map">
     <a class="dwa-plate dwa-plate-map" data-tour="diag-plate" href="javascript:void(0)" onclick="openShindanModal();return false;" title="被害想定診断ツール">
-      <img class="dwa-plate-img" src="plate-diagnosis.webp" alt="被害想定診断ツール" />
+      <img class="dwa-plate-img" src="dwa-plate-diagnosis-v2.webp" alt="被害想定診断ツール" />
       <span class="dwa-plate-label">被害想定</span>
     </a>
       <div class="plate-desc">
@@ -3308,7 +3308,7 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     <button class="modal-close" onclick="closeInstaQr()">✕</button>
     <div class="modal-title">// 公式Instagram</div>
     <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">カメラアプリでQRコードを読み取るか<br>下のボタンからアクセスしてください</p>
-    <img src="qr-title.webp" alt="Instagram QRコード @BOUSAI0111" style="width:100%;max-width:280px;border-radius:12px;display:block;margin:0 auto 16px;">
+    <img src="dwa-instagram-qr.webp" alt="Instagram QRコード @BOUSAI0111" style="width:100%;max-width:280px;border-radius:12px;display:block;margin:0 auto 16px;">
     <a href="https://www.instagram.com/bousai0111?igsh=MWF3ZDBjN294dnZpdQ==" target="_blank" rel="noopener" style="display:inline-block;background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;font-weight:700;font-size:14px;padding:10px 24px;border-radius:24px;text-decoration:none;">📸 Instagramを開く</a>
   </div>
 </div>
@@ -6422,7 +6422,7 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 // ===================== SPLASH SCREEN =====================
-const OPEN_SOUND_SRC = "open-sound.mp3";
+const OPEN_SOUND_SRC = "dwa-open-sound-v2.mp3";
 (function(){
   const splash = document.getElementById('splashScreen');
   if(!splash) return;
@@ -8747,7 +8747,7 @@ function sendPresentForm(stage){
   }, 700);
 }
 // 木製の印鑑(イラスト)が右上から現れてスタンプを押す演出
-const HANKO_IMG_SRC = 'hanko.webp';
+const HANKO_IMG_SRC = 'dwa-hanko-v2.webp';
 function playStampAnimation(n){
   const grid = document.getElementById('stampGrid');
   const cell = grid.children[n - 1];
