@@ -6710,6 +6710,12 @@ function endTour(completed){
   } catch(e){}
   // 最後まで進んだ場合のみ、設定内チュートリアルへの導線を表示
   if(completed){ showTourDoneDialog(); }
+
+  // チュートリアル完了後に、お知らせ・バージョンアップのポップアップを表示する。
+  // （初回はここで初めて出す。少し待って完了ダイアログと重ならないようにする）
+  setTimeout(function(){
+    try { if(typeof loadNotices === 'function') loadNotices(); } catch(e){}
+  }, completed ? 1200 : 300);
 }
 
 // チュートリアル完了後の案内ダイアログ
@@ -7866,8 +7872,6 @@ document.addEventListener('keydown', function(e){
   if(e.key === 'Escape'){ closeNotice(); closeNoticeHistory(); }
 });
 
-loadNotices();
-
 // ==================== ポップアップ等のリンクから特定モーダルを開く ====================
 // URL末尾のハッシュ（#open-stamp など）を見て、対応するモーダルを開く。
 // 例: https://bousai0111.info/#open-stamp → スタンプカードを開く
@@ -7897,8 +7901,23 @@ function openModalFromHash(){
     }
   } catch(e){}
 }
-openModalFromHash();
-// 同じページ内でハッシュだけ変わったとき（別タブで開かず遷移した場合）にも対応
+
+// チュートリアルを見たことがあるか（初回判定）
+function _hasSeenTutorial(){
+  try { return localStorage.getItem(TOUR_KEY) === 'true'; } catch(e){ return false; }
+}
+
+// 起動時のお知らせ＆リンク処理。
+// ・チュートリアル済みの人 … 今までどおりすぐ実行。
+// ・初回（チュートリアル未）の人 … ここでは実行せず、チュートリアル完了後に endTour から呼ばれる。
+function runStartupNoticesAndLinks(){
+  loadNotices();
+  openModalFromHash();
+}
+if(_hasSeenTutorial()){
+  runStartupNoticesAndLinks();
+}
+// 同じページ内でハッシュだけ変わったとき（リンクから遷移した場合）には常に対応
 window.addEventListener('hashchange', openModalFromHash);
 
 
