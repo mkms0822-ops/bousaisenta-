@@ -2991,6 +2991,13 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
   <div class="guide-panel" translate="no">
     <div class="settings-title" style="color:#00b4ff;">🌐 &nbsp;English / 言語</div>
 
+    <!-- アプリ（ホーム画面から起動）時のみ表示：ブラウザの翻訳機能が使えないため案内を出し分け -->
+    <div class="guide-box" id="translateAppNotice" style="display:none;margin-bottom:12px;border:1px solid rgba(255,180,0,0.5);background:rgba(255,180,0,0.08);">
+      <div class="guide-text" style="margin-bottom:6px;"><strong>⚠ アプリとして起動中です。</strong>この状態ではブラウザの翻訳機能が使えません。下のボタンでブラウザ（Chrome / Safari）で開くと、翻訳できます。</div>
+      <div class="guide-text" style="color:#9fb;margin-bottom:10px;"><strong>⚠ You are using the app (home-screen) mode.</strong> Browser translation is not available here. Open this site in a browser (Chrome / Safari) using the button below to translate it.</div>
+      <button class="settings-close-btn" style="margin-top:0;background:rgba(0,180,255,0.18);border-color:rgba(0,180,255,0.5);color:#00b4ff;" onclick="openInBrowserForTranslate()">🌐 ブラウザで開く / Open in browser</button>
+    </div>
+
     <div class="guide-box" style="margin-bottom:12px;">
       <div class="guide-text" style="margin-bottom:6px;"><strong>このサイトは、お使いのブラウザの翻訳機能で英語など多言語で読めます。</strong></div>
       <div class="guide-text">This site can be read in English and other languages using your browser's built-in translation feature.</div>
@@ -6834,6 +6841,8 @@ function endTour(completed){
 
   // --- メインチュートリアルの終了処理 ---
   try { localStorage.setItem(TOUR_KEY, 'true'); } catch(e){}
+  // チュートリアル終了時：ページ最上部へ戻す
+  try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch(e){ window.scrollTo(0, 0); }
   // チュートリアル終了時：気象情報タブは収納状態に戻す
   if(typeof collapseDtabs === 'function') collapseDtabs();
   // チュートリアル完了 → ここで初めてプレゼントBOXを出現させる
@@ -7440,10 +7449,40 @@ function closeOverseasModal(){
   document.getElementById('overseasOverlay').classList.remove('open');
 }
 function openTranslateModal(){
+  // アプリ（ホーム画面起動）時は、ブラウザの翻訳が使えないため専用の案内を表示
+  try {
+    const notice = document.getElementById('translateAppNotice');
+    if(notice){
+      const app = (typeof isStandalone === 'function') ? isStandalone()
+                : (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true);
+      notice.style.display = app ? 'block' : 'none';
+    }
+  } catch(e){}
   document.getElementById('translateOverlay').classList.add('open');
 }
 function closeTranslateModal(){
   document.getElementById('translateOverlay').classList.remove('open');
+}
+// アプリ起動時：同じページをブラウザで開く（翻訳できるようにするため）
+function openInBrowserForTranslate(){
+  try {
+    const url = window.location.href;
+    // 新規タブ/ブラウザで開く。standaloneアプリ内リンクは外部ブラウザに渡される。
+    const w = window.open(url, '_blank');
+    if(!w){
+      // ポップアップがブロックされた場合は、URLをコピーできるよう案内
+      try {
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(url);
+          alert('ブラウザで開けませんでした。URLをコピーしました。ChromeやSafariに貼り付けて開いてください。\n\nCould not open a browser. The URL has been copied. Please paste it into Chrome or Safari.');
+        } else {
+          alert('お使いのブラウザ（Chrome / Safari）で、次のURLを開いてください:\n\nPlease open this URL in your browser (Chrome / Safari):\n\n' + url);
+        }
+      } catch(_){
+        alert('お使いのブラウザ（Chrome / Safari）で、次のURLを開いてください:\n\n' + url);
+      }
+    }
+  } catch(e){}
 }
 function renderOverseasList(){
   const wrap = document.getElementById('overseasList');
