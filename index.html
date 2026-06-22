@@ -6665,7 +6665,7 @@ const tourSteps = [
   { sel:'[data-tour="lang"]', title:'🌐 English / 多言語表示', text:'メニューの中の「English / 言語」ボタンです。お使いのブラウザの翻訳機能を使うと、このサイトを英語など多言語で読めます。ボタンを押すと、スマホ・パソコン別の翻訳手順を日本語と英語で案内します。海外の方や、英語で読みたい方はこちらをご利用ください。', en:'This is the "English / Language" button in the menu. Using your browser\u2019s translation feature, you can read this site in English and other languages. Tapping the button shows translation steps for both smartphones and PCs, in Japanese and English. Recommended for visitors from overseas or anyone who prefers to read in English.', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="tabs"]', title:'気象情報タブ（収納式）', text:'台風・雨雲レーダー・警報注意報など、気象・災害情報へのリンク集です。ふだんは「災害情報タブ」ボタンに収納されていて、タップすると開きます（いまチュートリアル用に開いています）。目的の情報にすぐアクセスできます。', en:'This is a set of links to weather and disaster information such as typhoons, rain-cloud radar, and warnings/advisories. Normally it is tucked away under the "Disaster Info Tabs" button and opens when tapped (it is open now for the tutorial). It gives you quick access to the information you need.', onShow:openDtabsForTour },
   { sel:'[data-tour="stats"]', title:'本日の地震サマリー', text:'本日の有感地震の回数、最大マグニチュード・最大震度をひと目で確認できます。', en:'See today\u2019s number of felt earthquakes, plus the maximum magnitude and seismic intensity, at a glance.', onShow:closeDtabsForTour },
-  { sel:'.quake-list', title:'地震リスト', text:'最近発生した地震の一覧です。カードをタップすると詳細が表示されます。', en:'This is a list of recent earthquakes. Tap a card to see the details.', fallbackToTop:true },
+  { sel:'#quakeList', selAlt:'.quake-list', title:'地震リスト', text:'最近発生した地震の一覧です。カードをタップすると詳細が表示されます。', en:'This is a list of recent earthquakes. Tap a card to see the details.', fallbackToTop:true },
   { sel:'[data-tour="bookmark"]', selAlt:'#section-column', title:'🔖 ブックマーク', text:'防災記事カードの右上にあるこのマークをタップすると、その記事をブックマーク（お気に入り保存）できます。あとで読み返したい「備え」や「ヒント」を保存しておくと、必要なときにすぐ見返せます。', en:'Tap this mark at the top right of a disaster-prevention article card to bookmark (save) that article. Save the preparedness tips you want to revisit later so you can find them quickly when you need them.', onShow:scrollToColumnForTour, fallbackToTop:true },
   { sel:'[data-tour="review"]', title:'⭐ 口コミ・レビュー', text:'このサイトの感想や評価を投稿できるコーナーです。星の数と一言コメントで、使ってみての感想をぜひ聞かせてください。みんなの口コミも読めます。', en:'This is where you can post your impressions and ratings of the site. Please share how you found it using a star rating and a short comment. You can also read other users\u2019 reviews.', onShow:scrollToReviewForTour, fallbackToTop:true },
   { sel:'[data-tour="chat"]', title:'💬 みんなのひとことチャット', text:'防災情報の共有や、ひとことメッセージを書き込めるチャットです。閲覧は誰でもできます。書き込みには「引き継ぎコード」での参加（ログイン）が必要です。地域の気づきや声かけにご活用ください。', en:'This is a chat for sharing disaster information and posting short messages. Anyone can read it. To post, you need to join (log in) with a "transfer code." Please use it for local observations and to check in with one another.', fallbackToTop:true },
@@ -7011,9 +7011,25 @@ function tourPrev(){
 
 // ステップの対象要素を解決（主セレクタが無ければ代替セレクタ）
 function _tourTargetEl(step){
-  let el = step.sel ? document.querySelector(step.sel) : null;
-  if(!el && step.selAlt) el = document.querySelector(step.selAlt);
-  return el;
+  // 同じセレクタで複数ヒットする場合、非表示（display:none の親配下など）の
+  // 要素を掴むとハイライトが 0,0 にズレて画面に出なくなる。
+  // 表示中（実寸あり）の要素を優先して返す。
+  function pick(selector){
+    if(!selector) return null;
+    let nodes;
+    try { nodes = document.querySelectorAll(selector); } catch(e){ return null; }
+    let firstHidden = null;
+    for(let i=0;i<nodes.length;i++){
+      const n = nodes[i];
+      const rect = n.getBoundingClientRect();
+      // position:fixed の要素は offsetParent が null になるため、実寸の有無で判定する。
+      const visible = (rect.width > 0 && rect.height > 0);
+      if(visible) return n;            // 表示中の要素を最優先
+      if(!firstHidden) firstHidden = n;
+    }
+    return firstHidden;                // 表示中が無ければ最初のもの（従来動作）
+  }
+  return pick(step.sel) || pick(step.selAlt);
 }
 
 function showTourStep(){
@@ -7054,22 +7070,35 @@ function showTourStep(){
   document.getElementById('tourPop').classList.toggle('emphasize', !!step.emphasize);
   // 対象が画面外ならスクロール（設定ツアーはパネル内、それ以外はページ全体）
   // ※ onShow に専用スクロール関数がある場合は、そちらの位置決め（上端寄せ等）を
-  //   尊重し、ここでの center 再スクロールで上書きしない。
+  //   尊重し、ここでの再スクロールで上書きしない。
   const el = _tourTargetEl(step);
   const HEADER_OFFSET = 100; // ヘッダー等に隠れない余白
   if(el && !step.onShow){
-    const r = el.getBoundingClientRect();
     const vh = window.innerHeight;
-    const tooTall = r.height > vh - HEADER_OFFSET - 40;
+    const r0 = el.getBoundingClientRect();
+    const tooTall = r0.height > vh - HEADER_OFFSET - 40;
+    // 目標スクロール位置を算出（縦に長い要素＝上端寄せ／通常＝中央寄せ）。
+    // smooth スクロールは長距離だと完了前にトラッキングが切れて枠がズレるため、
+    // instant（behavior指定なし）で一発確定し、確定後に枠を合わせ直す。
+    let targetY = null;
     if(tooTall){
-      // 画面より縦に長い要素は center にすると上端がフレームアウトするため、
-      // 上端を画面上部（ヘッダー下）に合わせる。
-      if(r.top < HEADER_OFFSET || r.top > vh - 120){
-        const y = window.scrollY + r.top - HEADER_OFFSET;
-        try { window.scrollTo({ top:y, behavior:'smooth' }); } catch(e){ window.scrollTo(0,y); }
+      if(r0.top < HEADER_OFFSET || r0.top > vh - 120){
+        targetY = window.scrollY + r0.top - HEADER_OFFSET;
       }
-    } else if(r.top < 80 || r.bottom > vh - 80){
-      el.scrollIntoView({ behavior:'smooth', block:'center' });
+    } else if(r0.top < 80 || r0.bottom > vh - 80){
+      // 中央に来るように。ただしヘッダー下限は確保。
+      const center = window.scrollY + r0.top - (vh/2 - r0.height/2);
+      targetY = Math.max(0, center);
+    }
+    if(targetY !== null){
+      try { window.scrollTo({ top: targetY, left: 0 }); } // instant（behaviorなし）
+      catch(e){ window.scrollTo(0, targetY); }
+      // レイアウト確定後に枠を再計算（複数回 = 画像読み込み等での高さ変化に追従）
+      if(typeof positionTour === 'function'){
+        requestAnimationFrame(function(){ positionTour(); });
+        setTimeout(positionTour, 80);
+        setTimeout(positionTour, 200);
+      }
     }
   }
   // スクロールが終わるまで毎フレーム枠を再計算（固定されていない要素でもズレない）
