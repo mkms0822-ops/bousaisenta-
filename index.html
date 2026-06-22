@@ -1594,13 +1594,16 @@ html.light .tour-mask { background:rgba(10,20,35,0.55); }
   box-shadow:0 0 0 9999px rgba(0,0,0,0); pointer-events:none; transition:all 0.3s ease;
   z-index:99991; }
 #tourPop { position:fixed; z-index:99992; max-width:340px; width:calc(100vw - 32px);
+  max-height:calc(100vh - 24px); overflow-y:auto; -webkit-overflow-scrolling:touch;
   background:var(--surface); border:1px solid var(--blue); border-radius:12px;
   padding:20px 20px 18px; box-shadow:0 8px 40px rgba(0,180,255,0.25); transition:all 0.3s ease; }
 .tour-step-no { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:0.15em;
   color:var(--muted); margin-bottom:7px; }
 .tour-title { font-size:19px; font-weight:700; color:var(--blue); margin-bottom:10px; line-height:1.35; }
 .tour-text { font-size:15.5px; line-height:1.75; color:var(--text); margin-bottom:16px; }
-.tour-btns { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.tour-btns { display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  position:sticky; bottom:-18px; margin:0 -20px -18px; padding:12px 20px 18px;
+  background:var(--surface); border-top:1px solid var(--border); }
 .tour-btns .spacer { flex:1 1 0; min-width:0; }
 .tour-btn { padding:9px 16px; border-radius:7px; font-family:'Share Tech Mono',monospace;
   font-size:13px; letter-spacing:0.06em; cursor:pointer; border:1px solid var(--border);
@@ -6779,6 +6782,8 @@ function showTourStep(){
   _tourTrackUntil = Date.now() + 1800;
   requestAnimationFrame(trackTourPosition);
   positionTour();
+  // ポップアップ内部のスクロールを先頭に戻す（前ステップの位置が残らないように）
+  try { document.getElementById('tourPop').scrollTop = 0; } catch(e){}
 }
 
 function positionTour(){
@@ -6815,24 +6820,32 @@ function positionTour(){
   mL.style.left='0'; mL.style.top=hy+'px'; mL.style.width=hx+'px'; mL.style.height=hh+'px';
   mR.style.left=(hx+hw)+'px'; mR.style.top=hy+'px'; mR.style.width=Math.max(0,W-(hx+hw))+'px'; mR.style.height=hh+'px';
   // ポップアップ配置（下に出す。入らなければ上）
-  const popH = pop.offsetHeight || 160;
+  // 実際の高さを使う。max-height(CSS)により画面より大きくはならない（はみ出れば内部スクロール）。
+  const popH = Math.min(pop.offsetHeight || 160, H - 24);
   const popW = pop.offsetWidth || 300;
   // ポップアップ配置：ハイライト（穴）に被らないよう、上下の余白が広い方へ出す
   const margin = 14;
   const gapBelow = H - (hy + hh);   // 穴の下の空き
   const gapAbove = hy;              // 穴の上の空き
+  // 縦位置を必ず画面内に収めるクランプ（上端12〜下端12の範囲）。
+  // これにより「次へ」ボタンが画面外に出て押せなくなる不具合を防ぐ。
+  function clampTop(t){
+    return Math.max(12, Math.min(t, H - popH - 12));
+  }
   function vPlaceAvoidHole(){
     let t;
-    if(gapBelow >= gapAbove){
-      // 穴の下に出す（足りなければ穴に被らない範囲で上方向に詰める）
-      t = hy + hh + margin;
-      if(t + popH > H - 12) t = Math.max(hy + hh + 6, H - popH - 12);
+    // 穴の上下に、ポップアップが収まるだけの空きがあるかを判定
+    const fitsBelow = (gapBelow - margin) >= popH;
+    const fitsAbove = (gapAbove - margin) >= popH;
+    if(fitsBelow){
+      t = hy + hh + margin;            // 下に出す（収まる）
+    } else if(fitsAbove){
+      t = hy - popH - margin;          // 上に出す（収まる）
     } else {
-      // 穴の上に出す
-      t = hy - popH - margin;
-      if(t < 12) t = 12;
+      // 上下どちらにも収まらない（穴が大きい/画面が狭い）→ 広い方に寄せて画面内にクランプ
+      t = (gapBelow >= gapAbove) ? (H - popH - 12) : 12;
     }
-    return t;
+    return clampTop(t);
   }
   // 設定チュートリアル中は、設定パネルに重ならないよう「パネルの右側」に出す
   const panel = _settingsTour ? document.querySelector('#settingsOverlay .settings-panel') : null;
@@ -6842,7 +6855,7 @@ function positionTour(){
       // パネル右側に十分な余白がある場合：右隣に、ハイライト中央へ縦位置を合わせる
       let pLeft = pr.right + 14;
       let pTop = hy + hh/2 - popH/2;
-      pTop = Math.max(12, Math.min(pTop, H - popH - 12));
+      pTop = clampTop(pTop);
       pop.style.top = pTop + 'px';
       pop.style.left = pLeft + 'px';
     } else {
