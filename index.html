@@ -6707,7 +6707,18 @@ function openHamburgerForTour(){
     setTimeout(function(){
       try {
         const el = document.querySelector('[data-tour="lang"]');
-        if(el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+        if(el){
+          // 「English / 言語」ボタンを画面の上寄りに表示する。
+          // 説明ポップアップ（日本語＋英語で縦に長め）を下側に広く出す余地を作り、
+          // ポップアップがボタンを覆い隠さないようにする。
+          el.scrollIntoView({ behavior:'smooth', block:'start' });
+          // ヘッダーに隠れない＆少し余白を持たせるため、メニュー内をさらに少し上へ送る
+          const panel = el.closest('.hamburger-panel');
+          setTimeout(function(){
+            try { if(panel) panel.scrollBy({ top: -24, left: 0, behavior:'smooth' }); } catch(_){}
+            if(typeof positionTour === 'function') setTimeout(positionTour, 200);
+          }, 320);
+        }
       } catch(e){}
       if(typeof positionTour === 'function') positionTour();
     }, 300);
@@ -7024,13 +7035,24 @@ function positionTour(){
   mL.style.left='0'; mL.style.top=hy+'px'; mL.style.width=hx+'px'; mL.style.height=hh+'px';
   mR.style.left=(hx+hw)+'px'; mR.style.top=hy+'px'; mR.style.width=Math.max(0,W-(hx+hw))+'px'; mR.style.height=hh+'px';
   // ポップアップ配置（下に出す。入らなければ上）
-  // 実際の高さを使う。max-height(CSS)により画面より大きくはならない（はみ出れば内部スクロール）。
-  const popH = Math.min(pop.offsetHeight || 160, H - 24);
-  const popW = pop.offsetWidth || 300;
-  // ポップアップ配置：ハイライト（穴）に被らないよう、上下の余白が広い方へ出す
+  // スマホでは 100vh がアドレスバー裏も含むため、実際に見えている高さ
+  // (window.innerHeight) を基準に最大高さを設定し、画面外へはみ出さないようにする。
   const margin = 14;
   const gapBelow = H - (hy + hh);   // 穴の下の空き
   const gapAbove = hy;              // 穴の上の空き
+  // ポップアップを置ける側の空きのうち広い方。ハイライト（穴）を覆い隠さないよう、
+  // ポップアップの最大高さをこの空きに収める（あふれる分は内部スクロール）。
+  const sideGap = Math.max(gapBelow, gapAbove) - margin - 12;
+  // 画面に収まる絶対上限（上下12pxずつ余白）
+  const absMax = H - 24;
+  // 実効上限：原則は「広い側の空き」に収め、ハイライトと重ならないようにする。
+  // ただし空きが極端に小さい（穴が画面の大半を占める）場合のみ、最低高さを確保する。
+  const minH = Math.min(absMax, 220);              // 最低限読める高さ
+  const popMaxH = Math.max(0, Math.min(absMax, Math.max(sideGap, minH)));
+  pop.style.maxHeight = popMaxH + 'px';
+  // 高さ確定後に実測（max-height 反映後の値）
+  const popH = Math.min(pop.offsetHeight || 160, popMaxH, H - 24);
+  const popW = pop.offsetWidth || 300;
   // 縦位置を必ず画面内に収めるクランプ（上端12〜下端12の範囲）。
   // これにより「次へ」ボタンが画面外に出て押せなくなる不具合を防ぐ。
   function clampTop(t){
@@ -7047,17 +7069,23 @@ function positionTour(){
       t = hy - popH - margin;          // 上に出す（収まる・穴と被らない）
     } else {
       // 上下どちらにも完全には収まらない場合：
-      // 空きが広い側へ寄せつつ、穴（ハイライト）と重ならない位置にクランプする。
+      // 空きが広い側へ寄せ、穴（ハイライト）と重ならない位置に置く。
       if(gapBelow >= gapAbove){
-        // 下側へ。穴の下端より下に出し、画面下端からはみ出す分は内部スクロールで対応。
-        t = Math.min(hy + hh + margin, H - popH - 12);
-        // それでも穴に食い込むなら、穴の真下ギリギリに置く
-        if(t < hy + hh) t = hy + hh + 6;
+        // 下側へ。穴の下端のすぐ下に出す（はみ出す分は内部スクロール）。
+        t = hy + hh + margin;
       } else {
-        // 上側へ。穴の上端より上に出す。
-        t = Math.max(12, hy - popH - margin);
-        // 下端が穴に食い込むなら、穴の真上ギリギリに引き上げる
-        if(t + popH > hy) t = Math.max(12, hy - popH - 6);
+        // 上側へ。穴の上端のすぐ上に、ポップアップの下端が来るように置く。
+        t = hy - popH - margin;
+      }
+      t = clampTop(t);
+      // クランプの結果、穴に食い込んでしまう場合は、穴を避ける側へ寄せ直す。
+      const overlapsHole = (t < hy + hh) && (t + popH > hy);
+      if(overlapsHole){
+        if(gapBelow >= gapAbove){
+          t = Math.min(hy + hh + 6, H - popH - 12);
+        } else {
+          t = Math.max(12, hy - popH - 6);
+        }
       }
     }
     return clampTop(t);
