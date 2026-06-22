@@ -727,7 +727,7 @@ main { position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:28
 .like-btn .like-heart { font-size:18px; filter:grayscale(1) opacity(0.6); transition:transform 0.18s, filter 0.15s; }
 .like-btn .like-count { font-family:'Share Tech Mono',monospace; }
 .like-btn:hover { border-color:rgba(255,45,45,0.45); color:var(--text); }
-.like-btn.on { background:rgba(255,45,45,0.16); border-color:rgba(255,45,45,0.6); color:var(--accent); }
+.like-btn.on { background:rgba(255,45,45,0.16); border-color:rgba(255,45,45,0.6); color:var(--accent); cursor:pointer; }
 .like-btn.on .like-heart { filter:none; }
 .like-btn.like-pop .like-heart { animation:likePop 0.32s ease; }
 @keyframes likePop { 0%{transform:scale(1);} 40%{transform:scale(1.45);} 100%{transform:scale(1);} }
@@ -2516,6 +2516,9 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <button class="hamburger-link" onclick="openOverseasModal();closeHamburger();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:none;width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">🌏</span>海外地震履歴
       </button>
+      <button class="hamburger-link" data-tour="lang" onclick="openTranslateModal();closeHamburger();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:none;width:100%;text-align:left;cursor:pointer;">
+        <span class="h-link-icon">🌐</span>English / 言語
+      </button>
       <a class="hamburger-link" href="https://www.jma.go.jp/bosai/map.html#contents=tsunami" target="_blank">
         <span class="h-link-icon">🌊</span>気象庁 津波情報
       </a>
@@ -2816,6 +2819,18 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     </div>
 
     <!-- データ管理 -->
+    <!-- 設定を保存する -->
+    <div class="settings-section" data-stour="savesettings">
+      <div class="settings-section-label">// 設定を保存する</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.7;">
+        現在の設定（テーマ・フォント・地域・通知など）を、引き継ぎコードに紐づけてサーバーに保存します。機種変更や初期化のあと、コードで復元すると同じ設定に戻せます。
+      </div>
+      <div class="settings-btn-group" style="flex-direction:column;gap:8px;">
+        <button class="settings-opt-btn" id="saveSettingsBtn" onclick="saveSettingsNow()">💾 サイト内の設定を保存する</button>
+      </div>
+      <div id="saveSettingsMsg" style="font-size:11px;color:var(--muted);margin-top:8px;"></div>
+    </div>
+
     <div class="settings-section" data-stour="data">
       <div class="settings-section-label">// データ管理</div>
       <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">保存された設定やキャッシュを削除します</div>
@@ -2968,6 +2983,36 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     <div class="guide-text" style="margin-bottom:12px;">過去約24時間に世界で発生したM4.5以上の地震（日本近海を除く）。出典: USGS（アメリカ地質調査所）。海外の地震に日本の「震度」はありません。規模はマグニチュード（M）で表します。</div>
     <div id="overseasList"></div>
     <button class="settings-close-btn" onclick="closeOverseasModal()">✕ 閉じる</button>
+  </div>
+</div>
+
+<!-- 言語 / English 翻訳案内パネル -->
+<div class="guide-overlay" id="translateOverlay" onclick="if(event.target===this)closeTranslateModal()">
+  <div class="guide-panel" translate="no">
+    <div class="settings-title" style="color:#00b4ff;">🌐 &nbsp;English / 言語</div>
+
+    <div class="guide-box" style="margin-bottom:12px;">
+      <div class="guide-text" style="margin-bottom:6px;"><strong>このサイトは、お使いのブラウザの翻訳機能で英語など多言語で読めます。</strong></div>
+      <div class="guide-text">This site can be read in English and other languages using your browser's built-in translation feature.</div>
+    </div>
+
+    <div class="guide-box" style="margin-bottom:12px;">
+      <div class="guide-text" style="margin-bottom:4px;"><strong>📱 スマートフォン / Smartphone</strong></div>
+      <div class="guide-text" style="margin-bottom:6px;">Chrome（Android）: メニュー（⋮）→「翻訳」<br>Safari（iPhone）: アドレスバーの「ぁ」または「AA」→「英語に翻訳」<br>Chrome（iPhone）: メニュー（⋯）→「翻訳…」</div>
+      <div class="guide-text" style="color:#9fb;">Chrome (Android): Menu (⋮) → "Translate"<br>Safari (iPhone): "AA" in the address bar → "Translate to English"<br>Chrome (iPhone): Menu (⋯) → "Translate…"</div>
+    </div>
+
+    <div class="guide-box" style="margin-bottom:12px;">
+      <div class="guide-text" style="margin-bottom:4px;"><strong>💻 パソコン / PC</strong></div>
+      <div class="guide-text" style="margin-bottom:6px;">Chrome / Edge: ページ上で右クリック →「英語に翻訳」、またはアドレスバー右の翻訳アイコンをクリック</div>
+      <div class="guide-text" style="color:#9fb;">Chrome / Edge: Right-click on the page → "Translate to English", or click the translate icon on the right of the address bar.</div>
+    </div>
+
+    <div class="guide-box" style="margin-bottom:12px;">
+      <div class="guide-text" style="font-size:0.92em;color:#bbb;">⚠ 自動翻訳の精度には限界があります。緊急時の正確な情報は、気象庁など公式の発表をご確認ください。<br><span style="color:#9fb;">⚠ Machine translation may be inaccurate. For accurate emergency information, please check official sources such as the Japan Meteorological Agency (JMA).</span></div>
+    </div>
+
+    <button class="settings-close-btn" onclick="closeTranslateModal()">✕ 閉じる / Close</button>
   </div>
 </div>
 
@@ -4302,8 +4347,17 @@ let _likeCounts = {};
 // 自分が押した記事IDの集合（記事ID → true）
 let _likedSet = {};
 
-// 端末ごとの一意ID（無ければ発行して保存）
+// いいねの本人ID。
+// 引き継ぎコードを既に持っている人は「コード」を本人IDに使う。
+//   → 初期化して同じコードで復元すると、押した記事が復元され二重いいねを防げる。
+// まだコードが無い人（スタンプ未押下など）は、従来どおり端末ID。
 function getLikeUid(){
+  // すでに保存済みの引き継ぎコードがあれば、それを本人IDにする（新規発行はしない）
+  try {
+    const code = (localStorage.getItem('stamp_code') || '').trim().toUpperCase();
+    if (/^DWA-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)) return code;
+  } catch(e){}
+  // コードが無い場合は従来の端末ID（無ければ発行）
   let uid = '';
   try { uid = localStorage.getItem(LIKE_UID_KEY) || ''; } catch(e){}
   if(!uid){
@@ -4353,11 +4407,10 @@ function toggleLikeCard(i){
   if(!c) return;
   if(!ARTICLES_URL || ARTICLES_URL.indexOf('http') !== 0) return;
   const id = bookmarkId(c);
-  const nowOn = !isLiked(id);
+  const nowOn = !isLiked(id); // true=これからいいね / false=取り消し
 
   // 楽観的更新（先に画面へ反映し、押し心地を良くする）
-  _likedSet[id] = nowOn ? true : false;
-  if(!nowOn) delete _likedSet[id];
+  if(nowOn){ _likedSet[id] = true; } else { delete _likedSet[id]; }
   _likeCounts[id] = Math.max(0, likeCountOf(id) + (nowOn ? 1 : -1));
 
   const btn = document.getElementById('like'+i);
@@ -4373,7 +4426,7 @@ function toggleLikeCard(i){
     }
   }
 
-  // サーバーへ反映（結果でカウントを正とする）
+  // サーバーへ反映（いいね／取り消しを履歴に保存＝自動保存）。結果のカウントを正とする。
   const uid = getLikeUid();
   const action = nowOn ? 'like' : 'unlike';
   const url = ARTICLES_URL + '?type=likes&action=' + action
@@ -4388,9 +4441,8 @@ function toggleLikeCard(i){
       if(b){ const cc = b.querySelector('.like-count'); if(cc) cc.textContent = d.count; }
     }
   }).catch(function(){
-    // 通信失敗時は楽観的更新を取り消す
-    _likedSet[id] = nowOn ? false : true;
-    if(nowOn) delete _likedSet[id];
+    // 通信失敗時は楽観的更新を取り消して元に戻す
+    if(nowOn){ delete _likedSet[id]; } else { _likedSet[id] = true; }
     _likeCounts[id] = Math.max(0, likeCountOf(id) + (nowOn ? -1 : 1));
     refreshLikeButtons();
   });
@@ -6564,6 +6616,7 @@ const tourSteps = [
   { sel:'#siteRefreshBtn', title:'🔄 最新情報に更新', text:'パネル内の丸い矢印ボタンです。自動更新を待たずに、いますぐ最新の地震・気象情報を取り込みたいときにタップします。表示が古いと感じたらここを押してください。', fallbackToTop:true },
   { sel:'[data-tour="menu"]', title:'☰ メニュー（設定）', text:'パネル右側の三本線アイコンがメニューボタンです。タップで開くメニューの中に、設定・お問い合わせ・プライバシーポリシーがあります。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。' },
   { sel:'[data-tour="menu"]', title:'☰ メニュー（リンク集）', text:'同じ三本線メニューの中には、防災クイズや気象庁の各種情報ページへのリンクもまとめてあります。', fallbackToTop:true },
+  { sel:'[data-tour="lang"]', title:'🌐 English / 多言語表示', text:'メニューの中の「English / 言語」ボタンです。お使いのブラウザの翻訳機能を使うと、このサイトを英語など多言語で読めます。ボタンを押すと、スマホ・パソコン別の翻訳手順を日本語と英語で案内します。海外の方や、英語で読みたい方はこちらをご利用ください。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="tabs"]', title:'気象情報タブ（収納式）', text:'台風・雨雲レーダー・警報注意報など、気象・災害情報へのリンク集です。ふだんは「災害情報タブ」ボタンに収納されていて、タップすると開きます（いまチュートリアル用に開いています）。目的の情報にすぐアクセスできます。', onShow:openDtabsForTour },
   { sel:'[data-tour="stats"]', title:'本日の地震サマリー', text:'本日の有感地震の回数、最大マグニチュード・最大震度をひと目で確認できます。', onShow:closeDtabsForTour },
   { sel:'.quake-list', title:'地震リスト', text:'最近発生した地震の一覧です。カードをタップすると詳細が表示されます。', fallbackToTop:true },
@@ -6593,7 +6646,46 @@ function closeDtabsForTour(){
 function scrollToColumnForTour(){
   const target = document.querySelector('[data-tour="bookmark"]') || document.getElementById('section-column');
   if(target){
-    try { target.scrollIntoView({ behavior:'smooth', block:'center' }); } catch(e){}
+    // 対象を画面の上寄りに置く（block:'start'）。下側に説明ポップアップを出す空間を確保し、
+    // 説明文とハイライト枠が重ならないようにする。
+    try {
+      target.scrollIntoView({ behavior:'smooth', block:'start' });
+      // ヘッダーに隠れない＆少し余白を持たせるため、さらに少し上へ送る
+      setTimeout(function(){
+        try { window.scrollBy({ top: -90, left: 0, behavior:'smooth' }); } catch(e){ window.scrollBy(0,-90); }
+        if(typeof positionTour === 'function') setTimeout(positionTour, 250);
+      }, 350);
+    } catch(e){
+      try { target.scrollIntoView(); } catch(_){}
+    }
+  }
+}
+// 言語説明ステップ：ハンバーガーメニューを開いて「English / 言語」ボタンを見せる
+function openHamburgerForTour(){
+  try {
+    if(typeof openHamburger === 'function') openHamburger();
+    // ハンバーガーオーバーレイ（通常z-index 400）をツアーのマスク(99990)より前面へ持ち上げる
+    const ov = document.querySelector('.hamburger-overlay');
+    if(ov){
+      ov.dataset.tourLifted = '1';
+      ov.style.zIndex = '99991';  // tourMask(99990) より前・tourPop(99992) より後ろ
+    }
+    setTimeout(function(){
+      try {
+        const el = document.querySelector('[data-tour="lang"]');
+        if(el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+      } catch(e){}
+      if(typeof positionTour === 'function') positionTour();
+    }, 300);
+  } catch(e){}
+}
+// 持ち上げたハンバーガーのz-indexを元に戻し、メニューも閉じる（言語ステップを離れるとき）
+function resetHamburgerLift(){
+  const ov = document.querySelector('.hamburger-overlay');
+  if(ov && ov.dataset.tourLifted === '1'){
+    ov.style.zIndex = '';
+    delete ov.dataset.tourLifted;
+    if(typeof closeHamburger === 'function') closeHamburger();
   }
 }
 // パスワード説明ステップ：スタンプカードを開いてパスワード欄を見せる
@@ -6647,6 +6739,7 @@ const settingsTourSteps = [
   { sel:'[data-stour="sitenotify"]', title:'🔔 サイト内通知', text:'サイトを開いている間に、新しい地震情報などをサイト内のポップアップでお知らせする機能のオン／オフです。' },
   { sel:'[data-stour="sound"]', title:'🔊 警告音', text:'緊急地震速報などが出たときに鳴る警告音を、NHK式チャイム・緊急アラート・サイレン・音声（地震です）など7種類から選べます。' },
   { sel:'[data-stour="scale"]', title:'📏 スマホ表示サイズ', text:'スマホでの全体の表示サイズ（小・標準・大）を変更できます。文字やボタンが小さく感じる場合は「大」がおすすめです。' },
+  { sel:'[data-stour="savesettings"]', title:'💾 設定を保存する', text:'いまの設定（テーマ・フォント・地域・通知など）を、引き継ぎコードに紐づけてサーバーに保存します。機種変更や初期化のあとでも、コードを入れて復元すれば同じ設定に戻せます。設定を変えたら、ここから保存しておくと安心です。' },
   { sel:'[data-stour="data"]', title:'🧹 データ管理', text:'保存された設定やキャッシュを削除できます。表示がおかしいときにクリアすると、最新の状態で読み込み直せます。' },
   { sel:'[data-stour="help"]', title:'📖 ヘルプ', text:'ここから、サイト全体のチュートリアルや、この設定チュートリアルをいつでも見直せます。困ったときはここを開いてください。' },
   { sel:'[data-stour="reset"]', title:'⚠️ 初期化（とても重要）', text:'ここを押すと、テーマ・フォント・文字サイズ・通知・地域などの設定に加え、「スタンプカードの記録」まで含めてすべてが消去されます。一度初期化すると元には戻せません。スタンプを貯めている場合は、必ず事前に「引き継ぎコード」を控えてから実行してください。これで設定の説明は完了です！', emphasize:true },
@@ -6699,6 +6792,8 @@ function startTour(){
   _settingsTour = false;
   _activeSteps = tourSteps;
   _tourIndex = 0;
+  // チュートリアル再生時は、どこまでスクロールしていても一番上から始める
+  try { window.scrollTo({ top:0, left:0, behavior:'auto' }); } catch(e){ window.scrollTo(0,0); }
   // チュートリアル中は誤タップ防止のためプレゼントBOXを隠す
   const fab0 = document.getElementById('stampFab');
   if(fab0) fab0.style.display = 'none';
@@ -6714,6 +6809,7 @@ function startTour(){
 function endTour(completed){
   document.getElementById('tourOverlay').classList.remove('open');
   try { resetStampCardLift(); } catch(e){}
+  try { resetHamburgerLift(); } catch(e){}
   window.removeEventListener('resize', positionTour);
   window.removeEventListener('scroll', positionTour, true);
   const panel = document.querySelector('#settingsOverlay .settings-panel');
@@ -6804,6 +6900,10 @@ function showTourStep(){
   if(step.onShow !== openStampCardForTour){
     try { resetStampCardLift(); } catch(e){}
   }
+  // 言語説明ステップ以外に移ったら、持ち上げたハンバーガーメニューを元に戻す
+  if(step.onShow !== openHamburgerForTour){
+    try { resetHamburgerLift(); } catch(e){}
+  }
   if(typeof step.onShow === 'function'){ try { step.onShow(); } catch(e){} }
   // プレゼントBOXは、専用ステップになったときだけ表示（それ以外は隠す）
   const fabEl = document.getElementById('stampFab');
@@ -6885,12 +6985,23 @@ function positionTour(){
     const fitsBelow = (gapBelow - margin) >= popH;
     const fitsAbove = (gapAbove - margin) >= popH;
     if(fitsBelow){
-      t = hy + hh + margin;            // 下に出す（収まる）
+      t = hy + hh + margin;            // 下に出す（収まる・穴と被らない）
     } else if(fitsAbove){
-      t = hy - popH - margin;          // 上に出す（収まる）
+      t = hy - popH - margin;          // 上に出す（収まる・穴と被らない）
     } else {
-      // 上下どちらにも収まらない（穴が大きい/画面が狭い）→ 広い方に寄せて画面内にクランプ
-      t = (gapBelow >= gapAbove) ? (H - popH - 12) : 12;
+      // 上下どちらにも完全には収まらない場合：
+      // 空きが広い側へ寄せつつ、穴（ハイライト）と重ならない位置にクランプする。
+      if(gapBelow >= gapAbove){
+        // 下側へ。穴の下端より下に出し、画面下端からはみ出す分は内部スクロールで対応。
+        t = Math.min(hy + hh + margin, H - popH - 12);
+        // それでも穴に食い込むなら、穴の真下ギリギリに置く
+        if(t < hy + hh) t = hy + hh + 6;
+      } else {
+        // 上側へ。穴の上端より上に出す。
+        t = Math.max(12, hy - popH - margin);
+        // 下端が穴に食い込むなら、穴の真上ギリギリに引き上げる
+        if(t + popH > hy) t = Math.max(12, hy - popH - 6);
+      }
     }
     return clampTop(t);
   }
@@ -7327,6 +7438,12 @@ function openOverseasModal(){
 }
 function closeOverseasModal(){
   document.getElementById('overseasOverlay').classList.remove('open');
+}
+function openTranslateModal(){
+  document.getElementById('translateOverlay').classList.add('open');
+}
+function closeTranslateModal(){
+  document.getElementById('translateOverlay').classList.remove('open');
 }
 function renderOverseasList(){
   const wrap = document.getElementById('overseasList');
@@ -8387,6 +8504,50 @@ function pushSettingsToServer(){
     } catch(e){}
     _syncBusy = false;
   }, 1200); // 連続変更は1.2秒にまとめる
+}
+
+// 「設定を保存する」ボタン：現在の設定を、いますぐ手動でサーバーへ保存する。
+async function saveSettingsNow(){
+  const btn = document.getElementById('saveSettingsBtn');
+  const msg = document.getElementById('saveSettingsMsg');
+  const setMsg = (t, color)=>{ if(msg){ msg.textContent = t; msg.style.color = color || 'var(--muted)'; } };
+  if (typeof ARTICLES_URL === 'undefined' || !ARTICLES_URL || ARTICLES_URL.indexOf('http') !== 0){
+    setMsg('サーバーが未設定のため保存できません。', '#cc5555'); return;
+  }
+  const code = (typeof getStampCode === 'function') ? getStampCode() : '';
+  if (!/^DWA-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)){
+    setMsg('引き継ぎコードがありません。先にスタンプカードを開いてコードを発行してください。', '#cc7700');
+    return;
+  }
+  if (btn){ btn.disabled = true; btn.textContent = '保存中…'; }
+  setMsg('保存しています…');
+  try {
+    const ts = Date.now();
+    const payload = JSON.stringify(collectSyncSettings());
+    let url = ARTICLES_URL + '?type=settings&action=save'
+      + '&code=' + encodeURIComponent(code)
+      + '&ts=' + ts
+      + '&data=' + encodeURIComponent(payload);
+    try { const pw = localStorage.getItem('stamp_pw') || ''; if (pw) url += '&password=' + encodeURIComponent(pw); } catch(e){}
+    url += '&_=' + Date.now();
+    const res = await fetch(url, { method:'GET' });
+    const d = await res.json();
+    if (d && d.ok && d.saved){
+      setLocalSyncTs(d.updatedAt || ts);
+      setMsg('✅ 設定を保存しました。コードで復元すると同じ設定に戻せます。', 'var(--safe)');
+    } else if (d && d.needPassword){
+      setMsg('🔒 このコードにはパスワードが設定されています。スタンプカードでパスワードを入力してから保存してください。', '#cc7700');
+    } else if (d && d.ok && d.saved === false && d.reason === 'stale'){
+      // サーバーの方が新しかった
+      setMsg('サーバーに、より新しい設定がありました。最新の設定を反映しました。', 'var(--muted)');
+      if (d.settings){ try { applySyncSettings(d.settings); reapplyAllSettings(); } catch(e){} }
+    } else {
+      setMsg('保存できませんでした。時間をおいてお試しください。', '#cc5555');
+    }
+  } catch(e){
+    setMsg('通信エラーで保存できませんでした。時間をおいてお試しください。', '#cc5555');
+  }
+  if (btn){ btn.disabled = false; btn.textContent = '💾 サイト内の設定を保存する'; }
 }
 
 // 設定変更を検知してサーバー保存を呼ぶための共通フック。
