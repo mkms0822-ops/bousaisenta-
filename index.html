@@ -7868,6 +7868,29 @@ document.addEventListener('keydown', function(e){
 
 loadNotices();
 
+// ==================== ポップアップ等のリンクから特定モーダルを開く ====================
+// URL末尾のハッシュ（#open-stamp など）を見て、対応するモーダルを開く。
+// 例: https://bousai0111.info/#open-stamp → スタンプカードを開く
+function openModalFromHash(){
+  try {
+    var hash = String(location.hash || '').replace(/^#/, '').toLowerCase();
+    if(!hash) return;
+    // ハッシュ → 開く処理 の対応表（必要に応じて増やせます）
+    var map = {
+      'open-stamp':   function(){ if(typeof openStampCard==='function') openStampCard(); },
+      'open-shindan': function(){ if(typeof openShindanModal==='function') openShindanModal(); },
+      'open-post':    function(){ if(typeof openPostModal==='function') openPostModal(); }
+    };
+    if(map[hash]){
+      // 他の起動処理と競合しないよう少し待ってから開く
+      setTimeout(map[hash], 400);
+    }
+  } catch(e){}
+}
+openModalFromHash();
+// 同じページ内でハッシュだけ変わったとき（別タブで開かず遷移した場合）にも対応
+window.addEventListener('hashchange', openModalFromHash);
+
 
 // ==================== みんなのひとことチャット ====================
 // GAS+スプレッドシートをデータ置き場にした掲示板型チャット（即時表示）。
