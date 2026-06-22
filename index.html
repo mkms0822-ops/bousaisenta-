@@ -1375,15 +1375,6 @@ html.light #tsunamiBanner.warn-major .tsunami-link:hover { background:rgba(200,2
 .guide-h:first-of-type { margin-top:0; }
 .guide-text { font-size:12px; color:var(--muted); line-height:1.9; }
 .guide-text strong { color:var(--text); }
-/* 翻訳メニュー内の文字はすべて黒 */
-#translateOverlay .guide-panel,
-#translateOverlay .guide-text,
-#translateOverlay .guide-text strong,
-#translateOverlay .guide-text span,
-#translateOverlay .settings-title { color:#000 !important; }
-/* 黒文字が読めるよう背景を明るく */
-#translateOverlay .guide-panel { background:#fff !important; }
-#translateOverlay .guide-box { background:#f2f5f9 !important; border-color:rgba(0,0,0,0.12) !important; }
 .guide-list { font-size:12px; color:var(--muted); line-height:1.9; padding-left:18px; margin:6px 0; }
 .guide-list li { margin-bottom:6px; }
 .guide-list strong { color:var(--text); }
@@ -1568,15 +1559,6 @@ html.light .site-refresh-btn:hover { background:rgba(0,100,180,0.1); }
   background:var(--surface3); border-color:var(--border); color:var(--blue);
 }
 .h-link-icon { font-size:18px; width:24px; text-align:center; flex-shrink:0; }
-/* チュートリアルの言語ステップ：対象ボタン以外を薄暗くして「English / 言語」を目立たせる */
-.hamburger-overlay.tour-lang-focus .hamburger-link:not([data-tour="lang"]),
-.hamburger-overlay.tour-lang-focus .hamburger-section-label,
-.hamburger-overlay.tour-lang-focus .hamburger-header { opacity:0.32; transition:opacity 0.25s ease; }
-.hamburger-overlay.tour-lang-focus .hamburger-link[data-tour="lang"]{
-  position:relative; opacity:1;
-  background:rgba(0,180,255,0.10); border-color:var(--blue);
-  box-shadow:0 0 0 2px rgba(0,180,255,0.35);
-}
 /* ========================================================= */
 
 .quake-accordion {
@@ -1610,11 +1592,12 @@ html.light .site-refresh-btn:hover { background:rgba(0,100,180,0.1); }
 html.light .tour-mask { background:rgba(10,20,35,0.55); }
 #tourHole { position:fixed; border:2px solid var(--blue); border-radius:10px;
   box-shadow:0 0 0 9999px rgba(0,0,0,0); pointer-events:none; transition:all 0.3s ease;
-  z-index:99993; }
-#tourPop { position:fixed; z-index:99994; max-width:340px; width:calc(100vw - 32px);
+  z-index:99991; }
+#tourPop { display:none; position:fixed; z-index:99996; max-width:340px; width:calc(100vw - 32px);
   max-height:calc(100vh - 24px); overflow-y:auto; -webkit-overflow-scrolling:touch;
   background:var(--surface); border:1px solid var(--blue); border-radius:12px;
   padding:20px 20px 18px; box-shadow:0 8px 40px rgba(0,180,255,0.25); transition:all 0.3s ease; }
+body.tour-open #tourPop { display:block; }
 .tour-step-no { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:0.15em;
   color:var(--muted); margin-bottom:7px; }
 .tour-title { font-size:19px; font-weight:700; color:var(--blue); margin-bottom:10px; line-height:1.35; }
@@ -2292,17 +2275,21 @@ html.mode-chat.chat-split #modeChatScreen .mc-title{ font-size:13px; margin-bott
   <div class="tour-mask" id="tourMaskLeft"></div>
   <div class="tour-mask" id="tourMaskRight"></div>
   <div id="tourHole"></div>
-  <div id="tourPop">
-    <div class="tour-step-no" id="tourStepNo">STEP 1 / 7</div>
-    <div class="tour-title" id="tourTitle"></div>
-    <div class="tour-text" id="tourText"></div>
-    <div class="tour-btns">
-      <button class="tour-skip" id="tourSkip" onclick="endTour()">スキップ</button>
-      <div class="spacer"></div>
-      <div class="tour-dots" id="tourDots"></div>
-      <button class="tour-btn" id="tourPrev" onclick="tourPrev()">戻る</button>
-      <button class="tour-btn primary" id="tourNext" onclick="tourNext()">次へ</button>
-    </div>
+</div>
+<!-- tourPop は tourOverlay の外（body直下）に置く。
+     tourOverlay(マスク層) のスタッキングコンテキストに閉じ込められると、
+     言語ステップで前面に持ち上げたメニュー(.hamburger-overlay)の後ろに
+     回り込んでしまうため、独立したトップレベル要素として配置する。 -->
+<div id="tourPop">
+  <div class="tour-step-no" id="tourStepNo">STEP 1 / 7</div>
+  <div class="tour-title" id="tourTitle"></div>
+  <div class="tour-text" id="tourText"></div>
+  <div class="tour-btns">
+    <button class="tour-skip" id="tourSkip" onclick="endTour()">スキップ</button>
+    <div class="spacer"></div>
+    <div class="tour-dots" id="tourDots"></div>
+    <button class="tour-btn" id="tourPrev" onclick="tourPrev()">戻る</button>
+    <button class="tour-btn primary" id="tourNext" onclick="tourNext()">次へ</button>
   </div>
 </div>
 
@@ -3007,13 +2994,13 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
 <!-- 言語 / English 翻訳案内パネル -->
 <div class="guide-overlay" id="translateOverlay" onclick="if(event.target===this)closeTranslateModal()">
   <div class="guide-panel" translate="no">
-    <div class="settings-title" style="color:#000;">🌐 &nbsp;English / 言語</div>
+    <div class="settings-title" style="color:#00b4ff;">🌐 &nbsp;English / 言語</div>
 
     <!-- アプリ（ホーム画面から起動）時のみ表示：ブラウザの翻訳機能が使えないため案内を出し分け -->
     <div class="guide-box" id="translateAppNotice" style="display:none;margin-bottom:12px;border:1px solid rgba(255,180,0,0.5);background:rgba(255,180,0,0.08);">
       <div class="guide-text" style="margin-bottom:6px;"><strong>⚠ アプリとして起動中です。</strong>この状態ではブラウザの翻訳機能が使えません。下のボタンでブラウザ（Chrome / Safari）で開くと、翻訳できます。</div>
-      <div class="guide-text" style="color:#000;margin-bottom:10px;"><strong>⚠ You are using the app (home-screen) mode.</strong> Browser translation is not available here. Open this site in a browser (Chrome / Safari) using the button below to translate it.</div>
-      <button class="settings-close-btn" style="margin-top:0;background:rgba(0,180,255,0.18);border-color:rgba(0,180,255,0.5);color:#000;" onclick="openInBrowserForTranslate()">🌐 ブラウザで開く / Open in browser</button>
+      <div class="guide-text" style="color:#9fb;margin-bottom:10px;"><strong>⚠ You are using the app (home-screen) mode.</strong> Browser translation is not available here. Open this site in a browser (Chrome / Safari) using the button below to translate it.</div>
+      <button class="settings-close-btn" style="margin-top:0;background:rgba(0,180,255,0.18);border-color:rgba(0,180,255,0.5);color:#00b4ff;" onclick="openInBrowserForTranslate()">🌐 ブラウザで開く / Open in browser</button>
     </div>
 
     <div class="guide-box" style="margin-bottom:12px;">
@@ -3024,17 +3011,17 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     <div class="guide-box" style="margin-bottom:12px;">
       <div class="guide-text" style="margin-bottom:4px;"><strong>📱 スマートフォン / Smartphone</strong></div>
       <div class="guide-text" style="margin-bottom:6px;">Chrome（Android）: メニュー（⋮）→「翻訳」<br>Safari（iPhone）: アドレスバーの「ぁ」または「AA」→「英語に翻訳」<br>Chrome（iPhone）: メニュー（⋯）→「翻訳…」</div>
-      <div class="guide-text" style="color:#000;">Chrome (Android): Menu (⋮) → "Translate"<br>Safari (iPhone): "AA" in the address bar → "Translate to English"<br>Chrome (iPhone): Menu (⋯) → "Translate…"</div>
+      <div class="guide-text" style="color:#9fb;">Chrome (Android): Menu (⋮) → "Translate"<br>Safari (iPhone): "AA" in the address bar → "Translate to English"<br>Chrome (iPhone): Menu (⋯) → "Translate…"</div>
     </div>
 
     <div class="guide-box" style="margin-bottom:12px;">
       <div class="guide-text" style="margin-bottom:4px;"><strong>💻 パソコン / PC</strong></div>
       <div class="guide-text" style="margin-bottom:6px;">Chrome / Edge: ページ上で右クリック →「英語に翻訳」、またはアドレスバー右の翻訳アイコンをクリック</div>
-      <div class="guide-text" style="color:#000;">Chrome / Edge: Right-click on the page → "Translate to English", or click the translate icon on the right of the address bar.</div>
+      <div class="guide-text" style="color:#9fb;">Chrome / Edge: Right-click on the page → "Translate to English", or click the translate icon on the right of the address bar.</div>
     </div>
 
     <div class="guide-box" style="margin-bottom:12px;">
-      <div class="guide-text" style="font-size:0.92em;color:#000;">⚠ 自動翻訳の精度には限界があります。緊急時の正確な情報は、気象庁など公式の発表をご確認ください。<br><span style="color:#000;">⚠ Machine translation may be inaccurate. For accurate emergency information, please check official sources such as the Japan Meteorological Agency (JMA).</span></div>
+      <div class="guide-text" style="font-size:0.92em;color:#bbb;">⚠ 自動翻訳の精度には限界があります。緊急時の正確な情報は、気象庁など公式の発表をご確認ください。<br><span style="color:#9fb;">⚠ Machine translation may be inaccurate. For accurate emergency information, please check official sources such as the Japan Meteorological Agency (JMA).</span></div>
     </div>
 
     <button class="settings-close-btn" onclick="closeTranslateModal()">✕ 閉じる / Close</button>
@@ -4842,6 +4829,7 @@ function updatePromptShowLocation(){
   }];
   _tourIndex = 0;
   document.getElementById('tourOverlay').classList.add('open');
+  document.body.classList.add('tour-open');
   const dots = document.getElementById('tourDots');
   if(dots) dots.innerHTML = '';
   showTourStep();
@@ -6693,8 +6681,7 @@ function openHamburgerForTour(){
     const ov = document.querySelector('.hamburger-overlay');
     if(ov){
       ov.dataset.tourLifted = '1';
-      ov.style.zIndex = '99991';  // tourMask(99990) より前・tourHole(99993)/tourPop(99994) より後ろ
-      ov.classList.add('tour-lang-focus'); // 対象ボタン以外を薄暗くして言語ボタンを強調
+      ov.style.zIndex = '99991';  // tourMask(99990) より前・tourPop(99996) より後ろ
     }
     setTimeout(function(){
       try {
@@ -6710,7 +6697,6 @@ function resetHamburgerLift(){
   const ov = document.querySelector('.hamburger-overlay');
   if(ov && ov.dataset.tourLifted === '1'){
     ov.style.zIndex = '';
-    ov.classList.remove('tour-lang-focus');
     delete ov.dataset.tourLifted;
     if(typeof closeHamburger === 'function') closeHamburger();
   }
@@ -6723,7 +6709,7 @@ function openStampCardForTour(){
     const ov = document.getElementById('stampOverlay');
     if(ov){
       ov.dataset.tourLifted = '1';
-      ov.style.zIndex = '99991';        // tourMask(99990) より前・tourHole(99993)/tourPop(99994) より後ろ
+      ov.style.zIndex = '99991';        // tourMask(99990) より前・tourPop(99996) より後ろ
     }
     // カードが開いてパスワード欄が描画されてから枠を合わせ直す
     setTimeout(function(){
@@ -6782,6 +6768,7 @@ function startSettingsTour(){
   if(fab0) fab0.style.display = 'none';
   // 設定オーバーレイより前面に出す
   document.getElementById('tourOverlay').classList.add('open');
+  document.body.classList.add('tour-open');
   const dots = document.getElementById('tourDots');
   dots.innerHTML = _activeSteps.map((_,i)=>`<div class="tour-dot" data-di="${i}"></div>`).join('');
   // パネルのスクロールでも枠が追従するよう監視
@@ -6825,6 +6812,7 @@ function startTour(){
   const fab0 = document.getElementById('stampFab');
   if(fab0) fab0.style.display = 'none';
   document.getElementById('tourOverlay').classList.add('open');
+  document.body.classList.add('tour-open');
   // ドット生成
   const dots = document.getElementById('tourDots');
   dots.innerHTML = _activeSteps.map((_,i)=>`<div class="tour-dot" data-di="${i}"></div>`).join('');
@@ -6835,6 +6823,7 @@ function startTour(){
 
 function endTour(completed){
   document.getElementById('tourOverlay').classList.remove('open');
+  document.body.classList.remove('tour-open');
   try { resetStampCardLift(); } catch(e){}
   try { resetHamburgerLift(); } catch(e){}
   window.removeEventListener('resize', positionTour);
@@ -6861,8 +6850,6 @@ function endTour(completed){
 
   // --- メインチュートリアルの終了処理 ---
   try { localStorage.setItem(TOUR_KEY, 'true'); } catch(e){}
-  // チュートリアル終了時：ページ最上部へ戻す
-  try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch(e){ window.scrollTo(0, 0); }
   // チュートリアル終了時：気象情報タブは収納状態に戻す
   if(typeof collapseDtabs === 'function') collapseDtabs();
   // チュートリアル完了 → ここで初めてプレゼントBOXを出現させる
