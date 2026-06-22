@@ -6176,6 +6176,14 @@ function applyThemeClasses(t){
     html.classList.add('light', t);
   }
   // 'dark' は何も付けない（:root のまま）
+  // モバイルのステータスバー色（theme-color）も、テーマに合わせて更新
+  try {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if(meta){
+      // ダークは濃紺、ライト/パステルは明るい背景色に合わせる
+      meta.setAttribute('content', (t === 'dark' || !t) ? '#04080f' : '#f0f4f8');
+    }
+  } catch(e){}
 }
 function setTheme(t){
   applyThemeClasses(t);
@@ -6184,7 +6192,12 @@ function setTheme(t){
 }
 (function(){
   const saved = localStorage.getItem('theme');
-  if(saved) applyThemeClasses(saved);
+  // 初回（未保存）はライトテーマを既定にする。以降はユーザーが選んだテーマを尊重。
+  if(saved){
+    applyThemeClasses(saved);
+  } else {
+    applyThemeClasses('light');
+  }
 })();
 
 // ===================== INIT =====================
@@ -6383,7 +6396,7 @@ async function clearCache(){
 
 function updateSettingsUI(){
   // テーマ
-  const curTheme = localStorage.getItem('theme') || 'dark';
+  const curTheme = localStorage.getItem('theme') || 'light';
   const themeBtnMap = {
     'dark':'themeDarkBtn', 'light':'themeLightBtn',
     'pastel-pink':'themePinkBtn', 'pastel-sky':'themeSkyBtn',
@@ -6559,6 +6572,7 @@ const tourSteps = [
   { sel:'[data-tour="chat"]', title:'💬 みんなのひとことチャット', text:'防災情報の共有や、ひとことメッセージを書き込めるチャットです。閲覧は誰でもできます。書き込みには「引き継ぎコード」での参加（ログイン）が必要です。地域の気づきや声かけにご活用ください。', fallbackToTop:true },
   { sel:'[data-tour="share"]', title:'📤 友達紹介リンク', text:'あなた専用の紹介リンクで、このサイトを友達に教えられます。紹介リンクから友達がアクセスすると、あなたと友達の両方にスタンプを1つずつプレゼント。LINEやXでかんたんに共有できます。', fallbackToTop:true },
   { sel:'#stampFab', title:'🎁 防災スタンプカード', text:'毎日サイトを開くと、画面右下のこのボタンから1日1個スタンプを押せます。10個・20個貯まると防災グッズのプレゼントに応募できます。さっそく押してみましょう！', showStamp:true, fallbackToCorner:true, onShow:closeDtabsForTour },
+  { sel:'#pwInput', title:'🔒 復元用パスワード（任意）', text:'スタンプカードの中には「復元用パスワード」を設定できる欄があります。パスワードを決めておくと、機種変更などで別の端末にデータを引き継ぐとき、引き継ぎコードに加えてこのパスワードが必要になります。他人にコードを知られても大切なスタンプ記録を守れます。設定は任意です。忘れた場合は運営でリセットできます。', onShow:openStampCardForTour, fallbackToCorner:true },
 ];
 let _tourIndex = 0;
 // チュートリアル中だけ気象情報タブ（収納式）を開く／閉じる
@@ -6580,6 +6594,34 @@ function scrollToColumnForTour(){
   const target = document.querySelector('[data-tour="bookmark"]') || document.getElementById('section-column');
   if(target){
     try { target.scrollIntoView({ behavior:'smooth', block:'center' }); } catch(e){}
+  }
+}
+// パスワード説明ステップ：スタンプカードを開いてパスワード欄を見せる
+function openStampCardForTour(){
+  try {
+    if(typeof openStampCard === 'function') openStampCard();
+    // スタンプカードをツアーのマスクより前面に持ち上げる（通常z-index 9600 < tour 99990）
+    const ov = document.getElementById('stampOverlay');
+    if(ov){
+      ov.dataset.tourLifted = '1';
+      ov.style.zIndex = '99991';        // tourMask(99990) より前・tourPop(99992) より後ろ
+    }
+    // カードが開いてパスワード欄が描画されてから枠を合わせ直す
+    setTimeout(function(){
+      try {
+        const el = document.getElementById('pwInput');
+        if(el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+      } catch(e){}
+      if(typeof positionTour === 'function') positionTour();
+    }, 350);
+  } catch(e){}
+}
+// 持ち上げたスタンプカードのz-indexを元に戻す（パスワードステップを離れるとき）
+function resetStampCardLift(){
+  const ov = document.getElementById('stampOverlay');
+  if(ov && ov.dataset.tourLifted === '1'){
+    ov.style.zIndex = '';
+    delete ov.dataset.tourLifted;
   }
 }
 
@@ -6671,6 +6713,7 @@ function startTour(){
 
 function endTour(completed){
   document.getElementById('tourOverlay').classList.remove('open');
+  try { resetStampCardLift(); } catch(e){}
   window.removeEventListener('resize', positionTour);
   window.removeEventListener('scroll', positionTour, true);
   const panel = document.querySelector('#settingsOverlay .settings-panel');
@@ -6757,6 +6800,10 @@ function _tourTargetEl(step){
 
 function showTourStep(){
   const step = _activeSteps[_tourIndex];
+  // パスワード説明ステップ以外に移ったら、持ち上げたスタンプカードを元に戻す
+  if(step.onShow !== openStampCardForTour){
+    try { resetStampCardLift(); } catch(e){}
+  }
   if(typeof step.onShow === 'function'){ try { step.onShow(); } catch(e){} }
   // プレゼントBOXは、専用ステップになったときだけ表示（それ以外は隠す）
   const fabEl = document.getElementById('stampFab');
