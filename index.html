@@ -1413,8 +1413,8 @@ html.light #tsunamiBanner.warn-major .tsunami-link:hover { background:rgba(200,2
   html.scale-lg #topbar { zoom: 1.25; }
   /* メニュー・設定画面・チュートリアルは、表示サイズ設定に関わらず常に「標準」(1.0倍)で固定 */
   /* #tourPop は #tourOverlay の外（body直下）に配置しているため、個別に同じ補正を適用する */
-  html.scale-sm .hamburger-btn, html.scale-sm .hamburger-overlay, html.scale-sm .settings-overlay, html.scale-sm #tourOverlay, html.scale-sm #tourPop { zoom: calc(1 / 0.75); }
-  html.scale-lg .hamburger-btn, html.scale-lg .hamburger-overlay, html.scale-lg .settings-overlay, html.scale-lg #tourOverlay, html.scale-lg #tourPop { zoom: calc(1 / 1.25); }
+  html.scale-sm .hamburger-btn, html.scale-sm .hamburger-overlay, html.scale-sm .settings-overlay, html.scale-sm #tourOverlay, html.scale-sm #tourPop, html.scale-sm #tourHole { zoom: calc(1 / 0.75); }
+  html.scale-lg .hamburger-btn, html.scale-lg .hamburger-overlay, html.scale-lg .settings-overlay, html.scale-lg #tourOverlay, html.scale-lg #tourPop, html.scale-lg #tourHole { zoom: calc(1 / 1.25); }
 }
 
 /* ===================== WEATHER WIDGET ===================== */
@@ -1591,9 +1591,10 @@ html.light .site-refresh-btn:hover { background:rgba(0,100,180,0.1); }
 /* 4枚のオーバーレイで対象部分だけくり抜く */
 .tour-mask { position:fixed; background:rgba(4,8,15,0.72); transition:all 0.3s ease; }
 html.light .tour-mask { background:rgba(10,20,35,0.55); }
-#tourHole { position:fixed; border:2px solid var(--blue); border-radius:10px;
+#tourHole { display:none; position:fixed; border:2px solid var(--blue); border-radius:10px;
   box-shadow:0 0 0 9999px rgba(0,0,0,0); pointer-events:none; transition:all 0.3s ease;
-  z-index:99991; }
+  z-index:99992; }
+body.tour-open #tourHole { display:block; }
 #tourPop { display:none; position:fixed; z-index:99996; max-width:340px; width:calc(100vw - 32px);
   max-height:calc(100vh - 24px); overflow-y:auto; -webkit-overflow-scrolling:touch;
   background:var(--surface); border:1px solid var(--blue); border-radius:12px;
@@ -2296,8 +2297,12 @@ html.mode-chat.chat-split #modeChatScreen .mc-title{ font-size:13px; margin-bott
   <div class="tour-mask" id="tourMaskBottom"></div>
   <div class="tour-mask" id="tourMaskLeft"></div>
   <div class="tour-mask" id="tourMaskRight"></div>
-  <div id="tourHole"></div>
 </div>
+<!-- tourHole（ハイライト枠）も tourOverlay の外に置く。
+     設定チュートリアルやメニューのステップでは対象パネルをマスクより前面に
+     持ち上げるため、枠が tourOverlay の重なり順に閉じ込められていると
+     パネルの後ろに隠れてしまう。独立配置にして常に前面へ出す。 -->
+<div id="tourHole"></div>
 <!-- tourPop は tourOverlay の外（body直下）に置く。
      tourOverlay(マスク層) のスタッキングコンテキストに閉じ込められると、
      言語ステップで前面に持ち上げたメニュー(.hamburger-overlay)の後ろに
@@ -6820,6 +6825,9 @@ function startSettingsTour(){
   // 設定オーバーレイより前面に出す
   document.getElementById('tourOverlay').classList.add('open');
   document.body.classList.add('tour-open');
+  // 設定パネルをツアーのマスク(99990)より前面へ持ち上げる。
+  // こうしないとパネル全体がマスクの暗幕の下に沈み、ハイライト対象も暗く見えてしまう。
+  liftSettingsForTour();
   const dots = document.getElementById('tourDots');
   dots.innerHTML = _activeSteps.map((_,i)=>`<div class="tour-dot" data-di="${i}"></div>`).join('');
   // パネルのスクロールでも枠が追従するよう監視
@@ -6828,6 +6836,27 @@ function startSettingsTour(){
   showTourStep();
   window.addEventListener('resize', positionTour);
   window.addEventListener('scroll', positionTour, true);
+}
+// 設定内チュートリアル中：設定オーバーレイをマスクより前面に持ち上げる
+function liftSettingsForTour(){
+  const ov = document.getElementById('settingsOverlay');
+  if(ov){
+    ov.dataset.tourLifted = '1';
+    ov.style.zIndex = '99991';   // tourMask(99990) より前・tourPop(99996) より後ろ
+    // 暗幕がパネルにかぶらないよう、オーバーレイ自身の半透明背景を一時的に消す
+    ov.dataset.prevBg = ov.style.background || '';
+    ov.style.background = 'transparent';
+  }
+}
+// 持ち上げた設定オーバーレイを元に戻す
+function resetSettingsLift(){
+  const ov = document.getElementById('settingsOverlay');
+  if(ov && ov.dataset.tourLifted === '1'){
+    ov.style.zIndex = '';
+    ov.style.background = ov.dataset.prevBg || '';
+    delete ov.dataset.prevBg;
+    delete ov.dataset.tourLifted;
+  }
 }
 
 function maybeStartTourOnFirstVisit(){
@@ -6877,6 +6906,7 @@ function endTour(completed){
   document.body.classList.remove('tour-open');
   try { resetStampCardLift(); } catch(e){}
   try { resetHamburgerLift(); } catch(e){}
+  try { resetSettingsLift(); } catch(e){}
   window.removeEventListener('resize', positionTour);
   window.removeEventListener('scroll', positionTour, true);
   const panel = document.querySelector('#settingsOverlay .settings-panel');
