@@ -7960,21 +7960,44 @@ async function chatLogin(){
   if(!ARTICLES_URL || ARTICLES_URL.indexOf('http') !== 0){ alert('サーバー未設定のため参加できません。'); return; }
   btn.disabled = true; btn.textContent = '確認中…';
   try {
-    const url = ARTICLES_URL + '?type=chat_login&code=' + encodeURIComponent(code)
-              + '&name=' + encodeURIComponent(name) + '&_=' + Date.now();
-    const res = await fetch(url, { method:'GET' });
-    const d = await res.json();
+    let password = '';
+    try { if (_myStampCode() === code) password = localStorage.getItem('stamp_pw') || ''; } catch(e){}
+    let d = await _fetchChatLogin(code, name, password);
+    // パスワードが必要なら入力を求めて再試行（最大3回）
+    let tries = 0;
+    while (d && d.ok && d.found && d.needPassword && tries < 3) {
+      password = prompt('このコードにはパスワードが設定されています。\nチャットに参加するにはパスワードを入力してください。');
+      if (password === null) { btn.disabled = false; btn.textContent = '参加する'; return; }
+      d = await _fetchChatLogin(code, name, password);
+      tries++;
+      if (d && d.needPassword && tries >= 3) {
+        alert('パスワードが一致しませんでした。\nお困りの場合はお問い合わせください。');
+        btn.disabled = false; btn.textContent = '参加する'; return;
+      }
+    }
     if(!d || !d.ok || !d.found){
       alert('このコードはスタンプ台帳に見つかりませんでした。\nスタンプを1つでも獲得するとコードが有効になります。');
       btn.disabled = false; btn.textContent = '参加する';
       return;
     }
+    // 入力したパスワードを保存（このコードが自分のものなら）
+    try { if (password) localStorage.setItem('stamp_pw', password); } catch(e){}
     setChatLogin({ code: code, name: d.name || name || '匿名' });
     refreshChatLoginUI();
   } catch(e){
     alert('通信エラーで参加できませんでした。時間をおいてお試しください。');
   }
   btn.disabled = false; btn.textContent = '参加する';
+}
+
+// チャットログイン用フェッチ（パスワード付き）
+async function _fetchChatLogin(code, name, password){
+  let url = ARTICLES_URL + '?type=chat_login&code=' + encodeURIComponent(code)
+          + '&name=' + encodeURIComponent(name);
+  if (password) url += '&password=' + encodeURIComponent(password);
+  url += '&_=' + Date.now();
+  const res = await fetch(url, { method:'GET' });
+  return await res.json();
 }
 
 function chatLogout(){
@@ -8253,7 +8276,10 @@ async function pullSettingsFromServer(){
   const code = getStampCode();
   if (!/^DWA-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)) return;
   try {
-    const res = await fetch(ARTICLES_URL + '?type=settings&action=get&code=' + encodeURIComponent(code) + '&_=' + Date.now(), { method:'GET' });
+    let purl = ARTICLES_URL + '?type=settings&action=get&code=' + encodeURIComponent(code);
+    try { const pw = localStorage.getItem('stamp_pw') || ''; if (pw) purl += '&password=' + encodeURIComponent(pw); } catch(e){}
+    purl += '&_=' + Date.now();
+    const res = await fetch(purl, { method:'GET' });
     const data = await res.json();
     if (!data || !data.ok || !data.found) return;
     const serverTs = Number(data.updatedAt) || 0;
@@ -8280,11 +8306,12 @@ function pushSettingsToServer(){
     const ts = Date.now();
     const payload = JSON.stringify(collectSyncSettings());
     try {
-      const url = ARTICLES_URL + '?type=settings&action=save'
+      let url = ARTICLES_URL + '?type=settings&action=save'
         + '&code=' + encodeURIComponent(code)
         + '&ts=' + ts
-        + '&data=' + encodeURIComponent(payload)
-        + '&_=' + Date.now();
+        + '&data=' + encodeURIComponent(payload);
+      try { const pw = localStorage.getItem('stamp_pw') || ''; if (pw) url += '&password=' + encodeURIComponent(pw); } catch(e){}
+      url += '&_=' + Date.now();
       const res = await fetch(url, { method:'GET' });
       const d = await res.json();
       if (d && d.ok) {
@@ -8712,14 +8739,98 @@ async function restoreStampCode(){
   const code = (input.value || '').trim().toUpperCase();
   if (!/^DWA-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)) { alert('コードの形式が違います（例：DWA-AB12-CD34）'); return; }
   try {
-    const res = await fetch(ARTICLES_URL + '?type=stamp&action=get&code=' + encodeURIComponent(code));
-    const d = await res.json();
+    // まずパスワード無しで復元を試みる（restore=1 で復元であることをサーバーに伝える）
+    let password = '';
+    let d = await _fetchStampRestore(code, password);
+    // サーバーが「パスワードが必要」と返したら、入力を求めて再試行（最大3回）
+    let tries = 0;
+    while (d && d.needPassword && tries < 3) {
+      password = prompt('このコードにはパスワードが設定されています。\nパスワードを入力してください。');
+      if (password === null) { return; } // キャンセル
+      d = await _fetchStampRestore(code, password);
+      tries++;
+      if (d && d.needPassword && tries >= 3) { alert('パスワードが一致しませんでした。\nお困りの場合はお問い合わせください。'); return; }
+    }
     if (!d || !d.ok || !d.found) { alert('このコードの記録が見つかりませんでした。'); return; }
     try { localStorage.setItem('stamp_code', code); } catch(e){}
+    // 入力したパスワードを端末に保存（以後の設定同期などに利用）
+    try { if (password) localStorage.setItem('stamp_pw', password); else localStorage.removeItem('stamp_pw'); } catch(e){}
     applyServerStamp(Object.assign({}, d, { added:false, authoritative:true }));
     showRestoreDoneModal(d.count || 0);
   } catch(e) {
     alert('通信エラーで復元できませんでした。時間をおいてお試しください。');
+  }
+}
+
+// 復元用フェッチ（restore=1 とパスワードを付ける）
+async function _fetchStampRestore(code, password){
+  let url = ARTICLES_URL + '?type=stamp&action=get&restore=1&code=' + encodeURIComponent(code);
+  if (password) url += '&password=' + encodeURIComponent(password);
+  url += '&_=' + Date.now();
+  const res = await fetch(url);
+  return await res.json();
+}
+
+// 自分の引き継ぎコードを取得（スタンプカードに表示されているもの）
+function _myStampCode(){
+  try { return (localStorage.getItem('stamp_code') || '').trim().toUpperCase(); } catch(e){ return ''; }
+}
+
+// パスワードの設定状態を表示する
+async function refreshPwStatus(){
+  const line = document.getElementById('pwStatusLine');
+  const oldRow = document.getElementById('pwOldRow');
+  const code = _myStampCode();
+  if (!line) return;
+  if (!code || !/^DWA-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)) {
+    line.textContent = ''; if(oldRow) oldRow.style.display='none'; return;
+  }
+  if (typeof ARTICLES_URL === 'undefined' || !ARTICLES_URL || ARTICLES_URL.indexOf('http') !== 0) return;
+  try {
+    const res = await fetch(ARTICLES_URL + '?type=auth&action=status&code=' + encodeURIComponent(code) + '&_=' + Date.now());
+    const d = await res.json();
+    if (d && d.ok && d.set) {
+      line.innerHTML = '🔒 パスワードは<b>設定済み</b>です。変更する場合は、現在のパスワードと新しいパスワードを入力してください。';
+      if(oldRow) oldRow.style.display = '';
+    } else {
+      line.innerHTML = '🔓 パスワードは<b>未設定</b>です（コードだけで復元できます）。';
+      if(oldRow) oldRow.style.display = 'none';
+    }
+  } catch(e){ /* 通信失敗時は何も表示しない */ }
+}
+
+// パスワードを設定／変更する
+async function setStampPassword(){
+  const code = _myStampCode();
+  if (!code || !/^DWA-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)) {
+    alert('先にスタンプカードを開いて、引き継ぎコードを発行してください。'); return;
+  }
+  const pwEl = document.getElementById('pwInput');
+  const oldEl = document.getElementById('pwOldInput');
+  const pw = (pwEl.value || '');
+  if (pw.length < 4) { alert('パスワードは4文字以上にしてください。'); return; }
+  if (pw.length > 64) { alert('パスワードが長すぎます（64文字まで）。'); return; }
+  let url = ARTICLES_URL + '?type=auth&action=set&code=' + encodeURIComponent(code)
+          + '&password=' + encodeURIComponent(pw);
+  if (oldEl && oldEl.value) url += '&oldpw=' + encodeURIComponent(oldEl.value);
+  url += '&_=' + Date.now();
+  try {
+    const res = await fetch(url);
+    const d = await res.json();
+    if (d && d.ok && d.set) {
+      try { localStorage.setItem('stamp_pw', pw); } catch(e){}
+      pwEl.value = ''; if(oldEl) oldEl.value='';
+      alert('パスワードを設定しました。\n別の端末で復元するときに必要になります。忘れないようにしてください。');
+      refreshPwStatus();
+    } else if (d && d.error === 'old mismatch') {
+      alert('現在のパスワードが違います。変更するには、今のパスワードを正しく入力してください。');
+    } else if (d && d.error === 'too short') {
+      alert('パスワードは4文字以上にしてください。');
+    } else {
+      alert('設定できませんでした。時間をおいてお試しください。');
+    }
+  } catch(e){
+    alert('通信エラーで設定できませんでした。時間をおいてお試しください。');
   }
 }
 
@@ -8760,6 +8871,8 @@ function openStampCard(){
   } else {
     renderStampCard();
   }
+  // パスワードの設定状態を表示
+  try { refreshPwStatus(); } catch(e){}
 }
 function closeStampCard(){
   document.getElementById('stampOverlay').classList.remove('open');
@@ -9276,6 +9389,19 @@ function sendSiteInquiry(){
       <div class="sd-row">
         <input id="restoreCodeInput" placeholder="DWA-XXXX-XXXX" maxlength="13" style="flex:1;min-width:120px;border:2px solid #e3d3f0;border-radius:8px;padding:8px 10px;font-size:13px;background:#fdfbff;color:#5a5560;">
         <button class="sd-pat" onclick="restoreStampCode()">復元する</button>
+      </div>
+      <div class="sd-label" style="margin-top:12px;">🔒 復元用パスワード（任意）</div>
+      <div style="font-size:11px;color:#8a7f90;line-height:1.6;margin-bottom:6px;">
+        パスワードを設定すると、別の端末で復元するときに、引き継ぎコードに加えてこのパスワードが必要になります。<br>
+        他人にコードを知られても、データを守れます。<span style="color:#c06080;">忘れた場合はお問い合わせください（運営でリセットできます）。</span>
+      </div>
+      <div id="pwStatusLine" style="font-size:12px;color:#a06080;margin-bottom:6px;"></div>
+      <div class="sd-row">
+        <input id="pwInput" type="password" placeholder="新しいパスワード（4文字以上）" maxlength="64" style="flex:1;min-width:120px;border:2px solid #d3e0f0;border-radius:8px;padding:8px 10px;font-size:13px;background:#fbfdff;color:#5a5560;">
+        <button class="sd-pat" onclick="setStampPassword()">設定する</button>
+      </div>
+      <div class="sd-row" id="pwOldRow" style="display:none;margin-top:6px;">
+        <input id="pwOldInput" type="password" placeholder="現在のパスワード（変更時のみ）" maxlength="64" style="flex:1;min-width:120px;border:2px solid #d3e0f0;border-radius:8px;padding:8px 10px;font-size:13px;background:#fbfdff;color:#5a5560;">
       </div>
       <div class="sd-label" style="margin-top:12px;">💝 お詫び・プレゼントコード</div>
       <div class="sd-row">
