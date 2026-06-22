@@ -10446,8 +10446,12 @@ document.addEventListener('keydown', function(e){
   var SELECTORS = [
     '.modal-overlay','.notice-overlay','.settings-overlay','.guide-overlay',
     '.hamburger-overlay','.stamp-overlay','.img-lightbox',
-    '#shindanModal','#sponsorModal','#tourOverlay','#tourDoneOverlay',
+    '#shindanModal','#sponsorModal','#tourDoneOverlay',
     '#updatePromptOverlay','#splitPane'
+    // 注: #tourOverlay（チュートリアル）は対象に含めない。
+    // チュートリアルは各ステップで window.scrollTo / scrollIntoView を使って
+    // 対象要素まで自前でスクロールするため、body をロックすると
+    // 地震リスト以降など画面外の対象へ移動できず、ハイライトが画面外に出る。
   ];
   var sel = SELECTORS.join(',');
   var lockY = 0;
@@ -10513,6 +10517,41 @@ document.addEventListener('keydown', function(e){
   } else {
     start();
   }
+})();
+</script>
+<!-- ===== TUTORIAL: ユーザー操作スクロールのみ抑止（プログラムスクロールは許可） ===== -->
+<script>
+(function(){
+  // チュートリアル（body.tour-open）中は、ユーザーのホイール／タッチ／キーによる
+  // スクロールだけを抑止する。window.scrollTo などプログラムからのスクロールは
+  // 妨げないので、各ステップが対象要素まで自前でスクロールできる。
+  function tourActive(){ return document.body.classList.contains('tour-open'); }
+  // ポップアップ内部はスクロールさせたいので、許可対象を判定
+  function insideAllowed(target){
+    return !!(target && target.closest && target.closest('#tourPop'));
+  }
+  function blockWheel(e){
+    if(!tourActive()) return;
+    if(insideAllowed(e.target)) return; // 説明ポップアップ内のスクロールは許可
+    e.preventDefault();
+  }
+  function blockTouch(e){
+    if(!tourActive()) return;
+    if(insideAllowed(e.target)) return;
+    e.preventDefault();
+  }
+  var BLOCK_KEYS = { 'ArrowUp':1,'ArrowDown':1,'PageUp':1,'PageDown':1,'Home':1,'End':1,' ':1,'Spacebar':1 };
+  function blockKey(e){
+    if(!tourActive()) return;
+    var t = e.target;
+    var tag = t && t.tagName ? t.tagName.toLowerCase() : '';
+    if(tag === 'input' || tag === 'textarea' || (t && t.isContentEditable)) return;
+    if(BLOCK_KEYS[e.key]) e.preventDefault();
+  }
+  // passive:false で preventDefault を有効化
+  window.addEventListener('wheel', blockWheel, { passive:false });
+  window.addEventListener('touchmove', blockTouch, { passive:false });
+  window.addEventListener('keydown', blockKey, false);
 })();
 </script>
 </body>
