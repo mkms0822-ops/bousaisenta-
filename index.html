@@ -1602,6 +1602,9 @@ body.tour-open #tourPop { display:block; }
   color:var(--muted); margin-bottom:7px; }
 .tour-title { font-size:19px; font-weight:700; color:var(--blue); margin-bottom:10px; line-height:1.35; }
 .tour-text { font-size:15.5px; line-height:1.75; color:var(--text); margin-bottom:16px; }
+.tour-text-jp { color:var(--text); }
+.tour-text-en { margin-top:10px; padding-top:10px; border-top:1px dashed var(--border);
+  font-size:13.5px; line-height:1.7; color:var(--muted); }
 .tour-btns { display:flex; align-items:center; gap:8px; flex-wrap:wrap;
   position:sticky; bottom:-18px; margin:0 -20px -18px; padding:12px 20px 18px;
   background:var(--surface); border-top:1px solid var(--border); }
@@ -6622,23 +6625,23 @@ const OPEN_SOUND_SRC = "dwa-open-sound-v2.mp3";
 // ===================== TUTORIAL TOUR =====================
 const TOUR_KEY = 'tutorial_seen';
 const tourSteps = [
-  { sel:'.hp-header', title:'防災情報センターへようこそ', text:'地震速報をリアルタイムで表示する防災情報サイトです。ヘッダー右のこの機器パネルに、LIVE表示・現在時刻・更新ボタン・メニューがまとまっています。主な使い方を簡単にご案内します。' },
-  { sel:'[data-tour="emg-plate"]', title:'🚨 緊急対応マニュアル', text:'ヘッダーの「緊急対応マニュアル」ボタンです。地震・火災・救急・台風・防犯など、いざという時の対応手順をタップで確認できます。迷ったらここを開き、状況を選ぶだけでやるべきことが表示されます。', fallbackToTop:true },
-  { sel:'[data-tour="diag-plate"]', title:'🗾 被害想定診断ツール', text:'「被害想定診断ツール」ボタンです。都道府県を選ぶだけで、活断層マップ・地震の発生確率・想定される死者数や経済損失などを即座に確認できます。お住まいの地域のリスクをチェックしてみましょう。', fallbackToTop:true },
-  { sel:'[data-tour="live"]', title:'🟢 LIVE・現在時刻', text:'ヘッダー右の機器パネルです。赤いランプが点滅していれば「LIVE（リアルタイム配信中）」を表し、その下の窓に現在時刻が表示されます。地震データは自動で更新され続けます。' },
-  { sel:'#siteRefreshBtn', title:'🔄 最新情報に更新', text:'パネル内の丸い矢印ボタンです。自動更新を待たずに、いますぐ最新の地震・気象情報を取り込みたいときにタップします。表示が古いと感じたらここを押してください。', fallbackToTop:true },
-  { sel:'[data-tour="menu"]', title:'☰ メニュー（設定）', text:'パネル右側の三本線アイコンがメニューボタンです。タップで開くメニューの中に、設定・お問い合わせ・プライバシーポリシーがあります。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。' },
-  { sel:'[data-tour="menu"]', title:'☰ メニュー（リンク集）', text:'同じ三本線メニューの中には、防災クイズや気象庁の各種情報ページへのリンクもまとめてあります。', fallbackToTop:true },
-  { sel:'[data-tour="lang"]', title:'🌐 English / 多言語表示', text:'メニューの中の「English / 言語」ボタンです。お使いのブラウザの翻訳機能を使うと、このサイトを英語など多言語で読めます。ボタンを押すと、スマホ・パソコン別の翻訳手順を日本語と英語で案内します。海外の方や、英語で読みたい方はこちらをご利用ください。', onShow:openHamburgerForTour, fallbackToTop:true },
-  { sel:'[data-tour="tabs"]', title:'気象情報タブ（収納式）', text:'台風・雨雲レーダー・警報注意報など、気象・災害情報へのリンク集です。ふだんは「災害情報タブ」ボタンに収納されていて、タップすると開きます（いまチュートリアル用に開いています）。目的の情報にすぐアクセスできます。', onShow:openDtabsForTour },
-  { sel:'[data-tour="stats"]', title:'本日の地震サマリー', text:'本日の有感地震の回数、最大マグニチュード・最大震度をひと目で確認できます。', onShow:closeDtabsForTour },
-  { sel:'.quake-list', title:'地震リスト', text:'最近発生した地震の一覧です。カードをタップすると詳細が表示されます。', fallbackToTop:true },
-  { sel:'[data-tour="bookmark"]', selAlt:'#section-column', title:'🔖 ブックマーク', text:'防災記事カードの右上にあるこのマークをタップすると、その記事をブックマーク（お気に入り保存）できます。あとで読み返したい「備え」や「ヒント」を保存しておくと、必要なときにすぐ見返せます。', onShow:scrollToColumnForTour, fallbackToTop:true },
-  { sel:'[data-tour="review"]', title:'⭐ 口コミ・レビュー', text:'このサイトの感想や評価を投稿できるコーナーです。星の数と一言コメントで、使ってみての感想をぜひ聞かせてください。みんなの口コミも読めます。', fallbackToTop:true },
-  { sel:'[data-tour="chat"]', title:'💬 みんなのひとことチャット', text:'防災情報の共有や、ひとことメッセージを書き込めるチャットです。閲覧は誰でもできます。書き込みには「引き継ぎコード」での参加（ログイン）が必要です。地域の気づきや声かけにご活用ください。', fallbackToTop:true },
-  { sel:'[data-tour="share"]', title:'📤 友達紹介リンク', text:'あなた専用の紹介リンクで、このサイトを友達に教えられます。紹介リンクから友達がアクセスすると、あなたと友達の両方にスタンプを1つずつプレゼント。LINEやXでかんたんに共有できます。', fallbackToTop:true },
-  { sel:'#stampFab', title:'🎁 防災スタンプカード', text:'毎日サイトを開くと、画面右下のこのボタンから1日1個スタンプを押せます。10個・20個貯まると防災グッズのプレゼントに応募できます。さっそく押してみましょう！', showStamp:true, fallbackToCorner:true, onShow:closeDtabsForTour },
-  { sel:'#pwInput', title:'🔒 復元用パスワード（任意）', text:'スタンプカードの中には「復元用パスワード」を設定できる欄があります。パスワードを決めておくと、機種変更などで別の端末にデータを引き継ぐとき、引き継ぎコードに加えてこのパスワードが必要になります。他人にコードを知られても大切なスタンプ記録を守れます。設定は任意です。忘れた場合は運営でリセットできます。', onShow:openStampCardForTour, fallbackToCorner:true },
+  { sel:'.hp-header', title:'防災情報センターへようこそ', text:'地震速報をリアルタイムで表示する防災情報サイトです。ヘッダー右のこの機器パネルに、LIVE表示・現在時刻・更新ボタン・メニューがまとまっています。主な使い方を簡単にご案内します。', en:'This is a disaster-prevention site that shows earthquake alerts in real time. The control panel at the top right brings together the LIVE indicator, current time, refresh button, and menu. Here is a quick guide to the main features.' },
+  { sel:'[data-tour="emg-plate"]', title:'🚨 緊急対応マニュアル', text:'ヘッダーの「緊急対応マニュアル」ボタンです。地震・火災・救急・台風・防犯など、いざという時の対応手順をタップで確認できます。迷ったらここを開き、状況を選ぶだけでやるべきことが表示されます。', en:'This is the "Emergency Response Manual" button in the header. With a tap you can check what to do in an emergency — earthquakes, fire, first aid, typhoons, crime prevention, and more. When in doubt, open this and just choose your situation to see the steps to take.', fallbackToTop:true },
+  { sel:'[data-tour="diag-plate"]', title:'🗾 被害想定診断ツール', text:'「被害想定診断ツール」ボタンです。都道府県を選ぶだけで、活断層マップ・地震の発生確率・想定される死者数や経済損失などを即座に確認できます。お住まいの地域のリスクをチェックしてみましょう。', en:'This is the "Damage Estimate Tool" button. Just select your prefecture to instantly view the active-fault map, earthquake probability, and estimated casualties and economic losses. Check the risks in your area.', fallbackToTop:true },
+  { sel:'[data-tour="live"]', title:'🟢 LIVE・現在時刻', text:'ヘッダー右の機器パネルです。赤いランプが点滅していれば「LIVE（リアルタイム配信中）」を表し、その下の窓に現在時刻が表示されます。地震データは自動で更新され続けます。', en:'This is the control panel at the top right. A blinking red lamp means "LIVE" (real-time streaming), and the window below shows the current time. Earthquake data keeps updating automatically.' },
+  { sel:'#siteRefreshBtn', title:'🔄 最新情報に更新', text:'パネル内の丸い矢印ボタンです。自動更新を待たずに、いますぐ最新の地震・気象情報を取り込みたいときにタップします。表示が古いと感じたらここを押してください。', en:'This is the round arrow button on the panel. Tap it when you want the latest earthquake and weather information right away, without waiting for the automatic update. Press it whenever the display feels out of date.', fallbackToTop:true },
+  { sel:'[data-tour="menu"]', title:'☰ メニュー（設定）', text:'パネル右側の三本線アイコンがメニューボタンです。タップで開くメニューの中に、設定・お問い合わせ・プライバシーポリシーがあります。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。', en:'The three-line icon on the right of the panel is the menu button. The menu it opens contains Settings, Contact, and the Privacy Policy. You can change the theme, font, notifications, alert sounds, and more in Settings, and you can revisit this tutorial anytime from "Help" within Settings.' },
+  { sel:'[data-tour="menu"]', title:'☰ メニュー（リンク集）', text:'同じ三本線メニューの中には、防災クイズや気象庁の各種情報ページへのリンクもまとめてあります。', en:'The same three-line menu also gathers links to disaster-prevention quizzes and various information pages from the Japan Meteorological Agency.', fallbackToTop:true },
+  { sel:'[data-tour="lang"]', title:'🌐 English / 多言語表示', text:'メニューの中の「English / 言語」ボタンです。お使いのブラウザの翻訳機能を使うと、このサイトを英語など多言語で読めます。ボタンを押すと、スマホ・パソコン別の翻訳手順を日本語と英語で案内します。海外の方や、英語で読みたい方はこちらをご利用ください。', en:'This is the "English / Language" button in the menu. Using your browser\u2019s translation feature, you can read this site in English and other languages. Tapping the button shows translation steps for both smartphones and PCs, in Japanese and English. Recommended for visitors from overseas or anyone who prefers to read in English.', onShow:openHamburgerForTour, fallbackToTop:true },
+  { sel:'[data-tour="tabs"]', title:'気象情報タブ（収納式）', text:'台風・雨雲レーダー・警報注意報など、気象・災害情報へのリンク集です。ふだんは「災害情報タブ」ボタンに収納されていて、タップすると開きます（いまチュートリアル用に開いています）。目的の情報にすぐアクセスできます。', en:'This is a set of links to weather and disaster information such as typhoons, rain-cloud radar, and warnings/advisories. Normally it is tucked away under the "Disaster Info Tabs" button and opens when tapped (it is open now for the tutorial). It gives you quick access to the information you need.', onShow:openDtabsForTour },
+  { sel:'[data-tour="stats"]', title:'本日の地震サマリー', text:'本日の有感地震の回数、最大マグニチュード・最大震度をひと目で確認できます。', en:'See today\u2019s number of felt earthquakes, plus the maximum magnitude and seismic intensity, at a glance.', onShow:closeDtabsForTour },
+  { sel:'.quake-list', title:'地震リスト', text:'最近発生した地震の一覧です。カードをタップすると詳細が表示されます。', en:'This is a list of recent earthquakes. Tap a card to see the details.', fallbackToTop:true },
+  { sel:'[data-tour="bookmark"]', selAlt:'#section-column', title:'🔖 ブックマーク', text:'防災記事カードの右上にあるこのマークをタップすると、その記事をブックマーク（お気に入り保存）できます。あとで読み返したい「備え」や「ヒント」を保存しておくと、必要なときにすぐ見返せます。', en:'Tap this mark at the top right of a disaster-prevention article card to bookmark (save) that article. Save the preparedness tips you want to revisit later so you can find them quickly when you need them.', onShow:scrollToColumnForTour, fallbackToTop:true },
+  { sel:'[data-tour="review"]', title:'⭐ 口コミ・レビュー', text:'このサイトの感想や評価を投稿できるコーナーです。星の数と一言コメントで、使ってみての感想をぜひ聞かせてください。みんなの口コミも読めます。', en:'This is where you can post your impressions and ratings of the site. Please share how you found it using a star rating and a short comment. You can also read other users\u2019 reviews.', onShow:scrollToReviewForTour, fallbackToTop:true },
+  { sel:'[data-tour="chat"]', title:'💬 みんなのひとことチャット', text:'防災情報の共有や、ひとことメッセージを書き込めるチャットです。閲覧は誰でもできます。書き込みには「引き継ぎコード」での参加（ログイン）が必要です。地域の気づきや声かけにご活用ください。', en:'This is a chat for sharing disaster information and posting short messages. Anyone can read it. To post, you need to join (log in) with a "transfer code." Please use it for local observations and to check in with one another.', fallbackToTop:true },
+  { sel:'[data-tour="share"]', title:'📤 友達紹介リンク', text:'あなた専用の紹介リンクで、このサイトを友達に教えられます。紹介リンクから友達がアクセスすると、あなたと友達の両方にスタンプを1つずつプレゼント。LINEやXでかんたんに共有できます。', en:'Use your personal referral link to tell friends about this site. When a friend visits through your link, both you and your friend each receive one stamp. You can share easily via LINE or X.', fallbackToTop:true },
+  { sel:'#stampFab', title:'🎁 防災スタンプカード', text:'毎日サイトを開くと、画面右下のこのボタンから1日1個スタンプを押せます。10個・20個貯まると防災グッズのプレゼントに応募できます。さっそく押してみましょう！', en:'Open the site each day and you can collect one stamp per day from this button at the bottom right. Once you reach 10 or 20 stamps, you can enter to win disaster-prevention goods. Give it a try!', showStamp:true, fallbackToCorner:true, onShow:closeDtabsForTour },
+  { sel:'#pwInput', title:'🔒 復元用パスワード（任意）', text:'スタンプカードの中には「復元用パスワード」を設定できる欄があります。パスワードを決めておくと、機種変更などで別の端末にデータを引き継ぐとき、引き継ぎコードに加えてこのパスワードが必要になります。他人にコードを知られても大切なスタンプ記録を守れます。設定は任意です。忘れた場合は運営でリセットできます。', en:'The stamp card includes a field to set a "recovery password." If you set one, then when you transfer your data to another device (for example after changing phones), this password is required in addition to the transfer code. This keeps your valuable stamp record safe even if someone learns your code. Setting it is optional, and the operators can reset it if you forget it.', onShow:openStampCardForTour, fallbackToCorner:true },
 ];
 let _tourIndex = 0;
 // チュートリアル中だけ気象情報タブ（収納式）を開く／閉じる
@@ -6665,6 +6668,24 @@ function scrollToColumnForTour(){
       target.scrollIntoView({ behavior:'smooth', block:'start' });
       // ヘッダーに隠れない＆少し余白を持たせるため、さらに少し上へ送る
       setTimeout(function(){
+        try { window.scrollBy({ top: -90, left: 0, behavior:'smooth' }); } catch(e){ window.scrollBy(0,-90); }
+        if(typeof positionTour === 'function') setTimeout(positionTour, 250);
+      }, 350);
+    } catch(e){
+      try { target.scrollIntoView(); } catch(_){}
+    }
+  }
+}
+// 口コミ・レビュー説明ステップ：セクションの「上端」を画面上部に合わせる。
+// レビュー欄はスマホ画面より縦に長く、block:'center' だと中央が下に来て
+// ハイライト枠が上に上がらない（隠れる）ため、上端基準でスクロールさせる。
+function scrollToReviewForTour(){
+  const target = document.querySelector('[data-tour="review"]') || document.getElementById('section-review');
+  if(target){
+    try {
+      target.scrollIntoView({ behavior:'smooth', block:'start' });
+      setTimeout(function(){
+        // ヘッダー分＋少し余白を確保して上へ送る
         try { window.scrollBy({ top: -90, left: 0, behavior:'smooth' }); } catch(e){ window.scrollBy(0,-90); }
         if(typeof positionTour === 'function') setTimeout(positionTour, 250);
       }, 350);
@@ -6926,7 +6947,20 @@ function showTourStep(){
   if(fabEl) fabEl.style.display = step.showStamp ? 'block' : 'none';
   document.getElementById('tourStepNo').textContent = `STEP ${_tourIndex+1} / ${_activeSteps.length}`;
   document.getElementById('tourTitle').textContent = step.title;
-  document.getElementById('tourText').textContent = step.text;
+  // 日本語の説明 → その下に英語の説明（textContent で安全に挿入し、英文は補助スタイル）
+  const textEl = document.getElementById('tourText');
+  textEl.textContent = '';
+  const jp = document.createElement('div');
+  jp.className = 'tour-text-jp';
+  jp.textContent = step.text;
+  textEl.appendChild(jp);
+  if(step.en){
+    const en = document.createElement('div');
+    en.className = 'tour-text-en';
+    en.setAttribute('lang','en');
+    en.textContent = step.en;
+    textEl.appendChild(en);
+  }
   document.getElementById('tourPrev').style.visibility = _tourIndex === 0 ? 'hidden' : 'visible';
   document.getElementById('tourNext').textContent = _tourIndex === _activeSteps.length - 1 ? '完了' : '次へ';
   document.querySelectorAll('.tour-dot').forEach((d,i)=>d.classList.toggle('active', i === _tourIndex));
@@ -6967,7 +7001,14 @@ function positionTour(){
     r = { top:window.innerHeight/2-40, left:window.innerWidth/2-120, right:window.innerWidth/2+120, bottom:window.innerHeight/2+40, width:240, height:80 };
   }
   const hx = Math.max(0, r.left - pad), hy = Math.max(0, r.top - pad);
-  const hw = r.width + pad*2, hh = r.height + pad*2;
+  let hw = r.width + pad*2, hh = r.height + pad*2;
+  // 対象が画面より縦に長い場合（例：スマホでの口コミ・レビュー欄）は、
+  // ハイライト枠を画面に収まる高さに制限する。枠が画面全体を覆って
+  // 「上に上がっていない」ように見えたり、説明ポップアップの置き場所が
+  // なくなったりするのを防ぐ。上端基準で、画面の約55%までに収める。
+  const H0 = window.innerHeight;
+  const maxHoleH = Math.round(H0 * 0.55);
+  if(hh > maxHoleH){ hh = maxHoleH; }
   hole.style.left = hx + 'px';
   hole.style.top = hy + 'px';
   hole.style.width = hw + 'px';
