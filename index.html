@@ -6711,17 +6711,26 @@ function scrollToColumnForTour(){
 // ハイライト枠が上に上がらない（隠れる）ため、上端基準でスクロールさせる。
 function scrollToReviewForTour(){
   const target = document.querySelector('[data-tour="review"]') || document.getElementById('section-review');
-  if(target){
-    try {
-      target.scrollIntoView({ behavior:'smooth', block:'start' });
-      setTimeout(function(){
-        // ヘッダー分＋少し余白を確保して上へ送る
-        try { window.scrollBy({ top: -90, left: 0, behavior:'smooth' }); } catch(e){ window.scrollBy(0,-90); }
-        if(typeof positionTour === 'function') setTimeout(positionTour, 250);
-      }, 350);
-    } catch(e){
-      try { target.scrollIntoView(); } catch(_){}
-    }
+  if(!target) return;
+  // レビュー欄は画面より縦に長い。block:'center' だと上端（タイトル・投稿欄）が
+  // 画面上に上がりきらずフレームアウトするため、セクション上端をヘッダー下
+  // （約100px）にぴったり合わせる絶対座標スクロールにする。
+  const HEADER_OFFSET = 100;
+  function alignTop(behavior){
+    const r = target.getBoundingClientRect();
+    const y = Math.max(0, window.scrollY + r.top - HEADER_OFFSET);
+    try { window.scrollTo({ top:y, left:0, behavior: behavior||'smooth' }); }
+    catch(e){ window.scrollTo(0, y); }
+  }
+  try {
+    alignTop('smooth');
+    // スクロール完了後にもう一度ぴったり合わせ直し、枠を再計算
+    setTimeout(function(){
+      alignTop('auto');
+      if(typeof positionTour === 'function') setTimeout(positionTour, 60);
+    }, 420);
+  } catch(e){
+    try { target.scrollIntoView(); } catch(_){}
   }
 }
 // 言語説明ステップ：ハンバーガーメニューを開いて「English / 言語」ボタンを見せる
@@ -6773,14 +6782,24 @@ function openStampCardForTour(){
       ov.dataset.tourLifted = '1';
       ov.style.zIndex = '99991';        // tourMask(99990) より前・tourPop(99996) より後ろ
     }
-    // カードが開いてパスワード欄が描画されてから枠を合わせ直す
-    setTimeout(function(){
+    // パスワード欄へ「瞬間移動（smoothなし）」で一度だけ寄せ、枠を確定させる。
+    // smooth スクロールやスタンプ演出による再レイアウトでハイライトが
+    // 行ったり来たり揺れるのを防ぐため、instant スクロール＋固定タイミングで
+    // 数回だけ位置を合わせ直す（連続トラッキングで追従し続けない）。
+    function settle(){
       try {
         const el = document.getElementById('pwInput');
-        if(el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+        if(el){
+          // 連続トラッキング（trackTourPosition）を止めてから固定配置する
+          if(typeof _tourTrackUntil !== 'undefined') _tourTrackUntil = 0;
+          el.scrollIntoView({ block:'center', inline:'nearest' }); // smoothなし＝一発で確定
+        }
       } catch(e){}
       if(typeof positionTour === 'function') positionTour();
-    }, 350);
+    }
+    // カードの描画／スタンプ演出が落ち着くのを待ってから確定（揺れの原因を過ぎてから合わせる）
+    setTimeout(settle, 420);
+    setTimeout(settle, 900);  // 演出完了後にもう一度だけ最終確定
   } catch(e){}
 }
 // 持ち上げたスタンプカードのz-indexを元に戻す（パスワードステップを離れるとき）
@@ -7034,10 +7053,22 @@ function showTourStep(){
   document.getElementById('tourHole').classList.toggle('emphasize', !!step.emphasize);
   document.getElementById('tourPop').classList.toggle('emphasize', !!step.emphasize);
   // 対象が画面外ならスクロール（設定ツアーはパネル内、それ以外はページ全体）
+  // ※ onShow に専用スクロール関数がある場合は、そちらの位置決め（上端寄せ等）を
+  //   尊重し、ここでの center 再スクロールで上書きしない。
   const el = _tourTargetEl(step);
-  if(el){
+  const HEADER_OFFSET = 100; // ヘッダー等に隠れない余白
+  if(el && !step.onShow){
     const r = el.getBoundingClientRect();
-    if(r.top < 80 || r.bottom > window.innerHeight - 80){
+    const vh = window.innerHeight;
+    const tooTall = r.height > vh - HEADER_OFFSET - 40;
+    if(tooTall){
+      // 画面より縦に長い要素は center にすると上端がフレームアウトするため、
+      // 上端を画面上部（ヘッダー下）に合わせる。
+      if(r.top < HEADER_OFFSET || r.top > vh - 120){
+        const y = window.scrollY + r.top - HEADER_OFFSET;
+        try { window.scrollTo({ top:y, behavior:'smooth' }); } catch(e){ window.scrollTo(0,y); }
+      }
+    } else if(r.top < 80 || r.bottom > vh - 80){
       el.scrollIntoView({ behavior:'smooth', block:'center' });
     }
   }
@@ -10298,6 +10329,81 @@ document.addEventListener('keydown', function(e){
   window.addEventListener('pageshow', function(e){
     if(e.persisted){ resetToHomeTop(); }
   });
+})();
+</script>
+<!-- ===== GLOBAL OVERLAY SCROLL LOCK ===== -->
+<script>
+(function(){
+  var SELECTORS = [
+    '.modal-overlay','.notice-overlay','.settings-overlay','.guide-overlay',
+    '.hamburger-overlay','.stamp-overlay','.img-lightbox',
+    '#shindanModal','#sponsorModal','#tourOverlay','#tourDoneOverlay',
+    '#updatePromptOverlay','#splitPane'
+  ];
+  var sel = SELECTORS.join(',');
+  var lockY = 0;
+  var locked = false;
+
+  function anyOpen(){
+    var nodes = document.querySelectorAll(sel);
+    for(var i=0;i<nodes.length;i++){
+      var el = nodes[i];
+      if(el.classList.contains('open')){
+        if(getComputedStyle(el).display !== 'none') return true;
+      }
+    }
+    return false;
+  }
+
+  function lock(){
+    if(locked) return;
+    locked = true;
+    lockY = window.scrollY || window.pageYOffset || 0;
+    var b = document.body;
+    b.style.position = 'fixed';
+    b.style.top = (-lockY) + 'px';
+    b.style.left = '0';
+    b.style.right = '0';
+    b.style.width = '100%';
+    b.style.overflow = 'hidden';
+  }
+
+  function unlock(){
+    if(!locked) return;
+    locked = false;
+    var b = document.body;
+    b.style.position = '';
+    b.style.top = '';
+    b.style.left = '';
+    b.style.right = '';
+    b.style.width = '';
+    b.style.overflow = '';
+    window.scrollTo(0, lockY);
+  }
+
+  function sync(){
+    if(anyOpen()) lock(); else unlock();
+  }
+
+  var raf = null;
+  var obs = new MutationObserver(function(){
+    if(raf) return;
+    raf = requestAnimationFrame(function(){ raf = null; sync(); });
+  });
+
+  function start(){
+    obs.observe(document.body, {
+      attributes:true, attributeFilter:['class','style'],
+      subtree:true, childList:true
+    });
+    sync();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
 })();
 </script>
 </body>
