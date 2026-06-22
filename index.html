@@ -7186,15 +7186,35 @@ function positionTour(){
   } else {
     r = { top:window.innerHeight/2-40, left:window.innerWidth/2-120, right:window.innerWidth/2+120, bottom:window.innerHeight/2+40, width:240, height:80 };
   }
-  const hx = Math.max(0, r.left - pad), hy = Math.max(0, r.top - pad);
+  const hx = Math.max(0, r.left - pad), hy0 = r.top - pad;
   let hw = r.width + pad*2, hh = r.height + pad*2;
-  // 対象が画面より縦に長い場合（例：スマホでの口コミ・レビュー欄）は、
-  // ハイライト枠を画面に収まる高さに制限する。枠が画面全体を覆って
-  // 「上に上がっていない」ように見えたり、説明ポップアップの置き場所が
-  // なくなったりするのを防ぐ。上端基準で、画面の約55%までに収める。
   const H0 = window.innerHeight;
-  const maxHoleH = Math.round(H0 * 0.55);
-  if(hh > maxHoleH){ hh = maxHoleH; }
+  // 画面内に収める上下マージン（ヘッダー下〜画面下）
+  const TOP_SAFE = 72;          // ヘッダー等に隠れない最小トップ
+  const BOTTOM_SAFE = 16;       // 画面下の余白
+  // ハイライト枠が画面より縦に長い／上下にはみ出す場合に「フレームアウト」する。
+  // (1) まず高さを画面に収まる範囲へ制限し、(2) 上端・下端を画面内へクランプする。
+  const maxHoleH = Math.min(Math.round(H0 * 0.6), H0 - TOP_SAFE - BOTTOM_SAFE);
+  let hy = hy0;
+  if(hh > maxHoleH){
+    // 対象が長い場合：対象の「見えている上端」を優先して上から maxHoleH 分だけ枠にする
+    hy = Math.max(hy0, TOP_SAFE);
+    hh = maxHoleH;
+  }
+  // 上端が画面より上 → 画面内へ。枠の見えている範囲だけを示す。
+  if(hy < TOP_SAFE){
+    const cut = TOP_SAFE - hy;     // 画面外へはみ出した上側の量
+    hy = TOP_SAFE;
+    hh = Math.max(40, hh - cut);   // その分だけ高さを詰める
+  }
+  // 下端が画面より下 → はみ出し分を詰める
+  if(hy + hh > H0 - BOTTOM_SAFE){
+    hh = Math.max(40, (H0 - BOTTOM_SAFE) - hy);
+  }
+  // 横方向も画面内にクランプ
+  if(hx + hw > window.innerWidth){
+    hw = Math.max(40, window.innerWidth - hx);
+  }
   hole.style.left = hx + 'px';
   hole.style.top = hy + 'px';
   hole.style.width = hw + 'px';
