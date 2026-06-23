@@ -1079,14 +1079,44 @@ html.light .icon-opt.selected { border-color:var(--blue); background:rgba(0,100,
 .reorder-pair { grid-column:1/-1; display:grid; grid-template-columns:1fr 1fr; gap:22px; align-items:stretch; }
 .reorder-pair > .reorder-block { grid-column:auto; min-width:0; display:flex; flex-direction:column; }
 .reorder-pair > .reorder-block > * { flex:1 1 auto; }
-/* スマホなど狭い画面でも、横並び設定したペアは2カラムを維持する（間隔を詰めて収める）。
-   ただし極端に狭い画面では内容が潰れるため、最小幅を下回ったら縦積みにフォールバックする。 */
+/* スマホなど狭い画面でも、横並び設定したペアは常に2カラムを維持する（間隔を詰めて収める）。
+   1カラムあたりの幅が狭くなるため、ペア内のテキストは字間や折り返しを調整して
+   「1文字ずつ縦積み」になるのを防ぎ、狭幅でも文として読めるようにする。 */
 @media (max-width:720px){
   .reorder-pair { gap:10px; }
+  /* ペア内の字間をなくし、英単語も途中で折り返せるようにして「縦1文字」化を防ぐ */
+  .reorder-pair .jmaw-label,
+  .reorder-pair .jmaw-title,
+  .reorder-pair .jmaw-action,
+  .reorder-pair .jmaw-link,
+  .reorder-pair .jmaw-badge,
+  .reorder-pair .jmaw-body,
+  .reorder-pair .tsunami-label,
+  .reorder-pair .tsunami-title,
+  .reorder-pair .tsunami-action,
+  .reorder-pair .tsunami-link,
+  .reorder-pair .tsunami-body { letter-spacing:0 !important; word-break:break-word; overflow-wrap:anywhere; }
+  .reorder-pair .jmaw-title,
+  .reorder-pair .tsunami-title { line-height:1.25; }
+  .reorder-pair .jmaw-badge { white-space:normal; padding:4px 10px; }
+  .reorder-pair .jmaw-body,
+  .reorder-pair .jmaw-action,
+  .reorder-pair .tsunami-body,
+  .reorder-pair .tsunami-action { font-size:12px; }
+  /* バナー自体の左右パディングを詰めて、文字が使える幅を広げる */
+  .reorder-pair #jmaWarningBanner { padding:12px 12px; }
+  .reorder-pair #tsunamiBanner { padding:12px 12px; }
 }
-@media (max-width:380px){
-  .reorder-pair { grid-template-columns:1fr; align-items:start; gap:14px; }
-  .reorder-pair > .reorder-block > * { flex:0 1 auto; }
+/* さらに狭い画面では、Orbitron等の大きな見出しが横に収まらないので一段縮める */
+@media (max-width:480px){
+  .reorder-pair .jmaw-title,
+  .reorder-pair .tsunami-title { font-size:15px !important; }
+  .reorder-pair .jmaw-label,
+  .reorder-pair .tsunami-label { font-size:9px; }
+  .reorder-pair .jmaw-header,
+  .reorder-pair .tsunami-header { gap:8px; margin-bottom:8px; }
+  .reorder-pair .jmaw-icon,
+  .reorder-pair .tsunami-icon { font-size:26px; }
 }
 .reorder-bar { display:none; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; padding:6px 10px; background:rgba(0,180,255,0.08); border:1px dashed rgba(0,180,255,0.4); border-radius:8px; }
 body.reorder-on .reorder-bar { display:flex; }
@@ -10304,7 +10334,7 @@ function sendSiteInquiry(){
       <button class="lo-reset" onclick="resetLayoutEditor()">初期に戻す</button>
       <button class="lo-save" onclick="saveLayoutEditor()">保存して反映</button>
     </div>
-    <p class="lo-note">※横並びはスマホでも2カラムで表示されます。画面がごく狭い場合（およそ380px未満）は、見やすさのため自動的に縦並びに切り替わります。</p>
+    <p class="lo-note">※横並びはスマホでも常に2カラムで表示されます。画面が狭い場合は、文字サイズや間隔を自動調整して収めます。</p>
   </div>
 </div>
 <!-- ===== スタンプカード ===== -->
