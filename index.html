@@ -1876,6 +1876,10 @@ html.light .scale-item.lv1 { background:rgba(0,0,0,0.04); border-color:rgba(0,0,
 @media(min-width:769px){
   #splitPane{top:0;right:0;width:50vw;height:100vh;border-left:1px solid var(--border)}
   html.split-open body{padding-right:50vw}
+  /* 固定トップバー（ヘッダー＋最新情報バナー）は left:0;right:0 で全幅のため、
+     2画面時はそのままだと右半分が #splitPane の裏に隠れて切れる。
+     右端を左ペイン幅（50vw）に合わせて、左ペイン内にきっちり収める。 */
+  html.split-open #topbar{ right:50vw; }
 }
 @media(max-width:768px){
   #splitPane{left:0;right:0;bottom:0;height:55vh;border-top:1px solid var(--border)}
@@ -1897,12 +1901,19 @@ html.light .scale-item.lv1 { background:rgba(0,0,0,0.04); border-color:rgba(0,0,
   html.split-open #tsunamiBanner { grid-column:1; }
   html.split-open #weatherWidget { grid-column:1; }
   html.split-open .blog-grid { grid-template-columns:1fr; }
-  html.split-open header{height:64px;padding:0 16px}
+  html.split-open header{height:auto;min-height:0;padding:8px 14px}
   html.split-open .logo{gap:8px}
   html.split-open .logo-img{width:46px;height:46px}
   html.split-open .logo-text{font-size:16px;white-space:nowrap}
   html.split-open .logo-sub{display:none}
   html.split-open .header-status{gap:8px}
+  /* プレート型ヘッダー：2画面の狭い幅では説明文を省き、画像＋タイトルのみに。
+     これで折り返しや下切れを防ぎ、縦もコンパクトに収める。 */
+  html.split-open .plate-nav{ gap:14px; padding:8px 0 10px; margin-left:clamp(10px,3vw,40px); }
+  html.split-open .plate-desc .pd-sub{ display:none; }
+  html.split-open .plate-desc{ max-width:200px; }
+  html.split-open .plate-desc .pd-title{ font-size:14px; }
+  html.split-open .hp-header{ height:96px; }
 }
 /* スマホの2画面(上下分割)でも念のためロゴの折返しを防止 */
 @media(max-width:768px){
