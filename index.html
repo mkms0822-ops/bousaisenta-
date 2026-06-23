@@ -2481,7 +2481,7 @@ html.mode-chat.chat-split #modeChatScreen .mc-title{ font-size:13px; margin-bott
     </div>
     <div class="notice-foot">
       <button class="notice-btn ghost" onclick="openNoticeHistory()">📜 更新履歴を参照</button>
-      <button class="notice-btn" onclick="closeNotice()">閉じる</button>
+      <button class="notice-btn" id="noticeNextBtn" onclick="nextOrCloseNotice()">閉じる</button>
       <div class="notice-dismiss">
         <button onclick="dismissNoticeForever()">このお知らせを今後表示しない</button>
       </div>
@@ -8315,7 +8315,8 @@ async function loadNotices(){
   }
 }
 
-// 最新の未読お知らせをポップアップ表示（チュートリアル中は出さない）
+// 未読のお知らせを「順番に」ポップアップ表示（チュートリアル中は出さない）
+let _noticeQueue = [];   // これから表示する未読お知らせ（新しい順）
 function maybeShowLatestNotice(){
   if(!_allNotices.length) return;
   // チュートリアル表示中は競合を避けて出さない
@@ -8324,10 +8325,20 @@ function maybeShowLatestNotice(){
     setTimeout(maybeShowLatestNotice, 1500);
     return;
   }
+  // すでに表示中なら二重起動しない
+  const ovOpen = document.getElementById('noticeOverlay');
+  if(ovOpen && ovOpen.classList.contains('open')) return;
+  // 未読だけをキューに積む（_allNotices は新しい順にソート済み）
   const dismissed = _getDismissedNotices();
-  const latest = _allNotices.find(function(n){ return dismissed.indexOf(_noticeKey(n)) < 0; });
-  if(!latest) return; // すべて「今後表示しない」済み
-  showNotice(latest);
+  _noticeQueue = _allNotices.filter(function(n){ return dismissed.indexOf(_noticeKey(n)) < 0; });
+  showNextNotice();
+}
+
+// キューの先頭を表示。無ければ閉じる。
+function showNextNotice(){
+  if(!_noticeQueue.length){ closeNotice(); return; }
+  const next = _noticeQueue.shift();
+  showNotice(next);
 }
 
 let _currentNotice = null;
@@ -8341,10 +8352,25 @@ function showNotice(n){
   if(textEl)  textEl.innerHTML    = _noticeHtml(n.body || n.text || '');
   const linksEl = document.getElementById('noticeLinks');
   if(linksEl) linksEl.innerHTML = _noticeLinksHtml(_noticeLinks(n));
+  // 残り件数があれば「閉じる」ボタンに「次へ」を示すラベルを出す
+  const nextBtn = document.getElementById('noticeNextBtn');
+  if(nextBtn){
+    nextBtn.textContent = _noticeQueue.length > 0
+      ? ('次のお知らせ（残り' + _noticeQueue.length + '件）→')
+      : '閉じる';
+  }
   const ov = document.getElementById('noticeOverlay');
   if(ov){ ov.classList.add('open'); }
 }
+
+// 「閉じる／次へ」：表示中のお知らせを閉じ、未読が残っていれば次を表示する
+function nextOrCloseNotice(){
+  if(_noticeQueue.length){ showNextNotice(); }
+  else { closeNotice(); }
+}
+
 function closeNotice(){
+  _noticeQueue = []; // 残りキューを破棄（×や背景クリックで「もう見ない」意思とみなす）
   const ov = document.getElementById('noticeOverlay');
   if(ov) ov.classList.remove('open');
 }
@@ -8355,7 +8381,9 @@ function dismissNoticeForever(){
     if(arr.indexOf(key) < 0){ arr.push(key); }
     try { localStorage.setItem(NOTICE_DISMISS_KEY, JSON.stringify(arr)); } catch(e){}
   }
-  closeNotice();
+  // 既読登録したうえで、未読が残っていれば次を表示。無ければ閉じる。
+  if(_noticeQueue.length){ showNextNotice(); }
+  else { closeNotice(); }
 }
 
 // 更新履歴オーバーレイ
