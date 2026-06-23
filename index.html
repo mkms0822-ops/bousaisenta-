@@ -649,6 +649,8 @@ main { position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:28
 .stats-row.stats-compact .stat-box::before { height:2px; }
 .stats-row.stats-compact .stat-label { font-size:10px; margin:0; white-space:nowrap; flex:0 0 auto; opacity:0.8; }
 .stats-row.stats-compact .stat-num { font-size:30px !important; line-height:1.1 !important; margin:0; }
+/* 最終更新の時刻は文字数が多いため、コンパクト表示でも小さめに保ち枠からのはみ出しを防ぐ */
+.stats-row.stats-compact #statUpdated { font-size:20px !important; }
 .stats-row.stats-compact .stat-unit { display:none; }
 
 /* BIG QUAKE */
@@ -6873,8 +6875,8 @@ const tourSteps = [
   { sel:'[data-tour="menu"]', title:'☰ メニュー（設定）', text:'パネル右側の三本線アイコンがメニューボタンです。タップで開くメニューの中に、設定・お問い合わせ・プライバシーポリシーがあります。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。' },
   { sel:'[data-tour="menu"]', title:'☰ メニュー（リンク集）', text:'同じ三本線メニューの中には、防災クイズや気象庁の各種情報ページへのリンクもまとめてあります。', fallbackToTop:true },
   { sel:'[data-tour="lang"]', title:'🌐 English / 多言語表示', text:'メニューの中の「English / 言語」ボタンです。お使いのブラウザの翻訳機能を使うと、このサイトを英語など多言語で読めます。ボタンを押すと、スマホ・パソコン別の翻訳手順を日本語と英語で案内します。海外の方や、英語で読みたい方はこちらをご利用ください。', onShow:openHamburgerForTour, fallbackToTop:true },
-  { sel:'[data-tour="tabs"]', title:'気象情報タブ（収納式）', text:'台風・雨雲レーダー・警報注意報など、気象・災害情報へのリンク集です。ふだんは「災害情報タブ」ボタンに収納されていて、タップすると開きます（いまチュートリアル用に開いています）。目的の情報にすぐアクセスできます。', onShow:openDtabsForTour },
-  { sel:'[data-tour="stats"]', title:'本日の地震サマリー', text:'本日の有感地震の回数、最大マグニチュード・最大震度をひと目で確認できます。', onShow:closeDtabsForTour },
+  { sel:'[data-tour="tabs"]', title:'気象情報タブ（収納式）', text:'台風・雨雲レーダー・警報・注意報・危険警報など、気象・災害情報へのリンク集です。ふだんは「災害情報タブ」ボタンに収納されていて、タップすると開きます（いまチュートリアル用に開いています）。目的の情報にすぐアクセスできます。', onShow:openDtabsForTour },
+  { sel:'[data-tour="stats"]', title:'本日の地震サマリー', text:'本日の有感地震の回数、最大マグニチュード・最大震度、最終更新時刻をひと目で確認できます。', onShow:closeDtabsForTour },
   { sel:'.quake-list', title:'地震リスト', text:'最近発生した地震の一覧です。カードをタップすると詳細が表示されます。', fallbackToTop:true },
   { sel:'[data-tour="bookmark"]', selAlt:'#section-column', title:'🔖 ブックマーク', text:'防災記事カードの右上にあるこのマークをタップすると、その記事をブックマーク（お気に入り保存）できます。あとで読み返したい「備え」や「ヒント」を保存しておくと、必要なときにすぐ見返せます。', onShow:scrollToColumnForTour, fallbackToTop:true },
   { sel:'[data-tour="review"]', title:'⭐ 口コミ・レビュー', text:'このサイトの感想や評価を投稿できるコーナーです。星の数と一言コメントで、使ってみての感想をぜひ聞かせてください。みんなの口コミも読めます。', fallbackToTop:true },
@@ -6983,16 +6985,16 @@ const settingsTourSteps = [
   { sel:'[data-stour="app"]', title:'📲 アプリとして使う', text:'スマホのホーム画面にこのサイトを追加できます。アプリのように1タップで起動でき、地震速報をすばやく確認できます。' },
   { sel:'[data-stour="layout"]', title:'📐 レイアウトの並び替え', text:'トップpage内の各ブロックの並び順を、好みに合わせて入れ替えられます。「レイアウトを編集」で並び替え、「リセット」で初期配置に戻せます。' },
   { sel:'[data-stour="weather"]', title:'🌤️ 天気予報', text:'天気予報ウィジェットの表示／非表示、週間予報の表示を切り替えられます。地域（都道府県・市区町村）を選ぶと、その地点の予報が表示されます。' },
-  { sel:'[data-stour="alertbanner"]', title:'⚠️ 警報バナー', text:'画面上部に出る警報フラッシュ・津波バナー・緊急地震速報の全画面表示について、それぞれ表示するかどうかを設定できます。' },
+  { sel:'[data-stour="alertbanner"]', title:'⚠️ 警報バナー', text:'画面に出る4種類の警報表示を、それぞれ表示するか設定できます。①地震警戒バナー②津波バナー③気象警報バナー（気象庁の警報・危険警報・特別警報を自動表示）④大地震オーバーレイ（全画面表示）。OFFにすると、その警報が発令されても画面に表示しません。' },
   { sel:'[data-stour="opensound"]', title:'🔊 オープニングサウンド', text:'アプリ起動時に流れるオープニング音（扉が開く効果音）のオン／オフを切り替えられます。音を鳴らしたくない場合は、ここをOFFにしてください。' },
-  { sel:'[data-stour="demo"]', title:'🚨 動作テスト（デモ）', text:'大地震・津波警報などの通知が「実際にどう表示されるか」を、安全に体験できるデモ機能です。いざという時の見え方を事前に確認しておきましょう。' },
+  { sel:'[data-stour="demo"]', title:'🚨 動作テスト（デモ）', text:'大地震・津波警報のほか、気象警報（レベル3）・危険警報（レベル4）・特別警報（レベル5）の通知が「実際にどう表示されるか」を、安全に体験できるデモ機能です。いざという時の見え方を事前に確認しておきましょう。' },
   { sel:'[data-stour="theme"]', title:'🎨 表示テーマ', text:'ダーク・ライトに加え、ピンクやスカイブルーなど7種類の配色から選べます。見やすい色・好みの雰囲気に変更できます。' },
   { sel:'[data-stour="font"]', title:'🔤 フォント', text:'本文の書体を、細い字・太い字・行書体・にくまるフォントから選べます。読みやすさや雰囲気をお好みで調整できます。' },
   { sel:'[data-stour="numfont"]', title:'🔢 数字フォント', text:'震度やマグニチュードの数字の書体を変更できます。デジタル表示（標準）のほか、太字などで見やすさを調整できます。' },
   { sel:'[data-stour="appnotify"]', title:'📳 アプリの通知設定', text:'震度3〜4や、震度5弱以上・緊急地震速報の通知（プッシュ通知）を設定できる外部ページへのリンクです。端末への通知を受け取りたい方はこちらから。' },
   { sel:'[data-stour="split"]', title:'🪟 2画面表示', text:'このサイトを見ながら、気象庁などの外部ページを同じ画面の中に並べて開ける機能のオン／オフを切り替えます。' },
   { sel:'[data-stour="sitenotify"]', title:'🔔 サイト内通知', text:'サイトを開いている間に、新しい地震情報などをサイト内のポップアップでお知らせする機能のオン／オフです。' },
-  { sel:'[data-stour="sound"]', title:'🔊 警告音', text:'緊急地震速報などが出たときに鳴る警告音を、NHK式チャイム・緊急アラート・サイレン・音声（地震です）など7種類から選べます。' },
+  { sel:'[data-stour="sound"]', title:'🔊 警告音', text:'緊急地震速報などが出たときに鳴る警告音を、NHK式チャイム・緊急アラート・ベル連打・警報サイレン・電子ビープ・音声（男性／女性「地震です」）の7種類から選べます。「プレビュー再生」で音を試聴できます。' },
   { sel:'[data-stour="scale"]', title:'📏 スマホ表示サイズ', text:'スマホでの全体の表示サイズ（小・標準・大）を変更できます。文字やボタンが小さく感じる場合は「大」がおすすめです。' },
   { sel:'[data-stour="savesettings"]', title:'💾 設定を保存する', text:'いまの設定（テーマ・フォント・地域・通知など）を、引き継ぎコードに紐づけてサーバーに保存します。機種変更や初期化のあとでも、コードを入れて復元すれば同じ設定に戻せます。設定を変えたら、ここから保存しておくと安心です。' },
   { sel:'[data-stour="data"]', title:'🧹 データ管理', text:'保存された設定やキャッシュを削除できます。表示がおかしいときにクリアすると、最新の状態で読み込み直せます。' },
