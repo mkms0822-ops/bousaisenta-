@@ -6655,14 +6655,14 @@ const OPEN_SOUND_SRC = "dwa-open-sound-v2.mp3";
 // ===================== TUTORIAL TOUR =====================
 const TOUR_KEY = 'tutorial_seen';
 const tourSteps = [
-  { sel:'.hp-header', title:'防災情報センターへようこそ', text:'地震速報をリアルタイムで表示する防災情報サイトです。ヘッダー右のこの機器パネルに、LIVE表示・現在時刻・更新ボタン・メニューがまとまっています。主な使い方を簡単にご案内します。', en:'This is a disaster-prevention site that shows earthquake alerts in real time. The control panel at the top right brings together the LIVE indicator, current time, refresh button, and menu. Here is a quick guide to the main features.' },
-  { sel:'[data-tour="emg-plate"]', title:'🚨 緊急対応マニュアル', text:'ヘッダーの「緊急対応マニュアル」ボタンです。地震・火災・救急・台風・防犯など、いざという時の対応手順をタップで確認できます。迷ったらここを開き、状況を選ぶだけでやるべきことが表示されます。', en:'This is the "Emergency Response Manual" button in the header. With a tap you can check what to do in an emergency — earthquakes, fire, first aid, typhoons, crime prevention, and more. When in doubt, open this and just choose your situation to see the steps to take.', fallbackToTop:true },
-  { sel:'[data-tour="diag-plate"]', title:'🗾 被害想定診断ツール', text:'「被害想定診断ツール」ボタンです。都道府県を選ぶだけで、活断層マップ・地震の発生確率・想定される死者数や経済損失などを即座に確認できます。お住まいの地域のリスクをチェックしてみましょう。', en:'This is the "Damage Estimate Tool" button. Just select your prefecture to instantly view the active-fault map, earthquake probability, and estimated casualties and economic losses. Check the risks in your area.', fallbackToTop:true },
-  { sel:'[data-tour="live"]', title:'🟢 LIVE・現在時刻', text:'ヘッダー右の機器パネルです。赤いランプが点滅していれば「LIVE（リアルタイム配信中）」を表し、その下の窓に現在時刻が表示されます。地震データは自動で更新され続けます。', en:'This is the control panel at the top right. A blinking red lamp means "LIVE" (real-time streaming), and the window below shows the current time. Earthquake data keeps updating automatically.' },
-  { sel:'#siteRefreshBtn', title:'🔄 最新情報に更新', text:'パネル内の丸い矢印ボタンです。自動更新を待たずに、いますぐ最新の地震・気象情報を取り込みたいときにタップします。表示が古いと感じたらここを押してください。', en:'This is the round arrow button on the panel. Tap it when you want the latest earthquake and weather information right away, without waiting for the automatic update. Press it whenever the display feels out of date.', fallbackToTop:true },
-  { sel:'[data-tour="menu"]', title:'☰ メニュー（設定）', text:'パネル右側の三本線アイコンがメニューボタンです。タップで開くメニューの中に、設定・お問い合わせ・プライバシーポリシーがあります。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。', en:'The three-line icon on the right of the panel is the menu button. The menu it opens contains Settings, Contact, and the Privacy Policy. You can change the theme, font, notifications, alert sounds, and more in Settings, and you can revisit this tutorial anytime from "Help" within Settings.' },
-  { sel:'[data-tour="menu"]', title:'☰ メニュー（リンク集）', text:'同じ三本線メニューの中には、防災クイズや気象庁の各種情報ページへのリンクもまとめてあります。', en:'The same three-line menu also gathers links to disaster-prevention quizzes and various information pages from the Japan Meteorological Agency.', fallbackToTop:true },
-  { sel:'[data-tour="lang"]', title:'🌐 English / 多言語表示', text:'メニューの中の「English / 言語」ボタンです。お使いのブラウザの翻訳機能を使うと、このサイトを英語など多言語で読めます。ボタンを押すと、スマホ・パソコン別の翻訳手順を日本語と英語で案内します。海外の方や、英語で読みたい方はこちらをご利用ください。', en:'This is the "English / Language" button in the menu. Using your browser\u2019s translation feature, you can read this site in English and other languages. Tapping the button shows translation steps for both smartphones and PCs, in Japanese and English. Recommended for visitors from overseas or anyone who prefers to read in English.', onShow:openHamburgerForTour, fallbackToTop:true },
+  { sel:'.hp-header', title:'防災情報センターへようこそ', text:'地震速報をリアルタイムで表示する防災情報サイトです。ヘッダー右のこの機器パネルに、LIVE表示・現在時刻・更新ボタン・メニューがまとまっています。主な使い方を簡単にご案内します。', en:'This is a disaster-prevention site that shows earthquake alerts in real time. The control panel at the top right brings together the LIVE indicator, current time, refresh button, and menu. Here is a quick guide to the main features.', needsHeader:true },
+  { sel:'[data-tour="emg-plate"]', title:'🚨 緊急対応マニュアル', text:'ヘッダーの「緊急対応マニュアル」ボタンです。地震・火災・救急・台風・防犯など、いざという時の対応手順をタップで確認できます。迷ったらここを開き、状況を選ぶだけでやるべきことが表示されます。', en:'This is the "Emergency Response Manual" button in the header. With a tap you can check what to do in an emergency — earthquakes, fire, first aid, typhoons, crime prevention, and more. When in doubt, open this and just choose your situation to see the steps to take.', fallbackToTop:true, needsHeader:true },
+  { sel:'[data-tour="diag-plate"]', title:'🗾 被害想定診断ツール', text:'「被害想定診断ツール」ボタンです。都道府県を選ぶだけで、活断層マップ・地震の発生確率・想定される死者数や経済損失などを即座に確認できます。お住まいの地域のリスクをチェックしてみましょう。', en:'This is the "Damage Estimate Tool" button. Just select your prefecture to instantly view the active-fault map, earthquake probability, and estimated casualties and economic losses. Check the risks in your area.', fallbackToTop:true, needsHeader:true },
+  { sel:'[data-tour="live"]', title:'🟢 LIVE・現在時刻', text:'ヘッダー右の機器パネルです。赤いランプが点滅していれば「LIVE（リアルタイム配信中）」を表し、その下の窓に現在時刻が表示されます。地震データは自動で更新され続けます。', en:'This is the control panel at the top right. A blinking red lamp means "LIVE" (real-time streaming), and the window below shows the current time. Earthquake data keeps updating automatically.', needsHeader:true },
+  { sel:'#siteRefreshBtn', title:'🔄 最新情報に更新', text:'パネル内の丸い矢印ボタンです。自動更新を待たずに、いますぐ最新の地震・気象情報を取り込みたいときにタップします。表示が古いと感じたらここを押してください。', en:'This is the round arrow button on the panel. Tap it when you want the latest earthquake and weather information right away, without waiting for the automatic update. Press it whenever the display feels out of date.', fallbackToTop:true, needsHeader:true },
+  { sel:'[data-tour="menu"]', title:'☰ メニュー（設定）', text:'パネル右側の三本線アイコンがメニューボタンです。タップで開くメニューの中に、設定・お問い合わせ・プライバシーポリシーがあります。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。', en:'The three-line icon on the right of the panel is the menu button. The menu it opens contains Settings, Contact, and the Privacy Policy. You can change the theme, font, notifications, alert sounds, and more in Settings, and you can revisit this tutorial anytime from "Help" within Settings.', needsHeader:true },
+  { sel:'[data-tour="menu"]', title:'☰ メニュー（リンク集）', text:'同じ三本線メニューの中には、防災クイズや気象庁の各種情報ページへのリンクもまとめてあります。', en:'The same three-line menu also gathers links to disaster-prevention quizzes and various information pages from the Japan Meteorological Agency.', fallbackToTop:true, needsHeader:true },
+  { sel:'[data-tour="lang"]', title:'🌐 English / 多言語表示', text:'メニューの中の「English / 言語」ボタンです。お使いのブラウザの翻訳機能を使うと、このサイトを英語など多言語で読めます。ボタンを押すと、スマホ・パソコン別の翻訳手順を日本語と英語で案内します。海外の方や、英語で読みたい方はこちらをご利用ください。', en:'This is the "English / Language" button in the menu. Using your browser\u2019s translation feature, you can read this site in English and other languages. Tapping the button shows translation steps for both smartphones and PCs, in Japanese and English. Recommended for visitors from overseas or anyone who prefers to read in English.', onShow:openHamburgerForTour, fallbackToTop:true, needsHeader:true },
   { sel:'[data-tour="tabs"]', title:'気象情報タブ（収納式）', text:'台風・雨雲レーダー・警報注意報など、気象・災害情報へのリンク集です。ふだんは「災害情報タブ」ボタンに収納されていて、タップすると開きます（いまチュートリアル用に開いています）。目的の情報にすぐアクセスできます。', en:'This is a set of links to weather and disaster information such as typhoons, rain-cloud radar, and warnings/advisories. Normally it is tucked away under the "Disaster Info Tabs" button and opens when tapped (it is open now for the tutorial). It gives you quick access to the information you need.', onShow:openDtabsForTour },
   { sel:'[data-tour="stats"]', title:'本日の地震サマリー', text:'本日の有感地震の回数、最大マグニチュード・最大震度をひと目で確認できます。', en:'See today\u2019s number of felt earthquakes, plus the maximum magnitude and seismic intensity, at a glance.', onShow:closeDtabsForTour },
   { sel:'#quakeList', selAlt:'.quake-list', title:'地震リスト', text:'最近発生した地震の一覧です。カードをタップすると詳細が表示されます。', en:'This is a list of recent earthquakes. Tap a card to see the details.', fallbackToTop:true },
@@ -6674,6 +6674,7 @@ const tourSteps = [
   { sel:'#pwInput', title:'🔒 復元用パスワード（任意）', text:'スタンプカードの中には「復元用パスワード」を設定できる欄があります。パスワードを決めておくと、機種変更などで別の端末にデータを引き継ぐとき、引き継ぎコードに加えてこのパスワードが必要になります。他人にコードを知られても大切なスタンプ記録を守れます。設定は任意です。忘れた場合は運営でリセットできます。', en:'The stamp card includes a field to set a "recovery password." If you set one, then when you transfer your data to another device (for example after changing phones), this password is required in addition to the transfer code. This keeps your valuable stamp record safe even if someone learns your code. Setting it is optional, and the operators can reset it if you forget it.', onShow:openStampCardForTour, fallbackToCorner:true },
 ];
 let _tourIndex = 0;
+let _tourHeaderWasClosed = false;  // ツアー開始前のヘッダー開閉状態（終了時に復元）
 // チュートリアル中だけ気象情報タブ（収納式）を開く／閉じる
 function openDtabsForTour(){
   const tabs = document.querySelector('.disaster-tabs');
@@ -6907,10 +6908,25 @@ function maybeStartTourOnFirstVisit(){
   // 全画面の地震警報（EEWオーバーレイ）が表示中の間は待ち、閉じられてから開始する
   setTimeout(function(){
     const waiter = setInterval(function(){
+      // 既に何らかのチュートリアル（メイン／設定／位置強調）が表示中、または
+      // 設定オーバーレイが開いている場合は、自動起動しない（多重起動・乗っ取り防止）。
+      // 特に、ユーザーが先に「設定内チュートリアル」を開いていた場合に、
+      // この初回自動起動が割り込んで設定ツアーをメインツアーへ置き換えてしまうのを防ぐ。
+      if(document.body.classList.contains('tour-open') || _settingsTour || _locationHighlight){
+        clearInterval(waiter);
+        return;
+      }
       const ov = document.getElementById('eewOverlay');
       if(!ov || !ov.classList.contains('active')){
         clearInterval(waiter);
-        setTimeout(startTour, 500);
+        // 起動直前にも再確認（500msの間に他のツアーが始まる可能性に備える）
+        setTimeout(function(){
+          if(document.body.classList.contains('tour-open') || _settingsTour || _locationHighlight) return;
+          let seen2 = false;
+          try { seen2 = localStorage.getItem(TOUR_KEY) === 'true'; } catch(e){}
+          if(seen2) return;
+          startTour();
+        }, 500);
       }
     }, 600);
   }, 1200); // 地震データの取得を少し待ってから判定
@@ -6950,6 +6966,9 @@ function startTour(){
   _settingsTour = false;
   _activeSteps = tourSteps;
   _tourIndex = 0;
+  // チュートリアル開始前のヘッダー開閉状態を覚えておき、終了時に元へ戻す。
+  // （チュートリアル中はステップに応じてヘッダーを一時的に開閉するため）
+  _tourHeaderWasClosed = document.documentElement.classList.contains('header-closed');
   // チュートリアル再生時は、どこまでスクロールしていても一番上から始める
   try { window.scrollTo({ top:0, left:0, behavior:'auto' }); } catch(e){ window.scrollTo(0,0); }
   // チュートリアル中は誤タップ防止のためプレゼントBOXを隠す
@@ -6997,6 +7016,14 @@ function endTour(completed){
 
   // --- メインチュートリアルの終了処理 ---
   try { localStorage.setItem(TOUR_KEY, 'true'); } catch(e){}
+  // ヘッダーをツアー開始前の状態へ戻す（ツアー中に一時開閉していたため）
+  try {
+    if(_tourHeaderWasClosed){
+      if(typeof closeHeaderBar === 'function') closeHeaderBar();
+    } else {
+      if(typeof openHeaderBar === 'function') openHeaderBar();
+    }
+  } catch(e){}
   // チュートリアル終了時：気象情報タブは収納状態に戻す
   if(typeof collapseDtabs === 'function') collapseDtabs();
   // チュートリアル完了 → ここで初めてプレゼントBOXを出現させる
@@ -7103,6 +7130,20 @@ function _forceRevealForTour(el){
 
 function showTourStep(){
   const step = _activeSteps[_tourIndex];
+  // ヘッダー開閉制御（メインツアーのみ）。
+  // ヘッダー内を説明するステップ（needsHeader）の間はヘッダーを開いておき、
+  // 本文コンテンツの説明に移ったら一度ヘッダーを閉じる。
+  // ヘッダーが開いたままだと画面上部を占有し、以降のハイライト位置がずれて
+  // 見えにくくなるため、説明が終わった段階で収納する。
+  if(!_settingsTour){
+    try {
+      if(step.needsHeader){
+        if(typeof openHeaderBar === 'function') openHeaderBar();
+      } else {
+        if(typeof closeHeaderBar === 'function') closeHeaderBar();
+      }
+    } catch(e){}
+  }
   // パスワード説明ステップ以外に移ったら、持ち上げたスタンプカードを元に戻す
   if(step.onShow !== openStampCardForTour){
     try { resetStampCardLift(); } catch(e){}
@@ -7148,7 +7189,29 @@ function showTourStep(){
   const HEADER_OFFSET = 100; // ヘッダー等に隠れない余白
   // 位置を測る前にスクロール演出を確定させ、transform由来のズレを防ぐ
   try { _forceRevealForTour(el); } catch(e){}
-  if(el && !step.onShow){
+  if(el && _settingsTour){
+    // 設定内チュートリアル：対象は設定パネル（独自スクロールコンテナ）の中にある。
+    // ページ全体ではなくパネルをスクロールして、対象をパネル内の見やすい位置へ。
+    const panel = document.querySelector('#settingsOverlay .settings-panel');
+    if(panel){
+      const align = function(){
+        const pr = panel.getBoundingClientRect();
+        const er = el.getBoundingClientRect();
+        // パネル内での対象の上端を、パネル上端から約90px下に合わせる
+        const margin = 90;
+        const delta = (er.top - pr.top) - margin;
+        panel.scrollTop = Math.max(0, panel.scrollTop + delta);
+      };
+      try { align(); } catch(e){}
+      if(typeof positionTour === 'function'){
+        requestAnimationFrame(function(){ try{ align(); }catch(e){} positionTour(); });
+        setTimeout(function(){ try{ align(); }catch(e){} positionTour(); }, 90);
+        setTimeout(positionTour, 220);
+      }
+    } else {
+      if(typeof positionTour === 'function') positionTour();
+    }
+  } else if(el && !step.onShow){
     const vh = window.innerHeight;
     const r0 = el.getBoundingClientRect();
     const tooTall = r0.height > vh - HEADER_OFFSET - 40;
