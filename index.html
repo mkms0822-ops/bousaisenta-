@@ -738,6 +738,48 @@ main { position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:28
 .blog-photos.n3, .blog-photos.nmore { grid-template-columns:repeat(3,1fr); }
 .blog-photos img { width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; border:1px solid var(--border); cursor:pointer; background:#000; max-height:200px; }
 .blog-photos.n1 img { aspect-ratio:auto; max-height:260px; }
+
+/* ===== コラム画像カルーセル（複数画像のページめくり） ===== */
+.blog-carousel{ position:relative; margin:0 0 4px; border-radius:10px; overflow:hidden; background:#000; border:1px solid var(--border); }
+/* コラムカード直下のときだけ左右に余白（カード内パディングに合わせる） */
+.blog-card > .blog-carousel{ margin:0 18px 12px; }
+.carousel-track{ position:relative; width:100%; }
+.carousel-slide{ display:none; }
+.carousel-slide.active{ display:block; }
+.carousel-slide img{ width:100%; max-height:300px; object-fit:contain; background:#000; display:block; cursor:zoom-in; }
+/* 左右のページめくりボタン（黒地に白抜き三角） */
+.carousel-btn{
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:38px; height:38px; padding:0; display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,0.55); border:1px solid rgba(255,255,255,0.5); border-radius:50%;
+  cursor:pointer; z-index:2; transition:background .15s, transform .12s;
+  -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px);
+}
+.carousel-btn:hover{ background:rgba(0,0,0,0.8); }
+.carousel-btn:active{ transform:translateY(-50%) scale(0.92); }
+.carousel-btn.prev{ left:8px; }
+.carousel-btn.next{ right:8px; }
+.carousel-btn svg{ display:block; }
+/* 何枚目かの表示（右上） */
+.carousel-counter{
+  position:absolute; top:8px; right:10px; z-index:2;
+  background:rgba(0,0,0,0.6); color:#fff; font-size:11px; font-weight:700;
+  padding:3px 9px; border-radius:20px; letter-spacing:.05em; pointer-events:none;
+}
+/* 下部のドットインジケータ */
+.carousel-dots{
+  position:absolute; left:0; right:0; bottom:8px; z-index:2;
+  display:flex; justify-content:center; gap:7px; pointer-events:none;
+}
+.carousel-dot{
+  width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.45);
+  border:1px solid rgba(0,0,0,0.3); cursor:pointer; pointer-events:auto; transition:background .15s, transform .15s;
+}
+.carousel-dot.active{ background:#fff; transform:scale(1.25); }
+@media(max-width:600px){
+  .carousel-btn{ width:32px; height:32px; }
+  .carousel-slide img{ max-height:240px; }
+}
 .post-photos { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; margin:8px 0 4px; }
 .post-photos img { width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:6px; border:1px solid var(--border); background:#000; max-height:90px; }
 .pd-photos { display:grid; gap:8px; margin:6px 0 14px; }
@@ -4553,9 +4595,7 @@ function renderBookmarkList(){
     const tagLabel = (TAG_OPTIONS.find(function(t){return t.val===c.tag;})||{}).label || c.tag || '';
     const body = (c.body||'').replace(/\n/g,'<br>');
     const imgs = (c.images && c.images.length)
-      ? '<div class="pd-photos ' + (c.images.length===1?'n1':c.images.length===2?'n2':'nmore') + '" style="display:grid;margin-top:8px;">'
-        + c.images.map(function(u){ return '<img src="'+u+'" loading="lazy" onclick="openLightbox(\''+u+'\')">'; }).join('')
-        + '</div>'
+      ? '<div style="margin-top:8px;">' + renderBlogPhotos(c.images) + '</div>'
       : '';
     return '<div style="border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;background:var(--surface2);position:relative;">'
       + '<button type="button" onclick="removeBookmark(\''+c.id+'\')" style="position:absolute;top:10px;right:10px;background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;" title="ブックマークを外す">🗑️ 外す</button>'
@@ -4657,18 +4697,57 @@ function toggleArchiveReadMore(i){
 }
 
 // 記事カードの写真（最大3枚＋残数表示）
+let _carouselSeq = 0;
 function renderBlogPhotos(images){
   if(!images || !images.length) return '';
-  const shown = images.slice(0,3);
-  const cls = images.length===1?'n1':images.length===2?'n2':'n3';
-  const extra = images.length>3 ? images.length-3 : 0;
-  const imgs = shown.map((u,idx)=>{
-    const overlay = (idx===2 && extra>0)
-      ? `<div style="position:relative;"><img src="${u}" loading="lazy" onclick="openLightbox('${u}')"><span style="position:absolute;inset:0;background:rgba(0,0,0,.55);color:#fff;display:grid;place-items:center;font-size:18px;font-weight:700;border-radius:8px;pointer-events:none;">+${extra}</span></div>`
-      : `<img src="${u}" loading="lazy" onclick="openLightbox('${u}')">`;
-    return overlay;
-  }).join('');
-  return `<div class="blog-photos ${cls}">${imgs}</div>`;
+  // 1枚だけのときは従来どおり単純表示（めくる必要がない）
+  if(images.length === 1){
+    return `<div class="blog-photos n1"><img src="${images[0]}" loading="lazy" onclick="openLightbox('${images[0]}')"></div>`;
+  }
+  // 複数枚はカルーセル（ページめくり）形式。左右の三角ボタンで1枚ずつ送る。
+  const id = 'carousel' + (++_carouselSeq);
+  const slides = images.map((u,idx)=>
+    `<div class="carousel-slide${idx===0?' active':''}" data-idx="${idx}">`
+    + `<img src="${u}" loading="lazy" onclick="openLightbox('${u}')">`
+    + `</div>`
+  ).join('');
+  const dots = images.map((_,idx)=>
+    `<span class="carousel-dot${idx===0?' active':''}" data-idx="${idx}" onclick="carouselGo('${id}',${idx})"></span>`
+  ).join('');
+  return `<div class="blog-carousel" id="${id}" data-count="${images.length}" data-cur="0">`
+    + `<div class="carousel-track">${slides}</div>`
+    + `<button class="carousel-btn prev" type="button" aria-label="前の画像" onclick="carouselStep('${id}',-1)">`
+    +   `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><polygon points="15,4 7,12 15,20" fill="#fff"/></svg>`
+    + `</button>`
+    + `<button class="carousel-btn next" type="button" aria-label="次の画像" onclick="carouselStep('${id}',1)">`
+    +   `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><polygon points="9,4 17,12 9,20" fill="#fff"/></svg>`
+    + `</button>`
+    + `<div class="carousel-counter"><span class="cc-cur">1</span>/${images.length}</div>`
+    + `<div class="carousel-dots">${dots}</div>`
+    + `</div>`;
+}
+
+// カルーセルを指定インデックスへ
+function carouselGo(id, idx){
+  const root = document.getElementById(id);
+  if(!root) return;
+  const count = parseInt(root.getAttribute('data-count'),10) || 1;
+  if(idx < 0) idx = count - 1;            // 端を超えたらループ
+  if(idx >= count) idx = 0;
+  root.setAttribute('data-cur', idx);
+  const slides = root.querySelectorAll('.carousel-slide');
+  slides.forEach(function(s){ s.classList.toggle('active', parseInt(s.getAttribute('data-idx'),10)===idx); });
+  const dots = root.querySelectorAll('.carousel-dot');
+  dots.forEach(function(d){ d.classList.toggle('active', parseInt(d.getAttribute('data-idx'),10)===idx); });
+  const cur = root.querySelector('.cc-cur');
+  if(cur) cur.textContent = (idx+1);
+}
+// 相対移動（前/次）
+function carouselStep(id, dir){
+  const root = document.getElementById(id);
+  if(!root) return;
+  const c = parseInt(root.getAttribute('data-cur'),10) || 0;
+  carouselGo(id, c + dir);
 }
 
 // 画像ライトボックス
@@ -4725,9 +4804,9 @@ function openPostModal(i){
   subEl.style.display = p.subtitle ? 'block' : 'none';
   const photoEl = document.getElementById('pdPhotos');
   if(p.images && p.images.length){
-    photoEl.className = 'pd-photos ' + (p.images.length===1?'n1':p.images.length===2?'n2':'nmore');
-    photoEl.innerHTML = p.images.map(u=>`<img src="${u}" loading="lazy" onclick="openLightbox('${u}')">`).join('');
-    photoEl.style.display = 'grid';
+    photoEl.className = 'pd-photos';
+    photoEl.innerHTML = renderBlogPhotos(p.images);
+    photoEl.style.display = 'block';
   } else {
     photoEl.innerHTML = ''; photoEl.style.display = 'none';
   }
@@ -4778,9 +4857,7 @@ function renderVersionList(){
   wrap.innerHTML = versionItems.map(function(p){
     const body = (p.body||'').replace(/\n/g,'<br>');
     const imgs = (p.images && p.images.length)
-      ? '<div class="pd-photos ' + (p.images.length===1?'n1':p.images.length===2?'n2':'nmore') + '" style="display:grid;margin-top:8px;">'
-        + p.images.map(function(u){ return '<img src="'+u+'" loading="lazy" onclick="openLightbox(\''+u+'\')">'; }).join('')
-        + '</div>'
+      ? '<div style="margin-top:8px;">' + renderBlogPhotos(p.images) + '</div>'
       : '';
     return '<div style="border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;background:var(--surface2);">'
       + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
