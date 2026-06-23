@@ -1907,17 +1907,23 @@ html.light .scale-item.lv1 { background:rgba(0,0,0,0.04); border-color:rgba(0,0,
   html.split-open .logo-text{font-size:16px;white-space:nowrap}
   html.split-open .logo-sub{display:none}
   html.split-open .header-status{gap:8px}
-  /* プレート型ヘッダー：2画面の狭い幅では説明文を省き、画像＋タイトルのみに。
-     これで折り返しや下切れを防ぎ、縦もコンパクトに収める。 */
-  html.split-open .plate-nav{ gap:14px; padding:8px 0 10px; margin-left:clamp(10px,3vw,40px); }
-  html.split-open .plate-desc .pd-sub{ display:none; }
-  html.split-open .plate-desc{ max-width:200px; }
-  html.split-open .plate-desc .pd-title{ font-size:14px; }
-  /* 機器パネル（時計・更新・メニュー）がペイン境界の影や「×閉じる」ボタンに
-     かぶらないよう、トップバー右端に十分な余白を作り、パネル自体も縮める。 */
-  html.split-open #topbar{ right:calc(50vw + 24px); }
-  html.split-open body{ padding-right:calc(50vw + 24px); }
-  html.split-open .hp-header{ height:88px; transform:scale(0.86); transform-origin:right center; }
+  /* ★2画面表示の核心対策★
+     2画面では「画面幅」は広くても「左ペインの実効幅」は半分しかない。
+     ところがプレート説明文の表示/非表示は画面幅(max-width:1100px)で判定するため、
+     広いPCで2画面にすると説明文が表示されたまま横に広がり、機器パネルを
+     ペイン外へ押し出してはみ出す。
+     → 2画面時は画面幅に関わらず「狭いレイアウト」を強制する：
+        ・プレート説明文(.plate-desc)を隠す
+        ・代わりにプレート画像内のラベル(.dwa-plate-label)を表示
+        ・プレートを小さくして横並びをコンパクトに */
+  html.split-open .plate-desc{ display:none !important; }
+  html.split-open .plate-nav .dwa-plate-label{ display:block !important; }
+  html.split-open .plate-nav{ gap:18px; padding:10px 0 16px; margin-left:clamp(8px,2vw,24px); flex:0 0 auto; }
+  html.split-open .dwa-plate{ width:54px; }
+  /* 機器パネル（時計・更新・メニュー）をペイン境界の内側に確実に収める */
+  html.split-open #topbar{ right:calc(50vw + 16px); }
+  html.split-open body{ padding-right:calc(50vw + 16px); }
+  html.split-open .hp-header{ height:84px; }
 }
 /* スマホの2画面(上下分割)でも念のためロゴの折返しを防止 */
 @media(max-width:768px){
