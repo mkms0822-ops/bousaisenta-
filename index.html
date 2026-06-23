@@ -2360,8 +2360,8 @@ html.mode-chat.chat-split #modeChatScreen .mc-title{ font-size:13px; margin-bott
 <header id="section-top">
   <button type="button" class="header-close-btn" onclick="closeHeaderBar()" title="ヘッダーを閉じる" aria-label="ヘッダーを閉じる">✕</button>
   <div class="plate-nav" data-tour="logo">
-    <div class="plate-item">
-    <a class="dwa-plate dwa-plate-emg" data-tour="emg-plate" href="https://mkms0822-ops.github.io/kinkyuutaioumanyuaru/" target="_blank" rel="noopener" title="緊急対応マニュアル">
+    <div class="plate-item" data-tour="emg-plate">
+    <a class="dwa-plate dwa-plate-emg" href="https://mkms0822-ops.github.io/kinkyuutaioumanyuaru/" target="_blank" rel="noopener" title="緊急対応マニュアル">
       <img class="dwa-plate-img" src="dwa-plate-manual-v2.webp" alt="緊急対応" />
       <span class="dwa-light dwa-light-red"></span>
       <span class="dwa-light dwa-light-amber"></span>
@@ -2373,8 +2373,8 @@ html.mode-chat.chat-split #modeChatScreen .mc-title{ font-size:13px; margin-bott
         <div class="pd-sub">地震・火災・救急・台風・防犯<br>― いざという時の手順をタップで確認</div>
       </div>
     </div>
-    <div class="plate-item plate-item-map">
-    <a class="dwa-plate dwa-plate-map" data-tour="diag-plate" href="javascript:void(0)" onclick="openShindanModal();return false;" title="被害想定診断ツール">
+    <div class="plate-item plate-item-map" data-tour="diag-plate">
+    <a class="dwa-plate dwa-plate-map" href="javascript:void(0)" onclick="openShindanModal();return false;" title="被害想定診断ツール">
       <img class="dwa-plate-img" src="dwa-plate-diagnosis-v2.webp" alt="被害想定診断ツール" />
       <span class="dwa-plate-label">被害想定</span>
     </a>
@@ -6666,7 +6666,7 @@ const tourSteps = [
   { sel:'[data-tour="tabs"]', title:'気象情報タブ（収納式）', text:'台風・雨雲レーダー・警報注意報など、気象・災害情報へのリンク集です。ふだんは「災害情報タブ」ボタンに収納されていて、タップすると開きます（いまチュートリアル用に開いています）。目的の情報にすぐアクセスできます。', en:'This is a set of links to weather and disaster information such as typhoons, rain-cloud radar, and warnings/advisories. Normally it is tucked away under the "Disaster Info Tabs" button and opens when tapped (it is open now for the tutorial). It gives you quick access to the information you need.', onShow:openDtabsForTour },
   { sel:'[data-tour="stats"]', title:'本日の地震サマリー', text:'本日の有感地震の回数、最大マグニチュード・最大震度をひと目で確認できます。', en:'See today\u2019s number of felt earthquakes, plus the maximum magnitude and seismic intensity, at a glance.', onShow:closeDtabsForTour },
   { sel:'#quakeList', selAlt:'.quake-list', title:'地震リスト', text:'最近発生した地震の一覧です。カードをタップすると詳細が表示されます。', en:'This is a list of recent earthquakes. Tap a card to see the details.', fallbackToTop:true },
-  { sel:'[data-tour="bookmark"]', selAlt:'#section-column', title:'🔖 ブックマーク', text:'防災記事カードの右上にあるこのマークをタップすると、その記事をブックマーク（お気に入り保存）できます。あとで読み返したい「備え」や「ヒント」を保存しておくと、必要なときにすぐ見返せます。', en:'Tap this mark at the top right of a disaster-prevention article card to bookmark (save) that article. Save the preparedness tips you want to revisit later so you can find them quickly when you need them.', onShow:scrollToColumnForTour, fallbackToTop:true },
+  { sel:'[data-tour="bookmark"]', selAlt:'.bookmark-btn', selAlt2:'.blog-card', title:'🔖 ブックマーク', text:'防災記事カードの右上にあるこのマークをタップすると、その記事をブックマーク（お気に入り保存）できます。あとで読み返したい「備え」や「ヒント」を保存しておくと、必要なときにすぐ見返せます。', en:'Tap this mark at the top right of a disaster-prevention article card to bookmark (save) that article. Save the preparedness tips you want to revisit later so you can find them quickly when you need them.', onShow:scrollToColumnForTour, fallbackToTop:true },
   { sel:'[data-tour="review"]', title:'⭐ 口コミ・レビュー', text:'このサイトの感想や評価を投稿できるコーナーです。星の数と一言コメントで、使ってみての感想をぜひ聞かせてください。みんなの口コミも読めます。', en:'This is where you can post your impressions and ratings of the site. Please share how you found it using a star rating and a short comment. You can also read other users\u2019 reviews.', onShow:scrollToReviewForTour, fallbackToTop:true },
   { sel:'[data-tour="chat"]', title:'💬 みんなのひとことチャット', text:'防災情報の共有や、ひとことメッセージを書き込めるチャットです。閲覧は誰でもできます。書き込みには「引き継ぎコード」での参加（ログイン）が必要です。地域の気づきや声かけにご活用ください。', en:'This is a chat for sharing disaster information and posting short messages. Anyone can read it. To post, you need to join (log in) with a "transfer code." Please use it for local observations and to check in with one another.', fallbackToTop:true },
   { sel:'[data-tour="share"]', title:'📤 友達紹介リンク', text:'あなた専用の紹介リンクで、このサイトを友達に教えられます。紹介リンクから友達がアクセスすると、あなたと友達の両方にスタンプを1つずつプレゼント。LINEやXでかんたんに共有できます。', en:'Use your personal referral link to tell friends about this site. When a friend visits through your link, both you and your friend each receive one stamp. You can share easily via LINE or X.', fallbackToTop:true },
@@ -6690,20 +6690,35 @@ function closeDtabsForTour(){
 }
 // ブックマーク説明ステップ：防災コラム（ブックマークボタンのある一覧）まで移動
 function scrollToColumnForTour(){
-  const target = document.querySelector('[data-tour="bookmark"]') || document.getElementById('section-column');
-  if(target){
-    // 対象を画面の上寄りに置く（block:'start'）。下側に説明ポップアップを出す空間を確保し、
-    // 説明文とハイライト枠が重ならないようにする。
+  // ブックマークボタン(#bm0)は記事カード内の小さな要素。これを画面の
+  // 「やや上（上から約28%）」に置く。最上部に置くと真下のポップアップに
+  // 隠れてしまうため、ボタンが見えつつ下に説明を出せる位置にする。
+  function findBookmarkTarget(){
+    return document.querySelector('[data-tour="bookmark"]')
+        || document.querySelector('.bookmark-btn')
+        || document.querySelector('.blog-card')
+        || document.getElementById('section-column');
+  }
+  function alignTop(behavior){
+    const target = findBookmarkTarget();
+    if(!target) return;
+    const offset = Math.max(150, Math.round(window.innerHeight * 0.28));
+    const r = target.getBoundingClientRect();
+    const y = Math.max(0, window.scrollY + r.top - offset);
+    try { window.scrollTo({ top:y, left:0, behavior: behavior||'auto' }); }
+    catch(e){ window.scrollTo(0, y); }
+  }
+  try {
+    alignTop('auto');                 // まず即座に合わせる
+    setTimeout(function(){
+      alignTop('auto');               // 画像読み込み等で高さが変わっても再度ぴったり
+      if(typeof positionTour === 'function') setTimeout(positionTour, 60);
+    }, 360);
+  } catch(e){
     try {
-      target.scrollIntoView({ behavior:'smooth', block:'start' });
-      // ヘッダーに隠れない＆少し余白を持たせるため、さらに少し上へ送る
-      setTimeout(function(){
-        try { window.scrollBy({ top: -90, left: 0, behavior:'smooth' }); } catch(e){ window.scrollBy(0,-90); }
-        if(typeof positionTour === 'function') setTimeout(positionTour, 250);
-      }, 350);
-    } catch(e){
-      try { target.scrollIntoView(); } catch(_){}
-    }
+      const t = findBookmarkTarget();
+      if(t) t.scrollIntoView();
+    } catch(_){}
   }
 }
 // 口コミ・レビュー説明ステップ：セクションの「上端」を画面上部に合わせる。
@@ -7055,7 +7070,7 @@ function _tourTargetEl(step){
     }
     return firstHidden;                // 表示中が無ければ最初のもの（従来動作）
   }
-  return pick(step.sel) || pick(step.selAlt);
+  return pick(step.sel) || pick(step.selAlt) || pick(step.selAlt2);
 }
 
 // ツアーで対象を指す前に、スクロール演出（.anim-ready=opacity:0／translateY）を
@@ -7190,22 +7205,32 @@ function positionTour(){
   let hw = r.width + pad*2, hh = r.height + pad*2;
   const H0 = window.innerHeight;
   // 画面内に収める上下マージン（ヘッダー下〜画面下）
-  const TOP_SAFE = 72;          // ヘッダー等に隠れない最小トップ
+  const TOP_SAFE = 72;          // 縦に長い要素を上寄せするときの最小トップ
+  const TOP_MIN = 6;            // 画面最上部の絶対マージン（ヘッダー内要素はここまで許可）
   const BOTTOM_SAFE = 16;       // 画面下の余白
-  // ハイライト枠が画面より縦に長い／上下にはみ出す場合に「フレームアウト」する。
-  // (1) まず高さを画面に収まる範囲へ制限し、(2) 上端・下端を画面内へクランプする。
+  // 対象が「画面の縦に収まる短い要素」か「画面より長い要素」かを判定。
+  // 短い要素は実際の位置のまま囲う（ヘッダー内カードのタイトルが切れないように）。
+  // 長い要素のみ、上端をヘッダー下(TOP_SAFE)に寄せて高さを制限する。
   const maxHoleH = Math.min(Math.round(H0 * 0.6), H0 - TOP_SAFE - BOTTOM_SAFE);
   let hy = hy0;
-  if(hh > maxHoleH){
-    // 対象が長い場合：対象の「見えている上端」を優先して上から maxHoleH 分だけ枠にする
+  const isTall = hh > maxHoleH;
+  if(isTall){
+    // 画面より縦に長い要素：上端をヘッダー下に寄せ、見える範囲だけを枠にする
     hy = Math.max(hy0, TOP_SAFE);
     hh = maxHoleH;
-  }
-  // 上端が画面より上 → 画面内へ。枠の見えている範囲だけを示す。
-  if(hy < TOP_SAFE){
-    const cut = TOP_SAFE - hy;     // 画面外へはみ出した上側の量
-    hy = TOP_SAFE;
-    hh = Math.max(40, hh - cut);   // その分だけ高さを詰める
+    if(hy < TOP_SAFE){
+      const cut = TOP_SAFE - hy;
+      hy = TOP_SAFE;
+      hh = Math.max(40, hh - cut);
+    }
+  } else {
+    // 画面に収まる短い要素：上端が画面外（マイナス）のときだけ最小マージンへ寄せる。
+    // ヘッダー内の要素（top が小さい）はそのまま全体を囲う。
+    if(hy < TOP_MIN){
+      const cut = TOP_MIN - hy;
+      hy = TOP_MIN;
+      hh = Math.max(40, hh - cut);
+    }
   }
   // 下端が画面より下 → はみ出し分を詰める
   if(hy + hh > H0 - BOTTOM_SAFE){
