@@ -1465,6 +1465,49 @@ html.light #jmaWarningBanner.warn-special .jmaw-label { color:rgba(140,20,20,0.9
 html.light #jmaWarningBanner.warn-special .jmaw-body { color:rgba(100,20,20,0.95); }
 html.light #jmaWarningBanner.warn-special .jmaw-badge { color:#8b1010; }
 
+/* ===== 警報バナー：文字色を全て黒に統一（背景・点滅・グロー等のエフェクトは維持） =====
+   通常／特別警報(warn-special)／平常(warn-clear)、ダーク／ライトの全状態に適用。 */
+#jmaWarningBanner .jmaw-label,
+#jmaWarningBanner .jmaw-title,
+#jmaWarningBanner .jmaw-badge,
+#jmaWarningBanner .jmaw-body,
+#jmaWarningBanner .jmaw-list,
+#jmaWarningBanner .jmaw-action,
+#jmaWarningBanner .jmaw-link,
+#jmaWarningBanner .jmaw-meta,
+html.light #jmaWarningBanner .jmaw-label,
+html.light #jmaWarningBanner .jmaw-title,
+html.light #jmaWarningBanner .jmaw-badge,
+html.light #jmaWarningBanner .jmaw-body,
+html.light #jmaWarningBanner .jmaw-list,
+html.light #jmaWarningBanner .jmaw-action,
+html.light #jmaWarningBanner .jmaw-link,
+html.light #jmaWarningBanner .jmaw-meta,
+#jmaWarningBanner.warn-special .jmaw-label,
+#jmaWarningBanner.warn-special .jmaw-title,
+#jmaWarningBanner.warn-special .jmaw-badge,
+#jmaWarningBanner.warn-special .jmaw-body,
+#jmaWarningBanner.warn-special .jmaw-action,
+#jmaWarningBanner.warn-special .jmaw-link,
+html.light #jmaWarningBanner.warn-special .jmaw-title,
+html.light #jmaWarningBanner.warn-special .jmaw-label,
+html.light #jmaWarningBanner.warn-special .jmaw-body,
+html.light #jmaWarningBanner.warn-special .jmaw-badge,
+#jmaWarningBanner.warn-clear .jmaw-label,
+#jmaWarningBanner.warn-clear .jmaw-title,
+#jmaWarningBanner.warn-clear .jmaw-badge,
+#jmaWarningBanner.warn-clear .jmaw-body,
+#jmaWarningBanner.warn-clear .jmaw-action,
+#jmaWarningBanner.warn-clear .jmaw-link,
+html.light #jmaWarningBanner.warn-clear .jmaw-label,
+html.light #jmaWarningBanner.warn-clear .jmaw-title,
+html.light #jmaWarningBanner.warn-clear .jmaw-badge,
+html.light #jmaWarningBanner.warn-clear .jmaw-body,
+html.light #jmaWarningBanner.warn-clear .jmaw-action,
+html.light #jmaWarningBanner.warn-clear .jmaw-link {
+  color:#000 !important;
+}
+
 /* ===================== SETTINGS PANEL ===================== */
 .settings-btn {
   display:flex; align-items:center; justify-content:center;
@@ -6883,7 +6926,7 @@ const tourSteps = [
   { sel:'[data-tour="chat"]', title:'💬 みんなのひとことチャット', text:'防災情報の共有や、ひとことメッセージを書き込めるチャットです。閲覧は誰でもできます。書き込みには「引き継ぎコード」での参加（ログイン）が必要です。地域の気づきや声かけにご活用ください。', fallbackToTop:true },
   { sel:'[data-tour="share"]', title:'📤 友達紹介リンク', text:'あなた専用の紹介リンクで、このサイトを友達に教えられます。紹介リンクから友達がアクセスすると、あなたと友達の両方にスタンプを1つずつプレゼント。LINEやXでかんたんに共有できます。', fallbackToTop:true },
   { sel:'#stampFab', title:'🎁 防災スタンプカード', text:'毎日サイトを開くと、画面右下のこのボタンから1日1個スタンプを押せます。10個・20個貯まると防災グッズのプレゼントに応募できます。さっそく押してみましょう！', showStamp:true, fallbackToCorner:true, onShow:closeDtabsForTour },
-  { sel:'#pwInput', title:'🔒 復元用パスワード（任意）', text:'スタンプカードの中には「復元用パスワード」を設定できる欄があります。パスワードを決めておくと、機種変更などで別の端末にデータを引き継ぐとき、引き継ぎコードに加えてこのパスワードが必要になります。他人にコードを知られても大切なスタンプ記録を守れます。設定は任意です。忘れた場合は運営でリセットできます。', onShow:openStampCardForTour, fallbackToCorner:true },
+  { sel:'#pwInput', title:'🔒 復元用パスワード（任意）', text:'スタンプカードの中には「復元用パスワード」を設定できる欄があります。パスワードを決めておくと、機種変更などで別の端末にデータを引き継ぐとき、引き継ぎコードに加えてこのパスワードが必要になります。他人にコードを知られても大切なスタンプ記録を守れます。設定は任意です。忘れた場合は運営でリセットできます。', onShow:openStampCardForTour },
 ];
 let _tourIndex = 0;
 // チュートリアル中だけ気象情報タブ（収納式）を開く／閉じる
@@ -6928,13 +6971,17 @@ function openHamburgerForTour(){
       ov.dataset.tourLifted = '1';
       ov.style.zIndex = '99991';  // tourMask(99990) より前・tourPop(99992) より後ろ
     }
-    setTimeout(function(){
+    // メニューが開くアニメ＋スクロール完了を待ち、複数回 位置決めし直してズレを防ぐ
+    const settle = function(){
       try {
         const el = document.querySelector('[data-tour="lang"]');
         if(el) el.scrollIntoView({ behavior:'smooth', block:'center' });
       } catch(e){}
       if(typeof positionTour === 'function') positionTour();
-    }, 300);
+    };
+    setTimeout(settle, 320);
+    setTimeout(settle, 620);   // スクロール慣性が収まった頃に再調整
+    setTimeout(function(){ if(typeof positionTour === 'function') positionTour(); }, 900);
   } catch(e){}
 }
 // 持ち上げたハンバーガーのz-indexを元に戻し、メニューも閉じる（言語ステップを離れるとき）
@@ -6956,14 +7003,19 @@ function openStampCardForTour(){
       ov.dataset.tourLifted = '1';
       ov.style.zIndex = '99991';        // tourMask(99990) より前・tourPop(99992) より後ろ
     }
-    // カードが開いてパスワード欄が描画されてから枠を合わせ直す
-    setTimeout(function(){
+    // カードが開いてパスワード欄が描画されてから枠を合わせ直す。
+    // 開くアニメ＋内部スクロールが落ち着くまで、複数回 位置決めし直す。
+    const settle = function(){
       try {
         const el = document.getElementById('pwInput');
         if(el) el.scrollIntoView({ behavior:'smooth', block:'center' });
       } catch(e){}
       if(typeof positionTour === 'function') positionTour();
-    }, 350);
+    };
+    setTimeout(settle, 360);
+    setTimeout(settle, 680);
+    setTimeout(settle, 1100);  // 押印アニメ（約500ms〜）完了後にもう一度合わせる
+    setTimeout(function(){ if(typeof positionTour === 'function') positionTour(); }, 1500);
   } catch(e){}
 }
 // 持ち上げたスタンプカードのz-indexを元に戻す（パスワードステップを離れるとき）
@@ -7175,17 +7227,21 @@ function showTourStep(){
   document.getElementById('tourHole').classList.toggle('emphasize', !!step.emphasize);
   document.getElementById('tourPop').classList.toggle('emphasize', !!step.emphasize);
   // 対象が画面外ならスクロール（設定ツアーはパネル内、それ以外はページ全体）
+  // ただしメニュー/スタンプカードを開くステップは、要素描画後に onShow 側の settle が
+  // 位置決めするため、ここでの早すぎる scrollIntoView/position は行わない（ズレ防止）。
+  const _opensOverlay = (step.onShow === openStampCardForTour || step.onShow === openHamburgerForTour);
   const el = _tourTargetEl(step);
-  if(el){
+  if(el && !_opensOverlay){
     const r = el.getBoundingClientRect();
     if(r.top < 80 || r.bottom > window.innerHeight - 80){
       el.scrollIntoView({ behavior:'smooth', block:'center' });
     }
   }
-  // スクロールが終わるまで毎フレーム枠を再計算（固定されていない要素でもズレない）
-  _tourTrackUntil = Date.now() + 1800;
+  // スクロールが終わるまで毎フレーム枠を再計算（固定されていない要素でもズレない）。
+  // オーバーレイを開くステップは描画完了が遅いので追従期間を長めに取る。
+  _tourTrackUntil = Date.now() + (_opensOverlay ? 3200 : 1800);
   requestAnimationFrame(trackTourPosition);
-  positionTour();
+  if(!_opensOverlay) positionTour();   // 開くステップは settle に任せ、中央チラ見せを防ぐ
   // ポップアップ内部のスクロールを先頭に戻す（前ステップの位置が残らないように）
   try { document.getElementById('tourPop').scrollTop = 0; } catch(e){}
 }
@@ -7197,6 +7253,12 @@ function positionTour(){
   const hole = document.getElementById('tourHole');
   const pop = document.getElementById('tourPop');
   const pad = 8;
+  // メニュー/スタンプカードを開くステップで、対象要素がまだ描画されていない場合は、
+  // 中央や隅に枠を出さず描画完了（settle）を待つ。これにより「説明文だけ先に出る」ズレを防ぐ。
+  const _opensOverlay = (step.onShow === openStampCardForTour || step.onShow === openHamburgerForTour);
+  if(_opensOverlay && !el){
+    return; // 次の settle / 追従フレームで再試行
+  }
   let r;
   if(el){
     r = el.getBoundingClientRect();
