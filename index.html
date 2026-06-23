@@ -9895,16 +9895,26 @@ function sendSiteInquiry(){
     '07':'波浪警報','08':'高潮警報','09':'土砂災害警報',
     '32':'暴風雪特別警報','33':'大雨特別警報','35':'暴風特別警報','36':'大雪特別警報',
     '37':'波浪特別警報','38':'高潮特別警報','39':'土砂災害特別警報','40':'特別警報',
+    '41':'氾濫特別警報','42':'氾濫特別警報',
     '43':'大雨危険警報','44':'洪水危険警報','45':'暴風危険警報','46':'暴風雪危険警報',
-    '47':'波浪危険警報','48':'高潮危険警報','49':'土砂災害危険警報'
+    '47':'波浪危険警報','48':'高潮危険警報','49':'土砂災害危険警報',
+    '50':'氾濫危険警報','51':'氾濫危険警報'
   };
-  // 特別警報とみなすコード（レベル5相当）。32〜40番台前半。
-  function isSpecial(code){ return /^3[2-9]$/.test(code) || code === '40'; }
-  // 危険警報（レベル4相当）。43〜49番台。
-  function isDanger(code){ return /^4[3-9]$/.test(code); }
+  // 特別警報とみなすコード（レベル5相当）。32〜42（暴風雪〜氾濫特別警報）。
+  function isSpecial(code){ return /^3[2-9]$/.test(code) || code === '40' || code === '41' || code === '42'; }
+  // 危険警報（レベル4相当・2026年5月新設）。43〜51番台。
+  function isDanger(code){ return /^(4[3-9]|5[01])$/.test(code); }
   // 「発表中」とみなさない status（解除・なし）
+  // 実データの status は「発表」「継続」「解除」「発表警報・注意報はなし」等。
+  // 表記揺れ（「○○を解除」等）にも備え、解除・なしを含む文字列は非発表とみなす。
   var INACTIVE_STATUS = { '解除':1, '発表警報・注意報はなし':1, '':1 };
-  function isActive(status){ return !INACTIVE_STATUS[status]; }
+  function isActive(status){
+    if(!status) return false;
+    if(INACTIVE_STATUS[status]) return false;
+    if(status.indexOf('解除') !== -1) return false;       // 「○○を解除」等
+    if(status.indexOf('なし') !== -1) return false;       // 「発表…はなし」等
+    return true; // 「発表」「継続」など発表中
+  }
   // このコードを警報バナーの対象にするか（注意報・空コードは除外）
   function isWarningCode(code){
     if(!code) return false;          // status のみ（なし等）は対象外
@@ -10023,16 +10033,22 @@ function sendSiteInquiry(){
     banner.classList.add('active');
   }
 
-  function update(){
+  function update(retried){
     if(!enabled()){ hide(); return; }
     // キャッシュ回避のためクエリを付与（map.json は Cache-Control: max-age が短い）
-    fetch(URL, { cache:'no-store' })
+    var url = URL + '?_=' + Date.now();
+    fetch(url, { cache:'no-store' })
       .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
       .then(function(json){
         var info = scan(json);
         if(info.active) show(info); else showClear(info); // 警報なしは「平常」表示
       })
-      .catch(function(){ /* 取得失敗時は黙って非表示（誤検知防止） */ hide(); });
+      .catch(function(err){
+        // 取得失敗（CORS・ネットワーク等）。1度だけ自動リトライしてから諦める。
+        try { console.warn('[jmaWarning] 気象庁データ取得に失敗:', err && err.message); } catch(e){}
+        if(!retried){ setTimeout(function(){ update(true); }, 4000); return; }
+        hide(); // 連続失敗時は誤検知防止のため非表示
+      });
   }
 
   function init(){
