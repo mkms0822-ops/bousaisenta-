@@ -2800,6 +2800,9 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
         <button class="settings-opt-btn" onclick="demoTsunami('Warning');closeSettings()">🌊 津波警報デモ</button>
         <button class="settings-opt-btn" onclick="demoTsunami('Watch');closeSettings()">🌊 津波注意報デモ</button>
         <button class="settings-opt-btn" onclick="demoTsunami('MajorWarning');closeSettings()">🌊 大津波警報デモ</button>
+        <button class="settings-opt-btn" onclick="demoJmaWarning(false);closeSettings()">⚠️ 気象警報デモ（レベル3）</button>
+        <button class="settings-opt-btn" onclick="demoJmaWarning('danger');closeSettings()">⚠️ 危険警報デモ（レベル4）</button>
+        <button class="settings-opt-btn" onclick="demoJmaWarning('special');closeSettings()">⚠️ 特別警報デモ（レベル5）</button>
       </div>
     </div>
 
@@ -9743,17 +9746,46 @@ function sendSiteInquiry(){
 <script>
 (function(){
   'use strict';
-  // 警報レベル3相当以上とみなす警報コード（注意報＝10〜29番台は除外）
-  // 警報（警戒レベル3相当〜）と特別警報（レベル5相当）を対象にする。
+  // ===== 判定方針：コード番号のホワイトリストに依存しない（制度改定に強い） =====
+  // 「注意報」コードを除外し、それ以外の発表中（解除・なし以外）をすべて
+  // 警報級（警戒レベル3相当以上：警報／危険警報／特別警報）として検知する。
+  // これにより、2026年5月の体系改定で新設された「危険警報（レベル4）」等も
+  // 自動的に拾える。コード→名称は表示用（未知コードは汎用名にフォールバック）。
+
+  // 注意報コード（これらは警報バナーの対象外。レベル1〜2）
+  var ADVISORY_CODES = {
+    '10':1,'12':1,'13':1,'14':1,'15':1,'16':1,'17':1,'18':1,'19':1,'20':1,
+    '21':1,'22':1,'23':1,'24':1,'25':1,'26':1,'27':1,'28':1,'29':1,'30':1
+  };
+  // 表示用：コード→名称（警報・危険警報・特別警報）
   var WARN_NAMES = {
     '02':'暴風雪警報','03':'大雨警報','04':'洪水警報','05':'暴風警報','06':'大雪警報',
     '07':'波浪警報','08':'高潮警報','09':'土砂災害警報',
     '32':'暴風雪特別警報','33':'大雨特別警報','35':'暴風特別警報','36':'大雪特別警報',
-    '37':'波浪特別警報','38':'高潮特別警報','39':'土砂災害特別警報',
-    '43':'大雨危険警報','48':'高潮危険警報','49':'土砂災害危険警報'
+    '37':'波浪特別警報','38':'高潮特別警報','39':'土砂災害特別警報','40':'特別警報',
+    '43':'大雨危険警報','44':'洪水危険警報','45':'暴風危険警報','46':'暴風雪危険警報',
+    '47':'波浪危険警報','48':'高潮危険警報','49':'土砂災害危険警報'
   };
-  var SPECIAL = { '32':1,'33':1,'35':1,'36':1,'37':1,'38':1,'39':1 }; // 特別警報＝レベル5相当
-  var ACTIVE  = { '発表':1,'継続':1 }; // 解除・「発表警報・注意報はなし」は対象外
+  // 特別警報とみなすコード（レベル5相当）。32〜40番台前半。
+  function isSpecial(code){ return /^3[2-9]$/.test(code) || code === '40'; }
+  // 危険警報（レベル4相当）。43〜49番台。
+  function isDanger(code){ return /^4[3-9]$/.test(code); }
+  // 「発表中」とみなさない status（解除・なし）
+  var INACTIVE_STATUS = { '解除':1, '発表警報・注意報はなし':1, '':1 };
+  function isActive(status){ return !INACTIVE_STATUS[status]; }
+  // このコードを警報バナーの対象にするか（注意報・空コードは除外）
+  function isWarningCode(code){
+    if(!code) return false;          // status のみ（なし等）は対象外
+    if(ADVISORY_CODES[code]) return false; // 注意報は対象外
+    if(/^(1[0-9]|2[0-9]|30)$/.test(code)) return false; // 念のため10〜30番台も注意報扱いで除外
+    return true;                     // それ以外（警報・危険警報・特別警報、未知の新コードも）
+  }
+  function nameOf(code){
+    if(WARN_NAMES[code]) return WARN_NAMES[code];
+    if(isSpecial(code)) return '特別警報';
+    if(isDanger(code)) return '危険警報';
+    return '気象警報';
+  }
   var URL = 'https://www.jma.go.jp/bosai/warning/data/warning/map.json';
   var POLL_MS = 5 * 60 * 1000; // 5分ごとに更新
 
@@ -9767,7 +9799,8 @@ function sendSiteInquiry(){
   function scan(json){
     // json: 配列。各要素 .areaTypes[].areas[].warnings[] = {code,status}
     var names = {};   // 警報名 → 件数
-    var special = false;
+    var special = false;  // 特別警報を含むか
+    var danger = false;   // 危険警報（レベル4）を含むか
     var report = null;
     try{
       (json||[]).forEach(function(block){
@@ -9777,9 +9810,11 @@ function sendSiteInquiry(){
         (block.areaTypes||[]).forEach(function(at){
           (at.areas||[]).forEach(function(a){
             (a.warnings||[]).forEach(function(w){
-              if(w && w.code && WARN_NAMES[w.code] && ACTIVE[w.status]){
-                names[WARN_NAMES[w.code]] = (names[WARN_NAMES[w.code]]||0) + 1;
-                if(SPECIAL[w.code]) special = true;
+              if(w && isActive(w.status) && isWarningCode(w.code)){
+                var nm = nameOf(w.code);
+                names[nm] = (names[nm]||0) + 1;
+                if(isSpecial(w.code)) special = true;
+                else if(isDanger(w.code)) danger = true;
               }
             });
           });
@@ -9787,27 +9822,32 @@ function sendSiteInquiry(){
       });
     }catch(e){}
     var list = Object.keys(names);
-    return { active: list.length > 0, special: special, names: list, report: report };
+    return { active: list.length > 0, special: special, danger: danger, names: list, report: report };
   }
 
   function show(info){
     var banner = el('jmaWarningBanner');
     if(!banner) return;
     var special = info.special;
-    banner.classList.toggle('warn-special', special);
-    el('jmawBadge').textContent = special ? '特別警報' : '警報';
+    var danger = info.danger && !special; // 特別警報があればそちら優先
+    // 見た目は「特別警報(レベル5)」「危険警報(レベル4)」を赤系(warn-special)、
+    // 通常警報(レベル3)をオレンジ系にする。
+    banner.classList.toggle('warn-special', special || danger);
+    el('jmawBadge').textContent = special ? '特別警報' : (danger ? '危険警報' : '警報');
     el('jmawTitle').textContent = special
       ? '特別警報が発表されています'
-      : '気象警報が発表されています';
+      : (danger ? '危険警報（レベル4相当）が発表されています' : '気象警報が発表されています');
     el('jmawDesc').textContent = special
       ? '全国のいずれかの地域で「特別警報」（最大級の警戒・警戒レベル5相当）が発表されています。'
-      : '全国のいずれかの地域で気象警報（警戒レベル3相当以上）が発表されています。';
+      : (danger
+        ? '全国のいずれかの地域で「危険警報」（警戒レベル4相当・危険な場所からの全員避難の段階）が発表されています。'
+        : '全国のいずれかの地域で気象警報（警戒レベル3相当以上）が発表されています。');
     // 警報の種類を列挙（最大6種まで）
     var names = info.names.slice(0, 6);
     var more = info.names.length > 6 ? ' ほか' : '';
-    el('jmawList').textContent = names.length ? ('発表中の警報：' + names.join('・') + more) : '';
-    el('jmawAction').textContent = special
-      ? '▶ ただちに命を守る行動を。お住まいの地域の最新情報を確認してください。'
+    el('jmawList').textContent = names.length ? ('発表中：' + names.join('・') + more) : '';
+    el('jmawAction').textContent = (special || danger)
+      ? '▶ ただちに命を守る行動を。お住まいの地域の最新情報を確認し、危険な場所からは避難してください。'
       : '▶ お住まいの地域の最新情報を確認し、危険な場所からは早めに避難してください。';
     // 発表時刻
     var meta = '';
@@ -9851,9 +9891,23 @@ function sendSiteInquiry(){
     init();
   }
 
-  // デモ確認用：コンソールで demoJmaWarning() / demoJmaWarning(true) を実行するとバナーを表示
-  window.demoJmaWarning = function(special){
-    show({ active:true, special: !!special, names: special ? ['大雨特別警報','土砂災害特別警報'] : ['大雨警報','洪水警報','暴風警報'], report: new Date().toISOString() });
+  // デモ確認用：demoJmaWarning() 警報 / ('danger') 危険警報 / (true|'special') 特別警報
+  window.demoJmaWarning = function(level){
+    var info;
+    if(level === true || level === 'special'){
+      info = { active:true, special:true, danger:false, names:['大雨特別警報','土砂災害特別警報'] };
+    } else if(level === 'danger'){
+      info = { active:true, special:false, danger:true, names:['大雨危険警報','土砂災害危険警報'] };
+    } else {
+      info = { active:true, special:false, danger:false, names:['大雨警報','洪水警報','暴風警報'] };
+    }
+    info.report = new Date().toISOString();
+    show(info);
+    // 設定を閉じた直後でも見えるよう、バナーまでスクロールする
+    setTimeout(function(){
+      var b = el('jmaWarningBanner');
+      if(b){ try { b.scrollIntoView({ behavior:'smooth', block:'center' }); } catch(e){} }
+    }, 120);
   };
   window.hideJmaWarning = hide;
 
