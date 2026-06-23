@@ -639,6 +639,18 @@ main { position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:28
 .stat-box.b4 .stat-num { color:var(--safe); }
 .stat-unit { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted); margin-top:4px; }
 
+/* 地震サマリー：コンパクト表示（2×2の4分割グリッド） */
+.stats-row.stats-compact { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:0; background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; height:100%; }
+.stats-row.stats-compact .stat-box { background:none; border:none; border-radius:0; padding:11px 16px; min-width:0; display:flex; flex-direction:row; align-items:center; gap:8px; animation:none !important; opacity:1 !important; transform:none !important; }
+/* 仕切り線：左列に右ボーダー、上段に下ボーダー */
+.stats-row.stats-compact .stat-box:nth-child(odd) { border-right:1px solid var(--border); }
+.stats-row.stats-compact .stat-box:nth-child(1),
+.stats-row.stats-compact .stat-box:nth-child(2) { border-bottom:1px solid var(--border); }
+.stats-row.stats-compact .stat-box::before { height:2px; }
+.stats-row.stats-compact .stat-label { font-size:10px; margin:0; white-space:nowrap; flex:0 0 auto; opacity:0.8; }
+.stats-row.stats-compact .stat-num { font-size:30px !important; line-height:1.1 !important; margin:0; }
+.stats-row.stats-compact .stat-unit { display:none; }
+
 /* BIG QUAKE */
 #latestBig { grid-column:1/-1; background:var(--surface); border:1px solid var(--border-red); border-radius:14px; padding:24px 28px; position:relative; overflow:hidden; display:none; }
 #latestBig::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at top left,rgba(255,45,45,0.07) 0%,transparent 60%); }
@@ -1061,6 +1073,11 @@ html.light .icon-opt.selected { border-color:var(--blue); background:rgba(0,100,
 /* ===== レイアウト並び替え ===== */
 .reorder-block { position:relative; }
 .reorder-fullwidth { grid-column:1/-1; }
+/* 横並びペア：2つのブロックを左右に並べる行コンテナ（全幅を2分割） */
+.reorder-pair { grid-column:1/-1; display:grid; grid-template-columns:1fr 1fr; gap:22px; align-items:stretch; }
+.reorder-pair > .reorder-block { grid-column:auto; min-width:0; display:flex; flex-direction:column; }
+.reorder-pair > .reorder-block > * { flex:1 1 auto; }
+@media (max-width:720px){ .reorder-pair { grid-template-columns:1fr; align-items:start; } .reorder-pair > .reorder-block > * { flex:0 1 auto; } }
 .reorder-bar { display:none; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; padding:6px 10px; background:rgba(0,180,255,0.08); border:1px dashed rgba(0,180,255,0.4); border-radius:8px; }
 body.reorder-on .reorder-bar { display:flex; }
 body.reorder-on .reorder-block { outline:1px dashed rgba(0,180,255,0.35); outline-offset:4px; border-radius:8px; }
@@ -1072,6 +1089,65 @@ body.reorder-on .reorder-block.drag-over { outline:2px solid var(--blue); }
 .reorder-arrows button:disabled { opacity:0.3; cursor:default; }
 .reorder-hint { display:none; }
 body.reorder-on .reorder-hint { display:block; }
+/* 旧・本文内の並び替えバーは新エディタ採用に伴い非表示（誤操作防止） */
+.reorder-bar { display:none !important; }
+body.reorder-on .reorder-block { outline:none; }
+
+/* ===================== レイアウト編集オーバーレイ ===================== */
+.layout-overlay {
+  display:none; position:fixed; inset:0; z-index:99500;
+  background:rgba(4,10,20,0.72); backdrop-filter:blur(3px);
+  align-items:flex-start; justify-content:center; padding:24px 16px; overflow-y:auto;
+}
+.layout-overlay.open { display:flex; }
+.layout-panel {
+  background:var(--surface2); border:1px solid var(--border); border-radius:16px;
+  width:100%; max-width:520px; padding:22px; box-shadow:0 12px 50px rgba(0,0,0,0.5);
+  margin:auto;
+}
+.layout-panel h2 { margin:0 0 4px; font-size:18px; color:var(--text); }
+.layout-panel .lo-desc { margin:0 0 16px; font-size:12.5px; color:var(--muted); line-height:1.7; }
+.lo-list { display:flex; flex-direction:column; gap:10px; }
+/* ペア行：2枚を横に並べて表示 */
+.lo-row { display:flex; gap:10px; align-items:stretch; }
+.lo-row.pair .lo-item { flex:1 1 0; min-width:0; }
+.lo-item {
+  position:relative; flex:1 1 auto;
+  background:var(--surface3); border:1px solid var(--border); border-radius:11px;
+  padding:12px 12px; display:flex; align-items:center; gap:10px;
+}
+.lo-item .lo-emoji { font-size:20px; flex:0 0 auto; }
+.lo-item .lo-name { font-size:14px; font-weight:700; color:var(--text); flex:1; min-width:0; line-height:1.3; }
+.lo-item .lo-sub { font-size:11px; color:var(--muted); display:block; font-weight:400; }
+.lo-ctrls { display:flex; gap:6px; align-items:center; flex-shrink:0; }
+.lo-btn {
+  background:rgba(0,180,255,0.12); border:1px solid rgba(0,180,255,0.4); color:var(--blue);
+  width:30px; height:28px; border-radius:7px; cursor:pointer; font-size:13px; line-height:1; display:flex; align-items:center; justify-content:center;
+}
+.lo-btn:disabled { opacity:0.3; cursor:default; }
+.lo-btn.lo-pair { width:auto; padding:0 10px; font-size:11px; font-weight:700; letter-spacing:0.02em; }
+.lo-btn.lo-pair.on { background:var(--blue); color:#fff; border-color:var(--blue); }
+.lo-row.pair .lo-pairwrap {
+  position:relative; flex:1; display:flex; gap:10px;
+  outline:2px solid rgba(0,180,255,0.5); outline-offset:3px; border-radius:11px;
+}
+.lo-pair-badge {
+  position:absolute; top:-9px; left:50%; transform:translateX(-50%);
+  background:var(--blue); color:#fff; font-size:9px; font-weight:700; letter-spacing:0.08em;
+  padding:2px 8px; border-radius:999px; white-space:nowrap; z-index:1;
+}
+.lo-actions { display:flex; gap:10px; margin-top:18px; }
+.lo-actions button { flex:1; border:none; cursor:pointer; font:inherit; font-weight:700; font-size:14px; padding:13px; border-radius:12px; }
+.lo-save { background:var(--blue); color:#fff; }
+.lo-reset { background:none; border:1px solid var(--border) !important; color:var(--muted); }
+.lo-close-x { float:right; background:none; border:none; color:var(--muted); font-size:20px; cursor:pointer; margin-top:-4px; }
+.lo-note { font-size:11px; color:var(--muted); margin-top:12px; line-height:1.6; }
+/* 地震サマリーの表示タイプ切替（横長/コンパクト） */
+.lo-item-stats { flex-wrap:wrap; }
+.lo-seg { display:flex; gap:0; margin-top:8px; flex-basis:100%; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+.lo-seg-btn { flex:1; background:none; border:none; color:var(--muted); font:inherit; font-size:12px; font-weight:700; padding:7px 6px; cursor:pointer; }
+.lo-seg-btn + .lo-seg-btn { border-left:1px solid var(--border); }
+.lo-seg-btn.on { background:var(--blue); color:#fff; }
 .sidebar { animation:fadeInUp 0.5s ease 0.15s both; }
 
 /* ===================== EEW EMERGENCY OVERLAY ===================== */
@@ -1287,6 +1363,30 @@ html.light #tsunamiBanner.warn-major .tsunami-link:hover { background:rgba(200,2
   border:2px solid rgba(255,170,40,0.6);
 }
 #jmaWarningBanner.active { display:block; animation:fadeInUp 0.4s ease, jmaWarnPulse 1.1s ease-in-out 0.4s infinite alternate; }
+/* 平常時（警報なし）：落ち着いた緑・点滅なし */
+#jmaWarningBanner.warn-clear {
+  background:linear-gradient(135deg,rgba(40,180,110,0.14),rgba(20,120,80,0.20));
+  border-color:rgba(61,220,151,0.5);
+  animation:fadeInUp 0.4s ease;
+  box-shadow:none;
+}
+#jmaWarningBanner.warn-clear .jmaw-icon { animation:none; }
+#jmaWarningBanner.warn-clear .jmaw-label { color:rgba(120,225,180,0.9); }
+#jmaWarningBanner.warn-clear .jmaw-title { color:#3ddc97; text-shadow:none; font-size:clamp(15px,2.2vw,20px); }
+#jmaWarningBanner.warn-clear .jmaw-badge { background:rgba(61,220,151,0.16); border-color:rgba(61,220,151,0.45); color:#3ddc97; }
+#jmaWarningBanner.warn-clear .jmaw-body { color:rgba(200,240,220,0.9); border-top-color:rgba(61,220,151,0.2); }
+#jmaWarningBanner.warn-clear .jmaw-action { color:#9fe6c4; }
+#jmaWarningBanner.warn-clear .jmaw-link { background:rgba(61,220,151,0.12); border-color:rgba(61,220,151,0.4); color:#3ddc97; }
+html.light #jmaWarningBanner.warn-clear {
+  background:linear-gradient(135deg,rgba(61,200,140,0.16),rgba(40,170,110,0.12));
+  border-color:rgba(40,160,100,0.5);
+}
+html.light #jmaWarningBanner.warn-clear .jmaw-label { color:rgba(20,120,75,0.95); }
+html.light #jmaWarningBanner.warn-clear .jmaw-title { color:#1a8a5a; }
+html.light #jmaWarningBanner.warn-clear .jmaw-badge { color:#1a8a5a; }
+html.light #jmaWarningBanner.warn-clear .jmaw-body { color:rgba(20,90,60,0.95); }
+html.light #jmaWarningBanner.warn-clear .jmaw-action { color:#1a8a5a; }
+html.light #jmaWarningBanner.warn-clear .jmaw-link { color:#1a8a5a; }
 #jmaWarningBanner.warn-special {
   background:linear-gradient(135deg,rgba(160,0,0,0.28),rgba(80,0,0,0.38));
   border-color:rgba(255,45,45,0.7);
@@ -1617,7 +1717,7 @@ html.light .site-refresh-btn:hover { background:rgba(0,100,180,0.1); }
 .hamburger-overlay.open { display:block; }
 .hamburger-panel {
   position:absolute; top:0; right:0; width:280px; height:100%;
-  background:var(--surface2); border-left:1px solid var(--border);
+  background:#f4f7fb; border-left:1px solid var(--border);
   padding:20px; overflow-y:auto;
   animation:slideInRight 0.25s ease;
 }
@@ -1643,6 +1743,17 @@ html.light .site-refresh-btn:hover { background:rgba(0,100,180,0.1); }
 .hamburger-link:hover {
   background:var(--surface3); border-color:var(--border); color:var(--blue);
 }
+/* メニュー各ボタンの文字は黒、ホバーでネイビー（インラインの色指定より優先） */
+.hamburger-link, .hamburger-link * { color:#000 !important; }
+.hamburger-link:hover, .hamburger-link:hover * { color:#1a2a4a !important; }
+/* 明るいパネル上で読みやすいよう、各ボタンの背景・枠・ホバーを統一（インライン指定を上書き） */
+.hamburger-panel .hamburger-link { background:#fff !important; border:1px solid #d7e0ec !important; }
+.hamburger-panel .hamburger-link:hover { background:#e9eff7 !important; border-color:#b9c8dd !important; }
+.hamburger-section-label { color:#5a6678 !important; }
+/* 明るいパネル上のヘッダー（MENUラベル・閉じるボタン）も読みやすく */
+.hamburger-header span { color:#1a2a4a !important; }
+.hamburger-header button { color:#5a6678 !important; }
+.hamburger-header { border-bottom-color:#d7e0ec !important; }
 .h-link-icon { font-size:18px; width:24px; text-align:center; flex-shrink:0; }
 /* ========================================================= */
 
@@ -2689,28 +2800,15 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     <div class="settings-section" data-stour="layout">
       <div class="settings-section-label">// レイアウトの並び替え</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px;">
-        <button class="settings-opt-btn" id="layoutEditBtn" onclick="toggleReorderMode()">📐 レイアウトを編集</button>
-        <button class="settings-opt-btn" onclick="resetLayoutOrder()">↩️ 並び順をリセット</button>
+        <button class="settings-opt-btn" id="layoutEditBtn" onclick="openLayoutEditor()">📐 レイアウトを編集</button>
+        <button class="settings-opt-btn" onclick="resetLayoutEditor()">↩️ 並び順をリセット</button>
       </div>
       <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-top:8px;">
         地震リスト・防災コラムなどの表示順を、ドラッグまたは▲▼ボタンで入れ替えできます。順番は次回も保持されます。<br>※ 緊急地震速報・津波警報など防災上重要な表示は固定です。
       </div>
     </div>
 
-    <!-- 防災コラムの表示 -->
-    <div class="settings-section" data-stour="column">
-      <div class="settings-section-label">// 防災コラムの表示</div>
-      <div class="settings-row">
-        <span class="settings-row-label">表題だけを一覧表示（タップで本文）</span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="columnCompactToggle" onchange="toggleColumnCompact()">
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-      <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-top:8px;">
-        オンにすると、防災コラムを「表題＋日時」だけの一列リストで表示します。読みたい記事をタップすると本文が開きます。
-      </div>
-    </div>
+    <!-- 防災コラムの表示（開閉ボタンはコラム見出しのブックマーク横に移動） -->
 
     <!-- 天気予報 -->
     <div class="settings-section" data-stour="weather">
@@ -2803,6 +2901,7 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
         <button class="settings-opt-btn" onclick="demoJmaWarning(false);closeSettings()">⚠️ 気象警報デモ（レベル3）</button>
         <button class="settings-opt-btn" onclick="demoJmaWarning('danger');closeSettings()">⚠️ 危険警報デモ（レベル4）</button>
         <button class="settings-opt-btn" onclick="demoJmaWarning('special');closeSettings()">⚠️ 特別警報デモ（レベル5）</button>
+        <button class="settings-opt-btn" onclick="demoJmaWarning('clear');closeSettings()">✅ 平常時デモ（警報なし）</button>
       </div>
     </div>
 
@@ -3172,7 +3271,8 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
 <!-- ===== MAIN ===== -->
 <main>
 
-  <div class="stats-row" data-tour="stats">
+  <div class="reorder-block reorder-fullwidth" data-block="stats" data-zone="top">
+  <div class="stats-row" id="statsRow" data-tour="stats">
     <div class="stat-box b1 anim-ready anim-up anim-delay-1">
       <div class="stat-label">// 本日の地震（有感）</div>
       <div class="stat-num" id="statToday">--</div>
@@ -3193,6 +3293,7 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <div class="stat-num" style="font-size:22px;line-height:1.4;" id="statUpdated">--</div>
       <div class="stat-unit">10秒ごと自動更新</div>
     </div>
+  </div>
   </div>
 
   <!-- WEATHER WIDGET -->
@@ -3258,6 +3359,7 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
   </div>
 
   <!-- TSUNAMI BANNER -->
+  <div class="reorder-block reorder-fullwidth" data-block="tsunami" data-zone="top">
   <div id="tsunamiBanner">
     <div class="tsunami-header">
       <div class="tsunami-icon">🌊</div>
@@ -3273,8 +3375,10 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <button class="tsunami-link" type="button" onclick="window.open('https://www.jma.go.jp/bosai/map.html#contents=tsunami','_blank','noopener,noreferrer')">気象庁 津波情報（公式） →</button>
     </div>
   </div>
+  </div>
 
   <!-- 気象警報バナー（気象庁・全国／警報レベル3相当以上で表示） -->
+  <div class="reorder-block reorder-fullwidth" data-block="jmawarn" data-zone="top">
   <div id="jmaWarningBanner">
     <div class="jmaw-header">
       <div class="jmaw-icon">⚠️</div>
@@ -3293,6 +3397,7 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
         <span class="jmaw-meta" id="jmawMeta"></span>
       </div>
     </div>
+  </div>
   </div>
 
   <!-- MAIN COLUMN -->
@@ -3327,10 +3432,15 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <!-- 防災コラム -->
       <div id="section-column" class="blog-section-header" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
         <div class="section-head anim-ready anim-left">// 防災コラム・知識</div>
-        <button type="button" id="bookmarkOpenBtn" onclick="openBookmarkModal()" style="display:inline-flex;align-items:center;gap:6px;position:relative;background:rgba(255,193,7,0.12);border:1px solid rgba(255,193,7,0.5);color:var(--text);font-size:12px;padding:7px 14px;border-radius:8px;cursor:pointer;">
-          🔖 ブックマーク
-          <span id="bookmarkBadge" style="background:var(--accent);color:#fff;font-size:10px;font-weight:700;min-width:16px;height:16px;line-height:16px;border-radius:8px;padding:0 4px;text-align:center;"></span>
-        </button>
+        <div style="display:inline-flex;align-items:center;gap:8px;">
+          <button type="button" id="columnViewBtn" onclick="toggleColumnView()" style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,180,255,0.12);border:1px solid rgba(0,180,255,0.45);color:var(--text);font-size:12px;padding:7px 14px;border-radius:8px;cursor:pointer;">
+            <span id="columnViewIcon">📖</span><span id="columnViewLabel">一覧表示</span>
+          </button>
+          <button type="button" id="bookmarkOpenBtn" onclick="openBookmarkModal()" style="display:inline-flex;align-items:center;gap:6px;position:relative;background:rgba(255,193,7,0.12);border:1px solid rgba(255,193,7,0.5);color:var(--text);font-size:12px;padding:7px 14px;border-radius:8px;cursor:pointer;">
+            🔖 ブックマーク
+            <span id="bookmarkBadge" style="background:var(--accent);color:#fff;font-size:10px;font-weight:700;min-width:16px;height:16px;line-height:16px;border-radius:8px;padding:0 4px;text-align:center;"></span>
+          </button>
+        </div>
       </div>
       <div class="blog-grid anim-ready anim-up" id="blogGrid"></div>
     </div>
@@ -4352,9 +4462,31 @@ function renderBlog() {
 }
 
 // コラム表示モード（コンパクト一覧）切替
+function toggleColumnView(){
+  _columnCompact = !_columnCompact;
+  try { localStorage.setItem('column_compact', _columnCompact ? '1' : '0'); } catch(e){}
+  syncColumnViewBtn();
+  renderBlog();
+}
+function syncColumnViewBtn(){
+  var ico = document.getElementById('columnViewIcon');
+  var lbl = document.getElementById('columnViewLabel');
+  var btn = document.getElementById('columnViewBtn');
+  if(_columnCompact){
+    if(ico) ico.textContent = '🗂️';
+    if(lbl) lbl.textContent = 'カード表示';
+    if(btn){ btn.style.background='rgba(0,180,255,0.22)'; btn.title='カード表示に戻す'; }
+  } else {
+    if(ico) ico.textContent = '📖';
+    if(lbl) lbl.textContent = '一覧表示';
+    if(btn){ btn.style.background='rgba(0,180,255,0.12)'; btn.title='表題だけの一覧で表示'; }
+  }
+}
+// 旧API互換（設定からの呼び出しが残っていても安全に動く）
 function toggleColumnCompact(){
-  _columnCompact = document.getElementById('columnCompactToggle').checked;
-  localStorage.setItem('column_compact', _columnCompact ? '1' : '0');
+  var cb = document.getElementById('columnCompactToggle');
+  if(cb){ _columnCompact = cb.checked; try { localStorage.setItem('column_compact', _columnCompact ? '1' : '0'); } catch(e){} }
+  syncColumnViewBtn();
   renderBlog();
 }
 // コンパクト一覧で1件の本文を開閉
@@ -6850,7 +6982,6 @@ let _locationHighlight = false; // 更新ボタンの場所だけを単発でハ
 const settingsTourSteps = [
   { sel:'[data-stour="app"]', title:'📲 アプリとして使う', text:'スマホのホーム画面にこのサイトを追加できます。アプリのように1タップで起動でき、地震速報をすばやく確認できます。' },
   { sel:'[data-stour="layout"]', title:'📐 レイアウトの並び替え', text:'トップpage内の各ブロックの並び順を、好みに合わせて入れ替えられます。「レイアウトを編集」で並び替え、「リセット」で初期配置に戻せます。' },
-  { sel:'[data-stour="column"]', title:'📰 防災コラムの表示', text:'防災コラムの見せ方を切り替えられます。オンにすると、記事を「表題＋日時」だけのコンパクトな一覧で表示し、読みたい記事をタップすると本文が開きます。記事が多いときにすっきり見られます。' },
   { sel:'[data-stour="weather"]', title:'🌤️ 天気予報', text:'天気予報ウィジェットの表示／非表示、週間予報の表示を切り替えられます。地域（都道府県・市区町村）を選ぶと、その地点の予報が表示されます。' },
   { sel:'[data-stour="alertbanner"]', title:'⚠️ 警報バナー', text:'画面上部に出る警報フラッシュ・津波バナー・緊急地震速報の全画面表示について、それぞれ表示するかどうかを設定できます。' },
   { sel:'[data-stour="opensound"]', title:'🔊 オープニングサウンド', text:'アプリ起動時に流れるオープニング音（扉が開く効果音）のオン／オフを切り替えられます。音を鳴らしたくない場合は、ここをOFFにしてください。' },
@@ -7921,6 +8052,7 @@ async function loadArticles(){
   }
 }
 loadArticles();
+try { syncColumnViewBtn(); } catch(e){}
 // 記事(コラム・新着記事)を3分ごとに自動で再読み込み（ページを開いたままでも最新化）
 setInterval(loadArticles, 3 * 60 * 1000);
 
@@ -9828,6 +9960,8 @@ function sendSiteInquiry(){
   function show(info){
     var banner = el('jmaWarningBanner');
     if(!banner) return;
+    banner.classList.remove('warn-clear');
+    var ico = banner.querySelector('.jmaw-icon'); if(ico) ico.textContent = '⚠️';
     var special = info.special;
     var danger = info.danger && !special; // 特別警報があればそちら優先
     // 見た目は「特別警報(レベル5)」「危険警報(レベル4)」を赤系(warn-special)、
@@ -9863,7 +9997,30 @@ function sendSiteInquiry(){
 
   function hide(){
     var banner = el('jmaWarningBanner');
-    if(banner){ banner.classList.remove('active','warn-special'); }
+    if(banner){ banner.classList.remove('active','warn-special','warn-clear'); }
+  }
+
+  // 平常時（警報・注意報なし）の表示
+  function showClear(info){
+    var banner = el('jmaWarningBanner');
+    if(!banner) return;
+    banner.classList.remove('warn-special');
+    banner.classList.add('warn-clear');
+    var ico = banner.querySelector('.jmaw-icon'); if(ico) ico.textContent = '✅';
+    el('jmawBadge').textContent = '平常';
+    el('jmawTitle').textContent = '現在、警報・注意報はありません';
+    el('jmawDesc').textContent = '全国で、避難につながる気象警報（警戒レベル3相当以上）は発表されていません。';
+    el('jmawList').textContent = '';
+    el('jmawAction').textContent = '日頃から備えを確認しておきましょう。最新情報は気象庁の公式ページでも確認できます。';
+    var meta = '';
+    if(info && info.report){
+      try {
+        var d = new Date(info.report);
+        meta = '気象庁データ：' + d.toLocaleString('ja-JP', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}) + ' 時点';
+      } catch(e){}
+    }
+    el('jmawMeta').textContent = meta;
+    banner.classList.add('active');
   }
 
   function update(){
@@ -9873,9 +10030,9 @@ function sendSiteInquiry(){
       .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
       .then(function(json){
         var info = scan(json);
-        if(info.active) show(info); else hide();
+        if(info.active) show(info); else showClear(info); // 警報なしは「平常」表示
       })
-      .catch(function(){ /* 取得失敗時は黙って非表示のまま（誤検知防止） */ });
+      .catch(function(){ /* 取得失敗時は黙って非表示（誤検知防止） */ hide(); });
   }
 
   function init(){
@@ -9892,7 +10049,15 @@ function sendSiteInquiry(){
   }
 
   // デモ確認用：demoJmaWarning() 警報 / ('danger') 危険警報 / (true|'special') 特別警報
+  var _demoHideTimer = null;
   window.demoJmaWarning = function(level){
+    if(level === 'clear'){
+      showClear({ report: new Date().toISOString() });
+      setTimeout(function(){ var b=el('jmaWarningBanner'); if(b){ try{ b.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){} } }, 120);
+      if(_demoHideTimer){ clearTimeout(_demoHideTimer); }
+      _demoHideTimer = setTimeout(function(){ _demoHideTimer=null; if(typeof update==='function') update(); }, 5000);
+      return;
+    }
     var info;
     if(level === true || level === 'special'){
       info = { active:true, special:true, danger:false, names:['大雨特別警報','土砂災害特別警報'] };
@@ -9908,6 +10073,14 @@ function sendSiteInquiry(){
       var b = el('jmaWarningBanner');
       if(b){ try { b.scrollIntoView({ behavior:'smooth', block:'center' }); } catch(e){} }
     }, 120);
+    // デモは5秒後に自動で消す（連続実行時は前のタイマーをリセット）
+    if(_demoHideTimer){ clearTimeout(_demoHideTimer); }
+    _demoHideTimer = setTimeout(function(){
+      hide();
+      _demoHideTimer = null;
+      // 念のため実データを再チェック（本物の警報が出ていれば再表示される）
+      if(typeof update === 'function') update();
+    }, 5000);
   };
   window.hideJmaWarning = hide;
 
@@ -9932,6 +10105,20 @@ function sendSiteInquiry(){
   })();
 })();
 </script>
+<!-- ===== レイアウト編集オーバーレイ ===== -->
+<div class="layout-overlay" id="layoutOverlay" onclick="if(event.target===this)closeLayoutEditor()">
+  <div class="layout-panel" role="dialog" aria-modal="true" aria-label="レイアウト編集">
+    <button class="lo-close-x" onclick="closeLayoutEditor()" aria-label="閉じる">✕</button>
+    <h2>📐 レイアウト編集</h2>
+    <p class="lo-desc">ホーム上部の項目の並び順を変えたり、2つを横並びにできます。「横並び」を押すと、その項目と次の項目が左右に並びます。決めたら「保存」を押してください。</p>
+    <div class="lo-list" id="loList"></div>
+    <div class="lo-actions">
+      <button class="lo-reset" onclick="resetLayoutEditor()">初期に戻す</button>
+      <button class="lo-save" onclick="saveLayoutEditor()">保存して反映</button>
+    </div>
+    <p class="lo-note">※横並びはPC・タブレットなど横幅が広い画面で有効です。スマホなど狭い画面では自動的に縦並びで表示されます。</p>
+  </div>
+</div>
 <!-- ===== スタンプカード ===== -->
 <button id="stampFab" onclick="openStampCard()" aria-label="スタンプカード">🎁</button>
 <div id="stampToast" class="stamp-toast"></div>
@@ -10285,140 +10472,284 @@ document.addEventListener('keydown', function(e){
 })();
 </script>
 <script>
-// ===================== レイアウト並び替え（ゾーン別） =====================
+// ===================== レイアウト編集（オーバーレイ＋横並び対応） =====================
 (function(){
-  // ゾーン定義: top=メイン直下の全幅ブロック / main=メインカラム内ブロック
-  const ZONES = {
-    top:  { key:'layout_order_top_v1',  container:function(){ return document.querySelector('main'); } },
-    main: { key:'layout_order_main_v1', container:function(){ return document.querySelector('.main-col'); } }
+  // 各ブロックの表示名・絵文字（エディタ表示用）
+  var META = {
+    stats:   { emoji:'📊', name:'地震サマリー',   sub:'本日の件数・最大M・震度など' },
+    weather: { emoji:'🌤️', name:'天気予報',       sub:'天気ウィジェット' },
+    latest:  { emoji:'🎯', name:'注目の地震',     sub:'最新の注目地震' },
+    tsunami: { emoji:'🌊', name:'津波バナー',     sub:'発令時のみ表示' },
+    jmawarn: { emoji:'⚠️', name:'気象警報バナー', sub:'発令時のみ表示' },
+    quake:   { emoji:'📋', name:'地震リスト',     sub:'最新地震一覧' },
+    column:  { emoji:'📰', name:'防災コラム',     sub:'記事一覧' }
+  };
+  // 地震サマリーの表示タイプ（wide=横長 / compact=コンパクト）
+  var STATS_TYPE_KEY = 'layout_stats_type_v1';
+  function getStatsType(){ try { return localStorage.getItem(STATS_TYPE_KEY) === 'compact' ? 'compact' : 'wide'; } catch(e){ return 'wide'; } }
+  function setStatsType(t){ try { localStorage.setItem(STATS_TYPE_KEY, t === 'compact' ? 'compact' : 'wide'); } catch(e){} }
+  function applyStatsType(){
+    var row = document.getElementById('statsRow');
+    if(row) row.classList.toggle('stats-compact', getStatsType() === 'compact');
+  }
+  // ゾーン: top=メイン直下の全幅ブロック（横並び可） / main=メインカラム内（順序のみ）
+  var ZONES = {
+    top:  { key:'layout_top_v2',  pairable:true,  container:function(){ return document.querySelector('main'); }, refBefore:function(){ return null; } },
+    main: { key:'layout_main_v2', pairable:false, container:function(){ return document.querySelector('.main-col'); } }
   };
 
-  function blocksInZone(zone){
-    const c = ZONES[zone].container();
-    if(!c) return [];
-    return Array.prototype.slice.call(c.querySelectorAll(':scope > .reorder-block'))
-      .filter(function(b){ return b.getAttribute('data-zone') === zone; });
+  function topAnchor(){
+    // 全幅ブロックを差し込む基準位置：.main-col の直前（stats-rowの後ろ）
+    return document.querySelector('main > .main-col');
   }
 
-  function applySavedOrder(zone){
-    const z = ZONES[zone];
-    const c = z.container();
-    if(!c) return;
-    let order = [];
-    try { order = JSON.parse(localStorage.getItem(z.key) || '[]'); } catch(e){ order = []; }
-    if(!Array.isArray(order) || !order.length){ refreshArrows(zone); return; }
-    const map = {};
-    blocksInZone(zone).forEach(function(b){ map[b.getAttribute('data-block')] = b; });
-    // 全幅ゾーンは「stats-rowの直後・tsunamiBannerの前」を保つため、
-    // 並べ替えは該当ブロックを順に、最初のブロックの位置を基準に挿入する。
-    const present = order.filter(function(k){ return map[k]; });
-    if(zone === 'top'){
-      // 全幅ブロックは「津波バナーの直前」に、保存順で並べ直す（領域を保つ）
-      const ref = document.getElementById('tsunamiBanner');
-      present.forEach(function(k){ c.insertBefore(map[k], ref); });
-    } else {
-      present.forEach(function(k){ c.appendChild(map[k]); });
+  // DOM上の現在の data-block 一覧（ゾーン内、初期DOM順）
+  function domBlocks(zone){
+    var c = ZONES[zone].container(); if(!c) return [];
+    var all = Array.prototype.slice.call(c.querySelectorAll('.reorder-block'));
+    return all.filter(function(b){ return b.getAttribute('data-zone') === zone; });
+  }
+  function blockEl(key){
+    return document.querySelector('.reorder-block[data-block="'+key+'"]');
+  }
+
+  // 保存レイアウトの読み込み: [{block, pair}] / 無ければDOM順から生成
+  function loadLayout(zone){
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(ZONES[zone].key) || 'null'); } catch(e){}
+    var present = domBlocks(zone).map(function(b){ return b.getAttribute('data-block'); });
+    if(!Array.isArray(saved) || !saved.length){
+      return present.map(function(k){ return { block:k, pair:false }; });
     }
-    refreshArrows(zone);
+    // 保存値を正規化：存在するブロックだけ、重複除去、未保存の新ブロックは末尾に追加
+    var seen = {}, out = [];
+    saved.forEach(function(it){
+      var k = it && it.block;
+      if(k && present.indexOf(k) >= 0 && !seen[k]){ seen[k] = 1; out.push({ block:k, pair: !!it.pair }); }
+    });
+    present.forEach(function(k){ if(!seen[k]){ out.push({ block:k, pair:false }); } });
+    // pairable でないゾーンは pair を無視
+    if(!ZONES[zone].pairable){ out.forEach(function(it){ it.pair = false; }); }
+    // 末尾要素のpairは無効（相方がいない）
+    if(out.length && out[out.length-1].pair) out[out.length-1].pair = false;
+    return out;
+  }
+  function saveLayout(zone, layout){
+    try { localStorage.setItem(ZONES[zone].key, JSON.stringify(layout)); } catch(e){}
   }
 
-  function saveOrder(zone){
-    const order = blocksInZone(zone).map(function(b){ return b.getAttribute('data-block'); });
-    try { localStorage.setItem(ZONES[zone].key, JSON.stringify(order)); } catch(e){}
+  // ===== ホームへの適用 =====
+  function applyZone(zone){
+    var c = ZONES[zone].container(); if(!c) return;
+    var layout = loadLayout(zone);
+    // 既存のペアラッパーを解除（中身を元に戻す）
+    Array.prototype.slice.call(c.querySelectorAll(':scope > .reorder-pair')).forEach(function(pw){
+      while(pw.firstChild){ c.insertBefore(pw.firstChild, pw); }
+      pw.remove();
+    });
+    // 並べ替え用の基準位置
+    var anchor = (zone === 'top') ? topAnchor() : null;
+    // レイアウト順にブロックを配置し、pairなら2枚をラッパーへ
+    for(var i=0;i<layout.length;i++){
+      var it = layout[i];
+      var el = blockEl(it.block);
+      if(!el) continue;
+      if(zone === 'top' && ZONES.top.pairable && it.pair && (i+1)<layout.length){
+        var el2 = blockEl(layout[i+1].block);
+        if(el2){
+          var wrap = document.createElement('div');
+          wrap.className = 'reorder-pair';
+          if(anchor) c.insertBefore(wrap, anchor); else c.appendChild(wrap);
+          wrap.appendChild(el); wrap.appendChild(el2);
+          i++; // 相方を消費
+          continue;
+        }
+      }
+      if(anchor) c.insertBefore(el, anchor); else c.appendChild(el);
+    }
+  }
+  function applyAll(){
+    Object.keys(ZONES).forEach(applyZone);
+    applyStatsType();
+    // 並べ替えで要素を移動すると、表示アニメーション(opacity:0→表示)の
+    // 監視が外れて中身が見えなくなることがあるため、強制的に表示状態にする。
+    revealReorderContent();
+  }
+  function revealReorderContent(){
+    try {
+      document.querySelectorAll('.reorder-block .anim-ready, .reorder-block.anim-ready').forEach(function(el){
+        el.classList.add('anim-visible');
+        el.style.opacity = '';   // opacity:0 を確実に解除
+      });
+    } catch(e){}
   }
 
-  function refreshArrows(zone){
-    const blocks = blocksInZone(zone);
-    blocks.forEach(function(b, i){
-      const up = b.querySelector('.reorder-up');
-      const down = b.querySelector('.reorder-down');
-      if(up) up.disabled = (i === 0);
-      if(down) down.disabled = (i === blocks.length - 1);
+  // ===== エディタ（オーバーレイ）=====
+  var draft = { top:[], main:[], statsType:'wide' };
+
+  function renderEditor(){
+    var list = document.getElementById('loList');
+    if(!list) return;
+    list.innerHTML = '';
+    // top（横並び可）→ main（順序のみ）の順で表示
+    ['top','main'].forEach(function(zone){
+      var layout = draft[zone];
+      if(!layout.length) return;
+      // 見出し
+      var h = document.createElement('div');
+      h.style.cssText = 'font-size:11px;letter-spacing:0.1em;color:var(--muted);margin:6px 2px 2px;';
+      h.textContent = (zone==='top') ? '// 上部（横並びできます）' : '// メイン（縦の順序）';
+      list.appendChild(h);
+
+      for(var i=0;i<layout.length;i++){
+        var it = layout[i];
+        var paired = ZONES[zone].pairable && it.pair && (i+1)<layout.length;
+        var row = document.createElement('div');
+        row.className = 'lo-row' + (paired ? ' pair' : '');
+
+        if(paired){
+          var pw = document.createElement('div');
+          pw.className = 'lo-pairwrap';
+          var badge = document.createElement('div');
+          badge.className = 'lo-pair-badge'; badge.textContent = '横並び';
+          pw.appendChild(badge);
+          pw.appendChild(itemNode(zone, i, true));
+          pw.appendChild(itemNode(zone, i+1, true));
+          row.appendChild(pw);
+          // ペア行のコントロール（上下・解除）は左要素に集約
+          row.appendChild(rowCtrls(zone, i, true));
+          list.appendChild(row);
+          i++; // 相方消費
+        } else {
+          row.appendChild(itemNode(zone, i, false));
+          row.appendChild(rowCtrls(zone, i, false));
+          list.appendChild(row);
+        }
+      }
     });
   }
 
-  function refreshAllArrows(){ Object.keys(ZONES).forEach(refreshArrows); }
+  function itemNode(zone, idx, compact){
+    var key = draft[zone][idx].block;
+    var m = META[key] || { emoji:'⬛', name:key, sub:'' };
+    var node = document.createElement('div');
+    node.className = 'lo-item';
+    node.innerHTML = '<span class="lo-emoji">'+m.emoji+'</span>'+
+      '<span class="lo-name">'+m.name+'<span class="lo-sub">'+(m.sub||'')+'</span></span>';
+    // 地震サマリーには表示タイプ切替（横長／コンパクト）を付ける
+    if(key === 'stats'){
+      node.classList.add('lo-item-stats');
+      var seg = document.createElement('div');
+      seg.className = 'lo-seg';
+      var bw = document.createElement('button');
+      bw.type='button'; bw.className='lo-seg-btn'+(draft.statsType==='wide'?' on':''); bw.textContent='横長';
+      bw.onclick = function(e){ e.stopPropagation(); draft.statsType='wide'; renderEditor(); };
+      var bc = document.createElement('button');
+      bc.type='button'; bc.className='lo-seg-btn'+(draft.statsType==='compact'?' on':''); bc.textContent='コンパクト';
+      bc.onclick = function(e){ e.stopPropagation(); draft.statsType='compact'; renderEditor(); };
+      seg.appendChild(bw); seg.appendChild(bc);
+      node.appendChild(seg);
+    }
+    return node;
+  }
 
-  window.moveBlock = function(btn, dir){
-    const block = btn.closest('.reorder-block');
-    if(!block) return;
-    const zone = block.getAttribute('data-zone');
-    const c = ZONES[zone] && ZONES[zone].container();
-    if(!c) return;
-    // 同ゾーン内の隣接ブロックとだけ入れ替える
-    function prevSame(el){ let p = el.previousElementSibling; while(p && (!p.classList.contains('reorder-block') || p.getAttribute('data-zone')!==zone)) p = p.previousElementSibling; return p; }
-    function nextSame(el){ let n = el.nextElementSibling; while(n && (!n.classList.contains('reorder-block') || n.getAttribute('data-zone')!==zone)) n = n.nextElementSibling; return n; }
-    if(dir < 0){ const p = prevSame(block); if(p) c.insertBefore(block, p); }
-    else { const n = nextSame(block); if(n) c.insertBefore(n, block); }
-    saveOrder(zone);
-    refreshArrows(zone);
+  function rowCtrls(zone, idx, paired){
+    var layout = draft[zone];
+    var wrap = document.createElement('div');
+    wrap.className = 'lo-ctrls';
+    // 上へ
+    var up = document.createElement('button');
+    up.className = 'lo-btn'; up.innerHTML = '▲'; up.title = '上へ';
+    up.disabled = (idx === 0);
+    up.onclick = function(){ moveItem(zone, idx, -1); };
+    // 下へ
+    var down = document.createElement('button');
+    down.className = 'lo-btn'; down.innerHTML = '▼'; down.title = '下へ';
+    var lastIdx = paired ? (idx+1) : idx;
+    down.disabled = (lastIdx >= layout.length - 1);
+    down.onclick = function(){ moveItem(zone, idx, 1); };
+    wrap.appendChild(up); wrap.appendChild(down);
+    // 横並びトグル（topゾーンのみ、相方がいる場合）
+    if(ZONES[zone].pairable){
+      var pair = document.createElement('button');
+      pair.className = 'lo-btn lo-pair' + (paired ? ' on' : '');
+      pair.textContent = paired ? '解除' : '横並び';
+      var canPair = (idx + 1) < layout.length;
+      pair.disabled = (!paired && !canPair);
+      pair.onclick = function(){ togglePair(zone, idx); };
+      wrap.appendChild(pair);
+    }
+    return wrap;
+  }
+
+  function moveItem(zone, idx, dir){
+    var layout = draft[zone];
+    var paired = layout[idx].pair && (idx+1) < layout.length;
+    var span = paired ? 2 : 1;           // ペアは2枚まとめて移動
+    if(dir < 0){
+      if(idx === 0) return;
+      // 直前の単位（1 or 2）と入れ替え
+      var prevPaired = (idx-2>=0 && layout[idx-2].pair) ;
+      var prevStart = prevPaired ? (idx-2) : (idx-1);
+      var moving = layout.splice(idx, span);
+      layout.splice.apply(layout, [prevStart, 0].concat(moving));
+    } else {
+      var nextIdx = idx + span;
+      if(nextIdx >= layout.length) return;
+      var nextPaired = layout[nextIdx].pair && (nextIdx+1) < layout.length;
+      var nextSpan = nextPaired ? 2 : 1;
+      var moving2 = layout.splice(idx, span);
+      layout.splice.apply(layout, [idx + nextSpan, 0].concat(moving2));
+    }
+    // 末尾pair無効化
+    if(layout.length && layout[layout.length-1].pair) layout[layout.length-1].pair = false;
+    renderEditor();
+  }
+
+  function togglePair(zone, idx){
+    var layout = draft[zone];
+    if(layout[idx].pair){ layout[idx].pair = false; }
+    else if((idx+1) < layout.length){ layout[idx].pair = true; }
+    renderEditor();
+  }
+
+  window.openLayoutEditor = function(){
+    draft.top = loadLayout('top').map(function(o){ return { block:o.block, pair:o.pair }; });
+    draft.main = loadLayout('main').map(function(o){ return { block:o.block, pair:false }; });
+    draft.statsType = getStatsType();
+    renderEditor();
+    var ov = document.getElementById('layoutOverlay');
+    if(ov) ov.classList.add('open');
+    try { closeSettings(); } catch(e){}
   };
-
-  window.toggleReorderMode = function(){
-    const on = document.body.classList.toggle('reorder-on');
-    const btn = document.getElementById('layoutEditBtn');
-    if(btn) btn.textContent = on ? '✅ 編集を終了' : '📐 レイアウトを編集';
-    if(on){ enableDrag(); refreshAllArrows(); try { closeSettings(); } catch(e){} }
-    else { disableDrag(); }
+  window.closeLayoutEditor = function(){
+    var ov = document.getElementById('layoutOverlay');
+    if(ov) ov.classList.remove('open');
   };
-
-  window.resetLayoutOrder = function(){
-    try { Object.keys(ZONES).forEach(function(z){ localStorage.removeItem(ZONES[z].key); }); } catch(e){}
-    location.reload();
+  window.saveLayoutEditor = function(){
+    saveLayout('top', draft.top);
+    saveLayout('main', draft.main);
+    setStatsType(draft.statsType);
+    applyAll();
+    window.closeLayoutEditor();
   };
+  window.resetLayoutEditor = function(){
+    try { localStorage.removeItem(ZONES.top.key); localStorage.removeItem(ZONES.main.key); localStorage.removeItem(STATS_TYPE_KEY); } catch(e){}
+    draft.top = loadLayout('top').map(function(o){ return { block:o.block, pair:o.pair }; });
+    draft.main = loadLayout('main').map(function(o){ return { block:o.block, pair:false }; });
+    draft.statsType = getStatsType();
+    renderEditor();
+    applyAll();
+  };
+  // 旧API互換（設定の「レイアウトを編集」ボタンから）
+  window.toggleReorderMode = function(){ window.openLayoutEditor(); };
+  window.moveBlock = function(){ /* 旧バー無効化済み */ };
+  window.resetLayoutOrder = window.resetLayoutEditor;
 
-  // ---- ドラッグ＆ドロップ（同ゾーン内のみ）----
-  let dragEl = null, dragZone = null;
-  function onDragStart(e){
-    const block = e.target.closest('.reorder-block');
-    if(!block) return;
-    dragEl = block; dragZone = block.getAttribute('data-zone');
-    block.classList.add('dragging');
-    try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain',''); } catch(_){}
-  }
-  function onDragEnd(){
-    if(dragEl) dragEl.classList.remove('dragging');
-    document.querySelectorAll('.reorder-block').forEach(function(b){ b.classList.remove('drag-over'); });
-    if(dragZone){ saveOrder(dragZone); refreshArrows(dragZone); }
-    dragEl = null; dragZone = null;
-  }
-  function onDragOver(e){
-    const over = e.target.closest('.reorder-block');
-    if(!over || !dragEl) return;
-    // 別ゾーンへは移動させない
-    if(over.getAttribute('data-zone') !== dragZone) return;
-    e.preventDefault();
-    if(over === dragEl) return;
-    const c = ZONES[dragZone].container();
-    if(!c) return;
-    document.querySelectorAll('.reorder-block').forEach(function(b){ b.classList.remove('drag-over'); });
-    over.classList.add('drag-over');
-    const rect = over.getBoundingClientRect();
-    const after = (e.clientY - rect.top) > rect.height / 2;
-    if(after){ c.insertBefore(dragEl, over.nextElementSibling); }
-    else { c.insertBefore(dragEl, over); }
-  }
+  // Escで閉じる
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') window.closeLayoutEditor(); });
 
-  function allBlocks(){ return Array.prototype.slice.call(document.querySelectorAll('.reorder-block')); }
-  function enableDrag(){
-    allBlocks().forEach(function(b){
-      b.setAttribute('draggable','true');
-      b.addEventListener('dragstart', onDragStart);
-      b.addEventListener('dragend', onDragEnd);
-      b.addEventListener('dragover', onDragOver);
-    });
-  }
-  function disableDrag(){
-    allBlocks().forEach(function(b){
-      b.removeAttribute('draggable');
-      b.removeEventListener('dragstart', onDragStart);
-      b.removeEventListener('dragend', onDragEnd);
-      b.removeEventListener('dragover', onDragOver);
-      b.classList.remove('drag-over','dragging');
-    });
-  }
-
-  function init(){ Object.keys(ZONES).forEach(applySavedOrder); }
+  function init(){ applyAll(); }
   if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', init); }
   else { init(); }
 })();
