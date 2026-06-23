@@ -738,48 +738,6 @@ main { position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:28
 .blog-photos.n3, .blog-photos.nmore { grid-template-columns:repeat(3,1fr); }
 .blog-photos img { width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; border:1px solid var(--border); cursor:pointer; background:#000; max-height:200px; }
 .blog-photos.n1 img { aspect-ratio:auto; max-height:260px; }
-
-/* ===== コラム画像カルーセル（複数画像のページめくり） ===== */
-.blog-carousel{ position:relative; margin:0 0 4px; border-radius:10px; overflow:hidden; background:#000; border:1px solid var(--border); }
-/* コラムカード直下のときだけ左右に余白（カード内パディングに合わせる） */
-.blog-card > .blog-carousel{ margin:0 18px 12px; }
-.carousel-track{ position:relative; width:100%; }
-.carousel-slide{ display:none; }
-.carousel-slide.active{ display:block; }
-.carousel-slide img{ width:100%; max-height:300px; object-fit:contain; background:#000; display:block; cursor:zoom-in; }
-/* 左右のページめくりボタン（黒地に白抜き三角） */
-.carousel-btn{
-  position:absolute; top:50%; transform:translateY(-50%);
-  width:38px; height:38px; padding:0; display:flex; align-items:center; justify-content:center;
-  background:rgba(0,0,0,0.55); border:1px solid rgba(255,255,255,0.5); border-radius:50%;
-  cursor:pointer; z-index:2; transition:background .15s, transform .12s;
-  -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px);
-}
-.carousel-btn:hover{ background:rgba(0,0,0,0.8); }
-.carousel-btn:active{ transform:translateY(-50%) scale(0.92); }
-.carousel-btn.prev{ left:8px; }
-.carousel-btn.next{ right:8px; }
-.carousel-btn svg{ display:block; }
-/* 何枚目かの表示（右上） */
-.carousel-counter{
-  position:absolute; top:8px; right:10px; z-index:2;
-  background:rgba(0,0,0,0.6); color:#fff; font-size:11px; font-weight:700;
-  padding:3px 9px; border-radius:20px; letter-spacing:.05em; pointer-events:none;
-}
-/* 下部のドットインジケータ */
-.carousel-dots{
-  position:absolute; left:0; right:0; bottom:8px; z-index:2;
-  display:flex; justify-content:center; gap:7px; pointer-events:none;
-}
-.carousel-dot{
-  width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.45);
-  border:1px solid rgba(0,0,0,0.3); cursor:pointer; pointer-events:auto; transition:background .15s, transform .15s;
-}
-.carousel-dot.active{ background:#fff; transform:scale(1.25); }
-@media(max-width:600px){
-  .carousel-btn{ width:32px; height:32px; }
-  .carousel-slide img{ max-height:240px; }
-}
 .post-photos { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; margin:8px 0 4px; }
 .post-photos img { width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:6px; border:1px solid var(--border); background:#000; max-height:90px; }
 .pd-photos { display:grid; gap:8px; margin:6px 0 14px; }
@@ -1317,8 +1275,93 @@ html.light #tsunamiBanner.warn-major .tsunami-link:hover { background:rgba(200,2
 /* ========================================================= */
 
 /* RESPONSIVE */
-@media (max-width:960px) { main { grid-template-columns:1fr; } .stats-row { grid-template-columns:repeat(2,1fr); } #latestBig { grid-column:1; } #tsunamiBanner { grid-column:1; } .blog-grid { grid-template-columns:1fr; } }
+@media (max-width:960px) { main { grid-template-columns:1fr; } .stats-row { grid-template-columns:repeat(2,1fr); } #latestBig { grid-column:1; } #tsunamiBanner { grid-column:1; } #jmaWarningBanner { grid-column:1; } .blog-grid { grid-template-columns:1fr; } }
 @media (max-width:500px) { header { padding:6px 14px; } .big-mag { font-size:48px; } .stats-row { grid-template-columns:repeat(2,1fr); } }
+
+/* ===================== 気象警報バナー（気象庁・全国） ===================== */
+#jmaWarningBanner {
+  display:none; grid-column:1/-1;
+  border-radius:14px; padding:18px 26px;
+  position:relative; z-index:5;
+  background:linear-gradient(135deg,rgba(220,130,0,0.18),rgba(150,80,0,0.28));
+  border:2px solid rgba(255,170,40,0.6);
+}
+#jmaWarningBanner.active { display:block; animation:fadeInUp 0.4s ease, jmaWarnPulse 1.1s ease-in-out 0.4s infinite alternate; }
+#jmaWarningBanner.warn-special {
+  background:linear-gradient(135deg,rgba(160,0,0,0.28),rgba(80,0,0,0.38));
+  border-color:rgba(255,45,45,0.7);
+  animation:fadeInUp 0.4s ease, jmaRedPulse 0.6s ease-in-out 0.4s infinite alternate;
+}
+@keyframes jmaWarnPulse {
+  from { box-shadow:0 0 22px rgba(255,160,30,0.28), inset 0 0 40px rgba(255,140,0,0.05); }
+  to   { box-shadow:0 0 44px rgba(255,160,30,0.5), inset 0 0 60px rgba(255,140,0,0.1); }
+}
+@keyframes jmaRedPulse {
+  from { box-shadow:0 0 30px rgba(255,45,45,0.4), inset 0 0 40px rgba(255,0,0,0.07); }
+  to   { box-shadow:0 0 60px rgba(255,45,45,0.7), inset 0 0 60px rgba(255,0,0,0.13); }
+}
+.jmaw-header { display:flex; align-items:center; gap:14px; margin-bottom:12px; }
+.jmaw-icon { font-size:34px; line-height:1; animation:jmaIconPulse 1.4s ease-in-out infinite alternate; }
+@keyframes jmaIconPulse { from { transform:scale(1); } to { transform:scale(1.1); } }
+.jmaw-title-wrap { flex:1; min-width:0; }
+.jmaw-label {
+  font-family:'Orbitron',monospace; font-size:10px; letter-spacing:0.2em;
+  color:rgba(255,190,90,0.9); margin-bottom:4px;
+}
+#jmaWarningBanner.warn-special .jmaw-label { color:rgba(255,120,120,0.92); }
+.jmaw-title {
+  font-family:'Orbitron',monospace; font-size:clamp(16px,2.6vw,24px);
+  font-weight:900; letter-spacing:0.05em; color:#ffb43c;
+  text-shadow:0 0 18px rgba(255,170,40,0.5);
+}
+#jmaWarningBanner.warn-special .jmaw-title { color:#ff6060; text-shadow:0 0 24px rgba(255,60,60,0.7); }
+.jmaw-badge {
+  font-family:'Orbitron',monospace; font-size:clamp(11px,1.5vw,14px);
+  font-weight:700; letter-spacing:0.08em;
+  padding:6px 16px; border-radius:6px; white-space:nowrap; flex-shrink:0;
+  background:rgba(255,160,30,0.18); border:1px solid rgba(255,180,50,0.5); color:#ffb43c;
+}
+#jmaWarningBanner.warn-special .jmaw-badge {
+  background:rgba(255,45,45,0.18); border-color:rgba(255,45,45,0.5); color:#ff6060;
+}
+.jmaw-body {
+  font-family:'Noto Sans JP',sans-serif; font-size:13px; color:rgba(255,225,190,0.92);
+  line-height:1.7; border-top:1px solid rgba(255,160,30,0.22); padding-top:11px;
+}
+#jmaWarningBanner.warn-special .jmaw-body { color:rgba(255,205,205,0.92); border-top-color:rgba(255,45,45,0.22); }
+.jmaw-list { margin:2px 0 0; font-weight:700; }
+.jmaw-action { margin-top:9px; font-size:13px; font-weight:700; color:#ffcf8a; letter-spacing:0.03em; }
+#jmaWarningBanner.warn-special .jmaw-action { color:#ffcccc; }
+.jmaw-foot { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:11px; }
+.jmaw-link {
+  display:inline-block; padding:8px 18px;
+  background:rgba(255,160,30,0.15); border:1px solid rgba(255,180,50,0.45);
+  border-radius:6px; color:#ffb43c; text-decoration:none; cursor:pointer;
+  font-family:'Orbitron',monospace; font-size:10px; letter-spacing:0.1em; transition:all 0.2s;
+}
+.jmaw-link:hover { background:rgba(255,160,30,0.3); }
+#jmaWarningBanner.warn-special .jmaw-link { background:rgba(255,45,45,0.15); border-color:rgba(255,45,45,0.4); color:#ff8080; }
+#jmaWarningBanner.warn-special .jmaw-link:hover { background:rgba(255,45,45,0.3); }
+.jmaw-meta { font-family:'Share Tech Mono',monospace; font-size:10px; color:rgba(255,210,160,0.6); }
+/* ライトモード */
+html.light #jmaWarningBanner {
+  background:linear-gradient(135deg,rgba(255,180,40,0.18),rgba(255,140,0,0.12));
+  border-color:rgba(220,130,0,0.6);
+}
+html.light .jmaw-label { color:rgba(150,90,0,0.95); }
+html.light .jmaw-title { color:#a85800; text-shadow:none; }
+html.light .jmaw-badge { background:rgba(255,160,30,0.2); border-color:rgba(200,120,0,0.5); color:#a85800; }
+html.light .jmaw-body { color:rgba(110,60,0,0.95); border-top-color:rgba(200,120,0,0.25); }
+html.light .jmaw-action { color:#a85800; }
+html.light .jmaw-link { color:#a85800; }
+html.light #jmaWarningBanner.warn-special {
+  background:linear-gradient(135deg,rgba(255,70,70,0.16),rgba(200,20,20,0.12));
+  border-color:rgba(200,20,20,0.6);
+}
+html.light #jmaWarningBanner.warn-special .jmaw-title { color:#8b1010; }
+html.light #jmaWarningBanner.warn-special .jmaw-label { color:rgba(140,20,20,0.95); }
+html.light #jmaWarningBanner.warn-special .jmaw-body { color:rgba(100,20,20,0.95); }
+html.light #jmaWarningBanner.warn-special .jmaw-badge { color:#8b1010; }
 
 /* ===================== SETTINGS PANEL ===================== */
 .settings-btn {
@@ -1417,12 +1460,6 @@ html.light #tsunamiBanner.warn-major .tsunami-link:hover { background:rgba(200,2
 .guide-h:first-of-type { margin-top:0; }
 .guide-text { font-size:12px; color:var(--muted); line-height:1.9; }
 .guide-text strong { color:var(--text); }
-/* 翻訳メニュー（English / 言語）：英文を黒にしたため、黒が読めるよう
-   パネルとボックスの背景を明るくする。 */
-#translateOverlay .guide-panel { background:#fff; }
-#translateOverlay .guide-box { background:#f2f5f9; border-color:rgba(0,0,0,0.12); }
-#translateOverlay .guide-text { color:#000; }
-#translateOverlay .guide-text strong { color:#000; }
 .guide-list { font-size:12px; color:var(--muted); line-height:1.9; padding-left:18px; margin:6px 0; }
 .guide-list li { margin-bottom:6px; }
 .guide-list strong { color:var(--text); }
@@ -1460,9 +1497,8 @@ html.light #tsunamiBanner.warn-major .tsunami-link:hover { background:rgba(200,2
   html.scale-md #topbar { zoom: 1; }
   html.scale-lg #topbar { zoom: 1.25; }
   /* メニュー・設定画面・チュートリアルは、表示サイズ設定に関わらず常に「標準」(1.0倍)で固定 */
-  /* #tourPop は #tourOverlay の外（body直下）に配置しているため、個別に同じ補正を適用する */
-  html.scale-sm .hamburger-btn, html.scale-sm .hamburger-overlay, html.scale-sm .settings-overlay, html.scale-sm #tourOverlay, html.scale-sm #tourPop, html.scale-sm #tourHole { zoom: calc(1 / 0.75); }
-  html.scale-lg .hamburger-btn, html.scale-lg .hamburger-overlay, html.scale-lg .settings-overlay, html.scale-lg #tourOverlay, html.scale-lg #tourPop, html.scale-lg #tourHole { zoom: calc(1 / 1.25); }
+  html.scale-sm .hamburger-btn, html.scale-sm .hamburger-overlay, html.scale-sm .settings-overlay, html.scale-sm #tourOverlay { zoom: calc(1 / 0.75); }
+  html.scale-lg .hamburger-btn, html.scale-lg .hamburger-overlay, html.scale-lg .settings-overlay, html.scale-lg #tourOverlay { zoom: calc(1 / 1.25); }
 }
 
 /* ===================== WEATHER WIDGET ===================== */
@@ -1639,22 +1675,17 @@ html.light .site-refresh-btn:hover { background:rgba(0,100,180,0.1); }
 /* 4枚のオーバーレイで対象部分だけくり抜く */
 .tour-mask { position:fixed; background:rgba(4,8,15,0.72); transition:all 0.3s ease; }
 html.light .tour-mask { background:rgba(10,20,35,0.55); }
-#tourHole { display:none; position:fixed; border:2px solid var(--blue); border-radius:10px;
+#tourHole { position:fixed; border:2px solid var(--blue); border-radius:10px;
   box-shadow:0 0 0 9999px rgba(0,0,0,0); pointer-events:none; transition:all 0.3s ease;
-  z-index:99992; }
-body.tour-open #tourHole { display:block; }
-#tourPop { display:none; position:fixed; z-index:99996; max-width:340px; width:calc(100vw - 32px);
+  z-index:99991; }
+#tourPop { position:fixed; z-index:99992; max-width:340px; width:calc(100vw - 32px);
   max-height:calc(100vh - 24px); overflow-y:auto; -webkit-overflow-scrolling:touch;
   background:var(--surface); border:1px solid var(--blue); border-radius:12px;
   padding:20px 20px 18px; box-shadow:0 8px 40px rgba(0,180,255,0.25); transition:all 0.3s ease; }
-body.tour-open #tourPop { display:block; }
 .tour-step-no { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:0.15em;
   color:var(--muted); margin-bottom:7px; }
 .tour-title { font-size:19px; font-weight:700; color:var(--blue); margin-bottom:10px; line-height:1.35; }
 .tour-text { font-size:15.5px; line-height:1.75; color:var(--text); margin-bottom:16px; }
-.tour-text-jp { color:var(--text); }
-.tour-text-en { margin-top:10px; padding-top:10px; border-top:1px dashed var(--border);
-  font-size:13.5px; line-height:1.7; color:var(--muted); }
 .tour-btns { display:flex; align-items:center; gap:8px; flex-wrap:wrap;
   position:sticky; bottom:-18px; margin:0 -20px -18px; padding:12px 20px 18px;
   background:var(--surface); border-top:1px solid var(--border); }
@@ -1670,24 +1701,6 @@ body.tour-open #tourPop { display:block; }
 .tour-dots { display:flex; gap:5px; flex-wrap:wrap; flex:0 1 auto; min-width:0; justify-content:center; }
 .tour-dot { width:6px; height:6px; border-radius:50%; background:var(--surface3); border:1px solid var(--border); }
 .tour-dot.active { background:var(--blue); border-color:var(--blue); }
-
-/* スマホでは説明ポップアップを小さめ・コンパクトにして、画面に収まりやすくする
-   （日本語＋英語の2言語で縦に長くなりがちなため、文字と余白を詰める） */
-@media (max-width:600px){
-  #tourPop { padding:14px 14px 12px; border-radius:11px; }
-  .tour-step-no { font-size:10px; margin-bottom:5px; }
-  .tour-title { font-size:16px; margin-bottom:7px; line-height:1.3; }
-  .tour-text { font-size:13px; line-height:1.55; margin-bottom:10px; }
-  .tour-text-en { margin-top:7px; padding-top:7px; font-size:11.5px; line-height:1.5; }
-  .tour-btns { margin:0 -14px -12px; padding:9px 14px 12px; gap:6px; }
-  .tour-btn { padding:7px 12px; font-size:12px; }
-  .tour-skip { font-size:12px; }
-}
-@media (max-width:380px){
-  .tour-title { font-size:15px; }
-  .tour-text { font-size:12.5px; line-height:1.5; }
-  .tour-text-en { font-size:11px; }
-}
 
 /* チュートリアル完了ダイアログ */
 #tourDoneOverlay { display:none; position:fixed; inset:0; z-index:99995; background:rgba(4,8,15,0.74);
@@ -1918,10 +1931,6 @@ html.light .scale-item.lv1 { background:rgba(0,0,0,0.04); border-color:rgba(0,0,
 @media(min-width:769px){
   #splitPane{top:0;right:0;width:50vw;height:100vh;border-left:1px solid var(--border)}
   html.split-open body{padding-right:50vw}
-  /* 固定トップバー（ヘッダー＋最新情報バナー）は left:0;right:0 で全幅のため、
-     2画面時はそのままだと右半分が #splitPane の裏に隠れて切れる。
-     右端を左ペイン幅（50vw）に合わせて、左ペイン内にきっちり収める。 */
-  html.split-open #topbar{ right:50vw; }
 }
 @media(max-width:768px){
   #splitPane{left:0;right:0;bottom:0;height:55vh;border-top:1px solid var(--border)}
@@ -1943,29 +1952,12 @@ html.light .scale-item.lv1 { background:rgba(0,0,0,0.04); border-color:rgba(0,0,
   html.split-open #tsunamiBanner { grid-column:1; }
   html.split-open #weatherWidget { grid-column:1; }
   html.split-open .blog-grid { grid-template-columns:1fr; }
-  html.split-open header{height:auto;min-height:0;padding:8px 10px}
+  html.split-open header{height:64px;padding:0 16px}
   html.split-open .logo{gap:8px}
   html.split-open .logo-img{width:46px;height:46px}
   html.split-open .logo-text{font-size:16px;white-space:nowrap}
   html.split-open .logo-sub{display:none}
   html.split-open .header-status{gap:8px}
-  /* ★2画面表示の核心対策★
-     2画面では「画面幅」は広くても「左ペインの実効幅」は半分しかない。
-     ところがプレート説明文の表示/非表示は画面幅(max-width:1100px)で判定するため、
-     広いPCで2画面にすると説明文が表示されたまま横に広がり、機器パネルを
-     ペイン外へ押し出してはみ出す。
-     → 2画面時は画面幅に関わらず「狭いレイアウト」を強制する：
-        ・プレート説明文(.plate-desc)を隠す
-        ・代わりにプレート画像内のラベル(.dwa-plate-label)を表示
-        ・プレートを小さくして横並びをコンパクトに */
-  html.split-open .plate-desc{ display:none !important; }
-  html.split-open .plate-nav .dwa-plate-label{ display:block !important; }
-  html.split-open .plate-nav{ gap:18px; padding:10px 0 16px; margin-left:clamp(8px,2vw,24px); flex:0 0 auto; }
-  html.split-open .dwa-plate{ width:54px; }
-  /* 機器パネル（時計・更新・メニュー）をペイン境界の内側に確実に収める */
-  html.split-open #topbar{ right:calc(50vw + 16px); }
-  html.split-open body{ padding-right:calc(50vw + 16px); }
-  html.split-open .hp-header{ height:84px; }
 }
 /* スマホの2画面(上下分割)でも念のためロゴの折返しを防止 */
 @media(max-width:768px){
@@ -2366,26 +2358,18 @@ html.mode-chat.chat-split #modeChatScreen .mc-title{ font-size:13px; margin-bott
   <div class="tour-mask" id="tourMaskBottom"></div>
   <div class="tour-mask" id="tourMaskLeft"></div>
   <div class="tour-mask" id="tourMaskRight"></div>
-</div>
-<!-- tourHole（ハイライト枠）も tourOverlay の外に置く。
-     設定チュートリアルやメニューのステップでは対象パネルをマスクより前面に
-     持ち上げるため、枠が tourOverlay の重なり順に閉じ込められていると
-     パネルの後ろに隠れてしまう。独立配置にして常に前面へ出す。 -->
-<div id="tourHole"></div>
-<!-- tourPop は tourOverlay の外（body直下）に置く。
-     tourOverlay(マスク層) のスタッキングコンテキストに閉じ込められると、
-     言語ステップで前面に持ち上げたメニュー(.hamburger-overlay)の後ろに
-     回り込んでしまうため、独立したトップレベル要素として配置する。 -->
-<div id="tourPop">
-  <div class="tour-step-no" id="tourStepNo">STEP 1 / 7</div>
-  <div class="tour-title" id="tourTitle"></div>
-  <div class="tour-text" id="tourText"></div>
-  <div class="tour-btns">
-    <button class="tour-skip" id="tourSkip" onclick="endTour()">スキップ</button>
-    <div class="spacer"></div>
-    <div class="tour-dots" id="tourDots"></div>
-    <button class="tour-btn" id="tourPrev" onclick="tourPrev()">戻る</button>
-    <button class="tour-btn primary" id="tourNext" onclick="tourNext()">次へ</button>
+  <div id="tourHole"></div>
+  <div id="tourPop">
+    <div class="tour-step-no" id="tourStepNo">STEP 1 / 7</div>
+    <div class="tour-title" id="tourTitle"></div>
+    <div class="tour-text" id="tourText"></div>
+    <div class="tour-btns">
+      <button class="tour-skip" id="tourSkip" onclick="endTour()">スキップ</button>
+      <div class="spacer"></div>
+      <div class="tour-dots" id="tourDots"></div>
+      <button class="tour-btn" id="tourPrev" onclick="tourPrev()">戻る</button>
+      <button class="tour-btn primary" id="tourNext" onclick="tourNext()">次へ</button>
+    </div>
   </div>
 </div>
 
@@ -2423,8 +2407,8 @@ html.mode-chat.chat-split #modeChatScreen .mc-title{ font-size:13px; margin-bott
 <header id="section-top">
   <button type="button" class="header-close-btn" onclick="closeHeaderBar()" title="ヘッダーを閉じる" aria-label="ヘッダーを閉じる">✕</button>
   <div class="plate-nav" data-tour="logo">
-    <div class="plate-item" data-tour="emg-plate">
-    <a class="dwa-plate dwa-plate-emg" href="https://mkms0822-ops.github.io/kinkyuutaioumanyuaru/" target="_blank" rel="noopener" title="緊急対応マニュアル">
+    <div class="plate-item">
+    <a class="dwa-plate dwa-plate-emg" data-tour="emg-plate" href="https://mkms0822-ops.github.io/kinkyuutaioumanyuaru/" target="_blank" rel="noopener" title="緊急対応マニュアル">
       <img class="dwa-plate-img" src="dwa-plate-manual-v2.webp" alt="緊急対応" />
       <span class="dwa-light dwa-light-red"></span>
       <span class="dwa-light dwa-light-amber"></span>
@@ -2436,8 +2420,8 @@ html.mode-chat.chat-split #modeChatScreen .mc-title{ font-size:13px; margin-bott
         <div class="pd-sub">地震・火災・救急・台風・防犯<br>― いざという時の手順をタップで確認</div>
       </div>
     </div>
-    <div class="plate-item plate-item-map" data-tour="diag-plate">
-    <a class="dwa-plate dwa-plate-map" href="javascript:void(0)" onclick="openShindanModal();return false;" title="被害想定診断ツール">
+    <div class="plate-item plate-item-map">
+    <a class="dwa-plate dwa-plate-map" data-tour="diag-plate" href="javascript:void(0)" onclick="openShindanModal();return false;" title="被害想定診断ツール">
       <img class="dwa-plate-img" src="dwa-plate-diagnosis-v2.webp" alt="被害想定診断ツール" />
       <span class="dwa-plate-label">被害想定</span>
     </a>
@@ -2779,6 +2763,13 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
         </label>
       </div>
       <div class="settings-row">
+        <span class="settings-row-label">気象警報バナーを表示</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="jmaWarningToggle" checked onchange="toggleJmaWarningBanner()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="settings-row">
         <span class="settings-row-label">大地震オーバーレイを表示</span>
         <label class="toggle-switch">
           <input type="checkbox" id="eewOverlayToggle" checked onchange="toggleEewOverlay()">
@@ -3095,29 +3086,29 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     <!-- アプリ（ホーム画面から起動）時のみ表示：ブラウザの翻訳機能が使えないため案内を出し分け -->
     <div class="guide-box" id="translateAppNotice" style="display:none;margin-bottom:12px;border:1px solid rgba(255,180,0,0.5);background:rgba(255,180,0,0.08);">
       <div class="guide-text" style="margin-bottom:6px;"><strong>⚠ アプリとして起動中です。</strong>この状態ではブラウザの翻訳機能が使えません。下のボタンでブラウザ（Chrome / Safari）で開くと、翻訳できます。</div>
-      <div class="guide-text" style="color:#000;margin-bottom:10px;"><strong>⚠ You are using the app (home-screen) mode.</strong> Browser translation is not available here. Open this site in a browser (Chrome / Safari) using the button below to translate it.</div>
+      <div class="guide-text" style="color:#9fb;margin-bottom:10px;"><strong>⚠ You are using the app (home-screen) mode.</strong> Browser translation is not available here. Open this site in a browser (Chrome / Safari) using the button below to translate it.</div>
       <button class="settings-close-btn" style="margin-top:0;background:rgba(0,180,255,0.18);border-color:rgba(0,180,255,0.5);color:#00b4ff;" onclick="openInBrowserForTranslate()">🌐 ブラウザで開く / Open in browser</button>
     </div>
 
     <div class="guide-box" style="margin-bottom:12px;">
       <div class="guide-text" style="margin-bottom:6px;"><strong>このサイトは、お使いのブラウザの翻訳機能で英語など多言語で読めます。</strong></div>
-      <div class="guide-text" style="color:#000;">This site can be read in English and other languages using your browser's built-in translation feature.</div>
+      <div class="guide-text">This site can be read in English and other languages using your browser's built-in translation feature.</div>
     </div>
 
     <div class="guide-box" style="margin-bottom:12px;">
       <div class="guide-text" style="margin-bottom:4px;"><strong>📱 スマートフォン / Smartphone</strong></div>
       <div class="guide-text" style="margin-bottom:6px;">Chrome（Android）: メニュー（⋮）→「翻訳」<br>Safari（iPhone）: アドレスバーの「ぁ」または「AA」→「英語に翻訳」<br>Chrome（iPhone）: メニュー（⋯）→「翻訳…」</div>
-      <div class="guide-text" style="color:#000;">Chrome (Android): Menu (⋮) → "Translate"<br>Safari (iPhone): "AA" in the address bar → "Translate to English"<br>Chrome (iPhone): Menu (⋯) → "Translate…"</div>
+      <div class="guide-text" style="color:#9fb;">Chrome (Android): Menu (⋮) → "Translate"<br>Safari (iPhone): "AA" in the address bar → "Translate to English"<br>Chrome (iPhone): Menu (⋯) → "Translate…"</div>
     </div>
 
     <div class="guide-box" style="margin-bottom:12px;">
       <div class="guide-text" style="margin-bottom:4px;"><strong>💻 パソコン / PC</strong></div>
       <div class="guide-text" style="margin-bottom:6px;">Chrome / Edge: ページ上で右クリック →「英語に翻訳」、またはアドレスバー右の翻訳アイコンをクリック</div>
-      <div class="guide-text" style="color:#000;">Chrome / Edge: Right-click on the page → "Translate to English", or click the translate icon on the right of the address bar.</div>
+      <div class="guide-text" style="color:#9fb;">Chrome / Edge: Right-click on the page → "Translate to English", or click the translate icon on the right of the address bar.</div>
     </div>
 
     <div class="guide-box" style="margin-bottom:12px;">
-      <div class="guide-text" style="font-size:0.92em;color:#000;">⚠ 自動翻訳の精度には限界があります。緊急時の正確な情報は、気象庁など公式の発表をご確認ください。<br><span style="color:#000;">⚠ Machine translation may be inaccurate. For accurate emergency information, please check official sources such as the Japan Meteorological Agency (JMA).</span></div>
+      <div class="guide-text" style="font-size:0.92em;color:#bbb;">⚠ 自動翻訳の精度には限界があります。緊急時の正確な情報は、気象庁など公式の発表をご確認ください。<br><span style="color:#9fb;">⚠ Machine translation may be inaccurate. For accurate emergency information, please check official sources such as the Japan Meteorological Agency (JMA).</span></div>
     </div>
 
     <button class="settings-close-btn" onclick="closeTranslateModal()">✕ 閉じる / Close</button>
@@ -3277,6 +3268,27 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <div id="tsunamiDesc">沿岸部・低地の方はただちに高台や高い建物の上に避難してください。</div>
       <div class="tsunami-action" id="tsunamiAction">▶ 今すぐ高台へ避難してください</div>
       <button class="tsunami-link" type="button" onclick="window.open('https://www.jma.go.jp/bosai/map.html#contents=tsunami','_blank','noopener,noreferrer')">気象庁 津波情報（公式） →</button>
+    </div>
+  </div>
+
+  <!-- 気象警報バナー（気象庁・全国／警報レベル3相当以上で表示） -->
+  <div id="jmaWarningBanner">
+    <div class="jmaw-header">
+      <div class="jmaw-icon">⚠️</div>
+      <div class="jmaw-title-wrap">
+        <div class="jmaw-label">JMA WEATHER WARNING / 気象警報</div>
+        <div class="jmaw-title" id="jmawTitle">気象警報が発表されています</div>
+      </div>
+      <div class="jmaw-badge" id="jmawBadge">警報</div>
+    </div>
+    <div class="jmaw-body">
+      <div id="jmawDesc">現在、全国のいずれかの地域で気象警報（警戒レベル3相当以上）が発表されています。</div>
+      <div class="jmaw-list" id="jmawList"></div>
+      <div class="jmaw-action" id="jmawAction">▶ お住まいの地域の最新情報を確認し、危険な場所からは早めに避難してください。</div>
+      <div class="jmaw-foot">
+        <button class="jmaw-link" type="button" onclick="window.open('https://www.jma.go.jp/bosai/warning/','_blank','noopener,noreferrer')">気象庁 警報・注意報（公式） →</button>
+        <span class="jmaw-meta" id="jmawMeta"></span>
+      </div>
     </div>
   </div>
 
@@ -4595,7 +4607,9 @@ function renderBookmarkList(){
     const tagLabel = (TAG_OPTIONS.find(function(t){return t.val===c.tag;})||{}).label || c.tag || '';
     const body = (c.body||'').replace(/\n/g,'<br>');
     const imgs = (c.images && c.images.length)
-      ? '<div style="margin-top:8px;">' + renderBlogPhotos(c.images) + '</div>'
+      ? '<div class="pd-photos ' + (c.images.length===1?'n1':c.images.length===2?'n2':'nmore') + '" style="display:grid;margin-top:8px;">'
+        + c.images.map(function(u){ return '<img src="'+u+'" loading="lazy" onclick="openLightbox(\''+u+'\')">'; }).join('')
+        + '</div>'
       : '';
     return '<div style="border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;background:var(--surface2);position:relative;">'
       + '<button type="button" onclick="removeBookmark(\''+c.id+'\')" style="position:absolute;top:10px;right:10px;background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;" title="ブックマークを外す">🗑️ 外す</button>'
@@ -4697,57 +4711,18 @@ function toggleArchiveReadMore(i){
 }
 
 // 記事カードの写真（最大3枚＋残数表示）
-let _carouselSeq = 0;
 function renderBlogPhotos(images){
   if(!images || !images.length) return '';
-  // 1枚だけのときは従来どおり単純表示（めくる必要がない）
-  if(images.length === 1){
-    return `<div class="blog-photos n1"><img src="${images[0]}" loading="lazy" onclick="openLightbox('${images[0]}')"></div>`;
-  }
-  // 複数枚はカルーセル（ページめくり）形式。左右の三角ボタンで1枚ずつ送る。
-  const id = 'carousel' + (++_carouselSeq);
-  const slides = images.map((u,idx)=>
-    `<div class="carousel-slide${idx===0?' active':''}" data-idx="${idx}">`
-    + `<img src="${u}" loading="lazy" onclick="openLightbox('${u}')">`
-    + `</div>`
-  ).join('');
-  const dots = images.map((_,idx)=>
-    `<span class="carousel-dot${idx===0?' active':''}" data-idx="${idx}" onclick="carouselGo('${id}',${idx})"></span>`
-  ).join('');
-  return `<div class="blog-carousel" id="${id}" data-count="${images.length}" data-cur="0">`
-    + `<div class="carousel-track">${slides}</div>`
-    + `<button class="carousel-btn prev" type="button" aria-label="前の画像" onclick="carouselStep('${id}',-1)">`
-    +   `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><polygon points="15,4 7,12 15,20" fill="#fff"/></svg>`
-    + `</button>`
-    + `<button class="carousel-btn next" type="button" aria-label="次の画像" onclick="carouselStep('${id}',1)">`
-    +   `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><polygon points="9,4 17,12 9,20" fill="#fff"/></svg>`
-    + `</button>`
-    + `<div class="carousel-counter"><span class="cc-cur">1</span>/${images.length}</div>`
-    + `<div class="carousel-dots">${dots}</div>`
-    + `</div>`;
-}
-
-// カルーセルを指定インデックスへ
-function carouselGo(id, idx){
-  const root = document.getElementById(id);
-  if(!root) return;
-  const count = parseInt(root.getAttribute('data-count'),10) || 1;
-  if(idx < 0) idx = count - 1;            // 端を超えたらループ
-  if(idx >= count) idx = 0;
-  root.setAttribute('data-cur', idx);
-  const slides = root.querySelectorAll('.carousel-slide');
-  slides.forEach(function(s){ s.classList.toggle('active', parseInt(s.getAttribute('data-idx'),10)===idx); });
-  const dots = root.querySelectorAll('.carousel-dot');
-  dots.forEach(function(d){ d.classList.toggle('active', parseInt(d.getAttribute('data-idx'),10)===idx); });
-  const cur = root.querySelector('.cc-cur');
-  if(cur) cur.textContent = (idx+1);
-}
-// 相対移動（前/次）
-function carouselStep(id, dir){
-  const root = document.getElementById(id);
-  if(!root) return;
-  const c = parseInt(root.getAttribute('data-cur'),10) || 0;
-  carouselGo(id, c + dir);
+  const shown = images.slice(0,3);
+  const cls = images.length===1?'n1':images.length===2?'n2':'n3';
+  const extra = images.length>3 ? images.length-3 : 0;
+  const imgs = shown.map((u,idx)=>{
+    const overlay = (idx===2 && extra>0)
+      ? `<div style="position:relative;"><img src="${u}" loading="lazy" onclick="openLightbox('${u}')"><span style="position:absolute;inset:0;background:rgba(0,0,0,.55);color:#fff;display:grid;place-items:center;font-size:18px;font-weight:700;border-radius:8px;pointer-events:none;">+${extra}</span></div>`
+      : `<img src="${u}" loading="lazy" onclick="openLightbox('${u}')">`;
+    return overlay;
+  }).join('');
+  return `<div class="blog-photos ${cls}">${imgs}</div>`;
 }
 
 // 画像ライトボックス
@@ -4804,9 +4779,9 @@ function openPostModal(i){
   subEl.style.display = p.subtitle ? 'block' : 'none';
   const photoEl = document.getElementById('pdPhotos');
   if(p.images && p.images.length){
-    photoEl.className = 'pd-photos';
-    photoEl.innerHTML = renderBlogPhotos(p.images);
-    photoEl.style.display = 'block';
+    photoEl.className = 'pd-photos ' + (p.images.length===1?'n1':p.images.length===2?'n2':'nmore');
+    photoEl.innerHTML = p.images.map(u=>`<img src="${u}" loading="lazy" onclick="openLightbox('${u}')">`).join('');
+    photoEl.style.display = 'grid';
   } else {
     photoEl.innerHTML = ''; photoEl.style.display = 'none';
   }
@@ -4857,7 +4832,9 @@ function renderVersionList(){
   wrap.innerHTML = versionItems.map(function(p){
     const body = (p.body||'').replace(/\n/g,'<br>');
     const imgs = (p.images && p.images.length)
-      ? '<div style="margin-top:8px;">' + renderBlogPhotos(p.images) + '</div>'
+      ? '<div class="pd-photos ' + (p.images.length===1?'n1':p.images.length===2?'n2':'nmore') + '" style="display:grid;margin-top:8px;">'
+        + p.images.map(function(u){ return '<img src="'+u+'" loading="lazy" onclick="openLightbox(\''+u+'\')">'; }).join('')
+        + '</div>'
       : '';
     return '<div style="border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;background:var(--surface2);">'
       + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
@@ -4960,7 +4937,6 @@ function updatePromptShowLocation(){
   }];
   _tourIndex = 0;
   document.getElementById('tourOverlay').classList.add('open');
-  document.body.classList.add('tour-open');
   const dots = document.getElementById('tourDots');
   if(dots) dots.innerHTML = '';
   showTourStep();
@@ -6626,6 +6602,7 @@ function updateSettingsUI(){
   if(tbt) tbt.checked = isTsunamiBannerEnabled();
   const eot = document.getElementById('eewOverlayToggle');
   if(eot) eot.checked = isEewOverlayEnabled();
+  if(typeof window.syncJmaWarningToggle === 'function') window.syncJmaWarningToggle();
   // 天気設定
   syncWeatherSettingsUI();
 }
@@ -6753,26 +6730,25 @@ const OPEN_SOUND_SRC = "dwa-open-sound-v2.mp3";
 // ===================== TUTORIAL TOUR =====================
 const TOUR_KEY = 'tutorial_seen';
 const tourSteps = [
-  { sel:'.hp-header', title:'防災情報センターへようこそ', text:'地震速報をリアルタイムで表示する防災情報サイトです。ヘッダー右のこの機器パネルに、LIVE表示・現在時刻・更新ボタン・メニューがまとまっています。主な使い方を簡単にご案内します。', en:'This is a disaster-prevention site that shows earthquake alerts in real time. The control panel at the top right brings together the LIVE indicator, current time, refresh button, and menu. Here is a quick guide to the main features.', needsHeader:true },
-  { sel:'[data-tour="emg-plate"]', title:'🚨 緊急対応マニュアル', text:'ヘッダーの「緊急対応マニュアル」ボタンです。地震・火災・救急・台風・防犯など、いざという時の対応手順をタップで確認できます。迷ったらここを開き、状況を選ぶだけでやるべきことが表示されます。', en:'This is the "Emergency Response Manual" button in the header. With a tap you can check what to do in an emergency — earthquakes, fire, first aid, typhoons, crime prevention, and more. When in doubt, open this and just choose your situation to see the steps to take.', fallbackToTop:true, needsHeader:true },
-  { sel:'[data-tour="diag-plate"]', title:'🗾 被害想定診断ツール', text:'「被害想定診断ツール」ボタンです。都道府県を選ぶだけで、活断層マップ・地震の発生確率・想定される死者数や経済損失などを即座に確認できます。お住まいの地域のリスクをチェックしてみましょう。', en:'This is the "Damage Estimate Tool" button. Just select your prefecture to instantly view the active-fault map, earthquake probability, and estimated casualties and economic losses. Check the risks in your area.', fallbackToTop:true, needsHeader:true },
-  { sel:'[data-tour="live"]', title:'🟢 LIVE・現在時刻', text:'ヘッダー右の機器パネルです。赤いランプが点滅していれば「LIVE（リアルタイム配信中）」を表し、その下の窓に現在時刻が表示されます。地震データは自動で更新され続けます。', en:'This is the control panel at the top right. A blinking red lamp means "LIVE" (real-time streaming), and the window below shows the current time. Earthquake data keeps updating automatically.', needsHeader:true },
-  { sel:'#siteRefreshBtn', title:'🔄 最新情報に更新', text:'パネル内の丸い矢印ボタンです。自動更新を待たずに、いますぐ最新の地震・気象情報を取り込みたいときにタップします。表示が古いと感じたらここを押してください。', en:'This is the round arrow button on the panel. Tap it when you want the latest earthquake and weather information right away, without waiting for the automatic update. Press it whenever the display feels out of date.', fallbackToTop:true, needsHeader:true },
-  { sel:'[data-tour="menu"]', title:'☰ メニュー（設定）', text:'パネル右側の三本線アイコンがメニューボタンです。タップで開くメニューの中に、設定・お問い合わせ・プライバシーポリシーがあります。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。', en:'The three-line icon on the right of the panel is the menu button. The menu it opens contains Settings, Contact, and the Privacy Policy. You can change the theme, font, notifications, alert sounds, and more in Settings, and you can revisit this tutorial anytime from "Help" within Settings.', needsHeader:true },
-  { sel:'[data-tour="menu"]', title:'☰ メニュー（リンク集）', text:'同じ三本線メニューの中には、防災クイズや気象庁の各種情報ページへのリンクもまとめてあります。', en:'The same three-line menu also gathers links to disaster-prevention quizzes and various information pages from the Japan Meteorological Agency.', fallbackToTop:true, needsHeader:true },
-  { sel:'[data-tour="lang"]', title:'🌐 English / 多言語表示', text:'メニューの中の「English / 言語」ボタンです。お使いのブラウザの翻訳機能を使うと、このサイトを英語など多言語で読めます。ボタンを押すと、スマホ・パソコン別の翻訳手順を日本語と英語で案内します。海外の方や、英語で読みたい方はこちらをご利用ください。', en:'This is the "English / Language" button in the menu. Using your browser\u2019s translation feature, you can read this site in English and other languages. Tapping the button shows translation steps for both smartphones and PCs, in Japanese and English. Recommended for visitors from overseas or anyone who prefers to read in English.', onShow:openHamburgerForTour, fallbackToTop:true, needsHeader:true },
-  { sel:'[data-tour="tabs"]', title:'気象情報タブ（収納式）', text:'台風・雨雲レーダー・警報注意報など、気象・災害情報へのリンク集です。ふだんは「災害情報タブ」ボタンに収納されていて、タップすると開きます（いまチュートリアル用に開いています）。目的の情報にすぐアクセスできます。', en:'This is a set of links to weather and disaster information such as typhoons, rain-cloud radar, and warnings/advisories. Normally it is tucked away under the "Disaster Info Tabs" button and opens when tapped (it is open now for the tutorial). It gives you quick access to the information you need.', onShow:openDtabsForTour },
-  { sel:'[data-tour="stats"]', title:'本日の地震サマリー', text:'本日の有感地震の回数、最大マグニチュード・最大震度をひと目で確認できます。', en:'See today\u2019s number of felt earthquakes, plus the maximum magnitude and seismic intensity, at a glance.', onShow:closeDtabsForTour },
-  { sel:'#quakeList', selAlt:'.quake-list', title:'地震リスト', text:'最近発生した地震の一覧です。カードをタップすると詳細が表示されます。', en:'This is a list of recent earthquakes. Tap a card to see the details.', fallbackToTop:true },
-  { sel:'[data-tour="bookmark"]', selAlt:'.bookmark-btn', selAlt2:'.blog-card', title:'🔖 ブックマーク', text:'防災記事カードの右上にあるこのマークをタップすると、その記事をブックマーク（お気に入り保存）できます。あとで読み返したい「備え」や「ヒント」を保存しておくと、必要なときにすぐ見返せます。', en:'Tap this mark at the top right of a disaster-prevention article card to bookmark (save) that article. Save the preparedness tips you want to revisit later so you can find them quickly when you need them.', onShow:scrollToColumnForTour, fallbackToTop:true },
-  { sel:'[data-tour="review"]', title:'⭐ 口コミ・レビュー', text:'このサイトの感想や評価を投稿できるコーナーです。星の数と一言コメントで、使ってみての感想をぜひ聞かせてください。みんなの口コミも読めます。', en:'This is where you can post your impressions and ratings of the site. Please share how you found it using a star rating and a short comment. You can also read other users\u2019 reviews.', onShow:scrollToReviewForTour, fallbackToTop:true },
-  { sel:'[data-tour="chat"]', title:'💬 みんなのひとことチャット', text:'防災情報の共有や、ひとことメッセージを書き込めるチャットです。閲覧は誰でもできます。書き込みには「引き継ぎコード」での参加（ログイン）が必要です。地域の気づきや声かけにご活用ください。', en:'This is a chat for sharing disaster information and posting short messages. Anyone can read it. To post, you need to join (log in) with a "transfer code." Please use it for local observations and to check in with one another.', fallbackToTop:true },
-  { sel:'[data-tour="share"]', title:'📤 友達紹介リンク', text:'あなた専用の紹介リンクで、このサイトを友達に教えられます。紹介リンクから友達がアクセスすると、あなたと友達の両方にスタンプを1つずつプレゼント。LINEやXでかんたんに共有できます。', en:'Use your personal referral link to tell friends about this site. When a friend visits through your link, both you and your friend each receive one stamp. You can share easily via LINE or X.', fallbackToTop:true },
-  { sel:'#stampFab', title:'🎁 防災スタンプカード', text:'毎日サイトを開くと、画面右下のこのボタンから1日1個スタンプを押せます。10個・20個貯まると防災グッズのプレゼントに応募できます。さっそく押してみましょう！', en:'Open the site each day and you can collect one stamp per day from this button at the bottom right. Once you reach 10 or 20 stamps, you can enter to win disaster-prevention goods. Give it a try!', showStamp:true, fallbackToCorner:true, onShow:closeDtabsForTour },
-  { sel:'#pwInput', title:'🔒 復元用パスワード（任意）', text:'スタンプカードの中には「復元用パスワード」を設定できる欄があります。パスワードを決めておくと、機種変更などで別の端末にデータを引き継ぐとき、引き継ぎコードに加えてこのパスワードが必要になります。他人にコードを知られても大切なスタンプ記録を守れます。設定は任意です。忘れた場合は運営でリセットできます。', en:'The stamp card includes a field to set a "recovery password." If you set one, then when you transfer your data to another device (for example after changing phones), this password is required in addition to the transfer code. This keeps your valuable stamp record safe even if someone learns your code. Setting it is optional, and the operators can reset it if you forget it.', onShow:openStampCardForTour, fallbackToCorner:true },
+  { sel:'.hp-header', title:'防災情報センターへようこそ', text:'地震速報をリアルタイムで表示する防災情報サイトです。ヘッダー右のこの機器パネルに、LIVE表示・現在時刻・更新ボタン・メニューがまとまっています。主な使い方を簡単にご案内します。' },
+  { sel:'[data-tour="emg-plate"]', title:'🚨 緊急対応マニュアル', text:'ヘッダーの「緊急対応マニュアル」ボタンです。地震・火災・救急・台風・防犯など、いざという時の対応手順をタップで確認できます。迷ったらここを開き、状況を選ぶだけでやるべきことが表示されます。', fallbackToTop:true },
+  { sel:'[data-tour="diag-plate"]', title:'🗾 被害想定診断ツール', text:'「被害想定診断ツール」ボタンです。都道府県を選ぶだけで、活断層マップ・地震の発生確率・想定される死者数や経済損失などを即座に確認できます。お住まいの地域のリスクをチェックしてみましょう。', fallbackToTop:true },
+  { sel:'[data-tour="live"]', title:'🟢 LIVE・現在時刻', text:'ヘッダー右の機器パネルです。赤いランプが点滅していれば「LIVE（リアルタイム配信中）」を表し、その下の窓に現在時刻が表示されます。地震データは自動で更新され続けます。' },
+  { sel:'#siteRefreshBtn', title:'🔄 最新情報に更新', text:'パネル内の丸い矢印ボタンです。自動更新を待たずに、いますぐ最新の地震・気象情報を取り込みたいときにタップします。表示が古いと感じたらここを押してください。', fallbackToTop:true },
+  { sel:'[data-tour="menu"]', title:'☰ メニュー（設定）', text:'パネル右側の三本線アイコンがメニューボタンです。タップで開くメニューの中に、設定・お問い合わせ・プライバシーポリシーがあります。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。' },
+  { sel:'[data-tour="menu"]', title:'☰ メニュー（リンク集）', text:'同じ三本線メニューの中には、防災クイズや気象庁の各種情報ページへのリンクもまとめてあります。', fallbackToTop:true },
+  { sel:'[data-tour="lang"]', title:'🌐 English / 多言語表示', text:'メニューの中の「English / 言語」ボタンです。お使いのブラウザの翻訳機能を使うと、このサイトを英語など多言語で読めます。ボタンを押すと、スマホ・パソコン別の翻訳手順を日本語と英語で案内します。海外の方や、英語で読みたい方はこちらをご利用ください。', onShow:openHamburgerForTour, fallbackToTop:true },
+  { sel:'[data-tour="tabs"]', title:'気象情報タブ（収納式）', text:'台風・雨雲レーダー・警報注意報など、気象・災害情報へのリンク集です。ふだんは「災害情報タブ」ボタンに収納されていて、タップすると開きます（いまチュートリアル用に開いています）。目的の情報にすぐアクセスできます。', onShow:openDtabsForTour },
+  { sel:'[data-tour="stats"]', title:'本日の地震サマリー', text:'本日の有感地震の回数、最大マグニチュード・最大震度をひと目で確認できます。', onShow:closeDtabsForTour },
+  { sel:'.quake-list', title:'地震リスト', text:'最近発生した地震の一覧です。カードをタップすると詳細が表示されます。', fallbackToTop:true },
+  { sel:'[data-tour="bookmark"]', selAlt:'#section-column', title:'🔖 ブックマーク', text:'防災記事カードの右上にあるこのマークをタップすると、その記事をブックマーク（お気に入り保存）できます。あとで読み返したい「備え」や「ヒント」を保存しておくと、必要なときにすぐ見返せます。', onShow:scrollToColumnForTour, fallbackToTop:true },
+  { sel:'[data-tour="review"]', title:'⭐ 口コミ・レビュー', text:'このサイトの感想や評価を投稿できるコーナーです。星の数と一言コメントで、使ってみての感想をぜひ聞かせてください。みんなの口コミも読めます。', fallbackToTop:true },
+  { sel:'[data-tour="chat"]', title:'💬 みんなのひとことチャット', text:'防災情報の共有や、ひとことメッセージを書き込めるチャットです。閲覧は誰でもできます。書き込みには「引き継ぎコード」での参加（ログイン）が必要です。地域の気づきや声かけにご活用ください。', fallbackToTop:true },
+  { sel:'[data-tour="share"]', title:'📤 友達紹介リンク', text:'あなた専用の紹介リンクで、このサイトを友達に教えられます。紹介リンクから友達がアクセスすると、あなたと友達の両方にスタンプを1つずつプレゼント。LINEやXでかんたんに共有できます。', fallbackToTop:true },
+  { sel:'#stampFab', title:'🎁 防災スタンプカード', text:'毎日サイトを開くと、画面右下のこのボタンから1日1個スタンプを押せます。10個・20個貯まると防災グッズのプレゼントに応募できます。さっそく押してみましょう！', showStamp:true, fallbackToCorner:true, onShow:closeDtabsForTour },
+  { sel:'#pwInput', title:'🔒 復元用パスワード（任意）', text:'スタンプカードの中には「復元用パスワード」を設定できる欄があります。パスワードを決めておくと、機種変更などで別の端末にデータを引き継ぐとき、引き継ぎコードに加えてこのパスワードが必要になります。他人にコードを知られても大切なスタンプ記録を守れます。設定は任意です。忘れた場合は運営でリセットできます。', onShow:openStampCardForTour, fallbackToCorner:true },
 ];
 let _tourIndex = 0;
-let _tourHeaderWasClosed = false;  // ツアー開始前のヘッダー開閉状態（終了時に復元）
 // チュートリアル中だけ気象情報タブ（収納式）を開く／閉じる
 function openDtabsForTour(){
   const tabs = document.querySelector('.disaster-tabs');
@@ -6789,62 +6765,20 @@ function closeDtabsForTour(){
 }
 // ブックマーク説明ステップ：防災コラム（ブックマークボタンのある一覧）まで移動
 function scrollToColumnForTour(){
-  // ブックマークボタン(#bm0)は記事カード内の小さな要素。これを画面の
-  // 「やや上（上から約28%）」に置く。最上部に置くと真下のポップアップに
-  // 隠れてしまうため、ボタンが見えつつ下に説明を出せる位置にする。
-  function findBookmarkTarget(){
-    return document.querySelector('[data-tour="bookmark"]')
-        || document.querySelector('.bookmark-btn')
-        || document.querySelector('.blog-card')
-        || document.getElementById('section-column');
-  }
-  function alignTop(behavior){
-    const target = findBookmarkTarget();
-    if(!target) return;
-    const offset = Math.max(150, Math.round(window.innerHeight * 0.28));
-    const r = target.getBoundingClientRect();
-    const y = Math.max(0, window.scrollY + r.top - offset);
-    try { window.scrollTo({ top:y, left:0, behavior: behavior||'auto' }); }
-    catch(e){ window.scrollTo(0, y); }
-  }
-  try {
-    alignTop('auto');                 // まず即座に合わせる
-    setTimeout(function(){
-      alignTop('auto');               // 画像読み込み等で高さが変わっても再度ぴったり
-      if(typeof positionTour === 'function') setTimeout(positionTour, 60);
-    }, 360);
-  } catch(e){
+  const target = document.querySelector('[data-tour="bookmark"]') || document.getElementById('section-column');
+  if(target){
+    // 対象を画面の上寄りに置く（block:'start'）。下側に説明ポップアップを出す空間を確保し、
+    // 説明文とハイライト枠が重ならないようにする。
     try {
-      const t = findBookmarkTarget();
-      if(t) t.scrollIntoView();
-    } catch(_){}
-  }
-}
-// 口コミ・レビュー説明ステップ：セクションの「上端」を画面上部に合わせる。
-// レビュー欄はスマホ画面より縦に長く、block:'center' だと中央が下に来て
-// ハイライト枠が上に上がらない（隠れる）ため、上端基準でスクロールさせる。
-function scrollToReviewForTour(){
-  const target = document.querySelector('[data-tour="review"]') || document.getElementById('section-review');
-  if(!target) return;
-  // レビュー欄は画面より縦に長い。block:'center' だと上端（タイトル・投稿欄）が
-  // 画面上に上がりきらずフレームアウトするため、セクション上端をヘッダー下
-  // （約100px）にぴったり合わせる絶対座標スクロールにする。
-  const HEADER_OFFSET = 100;
-  function alignTop(behavior){
-    const r = target.getBoundingClientRect();
-    const y = Math.max(0, window.scrollY + r.top - HEADER_OFFSET);
-    try { window.scrollTo({ top:y, left:0, behavior: behavior||'smooth' }); }
-    catch(e){ window.scrollTo(0, y); }
-  }
-  try {
-    alignTop('smooth');
-    // スクロール完了後にもう一度ぴったり合わせ直し、枠を再計算
-    setTimeout(function(){
-      alignTop('auto');
-      if(typeof positionTour === 'function') setTimeout(positionTour, 60);
-    }, 420);
-  } catch(e){
-    try { target.scrollIntoView(); } catch(_){}
+      target.scrollIntoView({ behavior:'smooth', block:'start' });
+      // ヘッダーに隠れない＆少し余白を持たせるため、さらに少し上へ送る
+      setTimeout(function(){
+        try { window.scrollBy({ top: -90, left: 0, behavior:'smooth' }); } catch(e){ window.scrollBy(0,-90); }
+        if(typeof positionTour === 'function') setTimeout(positionTour, 250);
+      }, 350);
+    } catch(e){
+      try { target.scrollIntoView(); } catch(_){}
+    }
   }
 }
 // 言語説明ステップ：ハンバーガーメニューを開いて「English / 言語」ボタンを見せる
@@ -6855,23 +6789,12 @@ function openHamburgerForTour(){
     const ov = document.querySelector('.hamburger-overlay');
     if(ov){
       ov.dataset.tourLifted = '1';
-      ov.style.zIndex = '99991';  // tourMask(99990) より前・tourPop(99996) より後ろ
+      ov.style.zIndex = '99991';  // tourMask(99990) より前・tourPop(99992) より後ろ
     }
     setTimeout(function(){
       try {
         const el = document.querySelector('[data-tour="lang"]');
-        if(el){
-          // 「English / 言語」ボタンを画面の上寄りに表示する。
-          // 説明ポップアップ（日本語＋英語で縦に長め）を下側に広く出す余地を作り、
-          // ポップアップがボタンを覆い隠さないようにする。
-          el.scrollIntoView({ behavior:'smooth', block:'start' });
-          // ヘッダーに隠れない＆少し余白を持たせるため、メニュー内をさらに少し上へ送る
-          const panel = el.closest('.hamburger-panel');
-          setTimeout(function(){
-            try { if(panel) panel.scrollBy({ top: -24, left: 0, behavior:'smooth' }); } catch(_){}
-            if(typeof positionTour === 'function') setTimeout(positionTour, 200);
-          }, 320);
-        }
+        if(el) el.scrollIntoView({ behavior:'smooth', block:'center' });
       } catch(e){}
       if(typeof positionTour === 'function') positionTour();
     }, 300);
@@ -6894,26 +6817,16 @@ function openStampCardForTour(){
     const ov = document.getElementById('stampOverlay');
     if(ov){
       ov.dataset.tourLifted = '1';
-      ov.style.zIndex = '99991';        // tourMask(99990) より前・tourPop(99996) より後ろ
+      ov.style.zIndex = '99991';        // tourMask(99990) より前・tourPop(99992) より後ろ
     }
-    // パスワード欄へ「瞬間移動（smoothなし）」で一度だけ寄せ、枠を確定させる。
-    // smooth スクロールやスタンプ演出による再レイアウトでハイライトが
-    // 行ったり来たり揺れるのを防ぐため、instant スクロール＋固定タイミングで
-    // 数回だけ位置を合わせ直す（連続トラッキングで追従し続けない）。
-    function settle(){
+    // カードが開いてパスワード欄が描画されてから枠を合わせ直す
+    setTimeout(function(){
       try {
         const el = document.getElementById('pwInput');
-        if(el){
-          // 連続トラッキング（trackTourPosition）を止めてから固定配置する
-          if(typeof _tourTrackUntil !== 'undefined') _tourTrackUntil = 0;
-          el.scrollIntoView({ block:'center', inline:'nearest' }); // smoothなし＝一発で確定
-        }
+        if(el) el.scrollIntoView({ behavior:'smooth', block:'center' });
       } catch(e){}
       if(typeof positionTour === 'function') positionTour();
-    }
-    // カードの描画／スタンプ演出が落ち着くのを待ってから確定（揺れの原因を過ぎてから合わせる）
-    setTimeout(settle, 420);
-    setTimeout(settle, 900);  // 演出完了後にもう一度だけ最終確定
+    }, 350);
   } catch(e){}
 }
 // 持ち上げたスタンプカードのz-indexを元に戻す（パスワードステップを離れるとき）
@@ -6963,10 +6876,6 @@ function startSettingsTour(){
   if(fab0) fab0.style.display = 'none';
   // 設定オーバーレイより前面に出す
   document.getElementById('tourOverlay').classList.add('open');
-  document.body.classList.add('tour-open');
-  // 設定パネルをツアーのマスク(99990)より前面へ持ち上げる。
-  // こうしないとパネル全体がマスクの暗幕の下に沈み、ハイライト対象も暗く見えてしまう。
-  liftSettingsForTour();
   const dots = document.getElementById('tourDots');
   dots.innerHTML = _activeSteps.map((_,i)=>`<div class="tour-dot" data-di="${i}"></div>`).join('');
   // パネルのスクロールでも枠が追従するよう監視
@@ -6975,28 +6884,6 @@ function startSettingsTour(){
   showTourStep();
   window.addEventListener('resize', positionTour);
   window.addEventListener('scroll', positionTour, true);
-  _bindTourLeaveHandlers();
-}
-// 設定内チュートリアル中：設定オーバーレイをマスクより前面に持ち上げる
-function liftSettingsForTour(){
-  const ov = document.getElementById('settingsOverlay');
-  if(ov){
-    ov.dataset.tourLifted = '1';
-    ov.style.zIndex = '99991';   // tourMask(99990) より前・tourPop(99996) より後ろ
-    // 暗幕がパネルにかぶらないよう、オーバーレイ自身の半透明背景を一時的に消す
-    ov.dataset.prevBg = ov.style.background || '';
-    ov.style.background = 'transparent';
-  }
-}
-// 持ち上げた設定オーバーレイを元に戻す
-function resetSettingsLift(){
-  const ov = document.getElementById('settingsOverlay');
-  if(ov && ov.dataset.tourLifted === '1'){
-    ov.style.zIndex = '';
-    ov.style.background = ov.dataset.prevBg || '';
-    delete ov.dataset.prevBg;
-    delete ov.dataset.tourLifted;
-  }
 }
 
 function maybeStartTourOnFirstVisit(){
@@ -7006,25 +6893,10 @@ function maybeStartTourOnFirstVisit(){
   // 全画面の地震警報（EEWオーバーレイ）が表示中の間は待ち、閉じられてから開始する
   setTimeout(function(){
     const waiter = setInterval(function(){
-      // 既に何らかのチュートリアル（メイン／設定／位置強調）が表示中、または
-      // 設定オーバーレイが開いている場合は、自動起動しない（多重起動・乗っ取り防止）。
-      // 特に、ユーザーが先に「設定内チュートリアル」を開いていた場合に、
-      // この初回自動起動が割り込んで設定ツアーをメインツアーへ置き換えてしまうのを防ぐ。
-      if(document.body.classList.contains('tour-open') || _settingsTour || _locationHighlight){
-        clearInterval(waiter);
-        return;
-      }
       const ov = document.getElementById('eewOverlay');
       if(!ov || !ov.classList.contains('active')){
         clearInterval(waiter);
-        // 起動直前にも再確認（500msの間に他のツアーが始まる可能性に備える）
-        setTimeout(function(){
-          if(document.body.classList.contains('tour-open') || _settingsTour || _locationHighlight) return;
-          let seen2 = false;
-          try { seen2 = localStorage.getItem(TOUR_KEY) === 'true'; } catch(e){}
-          if(seen2) return;
-          startTour();
-        }, 500);
+        setTimeout(startTour, 500);
       }
     }, 600);
   }, 1200); // 地震データの取得を少し待ってから判定
@@ -7037,61 +6909,30 @@ function trackTourPosition(){
   if(Date.now() < _tourTrackUntil) requestAnimationFrame(trackTourPosition);
 }
 
-// チュートリアルが表示中（メイン／設定どちらか）かどうか
-function _tourIsActive(){
-  return document.body.classList.contains('tour-open');
-}
-// 画面を消した（タブ非表示・アプリ背面化）／ページ離脱したらチュートリアルを終了する。
-// completed=false で終了するので、最後まで見ていなければ次回また表示される。
-function _abortTourOnLeave(){
-  if(!_tourIsActive()) return;
-  try { endTour(false); } catch(e){}
-}
-function _onTourVisibilityChange(){
-  if(document.hidden) _abortTourOnLeave();
-}
-// チュートリアル中断用リスナーの登録／解除（多重登録を避けるため毎回付け外し）
-function _bindTourLeaveHandlers(){
-  document.addEventListener('visibilitychange', _onTourVisibilityChange);
-  window.addEventListener('pagehide', _abortTourOnLeave);
-}
-function _unbindTourLeaveHandlers(){
-  document.removeEventListener('visibilitychange', _onTourVisibilityChange);
-  window.removeEventListener('pagehide', _abortTourOnLeave);
-}
-
 function startTour(){
   _settingsTour = false;
   _activeSteps = tourSteps;
   _tourIndex = 0;
-  // チュートリアル開始前のヘッダー開閉状態を覚えておき、終了時に元へ戻す。
-  // （チュートリアル中はステップに応じてヘッダーを一時的に開閉するため）
-  _tourHeaderWasClosed = document.documentElement.classList.contains('header-closed');
   // チュートリアル再生時は、どこまでスクロールしていても一番上から始める
   try { window.scrollTo({ top:0, left:0, behavior:'auto' }); } catch(e){ window.scrollTo(0,0); }
   // チュートリアル中は誤タップ防止のためプレゼントBOXを隠す
   const fab0 = document.getElementById('stampFab');
   if(fab0) fab0.style.display = 'none';
   document.getElementById('tourOverlay').classList.add('open');
-  document.body.classList.add('tour-open');
   // ドット生成
   const dots = document.getElementById('tourDots');
   dots.innerHTML = _activeSteps.map((_,i)=>`<div class="tour-dot" data-di="${i}"></div>`).join('');
   showTourStep();
   window.addEventListener('resize', positionTour);
   window.addEventListener('scroll', positionTour, true);
-  _bindTourLeaveHandlers();
 }
 
 function endTour(completed){
   document.getElementById('tourOverlay').classList.remove('open');
-  document.body.classList.remove('tour-open');
   try { resetStampCardLift(); } catch(e){}
   try { resetHamburgerLift(); } catch(e){}
-  try { resetSettingsLift(); } catch(e){}
   window.removeEventListener('resize', positionTour);
   window.removeEventListener('scroll', positionTour, true);
-  _unbindTourLeaveHandlers();
   const panel = document.querySelector('#settingsOverlay .settings-panel');
   if(panel) panel.removeEventListener('scroll', positionTour, true);
 
@@ -7114,14 +6955,6 @@ function endTour(completed){
 
   // --- メインチュートリアルの終了処理 ---
   try { localStorage.setItem(TOUR_KEY, 'true'); } catch(e){}
-  // ヘッダーをツアー開始前の状態へ戻す（ツアー中に一時開閉していたため）
-  try {
-    if(_tourHeaderWasClosed){
-      if(typeof closeHeaderBar === 'function') closeHeaderBar();
-    } else {
-      if(typeof openHeaderBar === 'function') openHeaderBar();
-    }
-  } catch(e){}
   // チュートリアル終了時：気象情報タブは収納状態に戻す
   if(typeof collapseDtabs === 'function') collapseDtabs();
   // チュートリアル完了 → ここで初めてプレゼントBOXを出現させる
@@ -7177,71 +7010,13 @@ function tourPrev(){
 
 // ステップの対象要素を解決（主セレクタが無ければ代替セレクタ）
 function _tourTargetEl(step){
-  // 同じセレクタで複数ヒットする場合、非表示（display:none の親配下など）の
-  // 要素を掴むとハイライトが 0,0 にズレて画面に出なくなる。
-  // 表示中（実寸あり）の要素を優先して返す。
-  function pick(selector){
-    if(!selector) return null;
-    let nodes;
-    try { nodes = document.querySelectorAll(selector); } catch(e){ return null; }
-    let firstHidden = null;
-    for(let i=0;i<nodes.length;i++){
-      const n = nodes[i];
-      const rect = n.getBoundingClientRect();
-      // position:fixed の要素は offsetParent が null になるため、実寸の有無で判定する。
-      const visible = (rect.width > 0 && rect.height > 0);
-      if(visible) return n;            // 表示中の要素を最優先
-      if(!firstHidden) firstHidden = n;
-    }
-    return firstHidden;                // 表示中が無ければ最初のもの（従来動作）
-  }
-  return pick(step.sel) || pick(step.selAlt) || pick(step.selAlt2);
-}
-
-// ツアーで対象を指す前に、スクロール演出（.anim-ready=opacity:0／translateY）を
-// 強制的に「表示完了」状態へ送る。アニメ途中の transform で getBoundingClientRect が
-// ズレ、ハイライト枠が対象とずれる／画面外に出るのを防ぐ。
-// 対象自身・先祖・配下の .anim-ready をまとめて確定させる。
-function _forceRevealForTour(el){
-  if(!el) return;
-  var targets = [];
-  // 自身
-  if(el.classList && el.classList.contains('anim-ready')) targets.push(el);
-  // 先祖（セクション全体が anim-ready のことがある）
-  var p = el.parentElement;
-  while(p){
-    if(p.classList && p.classList.contains('anim-ready')) targets.push(p);
-    p = p.parentElement;
-  }
-  // 配下（リストカードなど）
-  if(el.querySelectorAll){
-    el.querySelectorAll('.anim-ready').forEach(function(n){ targets.push(n); });
-  }
-  targets.forEach(function(n){
-    n.classList.add('anim-visible');     // animation-fill-mode:both で最終状態へ
-    n.style.opacity = '1';               // 念のため不透明に
-    n.style.animation = 'none';          // 進行中アニメを止めて transform を解除
-    n.style.transform = 'none';
-    n.style.willChange = 'auto';
-  });
+  let el = step.sel ? document.querySelector(step.sel) : null;
+  if(!el && step.selAlt) el = document.querySelector(step.selAlt);
+  return el;
 }
 
 function showTourStep(){
   const step = _activeSteps[_tourIndex];
-  // ヘッダー開閉制御（メインツアーのみ）。
-  // ヘッダー内を説明するステップ（needsHeader）の間はヘッダーを開いておき、
-  // 本文コンテンツの説明に移ったら一度ヘッダーを閉じる。
-  // ヘッダーが開いたままだと画面上部を占有し、以降のハイライト位置がずれて
-  // 見えにくくなるため、説明が終わった段階で収納する。
-  if(!_settingsTour){
-    try {
-      if(step.needsHeader){
-        if(typeof openHeaderBar === 'function') openHeaderBar();
-      } else {
-        if(typeof closeHeaderBar === 'function') closeHeaderBar();
-      }
-    } catch(e){}
-  }
   // パスワード説明ステップ以外に移ったら、持ち上げたスタンプカードを元に戻す
   if(step.onShow !== openStampCardForTour){
     try { resetStampCardLift(); } catch(e){}
@@ -7250,30 +7025,13 @@ function showTourStep(){
   if(step.onShow !== openHamburgerForTour){
     try { resetHamburgerLift(); } catch(e){}
   }
-  if(typeof step.onShow === 'function'){
-    // onShow（独自スクロール）が位置を測る前に、対象のスクロール演出を確定させておく
-    try { _forceRevealForTour(_tourTargetEl(step)); } catch(e){}
-    try { step.onShow(); } catch(e){}
-  }
+  if(typeof step.onShow === 'function'){ try { step.onShow(); } catch(e){} }
   // プレゼントBOXは、専用ステップになったときだけ表示（それ以外は隠す）
   const fabEl = document.getElementById('stampFab');
   if(fabEl) fabEl.style.display = step.showStamp ? 'block' : 'none';
   document.getElementById('tourStepNo').textContent = `STEP ${_tourIndex+1} / ${_activeSteps.length}`;
   document.getElementById('tourTitle').textContent = step.title;
-  // 日本語の説明 → その下に英語の説明（textContent で安全に挿入し、英文は補助スタイル）
-  const textEl = document.getElementById('tourText');
-  textEl.textContent = '';
-  const jp = document.createElement('div');
-  jp.className = 'tour-text-jp';
-  jp.textContent = step.text;
-  textEl.appendChild(jp);
-  if(step.en){
-    const en = document.createElement('div');
-    en.className = 'tour-text-en';
-    en.setAttribute('lang','en');
-    en.textContent = step.en;
-    textEl.appendChild(en);
-  }
+  document.getElementById('tourText').textContent = step.text;
   document.getElementById('tourPrev').style.visibility = _tourIndex === 0 ? 'hidden' : 'visible';
   document.getElementById('tourNext').textContent = _tourIndex === _activeSteps.length - 1 ? '完了' : '次へ';
   document.querySelectorAll('.tour-dot').forEach((d,i)=>d.classList.toggle('active', i === _tourIndex));
@@ -7281,60 +7039,11 @@ function showTourStep(){
   document.getElementById('tourHole').classList.toggle('emphasize', !!step.emphasize);
   document.getElementById('tourPop').classList.toggle('emphasize', !!step.emphasize);
   // 対象が画面外ならスクロール（設定ツアーはパネル内、それ以外はページ全体）
-  // ※ onShow に専用スクロール関数がある場合は、そちらの位置決め（上端寄せ等）を
-  //   尊重し、ここでの再スクロールで上書きしない。
   const el = _tourTargetEl(step);
-  const HEADER_OFFSET = 100; // ヘッダー等に隠れない余白
-  // 位置を測る前にスクロール演出を確定させ、transform由来のズレを防ぐ
-  try { _forceRevealForTour(el); } catch(e){}
-  if(el && _settingsTour){
-    // 設定内チュートリアル：対象は設定パネル（独自スクロールコンテナ）の中にある。
-    // ページ全体ではなくパネルをスクロールして、対象をパネル内の見やすい位置へ。
-    const panel = document.querySelector('#settingsOverlay .settings-panel');
-    if(panel){
-      const align = function(){
-        const pr = panel.getBoundingClientRect();
-        const er = el.getBoundingClientRect();
-        // パネル内での対象の上端を、パネル上端から約90px下に合わせる
-        const margin = 90;
-        const delta = (er.top - pr.top) - margin;
-        panel.scrollTop = Math.max(0, panel.scrollTop + delta);
-      };
-      try { align(); } catch(e){}
-      if(typeof positionTour === 'function'){
-        requestAnimationFrame(function(){ try{ align(); }catch(e){} positionTour(); });
-        setTimeout(function(){ try{ align(); }catch(e){} positionTour(); }, 90);
-        setTimeout(positionTour, 220);
-      }
-    } else {
-      if(typeof positionTour === 'function') positionTour();
-    }
-  } else if(el && !step.onShow){
-    const vh = window.innerHeight;
-    const r0 = el.getBoundingClientRect();
-    const tooTall = r0.height > vh - HEADER_OFFSET - 40;
-    // 目標スクロール位置を算出（縦に長い要素＝上端寄せ／通常＝中央寄せ）。
-    // smooth スクロールは長距離だと完了前にトラッキングが切れて枠がズレるため、
-    // instant（behavior指定なし）で一発確定し、確定後に枠を合わせ直す。
-    let targetY = null;
-    if(tooTall){
-      if(r0.top < HEADER_OFFSET || r0.top > vh - 120){
-        targetY = window.scrollY + r0.top - HEADER_OFFSET;
-      }
-    } else if(r0.top < 80 || r0.bottom > vh - 80){
-      // 中央に来るように。ただしヘッダー下限は確保。
-      const center = window.scrollY + r0.top - (vh/2 - r0.height/2);
-      targetY = Math.max(0, center);
-    }
-    if(targetY !== null){
-      try { window.scrollTo({ top: targetY, left: 0 }); } // instant（behaviorなし）
-      catch(e){ window.scrollTo(0, targetY); }
-      // レイアウト確定後に枠を再計算（複数回 = 画像読み込み等での高さ変化に追従）
-      if(typeof positionTour === 'function'){
-        requestAnimationFrame(function(){ positionTour(); });
-        setTimeout(positionTour, 80);
-        setTimeout(positionTour, 200);
-      }
+  if(el){
+    const r = el.getBoundingClientRect();
+    if(r.top < 80 || r.bottom > window.innerHeight - 80){
+      el.scrollIntoView({ behavior:'smooth', block:'center' });
     }
   }
   // スクロールが終わるまで毎フレーム枠を再計算（固定されていない要素でもズレない）
@@ -7362,45 +7071,8 @@ function positionTour(){
   } else {
     r = { top:window.innerHeight/2-40, left:window.innerWidth/2-120, right:window.innerWidth/2+120, bottom:window.innerHeight/2+40, width:240, height:80 };
   }
-  const hx = Math.max(0, r.left - pad), hy0 = r.top - pad;
-  let hw = r.width + pad*2, hh = r.height + pad*2;
-  const H0 = window.innerHeight;
-  // 画面内に収める上下マージン（ヘッダー下〜画面下）
-  const TOP_SAFE = 72;          // 縦に長い要素を上寄せするときの最小トップ
-  const TOP_MIN = 6;            // 画面最上部の絶対マージン（ヘッダー内要素はここまで許可）
-  const BOTTOM_SAFE = 16;       // 画面下の余白
-  // 対象が「画面の縦に収まる短い要素」か「画面より長い要素」かを判定。
-  // 短い要素は実際の位置のまま囲う（ヘッダー内カードのタイトルが切れないように）。
-  // 長い要素のみ、上端をヘッダー下(TOP_SAFE)に寄せて高さを制限する。
-  const maxHoleH = Math.min(Math.round(H0 * 0.6), H0 - TOP_SAFE - BOTTOM_SAFE);
-  let hy = hy0;
-  const isTall = hh > maxHoleH;
-  if(isTall){
-    // 画面より縦に長い要素：上端をヘッダー下に寄せ、見える範囲だけを枠にする
-    hy = Math.max(hy0, TOP_SAFE);
-    hh = maxHoleH;
-    if(hy < TOP_SAFE){
-      const cut = TOP_SAFE - hy;
-      hy = TOP_SAFE;
-      hh = Math.max(40, hh - cut);
-    }
-  } else {
-    // 画面に収まる短い要素：上端が画面外（マイナス）のときだけ最小マージンへ寄せる。
-    // ヘッダー内の要素（top が小さい）はそのまま全体を囲う。
-    if(hy < TOP_MIN){
-      const cut = TOP_MIN - hy;
-      hy = TOP_MIN;
-      hh = Math.max(40, hh - cut);
-    }
-  }
-  // 下端が画面より下 → はみ出し分を詰める
-  if(hy + hh > H0 - BOTTOM_SAFE){
-    hh = Math.max(40, (H0 - BOTTOM_SAFE) - hy);
-  }
-  // 横方向も画面内にクランプ
-  if(hx + hw > window.innerWidth){
-    hw = Math.max(40, window.innerWidth - hx);
-  }
+  const hx = Math.max(0, r.left - pad), hy = Math.max(0, r.top - pad);
+  const hw = r.width + pad*2, hh = r.height + pad*2;
   hole.style.left = hx + 'px';
   hole.style.top = hy + 'px';
   hole.style.width = hw + 'px';
@@ -7416,24 +7088,13 @@ function positionTour(){
   mL.style.left='0'; mL.style.top=hy+'px'; mL.style.width=hx+'px'; mL.style.height=hh+'px';
   mR.style.left=(hx+hw)+'px'; mR.style.top=hy+'px'; mR.style.width=Math.max(0,W-(hx+hw))+'px'; mR.style.height=hh+'px';
   // ポップアップ配置（下に出す。入らなければ上）
-  // スマホでは 100vh がアドレスバー裏も含むため、実際に見えている高さ
-  // (window.innerHeight) を基準に最大高さを設定し、画面外へはみ出さないようにする。
+  // 実際の高さを使う。max-height(CSS)により画面より大きくはならない（はみ出れば内部スクロール）。
+  const popH = Math.min(pop.offsetHeight || 160, H - 24);
+  const popW = pop.offsetWidth || 300;
+  // ポップアップ配置：ハイライト（穴）に被らないよう、上下の余白が広い方へ出す
   const margin = 14;
   const gapBelow = H - (hy + hh);   // 穴の下の空き
   const gapAbove = hy;              // 穴の上の空き
-  // ポップアップを置ける側の空きのうち広い方。ハイライト（穴）を覆い隠さないよう、
-  // ポップアップの最大高さをこの空きに収める（あふれる分は内部スクロール）。
-  const sideGap = Math.max(gapBelow, gapAbove) - margin - 12;
-  // 画面に収まる絶対上限（上下12pxずつ余白）
-  const absMax = H - 24;
-  // 実効上限：原則は「広い側の空き」に収め、ハイライトと重ならないようにする。
-  // ただし空きが極端に小さい（穴が画面の大半を占める）場合のみ、最低高さを確保する。
-  const minH = Math.min(absMax, 220);              // 最低限読める高さ
-  const popMaxH = Math.max(0, Math.min(absMax, Math.max(sideGap, minH)));
-  pop.style.maxHeight = popMaxH + 'px';
-  // 高さ確定後に実測（max-height 反映後の値）
-  const popH = Math.min(pop.offsetHeight || 160, popMaxH, H - 24);
-  const popW = pop.offsetWidth || 300;
   // 縦位置を必ず画面内に収めるクランプ（上端12〜下端12の範囲）。
   // これにより「次へ」ボタンが画面外に出て押せなくなる不具合を防ぐ。
   function clampTop(t){
@@ -7450,23 +7111,17 @@ function positionTour(){
       t = hy - popH - margin;          // 上に出す（収まる・穴と被らない）
     } else {
       // 上下どちらにも完全には収まらない場合：
-      // 空きが広い側へ寄せ、穴（ハイライト）と重ならない位置に置く。
+      // 空きが広い側へ寄せつつ、穴（ハイライト）と重ならない位置にクランプする。
       if(gapBelow >= gapAbove){
-        // 下側へ。穴の下端のすぐ下に出す（はみ出す分は内部スクロール）。
-        t = hy + hh + margin;
+        // 下側へ。穴の下端より下に出し、画面下端からはみ出す分は内部スクロールで対応。
+        t = Math.min(hy + hh + margin, H - popH - 12);
+        // それでも穴に食い込むなら、穴の真下ギリギリに置く
+        if(t < hy + hh) t = hy + hh + 6;
       } else {
-        // 上側へ。穴の上端のすぐ上に、ポップアップの下端が来るように置く。
-        t = hy - popH - margin;
-      }
-      t = clampTop(t);
-      // クランプの結果、穴に食い込んでしまう場合は、穴を避ける側へ寄せ直す。
-      const overlapsHole = (t < hy + hh) && (t + popH > hy);
-      if(overlapsHole){
-        if(gapBelow >= gapAbove){
-          t = Math.min(hy + hh + 6, H - popH - 12);
-        } else {
-          t = Math.max(12, hy - popH - 6);
-        }
+        // 上側へ。穴の上端より上に出す。
+        t = Math.max(12, hy - popH - margin);
+        // 下端が穴に食い込むなら、穴の真上ギリギリに引き上げる
+        if(t + popH > hy) t = Math.max(12, hy - popH - 6);
       }
     }
     return clampTop(t);
@@ -8904,7 +8559,7 @@ const SYNC_KEYS = [
   'column_compact','split_view','split_last','headerClosed',
   // 通知・音・バナー
   'notify_enabled','dwa_push_on','eew_overlay_enabled','eew_sound',
-  'openSoundOff','alert_flash_banner_enabled','tsunami_banner_enabled',
+  'openSoundOff','alert_flash_banner_enabled','tsunami_banner_enabled','jma_warning_banner_enabled',
   // 天気・地域
   'weather_enabled','weather_week_enabled','weather_city_code','weather_city_name',
   'weather_class10_code','weather_pref_code'
@@ -10084,6 +9739,145 @@ function sendSiteInquiry(){
   }, 600);
 }
 </script>
+<!-- ===== 気象警報バナー（気象庁 全国 map.json を監視） ===== -->
+<script>
+(function(){
+  'use strict';
+  // 警報レベル3相当以上とみなす警報コード（注意報＝10〜29番台は除外）
+  // 警報（警戒レベル3相当〜）と特別警報（レベル5相当）を対象にする。
+  var WARN_NAMES = {
+    '02':'暴風雪警報','03':'大雨警報','04':'洪水警報','05':'暴風警報','06':'大雪警報',
+    '07':'波浪警報','08':'高潮警報','09':'土砂災害警報',
+    '32':'暴風雪特別警報','33':'大雨特別警報','35':'暴風特別警報','36':'大雪特別警報',
+    '37':'波浪特別警報','38':'高潮特別警報','39':'土砂災害特別警報',
+    '43':'大雨危険警報','48':'高潮危険警報','49':'土砂災害危険警報'
+  };
+  var SPECIAL = { '32':1,'33':1,'35':1,'36':1,'37':1,'38':1,'39':1 }; // 特別警報＝レベル5相当
+  var ACTIVE  = { '発表':1,'継続':1 }; // 解除・「発表警報・注意報はなし」は対象外
+  var URL = 'https://www.jma.go.jp/bosai/warning/data/warning/map.json';
+  var POLL_MS = 5 * 60 * 1000; // 5分ごとに更新
+
+  function el(id){ return document.getElementById(id); }
+
+  // 設定でユーザーがオフにできる場合に備え、津波バナーと同様のトグルがあれば尊重
+  function enabled(){
+    try { return localStorage.getItem('jma_warning_banner_enabled') !== '0'; } catch(e){ return true; }
+  }
+
+  function scan(json){
+    // json: 配列。各要素 .areaTypes[].areas[].warnings[] = {code,status}
+    var names = {};   // 警報名 → 件数
+    var special = false;
+    var report = null;
+    try{
+      (json||[]).forEach(function(block){
+        if(block && block.reportDatetime){
+          if(!report || block.reportDatetime > report) report = block.reportDatetime;
+        }
+        (block.areaTypes||[]).forEach(function(at){
+          (at.areas||[]).forEach(function(a){
+            (a.warnings||[]).forEach(function(w){
+              if(w && w.code && WARN_NAMES[w.code] && ACTIVE[w.status]){
+                names[WARN_NAMES[w.code]] = (names[WARN_NAMES[w.code]]||0) + 1;
+                if(SPECIAL[w.code]) special = true;
+              }
+            });
+          });
+        });
+      });
+    }catch(e){}
+    var list = Object.keys(names);
+    return { active: list.length > 0, special: special, names: list, report: report };
+  }
+
+  function show(info){
+    var banner = el('jmaWarningBanner');
+    if(!banner) return;
+    var special = info.special;
+    banner.classList.toggle('warn-special', special);
+    el('jmawBadge').textContent = special ? '特別警報' : '警報';
+    el('jmawTitle').textContent = special
+      ? '特別警報が発表されています'
+      : '気象警報が発表されています';
+    el('jmawDesc').textContent = special
+      ? '全国のいずれかの地域で「特別警報」（最大級の警戒・警戒レベル5相当）が発表されています。'
+      : '全国のいずれかの地域で気象警報（警戒レベル3相当以上）が発表されています。';
+    // 警報の種類を列挙（最大6種まで）
+    var names = info.names.slice(0, 6);
+    var more = info.names.length > 6 ? ' ほか' : '';
+    el('jmawList').textContent = names.length ? ('発表中の警報：' + names.join('・') + more) : '';
+    el('jmawAction').textContent = special
+      ? '▶ ただちに命を守る行動を。お住まいの地域の最新情報を確認してください。'
+      : '▶ お住まいの地域の最新情報を確認し、危険な場所からは早めに避難してください。';
+    // 発表時刻
+    var meta = '';
+    if(info.report){
+      try {
+        var d = new Date(info.report);
+        meta = '気象庁発表：' + d.toLocaleString('ja-JP', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}) + ' 時点';
+      } catch(e){}
+    }
+    el('jmawMeta').textContent = meta;
+    banner.classList.add('active');
+  }
+
+  function hide(){
+    var banner = el('jmaWarningBanner');
+    if(banner){ banner.classList.remove('active','warn-special'); }
+  }
+
+  function update(){
+    if(!enabled()){ hide(); return; }
+    // キャッシュ回避のためクエリを付与（map.json は Cache-Control: max-age が短い）
+    fetch(URL, { cache:'no-store' })
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .then(function(json){
+        var info = scan(json);
+        if(info.active) show(info); else hide();
+      })
+      .catch(function(){ /* 取得失敗時は黙って非表示のまま（誤検知防止） */ });
+  }
+
+  function init(){
+    update();
+    setInterval(update, POLL_MS);
+    // タブが再表示されたら即更新
+    document.addEventListener('visibilitychange', function(){ if(!document.hidden) update(); });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  // デモ確認用：コンソールで demoJmaWarning() / demoJmaWarning(true) を実行するとバナーを表示
+  window.demoJmaWarning = function(special){
+    show({ active:true, special: !!special, names: special ? ['大雨特別警報','土砂災害特別警報'] : ['大雨警報','洪水警報','暴風警報'], report: new Date().toISOString() });
+  };
+  window.hideJmaWarning = hide;
+
+  // 設定トグル：気象警報バナーの表示/非表示
+  window.toggleJmaWarningBanner = function(){
+    var cb = el('jmaWarningToggle');
+    var on = cb ? cb.checked : true;
+    try { localStorage.setItem('jma_warning_banner_enabled', on ? '1' : '0'); } catch(e){}
+    if(on){ update(); }   // ONにしたら即チェックして必要なら表示
+    else { hide(); }      // OFFにしたら即非表示
+  };
+  // 設定を開いたときにチェックボックスの状態を保存値に合わせる
+  window.syncJmaWarningToggle = function(){
+    var cb = el('jmaWarningToggle');
+    if(cb) cb.checked = enabled();
+  };
+  // 初期化時にもチェックボックスを同期
+  (function(){
+    function sync(){ if(window.syncJmaWarningToggle) window.syncJmaWarningToggle(); }
+    if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', sync); }
+    else { sync(); }
+  })();
+})();
+</script>
 <!-- ===== スタンプカード ===== -->
 <button id="stampFab" onclick="openStampCard()" aria-label="スタンプカード">🎁</button>
 <div id="stampToast" class="stamp-toast"></div>
@@ -10624,122 +10418,6 @@ document.addEventListener('keydown', function(e){
   window.addEventListener('pageshow', function(e){
     if(e.persisted){ resetToHomeTop(); }
   });
-})();
-</script>
-<!-- ===== GLOBAL OVERLAY SCROLL LOCK ===== -->
-<script>
-(function(){
-  var SELECTORS = [
-    '.modal-overlay','.notice-overlay','.settings-overlay','.guide-overlay',
-    '.hamburger-overlay','.stamp-overlay','.img-lightbox',
-    '#shindanModal','#sponsorModal','#tourDoneOverlay',
-    '#updatePromptOverlay'
-    // 注: #tourOverlay（チュートリアル）は対象に含めない。
-    // チュートリアルは各ステップで window.scrollTo / scrollIntoView を使って
-    // 対象要素まで自前でスクロールするため、body をロックすると
-    // 地震リスト以降など画面外の対象へ移動できず、ハイライトが画面外に出る。
-    // 注: #splitPane（2画面表示）も対象外。2画面は左ペイン（サイト本体＝body）を
-    // スクロールしながら右で別サイトを見る機能なので、body を固定してはいけない。
-  ];
-  var sel = SELECTORS.join(',');
-  var lockY = 0;
-  var locked = false;
-
-  function anyOpen(){
-    var nodes = document.querySelectorAll(sel);
-    for(var i=0;i<nodes.length;i++){
-      var el = nodes[i];
-      if(el.classList.contains('open')){
-        if(getComputedStyle(el).display !== 'none') return true;
-      }
-    }
-    return false;
-  }
-
-  function lock(){
-    if(locked) return;
-    locked = true;
-    lockY = window.scrollY || window.pageYOffset || 0;
-    var b = document.body;
-    b.style.position = 'fixed';
-    b.style.top = (-lockY) + 'px';
-    b.style.left = '0';
-    b.style.right = '0';
-    b.style.width = '100%';
-    b.style.overflow = 'hidden';
-  }
-
-  function unlock(){
-    if(!locked) return;
-    locked = false;
-    var b = document.body;
-    b.style.position = '';
-    b.style.top = '';
-    b.style.left = '';
-    b.style.right = '';
-    b.style.width = '';
-    b.style.overflow = '';
-    window.scrollTo(0, lockY);
-  }
-
-  function sync(){
-    if(anyOpen()) lock(); else unlock();
-  }
-
-  var raf = null;
-  var obs = new MutationObserver(function(){
-    if(raf) return;
-    raf = requestAnimationFrame(function(){ raf = null; sync(); });
-  });
-
-  function start(){
-    obs.observe(document.body, {
-      attributes:true, attributeFilter:['class','style'],
-      subtree:true, childList:true
-    });
-    sync();
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', start);
-  } else {
-    start();
-  }
-})();
-</script>
-<!-- ===== TUTORIAL: ユーザー操作スクロールのみ抑止（プログラムスクロールは許可） ===== -->
-<script>
-(function(){
-  // チュートリアル（body.tour-open）中は、ユーザーのホイール／タッチ／キーによる
-  // スクロールだけを抑止する。window.scrollTo などプログラムからのスクロールは
-  // 妨げないので、各ステップが対象要素まで自前でスクロールできる。
-  function tourActive(){ return document.body.classList.contains('tour-open'); }
-  // ポップアップ内部はスクロールさせたいので、許可対象を判定
-  function insideAllowed(target){
-    return !!(target && target.closest && target.closest('#tourPop'));
-  }
-  function blockWheel(e){
-    if(!tourActive()) return;
-    if(insideAllowed(e.target)) return; // 説明ポップアップ内のスクロールは許可
-    e.preventDefault();
-  }
-  function blockTouch(e){
-    if(!tourActive()) return;
-    if(insideAllowed(e.target)) return;
-    e.preventDefault();
-  }
-  var BLOCK_KEYS = { 'ArrowUp':1,'ArrowDown':1,'PageUp':1,'PageDown':1,'Home':1,'End':1,' ':1,'Spacebar':1 };
-  function blockKey(e){
-    if(!tourActive()) return;
-    var t = e.target;
-    var tag = t && t.tagName ? t.tagName.toLowerCase() : '';
-    if(tag === 'input' || tag === 'textarea' || (t && t.isContentEditable)) return;
-    if(BLOCK_KEYS[e.key]) e.preventDefault();
-  }
-  // passive:false で preventDefault を有効化
-  window.addEventListener('wheel', blockWheel, { passive:false });
-  window.addEventListener('touchmove', blockTouch, { passive:false });
-  window.addEventListener('keydown', blockKey, false);
 })();
 </script>
 </body>
