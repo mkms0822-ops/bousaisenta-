@@ -1913,7 +1913,11 @@ html.light .scale-item.lv1 { background:rgba(0,0,0,0.04); border-color:rgba(0,0,
   html.split-open .plate-desc .pd-sub{ display:none; }
   html.split-open .plate-desc{ max-width:200px; }
   html.split-open .plate-desc .pd-title{ font-size:14px; }
-  html.split-open .hp-header{ height:96px; }
+  /* 機器パネル（時計・更新・メニュー）がペイン境界の影や「×閉じる」ボタンに
+     かぶらないよう、トップバー右端に余白を作り、パネル自体も少し縮める。 */
+  html.split-open #topbar{ right:calc(50vw + 14px); }
+  html.split-open body{ padding-right:calc(50vw + 14px); }
+  html.split-open .hp-header{ height:92px; transform:scale(0.92); transform-origin:right center; }
 }
 /* スマホの2画面(上下分割)でも念のためロゴの折返しを防止 */
 @media(max-width:768px){
@@ -10546,11 +10550,13 @@ document.addEventListener('keydown', function(e){
     '.modal-overlay','.notice-overlay','.settings-overlay','.guide-overlay',
     '.hamburger-overlay','.stamp-overlay','.img-lightbox',
     '#shindanModal','#sponsorModal','#tourDoneOverlay',
-    '#updatePromptOverlay','#splitPane'
+    '#updatePromptOverlay'
     // 注: #tourOverlay（チュートリアル）は対象に含めない。
     // チュートリアルは各ステップで window.scrollTo / scrollIntoView を使って
     // 対象要素まで自前でスクロールするため、body をロックすると
     // 地震リスト以降など画面外の対象へ移動できず、ハイライトが画面外に出る。
+    // 注: #splitPane（2画面表示）も対象外。2画面は左ペイン（サイト本体＝body）を
+    // スクロールしながら右で別サイトを見る機能なので、body を固定してはいけない。
   ];
   var sel = SELECTORS.join(',');
   var lockY = 0;
