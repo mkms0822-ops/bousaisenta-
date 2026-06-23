@@ -1079,7 +1079,15 @@ html.light .icon-opt.selected { border-color:var(--blue); background:rgba(0,100,
 .reorder-pair { grid-column:1/-1; display:grid; grid-template-columns:1fr 1fr; gap:22px; align-items:stretch; }
 .reorder-pair > .reorder-block { grid-column:auto; min-width:0; display:flex; flex-direction:column; }
 .reorder-pair > .reorder-block > * { flex:1 1 auto; }
-@media (max-width:720px){ .reorder-pair { grid-template-columns:1fr; align-items:start; } .reorder-pair > .reorder-block > * { flex:0 1 auto; } }
+/* スマホなど狭い画面でも、横並び設定したペアは2カラムを維持する（間隔を詰めて収める）。
+   ただし極端に狭い画面では内容が潰れるため、最小幅を下回ったら縦積みにフォールバックする。 */
+@media (max-width:720px){
+  .reorder-pair { gap:10px; }
+}
+@media (max-width:380px){
+  .reorder-pair { grid-template-columns:1fr; align-items:start; gap:14px; }
+  .reorder-pair > .reorder-block > * { flex:0 1 auto; }
+}
 .reorder-bar { display:none; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; padding:6px 10px; background:rgba(0,180,255,0.08); border:1px dashed rgba(0,180,255,0.4); border-radius:8px; }
 body.reorder-on .reorder-bar { display:flex; }
 body.reorder-on .reorder-block { outline:1px dashed rgba(0,180,255,0.35); outline-offset:4px; border-radius:8px; }
@@ -10296,7 +10304,7 @@ function sendSiteInquiry(){
       <button class="lo-reset" onclick="resetLayoutEditor()">初期に戻す</button>
       <button class="lo-save" onclick="saveLayoutEditor()">保存して反映</button>
     </div>
-    <p class="lo-note">※横並びはPC・タブレットなど横幅が広い画面で有効です。スマホなど狭い画面では自動的に縦並びで表示されます。</p>
+    <p class="lo-note">※横並びはスマホでも2カラムで表示されます。画面がごく狭い場合（およそ380px未満）は、見やすさのため自動的に縦並びに切り替わります。</p>
   </div>
 </div>
 <!-- ===== スタンプカード ===== -->
