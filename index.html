@@ -1084,8 +1084,10 @@ html.light .icon-opt.selected { border-color:var(--blue); background:rgba(0,100,
 /* スマホなど狭い画面でも、横並び設定したペアは常に2カラムを維持する（間隔を詰めて収める）。
    1カラムあたりの幅が狭くなるため、ペア内のテキストは字間や折り返しを調整して
    「1文字ずつ縦積み」になるのを防ぎ、狭幅でも文として読めるようにする。 */
-@media (max-width:720px){
-  .reorder-pair { gap:10px; }
+/* ===== 横並び（ペア）にしたときの専用スタイル =====
+   .reorder-pair の中に入った＝横並び確定なので、画面幅に関係なく適用する。
+   （メディアクエリで囲うと、ビューポートが広いスマホで折りたたみ等が効かないため） */
+.reorder-pair { gap:10px; }
   /* ペア内の字間をなくし、英単語も途中で折り返せるようにして「縦1文字」化を防ぐ */
   .reorder-pair .jmaw-label,
   .reorder-pair .jmaw-title,
@@ -1176,7 +1178,6 @@ html.light .icon-opt.selected { border-color:var(--blue); background:rgba(0,100,
   .reorder-pair .tsunami-link {
     display:block; width:100%; box-sizing:border-box; text-align:center; margin-top:0;
   }
-}
 /* さらに狭い画面では、Orbitron等の大きな見出しが横に収まらないので一段縮める */
 @media (max-width:480px){
   .reorder-pair .jmaw-title,
