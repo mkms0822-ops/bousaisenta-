@@ -1120,8 +1120,27 @@ html.light .icon-opt.selected { border-color:var(--blue); background:rgba(0,100,
   .reorder-pair .weather-today-info { min-width:0 !important; }
   .reorder-pair .weather-today { flex-wrap:wrap; gap:8px; }
   .reorder-pair .weather-today-icon { font-size:40px; }
-  /* ペア内の週間予報は7列だと狭すぎるので可変列にして折り返す */
-  .reorder-pair .weather-week { grid-template-columns:repeat(3,1fr) !important; }
+  /* 横並びだと週間天気の7列グリッドが収まらずはみ出すため、ペア内では折りたたむ（非表示） */
+  .reorder-pair .weather-week { display:none !important; }
+
+  /* ── 横並び時の警報／津波バナーは要点だけ表示する ──
+     ヘッダー（ラベル・タイトル・バッジ）までを見せ、長い説明文・発表中リスト・
+     行動文・発表時刻は折りたたむ。公式リンクボタンだけはバナー最下部に残す。 */
+  .reorder-pair #jmawDesc,
+  .reorder-pair .jmaw-list,
+  .reorder-pair .jmaw-action,
+  .reorder-pair .jmaw-meta,
+  .reorder-pair #tsunamiDesc,
+  .reorder-pair .tsunami-action { display:none !important; }
+  /* 本文枠は区切り線とリンク用の余白だけ残す */
+  .reorder-pair .jmaw-body,
+  .reorder-pair .tsunami-body { padding-top:10px; }
+  /* リンクボタンは横幅いっぱいの押しやすいボタンとして最下部に配置 */
+  .reorder-pair .jmaw-foot { margin-top:0; }
+  .reorder-pair .jmaw-link,
+  .reorder-pair .tsunami-link {
+    display:block; width:100%; box-sizing:border-box; text-align:center; margin-top:0;
+  }
 }
 /* さらに狭い画面では、Orbitron等の大きな見出しが横に収まらないので一段縮める */
 @media (max-width:480px){
