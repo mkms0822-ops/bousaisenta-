@@ -589,18 +589,18 @@ html.light .logo-img {
   opacity:0; pointer-events:none; transition:opacity 0.1s ease;
 }
 /* 回転中は下の静止アイコン（背景画像に描かれた矢印）を隠すため、
-   銅板＋暗いガンメタルのくぼみ風ボタンを敷く。矢印だけが上で回って見える。 */
+   赤銅色（あかがね）＋暗いガンメタルのくぼみ風ボタンを敷く。矢印だけが上で回って見える。 */
 .hp-refresh::after {
   content:""; position:absolute; left:50%; top:46%; transform:translate(-50%,-50%);
   width:150%; height:150%; border-radius:50%;
-  /* 中央：暗いガンメタルのくぼみ（左上から採光） → 外周：銅板色のフチ */
+  /* 中央：暗いガンメタルのくぼみ（左上から採光） → 外周：赤銅色（赤みの強い深い銅）のフチ */
   background:
     radial-gradient(circle at 38% 32%,
-      #5a554e 0%, #46423c 30%, #34302b 52%,
-      #7a4a2c 72%, #b9763f 82%, #8a5430 92%, #5e3a22 100%);
+      #524642 0%, #3e3431 30%, #2c2422 52%,
+      #5a2a22 70%, #9c4736 82%, #7a3328 90%, #4a201a 100%);
   box-shadow:0 0 6px rgba(0,0,0,0.55),
-             inset 0 2px 3px rgba(255,210,170,0.25),
-             inset 0 -2px 4px rgba(0,0,0,0.5);
+             inset 0 2px 3px rgba(255,180,150,0.22),
+             inset 0 -2px 4px rgba(0,0,0,0.55);
   opacity:0; pointer-events:none; transition:opacity 0.1s ease; z-index:1;
 }
 .hp-refresh.spinning::after { opacity:1; }
