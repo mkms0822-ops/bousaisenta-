@@ -10931,7 +10931,7 @@ document.addEventListener('keydown', function(e){
     try {
       // いったん全ブロックの折りたたみ対象を復元（単独に戻った要素のため）
       document.querySelectorAll('[data-pair-collapsed]').forEach(function(el){
-        el.style.display = '';
+        el.style.removeProperty('display');
         el.removeAttribute('data-pair-collapsed');
       });
       // 現在ペア内にある要素だけ折りたたむ
@@ -10949,23 +10949,30 @@ document.addEventListener('keydown', function(e){
   // 一時デバッグ：画面右上に検出状況を表示（原因切り分け用）
   function _showPairDebug(dbg){
     try {
+      // 隠したはずの週間天気の実際の表示状態を確認
+      var ww = document.querySelector('.reorder-pair .weather-week');
+      var wwState = ww ? (getComputedStyle(ww).display) : 'なし';
+      var jd = document.querySelector('.reorder-pair #jmawDesc');
+      var jdState = jd ? (getComputedStyle(jd).display) : 'なし';
       var box = document.getElementById('_pairDbg');
       if(!box){
         box = document.createElement('div');
         box.id = '_pairDbg';
-        box.style.cssText = 'position:fixed;top:4px;right:4px;z-index:2147483647;background:rgba(0,0,0,0.85);color:#0f0;font:11px/1.4 monospace;padding:6px 8px;border-radius:6px;max-width:60vw;white-space:pre;pointer-events:none;';
+        box.style.cssText = 'position:fixed;top:4px;right:4px;z-index:2147483647;background:rgba(0,0,0,0.85);color:#0f0;font:11px/1.4 monospace;padding:6px 8px;border-radius:6px;max-width:62vw;white-space:pre;pointer-events:none;';
         document.body.appendChild(box);
       }
       box.textContent = 'PAIR DEBUG\nペア数:'+dbg.pairs
         +'\n週間天気隠:'+dbg.weatherWeek
         +'\n警報本文隠:'+dbg.jmawDesc
         +'\n津波本文隠:'+dbg.tsunamiDesc
+        +'\n週天気の実display:'+wwState
+        +'\n警報文の実display:'+jdState
         + (dbg.err? '\nERR:'+dbg.err : '');
     } catch(e){}
   }
   function hideForPair(el){
     if(!el) return;
-    el.style.display = 'none';
+    el.style.setProperty('display','none','important');
     el.setAttribute('data-pair-collapsed','1');
   }
   function revealReorderContent(){
