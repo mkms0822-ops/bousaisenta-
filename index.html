@@ -1663,7 +1663,8 @@ html.light #jmaWarningBanner.warn-clear .jmaw-link {
 .settings-panel {
   background:var(--surface2); border:1px solid var(--border);
   border-radius:14px; padding:24px; width:320px; max-height:80vh;
-  overflow-y:auto; box-shadow:0 8px 40px rgba(0,0,0,0.5);
+  overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
+  box-shadow:0 8px 40px rgba(0,0,0,0.5);
   animation:fadeInUp 0.2s ease;
 }
 .settings-title {
@@ -6824,10 +6825,12 @@ function setMobileScale(s){
 function openSettings(){
   updateSettingsUI();
   document.getElementById('settingsOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden'; // 背景のホーム画面が一緒にスクロールしないよう固定
   initWeatherSelects(); // 設定を開くたびに地域データを遅延ロード
 }
 function closeSettings(){
   document.getElementById('settingsOverlay').classList.remove('open');
+  document.body.style.overflow = ''; // 背景スクロールの固定を解除
 }
 
 // ===================== ホーム画面に追加 (A2HS) =====================
@@ -7162,8 +7165,15 @@ function openHamburgerForTour(){
     const ov = document.querySelector('.hamburger-overlay');
     if(ov){
       ov.dataset.tourLifted = '1';
-      ov.style.zIndex = '99991';  // tourMask(99990) より前・tourPop(99992) より後ろ
+      ov.style.zIndex = '99991';  // tourMask と同列。下記でツアー本体を更に前面へ
     }
+    // ツアー本体(#tourOverlay 内のマスク・ハイライト・説明文)は通常 99990 の積層文脈に
+    // 閉じ込められており、持ち上げたメニュー(99991, body直下)より背面になる。
+    // そのため説明文(tourPop)がメニューの裏に隠れてしまう。
+    // ツアー本体ごとメニューより前面へ引き上げ、説明文を最前面に出す。
+    // マスクは4枚の矩形＋くり抜き穴なので、対象ボタンは穴から見えたまま。
+    const tourOv = document.getElementById('tourOverlay');
+    if(tourOv){ tourOv.dataset.tourRaised = '1'; tourOv.style.zIndex = '99993'; }
     // メニューが開くアニメ＋スクロール完了を待ち、複数回 位置決めし直してズレを防ぐ
     const settle = function(){
       try {
@@ -7179,6 +7189,11 @@ function openHamburgerForTour(){
 }
 // 持ち上げたハンバーガーのz-indexを元に戻し、メニューも閉じる（言語ステップを離れるとき）
 function resetHamburgerLift(){
+  const tourOv = document.getElementById('tourOverlay');
+  if(tourOv && tourOv.dataset.tourRaised === '1'){
+    tourOv.style.zIndex = '';
+    delete tourOv.dataset.tourRaised;
+  }
   const ov = document.querySelector('.hamburger-overlay');
   if(ov && ov.dataset.tourLifted === '1'){
     ov.style.zIndex = '';
@@ -7194,8 +7209,12 @@ function openStampCardForTour(){
     const ov = document.getElementById('stampOverlay');
     if(ov){
       ov.dataset.tourLifted = '1';
-      ov.style.zIndex = '99991';        // tourMask(99990) より前・tourPop(99992) より後ろ
+      ov.style.zIndex = '99991';        // tourMask と同列。下記でツアー本体を更に前面へ
     }
+    // 言語ステップと同様、ツアー本体ごとカードより前面へ引き上げ、説明文をカードの裏に
+    // 隠れさせない。穴のくり抜きでパスワード欄は見えたまま。
+    const tourOv = document.getElementById('tourOverlay');
+    if(tourOv){ tourOv.dataset.tourRaised = '1'; tourOv.style.zIndex = '99993'; }
     // カードが開いてパスワード欄が描画されてから枠を合わせ直す。
     // 開くアニメ＋内部スクロールが落ち着くまで、複数回 位置決めし直す。
     const settle = function(){
@@ -7213,6 +7232,11 @@ function openStampCardForTour(){
 }
 // 持ち上げたスタンプカードのz-indexを元に戻す（パスワードステップを離れるとき）
 function resetStampCardLift(){
+  const tourOv = document.getElementById('tourOverlay');
+  if(tourOv && tourOv.dataset.tourRaised === '1'){
+    tourOv.style.zIndex = '';
+    delete tourOv.dataset.tourRaised;
+  }
   const ov = document.getElementById('stampOverlay');
   if(ov && ov.dataset.tourLifted === '1'){
     ov.style.zIndex = '';
