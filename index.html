@@ -1075,10 +1075,12 @@ html.light .icon-opt.selected { border-color:var(--blue); background:rgba(0,100,
 /* ===== レイアウト並び替え ===== */
 .reorder-block { position:relative; }
 .reorder-fullwidth { grid-column:1/-1; }
-/* 横並びペア：2つのブロックを左右に並べる行コンテナ（全幅を2分割） */
-.reorder-pair { grid-column:1/-1; display:grid; grid-template-columns:1fr 1fr; gap:22px; align-items:stretch; }
-.reorder-pair > .reorder-block { grid-column:auto; min-width:0; display:flex; flex-direction:column; }
-.reorder-pair > .reorder-block > * { flex:1 1 auto; }
+/* 横並びペア：2つのブロックを左右に並べる行コンテナ（全幅を2分割）。
+   minmax(0,1fr) にすることで、中身が広いブロックがあっても必ず均等2分割になり、
+   片方のカラムが極端に狭く潰れて文字が縦1列になるのを防ぐ。 */
+.reorder-pair { grid-column:1/-1; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:22px; align-items:stretch; }
+.reorder-pair > .reorder-block { grid-column:auto; min-width:0; max-width:100%; display:flex; flex-direction:column; }
+.reorder-pair > .reorder-block > * { flex:1 1 auto; min-width:0; }
 /* スマホなど狭い画面でも、横並び設定したペアは常に2カラムを維持する（間隔を詰めて収める）。
    1カラムあたりの幅が狭くなるため、ペア内のテキストは字間や折り返しを調整して
    「1文字ずつ縦積み」になるのを防ぎ、狭幅でも文として読めるようにする。 */
@@ -1106,6 +1108,12 @@ html.light .icon-opt.selected { border-color:var(--blue); background:rgba(0,100,
   /* バナー自体の左右パディングを詰めて、文字が使える幅を広げる */
   .reorder-pair #jmaWarningBanner { padding:12px 12px; }
   .reorder-pair #tsunamiBanner { padding:12px 12px; }
+  /* ペア内では天気ブロックの最小幅指定を緩め、相方カラムを圧迫しないようにする */
+  .reorder-pair .weather-today-info { min-width:0 !important; }
+  .reorder-pair .weather-today { flex-wrap:wrap; gap:8px; }
+  .reorder-pair .weather-today-icon { font-size:40px; }
+  /* ペア内の週間予報は7列だと狭すぎるので可変列にして折り返す */
+  .reorder-pair .weather-week { grid-template-columns:repeat(3,1fr) !important; }
 }
 /* さらに狭い画面では、Orbitron等の大きな見出しが横に収まらないので一段縮める */
 @media (max-width:480px){
@@ -5909,24 +5917,78 @@ function toggleWeatherWeek(){
 function weatherCodeToEmoji(code){
   if(!code) return {icon:'❓',desc:'不明'};
   const c = String(code);
+  // 気象庁の天気テロップコード（公式）に準拠。雪系と雨系の取り違えに注意：
+  //   21x台は 212-214=雨系 / 215-217=雪系、20x台は 202-203=雨 / 204-205=雪。
   const map = {
+    // ── 100番台：晴れ ──
     '100':{icon:'☀️',desc:'晴れ'},         '101':{icon:'🌤️',desc:'晴れ時々曇り'},
-    '102':{icon:'🌦️',desc:'晴れ時々雨'},   '103':{icon:'🌨️',desc:'晴れ時々雪'},
-    '110':{icon:'🌤️',desc:'晴れ後曇り'},   '112':{icon:'🌦️',desc:'晴れ後雨'},
-    '114':{icon:'🌨️',desc:'晴れ後雪'},     '200':{icon:'☁️',desc:'曇り'},
-    '201':{icon:'🌤️',desc:'曇り時々晴れ'}, '202':{icon:'🌧️',desc:'曇り時々雨'},
-    '203':{icon:'🌧️',desc:'曇り時々雨'},   '204':{icon:'🌨️',desc:'曇り時々雪'},
-    '210':{icon:'🌥️',desc:'曇り後晴れ'},   '212':{icon:'🌧️',desc:'曇り後雨'},
-    '214':{icon:'🌨️',desc:'曇り後雪'},     '218':{icon:'🌨️',desc:'曇り後雪か雨'},
+    '102':{icon:'🌦️',desc:'晴れ一時雨'},   '103':{icon:'🌦️',desc:'晴れ時々雨'},
+    '104':{icon:'🌨️',desc:'晴れ一時雪'},   '105':{icon:'🌨️',desc:'晴れ時々雪'},
+    '106':{icon:'🌦️',desc:'晴れ一時雨か雪'},'107':{icon:'🌦️',desc:'晴れ時々雨か雪'},
+    '108':{icon:'⛈️',desc:'晴れ一時雨か雷雨'},
+    '110':{icon:'🌤️',desc:'晴れ後時々曇り'},'111':{icon:'🌤️',desc:'晴れ後曇り'},
+    '112':{icon:'🌦️',desc:'晴れ後一時雨'}, '113':{icon:'🌦️',desc:'晴れ後時々雨'},
+    '114':{icon:'🌦️',desc:'晴れ後雨'},     '115':{icon:'🌨️',desc:'晴れ後一時雪'},
+    '116':{icon:'🌨️',desc:'晴れ後時々雪'}, '117':{icon:'🌨️',desc:'晴れ後雪'},
+    '118':{icon:'🌨️',desc:'晴れ後雨か雪'}, '119':{icon:'⛈️',desc:'晴れ後雨か雷雨'},
+    '120':{icon:'🌦️',desc:'晴れ朝夕一時雨'},'121':{icon:'🌦️',desc:'晴れ朝の内一時雨'},
+    '122':{icon:'🌦️',desc:'晴れ夕方一時雨'},'123':{icon:'⛈️',desc:'晴れ山沿い雷雨'},
+    '124':{icon:'🌨️',desc:'晴れ山沿い雪'}, '125':{icon:'⛈️',desc:'晴れ午後は雷雨'},
+    '126':{icon:'🌦️',desc:'晴れ昼頃から雨'},'127':{icon:'🌦️',desc:'晴れ夕方から雨'},
+    '128':{icon:'🌦️',desc:'晴れ夜は雨'},   '130':{icon:'🌤️',desc:'朝の内霧後晴れ'},
+    '131':{icon:'🌤️',desc:'晴れ明け方霧'}, '132':{icon:'🌤️',desc:'晴れ朝夕曇り'},
+    '140':{icon:'⛈️',desc:'晴れ時々雨で雷を伴う'},
+    '160':{icon:'🌨️',desc:'晴れ一時雪か雨'},'170':{icon:'🌨️',desc:'晴れ時々雪か雨'},
+    '181':{icon:'🌨️',desc:'晴れ後雪か雨'},
+    // ── 200番台：曇り ──
+    '200':{icon:'☁️',desc:'曇り'},         '201':{icon:'🌥️',desc:'曇り時々晴れ'},
+    '202':{icon:'🌧️',desc:'曇り一時雨'},   '203':{icon:'🌧️',desc:'曇り時々雨'},
+    '204':{icon:'🌨️',desc:'曇り一時雪'},   '205':{icon:'🌨️',desc:'曇り時々雪'},
+    '206':{icon:'🌧️',desc:'曇り一時雨か雪'},'207':{icon:'🌧️',desc:'曇り時々雨か雪'},
+    '208':{icon:'⛈️',desc:'曇り一時雨か雷雨'},'209':{icon:'🌫️',desc:'霧'},
+    '210':{icon:'🌥️',desc:'曇り後時々晴れ'},'211':{icon:'🌥️',desc:'曇り後晴れ'},
+    '212':{icon:'🌧️',desc:'曇り後一時雨'}, '213':{icon:'🌧️',desc:'曇り後時々雨'},
+    '214':{icon:'🌧️',desc:'曇り後雨'},     '215':{icon:'🌨️',desc:'曇り後一時雪'},
+    '216':{icon:'🌨️',desc:'曇り後時々雪'}, '217':{icon:'🌨️',desc:'曇り後雪'},
+    '218':{icon:'🌨️',desc:'曇り後雨か雪'}, '219':{icon:'⛈️',desc:'曇り後雨か雷雨'},
+    '220':{icon:'🌧️',desc:'曇り朝夕一時雨'},'221':{icon:'🌧️',desc:'曇り朝の内一時雨'},
+    '222':{icon:'🌧️',desc:'曇り夕方一時雨'},'223':{icon:'🌥️',desc:'曇り日中時々晴れ'},
+    '224':{icon:'🌧️',desc:'曇り昼頃から雨'},'225':{icon:'🌧️',desc:'曇り夕方から雨'},
+    '226':{icon:'🌧️',desc:'曇り夜は雨'},   '228':{icon:'🌨️',desc:'曇り昼頃から雪'},
+    '229':{icon:'🌨️',desc:'曇り夕方から雪'},'230':{icon:'🌨️',desc:'曇り夜は雪'},
+    '231':{icon:'🌫️',desc:'曇り海上海岸は霧か霧雨'},
+    '240':{icon:'⛈️',desc:'曇り時々雨で雷を伴う'},'250':{icon:'⛈️',desc:'曇り時々雪で雷を伴う'},
+    '260':{icon:'🌨️',desc:'曇り一時雪か雨'},'270':{icon:'🌨️',desc:'曇り時々雪か雨'},
+    '281':{icon:'🌨️',desc:'曇り後雪か雨'},
+    // ── 300番台：雨 ──
     '300':{icon:'🌧️',desc:'雨'},           '301':{icon:'🌦️',desc:'雨時々晴れ'},
-    '302':{icon:'🌦️',desc:'雨時々晴れ'},   '303':{icon:'🌧️',desc:'雨時々曇り'},
-    '306':{icon:'⛈️',desc:'大雨'},         '308':{icon:'⛈️',desc:'暴風雨'},
-    '309':{icon:'🌨️',desc:'雨か雪'},       '311':{icon:'🌨️',desc:'雨後雪'},
-    '400':{icon:'❄️',desc:'雪'},           '401':{icon:'❄️',desc:'雪時々晴れ'},
-    '402':{icon:'🌨️',desc:'雪時々曇り'},   '405':{icon:'🌨️',desc:'大雪'},
-    '406':{icon:'🌨️',desc:'大雪後曇り'},   '413':{icon:'🌨️',desc:'雪後雨'},
+    '302':{icon:'🌧️',desc:'雨時々止む'},   '303':{icon:'🌨️',desc:'雨時々雪'},
+    '304':{icon:'🌨️',desc:'雨か雪'},       '306':{icon:'🌧️',desc:'大雨'},
+    '308':{icon:'⛈️',desc:'雨で暴風を伴う'}, '309':{icon:'🌨️',desc:'雨一時雪'},
+    '311':{icon:'🌦️',desc:'雨後晴れ'},     '313':{icon:'🌧️',desc:'雨後曇り'},
+    '314':{icon:'🌨️',desc:'雨後時々雪'},   '315':{icon:'🌨️',desc:'雨後雪'},
+    '316':{icon:'🌦️',desc:'雨か雪後晴れ'}, '317':{icon:'☁️',desc:'雨か雪後曇り'},
+    '320':{icon:'🌦️',desc:'朝の内雨後晴れ'},'321':{icon:'☁️',desc:'朝の内雨後曇り'},
+    '322':{icon:'🌨️',desc:'雨朝晩一時雪'}, '323':{icon:'🌦️',desc:'雨昼頃から晴れ'},
+    '324':{icon:'🌦️',desc:'雨夕方から晴れ'},'325':{icon:'🌦️',desc:'雨夜は晴れ'},
+    '326':{icon:'🌨️',desc:'雨夕方から雪'}, '327':{icon:'🌨️',desc:'雨夜は雪'},
+    '328':{icon:'🌧️',desc:'雨一時強く降る'},'329':{icon:'🌨️',desc:'雨一時みぞれ'},
+    '340':{icon:'🌨️',desc:'雪か雨'},       '350':{icon:'⛈️',desc:'雨で雷を伴う'},
+    '361':{icon:'🌦️',desc:'雪か雨後晴れ'}, '371':{icon:'☁️',desc:'雪か雨後曇り'},
+    // ── 400番台：雪 ──
+    '400':{icon:'❄️',desc:'雪'},           '401':{icon:'🌨️',desc:'雪時々晴れ'},
+    '402':{icon:'🌨️',desc:'雪時々止む'},   '403':{icon:'🌨️',desc:'雪時々雨'},
+    '405':{icon:'❄️',desc:'大雪'},         '406':{icon:'🌨️',desc:'風雪強い'},
+    '407':{icon:'❄️',desc:'暴風雪'},       '409':{icon:'🌨️',desc:'雪一時雨'},
+    '411':{icon:'🌨️',desc:'雪後晴れ'},     '413':{icon:'🌨️',desc:'雪後曇り'},
+    '414':{icon:'🌨️',desc:'雪後雨'},       '420':{icon:'🌨️',desc:'朝の内雪後晴れ'},
+    '421':{icon:'🌨️',desc:'朝の内雪後曇り'},'422':{icon:'🌨️',desc:'雪昼頃から雨'},
+    '423':{icon:'🌨️',desc:'雪夕方から雨'}, '425':{icon:'❄️',desc:'雪一時強く降る'},
+    '426':{icon:'🌨️',desc:'雪後みぞれ'},   '427':{icon:'🌨️',desc:'雪一時みぞれ'},
+    '450':{icon:'⛈️',desc:'雪で雷を伴う'},
   };
   if(map[c]) return map[c];
+  // 未知コードは先頭桁でおおまかに分類（晴1/曇2/雨3/雪4）
   const first = c[0];
   if(first==='1') return {icon:'☀️',desc:'晴れ'};
   if(first==='2') return {icon:'☁️',desc:'曇り'};
