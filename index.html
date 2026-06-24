@@ -2954,7 +2954,7 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
         <span class="h-link-icon">💬</span>公式LINE
         <img src="https://scdn.line-apps.com/n/line_add_friends/btn/ja.png" alt="友だち追加" height="28" style="margin-left:auto;height:28px;border:0;">
       </a>
-      <button class="hamburger-link" onclick="openLineStampQr()" style="color:#06c755;border-color:rgba(6,199,85,0.3);background:rgba(6,199,85,0.06);width:100%;text-align:left;cursor:pointer;">
+      <button class="hamburger-link" data-tour="line-stamp" onclick="openLineStampQr()" style="color:#06c755;border-color:rgba(6,199,85,0.3);background:rgba(6,199,85,0.06);width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">🎟️</span>LINEスタンプ
       </button>
       <button class="hamburger-link" onclick="openInstaQr()" style="background:none;width:100%;text-align:left;cursor:pointer;">
@@ -7206,6 +7206,7 @@ const tourSteps = [
   { sel:'[data-tour="menu"]', title:'☰ メニュー（リンク集）', text:'同じ三本線メニューの中には、防災クイズや気象庁の各種情報ページへのリンクもまとめてあります。', fallbackToTop:true },
   { sel:'[data-tour="bousai-shindan"]', title:'🧭 あなたの防災意識診断', text:'メニューの「防災情報」最上段にある「あなたの防災意識診断」ボタンです。いくつかの質問に答えるだけで、あなたの防災意識のレベルや弱点を診断できます。日頃の備えを見直すきっかけとして、ぜひ一度チェックしてみましょう。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="lang"]', title:'🌐 English / 多言語表示', text:'メニューの中の「English / 言語」ボタンです。お使いのブラウザの翻訳機能を使うと、このサイトを英語など多言語で読めます。ボタンを押すと、スマホ・パソコン別の翻訳手順を日本語と英語で案内します。海外の方や、英語で読みたい方はこちらをご利用ください。', onShow:openHamburgerForTour, fallbackToTop:true },
+  { sel:'[data-tour="line-stamp"]', title:'🎟️ LINEスタンプ', text:'メニューの「公式アカウント」にある「LINEスタンプ」ボタンです。タップするとQRコードが表示され、スマホのカメラで読み取るとLINE公式アカウントのショップカードが開きます。スタンプを貯めると特典がもらえるので、ぜひ友だち追加して貯めてみてください。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="tabs"]', title:'気象情報タブ（収納式）', text:'台風・雨雲レーダー・警報・注意報・危険警報など、気象・災害情報へのリンク集です。ふだんは「災害情報タブ」ボタンに収納されていて、タップすると開きます（いまチュートリアル用に開いています）。目的の情報にすぐアクセスできます。', onShow:openDtabsForTour },
   { sel:'[data-tour="stats"]', title:'本日の地震サマリー', text:'本日の有感地震の回数、最大マグニチュード・最大震度、最終更新時刻をひと目で確認できます。', onShow:closeDtabsForTour },
   { sel:'.quake-list', title:'地震リスト', text:'最近発生した地震の一覧です。カードをタップすると詳細が表示されます。', fallbackToTop:true },
