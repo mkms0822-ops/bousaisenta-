@@ -7273,6 +7273,9 @@ const settingsTourSteps = [
 
 // 設定内チュートリアルを開始
 function startSettingsTour(){
+  // スタンプカードが開いたままだと、その上から設定案内を始めてスタンプ部分を
+  // ハイライトしてしまうため、先に閉じる（TOPへは戻さない）
+  try { if(typeof closeStampCard === 'function') closeStampCard({noScroll:true}); } catch(e){}
   if(typeof openSettings === 'function') openSettings();
   _settingsTour = true;
   _activeSteps = settingsTourSteps;
@@ -7365,6 +7368,8 @@ function endTour(completed){
   if(_settingsTour){
     _settingsTour = false;
     _activeSteps = tourSteps;
+    // 設定チュートリアルをキャンセル／終了したらページ最上部（TOP）へ戻す
+    scrollPageToTop();
     return;
   }
 
@@ -9702,8 +9707,13 @@ function openStampCard(){
   // パスワードの設定状態を表示
   try { refreshPwStatus(); } catch(e){}
 }
-function closeStampCard(){
+function closeStampCard(opts){
   document.getElementById('stampOverlay').classList.remove('open');
+  // 「とじる」や背景タップで閉じたときはページ最上部（TOP）へ戻す。
+  // ただし、お問い合わせ／チャットへ遷移するために閉じる場合は戻さない。
+  if(!(opts && opts.noScroll)){
+    if(typeof scrollPageToTop === 'function') scrollPageToTop();
+  }
 }
 function toggleStampHelp(){
   var btn = document.getElementById('stampHelpBtn');
@@ -9714,13 +9724,13 @@ function toggleStampHelp(){
   btn.setAttribute('aria-expanded', open ? 'true' : 'false');
 }
 function openContactFromStamp(){
-  closeStampCard();
+  closeStampCard({noScroll:true});
   setTimeout(function(){
     try { openPageSection('section-contact'); } catch(e){}
   }, 80);
 }
 function openChatFromStamp(){
-  closeStampCard();
+  closeStampCard({noScroll:true});
   setTimeout(function(){
     try { enterMode('chat'); }
     catch(e){ try { smoothScroll('section-chat'); } catch(_){} }
