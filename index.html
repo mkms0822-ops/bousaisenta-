@@ -1953,6 +1953,33 @@ html.light .site-refresh-btn:hover { background:rgba(0,100,180,0.1); }
 .hamburger-header button { color:#5a6678 !important; }
 .hamburger-header { border-bottom-color:#d7e0ec !important; }
 .h-link-icon { font-size:18px; width:24px; text-align:center; flex-shrink:0; }
+
+/* ===== 銅板プレート 画像ボタン（防災意識テスト） ===== */
+.plate-link{
+  display:block; width:100%; padding:0; margin:6px 0 10px;
+  border:none !important; background:none !important;
+  text-decoration:none; cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .16s ease, filter .16s ease;
+}
+.plate-link:hover{
+  background:none !important; border:none !important;
+  transform:translateY(-2px) scale(1.015);
+  filter:brightness(1.06) drop-shadow(0 6px 16px rgba(0,0,0,0.35));
+}
+.plate-link:active{ transform:scale(.98); filter:brightness(.96); }
+.plate-link img{
+  display:block; width:100%; height:auto;
+  border-radius:14px; user-select:none; pointer-events:none;
+  filter:drop-shadow(0 4px 12px rgba(0,0,0,0.28));
+}
+.plate-link .plate-cap{
+  display:block; text-align:center; margin-top:4px;
+  font-family:'Orbitron','Noto Sans JP',monospace; font-weight:700;
+  font-size:12px; letter-spacing:.06em; color:#b86a3c !important;
+}
+.plate-link:hover .plate-cap{ color:#9a5530 !important; }
+/* ========================================================= */
 /* ========================================================= */
 
 .quake-accordion {
@@ -2900,6 +2927,10 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       </button>
 
       <div class="hamburger-section-label">// 防災情報</div>
+      <a class="plate-link" data-tour="bousai-shindan" href="https://mkms0822-ops.github.io/anatano-bousai-shindan/" target="_blank" rel="noopener" title="防災意識テスト" aria-label="防災意識テスト">
+        <img src="dwa-bousai-test-plate.png" alt="防災意識テスト" loading="lazy" />
+        <span class="plate-cap">防災意識テスト</span>
+      </a>
       <button class="hamburger-link" onclick="openShindanModal();closeHamburger();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:none;width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">🗾</span>地震リスク・被害想定<br>診断ツール
       </button>
@@ -7172,6 +7203,7 @@ const tourSteps = [
   { sel:'#siteRefreshBtn', title:'🔄 最新情報に更新', text:'パネル内の丸い矢印ボタンです。自動更新を待たずに、いますぐ最新の地震・気象情報を取り込みたいときにタップします。表示が古いと感じたらここを押してください。', fallbackToTop:true },
   { sel:'[data-tour="menu"]', title:'☰ メニュー（設定）', text:'パネル右側の三本線アイコンがメニューボタンです。タップで開くメニューの中に、設定・お問い合わせ・プライバシーポリシーがあります。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。' },
   { sel:'[data-tour="menu"]', title:'☰ メニュー（リンク集）', text:'同じ三本線メニューの中には、防災クイズや気象庁の各種情報ページへのリンクもまとめてあります。', fallbackToTop:true },
+  { sel:'[data-tour="bousai-shindan"]', title:'🧭 防災意識テスト', text:'メニューの「防災情報」最上段にある銅板プレートの「防災意識テスト」ボタンです。いくつかの質問に答えるだけで、あなたの防災意識のレベルや弱点を診断できます。日頃の備えを見直すきっかけとして、ぜひ一度チェックしてみましょう。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="lang"]', title:'🌐 English / 多言語表示', text:'メニューの中の「English / 言語」ボタンです。お使いのブラウザの翻訳機能を使うと、このサイトを英語など多言語で読めます。ボタンを押すと、スマホ・パソコン別の翻訳手順を日本語と英語で案内します。海外の方や、英語で読みたい方はこちらをご利用ください。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="tabs"]', title:'気象情報タブ（収納式）', text:'台風・雨雲レーダー・警報・注意報・危険警報など、気象・災害情報へのリンク集です。ふだんは「災害情報タブ」ボタンに収納されていて、タップすると開きます（いまチュートリアル用に開いています）。目的の情報にすぐアクセスできます。', onShow:openDtabsForTour },
   { sel:'[data-tour="stats"]', title:'本日の地震サマリー', text:'本日の有感地震の回数、最大マグニチュード・最大震度、最終更新時刻をひと目で確認できます。', onShow:closeDtabsForTour },
@@ -7236,7 +7268,9 @@ function openHamburgerForTour(){
     // メニューが開くアニメ＋スクロール完了を待ち、複数回 位置決めし直してズレを防ぐ
     const settle = function(){
       try {
-        const el = document.querySelector('[data-tour="lang"]');
+        var _step = (typeof _activeSteps !== 'undefined' && _activeSteps[_tourIndex]) || tourSteps[_tourIndex];
+        var _sel = (_step && _step.sel) || '[data-tour="lang"]';
+        const el = document.querySelector(_sel);
         if(el) el.scrollIntoView({ behavior:'smooth', block:'center' });
       } catch(e){}
       if(typeof positionTour === 'function') positionTour();
