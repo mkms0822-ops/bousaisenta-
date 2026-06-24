@@ -585,15 +585,18 @@ html.light .logo-img {
 /* 押すと出る回転オーバーレイ（通常時は非表示。画像の立体アイコンをそのまま見せる） */
 .hp-refresh-spin {
   position:absolute; left:50%; top:46%; transform:translate(-50%,-50%);
-  width:150%; height:150%; display:flex; align-items:center; justify-content:center;
-  opacity:0; pointer-events:none; transition:opacity 0.12s ease;
-  border-radius:50%;
-  /* 下の静止アイコンを隠すための暗いメタル調の円 */
-  background:radial-gradient(circle at 38% 32%, #6b6258 0%, #4a4641 38%, #2c2a27 78%, #211f1d 100%);
-  box-shadow:0 0 6px rgba(0,0,0,0.55), inset 0 1px 2px rgba(255,255,255,0.18);
-  color:#e9ddd2;
+  width:118%; height:118%; object-fit:contain; display:block; z-index:2;
+  opacity:0; pointer-events:none; transition:opacity 0.1s ease;
 }
-.hp-refresh-spin svg { width:64%; height:64%; display:block; filter:drop-shadow(0 1px 1px rgba(0,0,0,0.5)); }
+/* 回転中は下の静止アイコンを隠すため、暗いメタル調の円を敷く */
+.hp-refresh::after {
+  content:""; position:absolute; left:50%; top:46%; transform:translate(-50%,-50%);
+  width:132%; height:132%; border-radius:50%;
+  background:radial-gradient(circle at 38% 32%, #6b6258 0%, #4a4641 38%, #2c2a27 78%, #211f1d 100%);
+  box-shadow:0 0 6px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.15);
+  opacity:0; pointer-events:none; transition:opacity 0.1s ease; z-index:1;
+}
+.hp-refresh.spinning::after { opacity:1; }
 .hp-refresh.spinning .hp-refresh-spin { opacity:1; animation:hpRefreshSpin 0.8s linear infinite; }
 @keyframes hpRefreshSpin { to { transform:translate(-50%,-50%) rotate(360deg); } }
 @media (prefers-reduced-motion:reduce){
@@ -2725,12 +2728,7 @@ html.mode-chat.chat-split #modeChatScreen .mc-title{ font-size:13px; margin-bott
       <div class="hp-dot"></div>
       <div class="hp-clock" id="clock" data-tour="live">--:--:--</div>
       <div class="hp-refresh" id="siteRefreshBtn" onclick="refreshAllData()" role="button" tabindex="0" title="最新情報に更新" aria-label="最新情報に更新">
-        <span class="hp-refresh-spin" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12a9 9 0 1 1-2.64-6.36"/>
-            <polyline points="21 3 21 9 15 9"/>
-          </svg>
-        </span>
+        <img class="hp-refresh-spin" src="reload-icon.png" alt="" aria-hidden="true">
       </div>
       <div class="hp-ham" data-tour="menu" onclick="openHamburger()" role="button" tabindex="0" title="メニュー" aria-label="メニュー"></div>
     </div>
