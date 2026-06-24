@@ -6258,6 +6258,8 @@ function renderWeatherWeek(week7, today3){
   });
   container.innerHTML = html;
   container.classList.toggle('show', _weatherWeekEnabled);
+  // 週間天気を再描画したので、横並び（ペア内）なら折りたたみを当て直す
+  try { if(typeof window.applyPairCollapse === 'function') window.applyPairCollapse(); } catch(e){}
 }
 
 // 設定UI同期
@@ -10313,6 +10315,7 @@ function sendSiteInquiry(){
     }
     el('jmawMeta').textContent = meta;
     banner.classList.add('active');
+    try { if(typeof window.applyPairCollapse === 'function') window.applyPairCollapse(); } catch(e){}
   }
 
   function hide(){
@@ -10341,6 +10344,7 @@ function sendSiteInquiry(){
     }
     el('jmawMeta').textContent = meta;
     banner.classList.add('active');
+    try { if(typeof window.applyPairCollapse === 'function') window.applyPairCollapse(); } catch(e){}
   }
 
   // 全国版の警報JSONを1回取得してscan。新形式(r8/map.json)を試し、失敗時は旧形式へフォールバック。
@@ -10917,6 +10921,32 @@ document.addEventListener('keydown', function(e){
     // 並べ替えで要素を移動すると、表示アニメーション(opacity:0→表示)の
     // 監視が外れて中身が見えなくなることがあるため、強制的に表示状態にする。
     revealReorderContent();
+    // 横並び（ペア）にしたブロックは、狭いので一部を折りたたむ。
+    // CSSの詳細度やキャッシュに左右されないよう、JSで確実に表示/非表示を切り替える。
+    applyPairCollapse();
+  }
+  // ペア内＝横並びのときだけ折りたたむ要素。単独配置に戻したら復元する。
+  function applyPairCollapse(){
+    try {
+      // いったん全ブロックの折りたたみ対象を復元（単独に戻った要素のため）
+      document.querySelectorAll('[data-pair-collapsed]').forEach(function(el){
+        el.style.display = '';
+        el.removeAttribute('data-pair-collapsed');
+      });
+      // 現在ペア内にある要素だけ折りたたむ
+      document.querySelectorAll('.reorder-pair').forEach(function(pair){
+        // 週間天気は非表示
+        pair.querySelectorAll('.weather-week').forEach(hideForPair);
+        // 警報・津波バナーの本文（説明/リスト/行動文/発表時刻）は非表示。リンクは残す。
+        ['#jmawDesc','.jmaw-list','.jmaw-action','.jmaw-meta','#tsunamiDesc','.tsunami-action']
+          .forEach(function(sel){ pair.querySelectorAll(sel).forEach(hideForPair); });
+      });
+    } catch(e){}
+  }
+  function hideForPair(el){
+    if(!el) return;
+    el.style.display = 'none';
+    el.setAttribute('data-pair-collapsed','1');
   }
   function revealReorderContent(){
     try {
@@ -11091,6 +11121,9 @@ document.addEventListener('keydown', function(e){
 
   // Escで閉じる
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') window.closeLayoutEditor(); });
+
+  // 天気の週間予報などが再描画された後にも折りたたみを当て直せるよう公開
+  window.applyPairCollapse = applyPairCollapse;
 
   function init(){ applyAll(); }
   if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', init); }
