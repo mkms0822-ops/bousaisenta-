@@ -10927,6 +10927,7 @@ document.addEventListener('keydown', function(e){
   }
   // ペア内＝横並びのときだけ折りたたむ要素。単独配置に戻したら復元する。
   function applyPairCollapse(){
+    var dbg = { pairs:0, weatherWeek:0, jmawDesc:0, tsunamiDesc:0 };
     try {
       // いったん全ブロックの折りたたみ対象を復元（単独に戻った要素のため）
       document.querySelectorAll('[data-pair-collapsed]').forEach(function(el){
@@ -10935,12 +10936,31 @@ document.addEventListener('keydown', function(e){
       });
       // 現在ペア内にある要素だけ折りたたむ
       document.querySelectorAll('.reorder-pair').forEach(function(pair){
+        dbg.pairs++;
         // 週間天気は非表示
-        pair.querySelectorAll('.weather-week').forEach(hideForPair);
+        pair.querySelectorAll('.weather-week').forEach(function(el){ hideForPair(el); dbg.weatherWeek++; });
         // 警報・津波バナーの本文（説明/リスト/行動文/発表時刻）は非表示。リンクは残す。
-        ['#jmawDesc','.jmaw-list','.jmaw-action','.jmaw-meta','#tsunamiDesc','.tsunami-action']
-          .forEach(function(sel){ pair.querySelectorAll(sel).forEach(hideForPair); });
+        pair.querySelectorAll('#jmawDesc,.jmaw-list,.jmaw-action,.jmaw-meta').forEach(function(el){ hideForPair(el); dbg.jmawDesc++; });
+        pair.querySelectorAll('#tsunamiDesc,.tsunami-action').forEach(function(el){ hideForPair(el); dbg.tsunamiDesc++; });
       });
+    } catch(e){ dbg.err = String(e); }
+    _showPairDebug(dbg);
+  }
+  // 一時デバッグ：画面右上に検出状況を表示（原因切り分け用）
+  function _showPairDebug(dbg){
+    try {
+      var box = document.getElementById('_pairDbg');
+      if(!box){
+        box = document.createElement('div');
+        box.id = '_pairDbg';
+        box.style.cssText = 'position:fixed;top:4px;right:4px;z-index:2147483647;background:rgba(0,0,0,0.85);color:#0f0;font:11px/1.4 monospace;padding:6px 8px;border-radius:6px;max-width:60vw;white-space:pre;pointer-events:none;';
+        document.body.appendChild(box);
+      }
+      box.textContent = 'PAIR DEBUG\nペア数:'+dbg.pairs
+        +'\n週間天気隠:'+dbg.weatherWeek
+        +'\n警報本文隠:'+dbg.jmawDesc
+        +'\n津波本文隠:'+dbg.tsunamiDesc
+        + (dbg.err? '\nERR:'+dbg.err : '');
     } catch(e){}
   }
   function hideForPair(el){
