@@ -7671,11 +7671,32 @@ function positionTour(){
       pop.style.top = vPlaceAvoidHole() + 'px';
     }
   } else {
-    // 通常チュートリアル：ハイライトを避けて上下の広い方へ出す
-    let pLeft = hx + hw/2 - popW/2;
-    pLeft = Math.max(16, Math.min(pLeft, W - popW - 16));
-    pop.style.left = pLeft + 'px';
-    pop.style.top = vPlaceAvoidHole() + 'px';
+    // メニュー（ハンバーガー）を開くステップでは、対象がメニューパネル内にある。
+    // パネルは画面右側に固定幅で出るため、説明文をハイライト中央に置くとパネル内の
+    // 他項目に被る。PC等でパネル左側に十分な余白があれば、説明文をパネルの左隣に出し、
+    // ハイライト行へ縦位置を合わせる。余白が足りないスマホ等では従来の上下配置にする。
+    const _menuStep = (step.onShow === openHamburgerForTour);
+    const _panel = _menuStep ? document.getElementById('hamburgerPanel') : null;
+    let _placedBeside = false;
+    if(_panel){
+      const pr = _panel.getBoundingClientRect();
+      // パネル左端より左に、説明文（＋余白）が収まるか
+      if(pr.left - 14 - popW >= 12){
+        let pLeft = pr.left - 14 - popW;
+        let pTop = hy + hh/2 - popH/2;
+        pTop = clampTop(pTop);
+        pop.style.left = pLeft + 'px';
+        pop.style.top = pTop + 'px';
+        _placedBeside = true;
+      }
+    }
+    if(!_placedBeside){
+      // 通常チュートリアル：ハイライトを避けて上下の広い方へ出す
+      let pLeft = hx + hw/2 - popW/2;
+      pLeft = Math.max(16, Math.min(pLeft, W - popW - 16));
+      pop.style.left = pLeft + 'px';
+      pop.style.top = vPlaceAvoidHole() + 'px';
+    }
   }
 }
 
