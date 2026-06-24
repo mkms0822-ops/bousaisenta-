@@ -779,6 +779,16 @@ main { position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:28
 .blog-photos.n1 { grid-template-columns:1fr; }
 .blog-photos.n2 { grid-template-columns:1fr 1fr; }
 .blog-photos.n3, .blog-photos.nmore { grid-template-columns:repeat(3,1fr); }
+.blog-photos.n4 { grid-template-columns:1fr 1fr; }
+/* 5枚：上段に大きめ2枚、下段に3枚（6分割グリッドで配置） */
+.blog-photos.n5 { grid-template-columns:repeat(6,1fr); }
+.blog-photos.n5 img:nth-child(1), .blog-photos.n5 > div:nth-child(1) { grid-column:span 3; }
+.blog-photos.n5 img:nth-child(2), .blog-photos.n5 > div:nth-child(2) { grid-column:span 3; }
+.blog-photos.n5 img:nth-child(3), .blog-photos.n5 > div:nth-child(3),
+.blog-photos.n5 img:nth-child(4), .blog-photos.n5 > div:nth-child(4),
+.blog-photos.n5 img:nth-child(5), .blog-photos.n5 > div:nth-child(5) { grid-column:span 2; }
+.blog-photos > div { position:relative; }
+.blog-photos.n5 > div img { width:100%; height:100%; }
 .blog-photos img { width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; border:1px solid var(--border); cursor:pointer; background:#000; max-height:200px; }
 .blog-photos.n1 img { aspect-ratio:auto; max-height:260px; }
 .post-photos { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; margin:8px 0 4px; }
@@ -5038,11 +5048,14 @@ function toggleArchiveReadMore(i){
 // 記事カードの写真（最大3枚＋残数表示）
 function renderBlogPhotos(images){
   if(!images || !images.length) return '';
-  const shown = images.slice(0,3);
-  const cls = images.length===1?'n1':images.length===2?'n2':'n3';
-  const extra = images.length>3 ? images.length-3 : 0;
+  const MAX = 5;
+  const shown = images.slice(0, MAX);
+  const n = shown.length;
+  const cls = n===1?'n1':n===2?'n2':n===3?'n3':n===4?'n4':'n5';
+  const extra = images.length>MAX ? images.length-MAX : 0;
+  const lastIdx = n - 1;
   const imgs = shown.map((u,idx)=>{
-    const overlay = (idx===2 && extra>0)
+    const overlay = (idx===lastIdx && extra>0)
       ? `<div style="position:relative;"><img src="${u}" loading="lazy" onclick="openLightbox('${u}')"><span style="position:absolute;inset:0;background:rgba(0,0,0,.55);color:#fff;display:grid;place-items:center;font-size:18px;font-weight:700;border-radius:8px;pointer-events:none;">+${extra}</span></div>`
       : `<img src="${u}" loading="lazy" onclick="openLightbox('${u}')">`;
     return overlay;
