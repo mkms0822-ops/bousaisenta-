@@ -7332,6 +7332,16 @@ function startTour(){
   window.addEventListener('scroll', positionTour, true);
 }
 
+// チュートリアル終了後にページ最上部へ戻す（端末の「動きを減らす」設定を尊重）
+function scrollPageToTop(){
+  try {
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    window.scrollTo({ top:0, left:0, behavior: reduce ? 'auto' : 'smooth' });
+  } catch(e){
+    try { window.scrollTo(0,0); } catch(_){}
+  }
+}
+
 function endTour(completed){
   document.getElementById('tourOverlay').classList.remove('open');
   try { resetStampCardLift(); } catch(e){}
@@ -7362,6 +7372,8 @@ function endTour(completed){
   try { localStorage.setItem(TOUR_KEY, 'true'); } catch(e){}
   // チュートリアル終了時：気象情報タブは収納状態に戻す
   if(typeof collapseDtabs === 'function') collapseDtabs();
+  // チュートリアル終了後はページ最上部（TOP）へ戻す
+  scrollPageToTop();
   // チュートリアル完了 → ここで初めてプレゼントBOXを出現させる
   try {
     const s = getStampData();
