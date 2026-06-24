@@ -4943,7 +4943,7 @@ function renderBookmarkList(){
     const body = (c.body||'').replace(/\n/g,'<br>');
     const imgs = (c.images && c.images.length)
       ? '<div class="pd-photos ' + (c.images.length===1?'n1':c.images.length===2?'n2':'nmore') + '" style="display:grid;margin-top:8px;">'
-        + c.images.map(function(u){ return '<img src="'+u+'" loading="lazy" onclick="openLightbox(\''+u+'\')">'; }).join('')
+        + c.images.map(function(u){ var su=normalizeImgUrl(u); return '<img src="'+su+'" loading="lazy" referrerpolicy="no-referrer" onerror="imgFallback(this)" onclick="openLightbox(\''+su+'\')">'; }).join('')
         + '</div>'
       : '';
     return '<div style="border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;background:var(--surface2);position:relative;">'
@@ -5055,12 +5055,51 @@ function renderBlogPhotos(images){
   const extra = images.length>MAX ? images.length-MAX : 0;
   const lastIdx = n - 1;
   const imgs = shown.map((u,idx)=>{
+    const su = normalizeImgUrl(u);
     const overlay = (idx===lastIdx && extra>0)
-      ? `<div style="position:relative;"><img src="${u}" loading="lazy" onclick="openLightbox('${u}')"><span style="position:absolute;inset:0;background:rgba(0,0,0,.55);color:#fff;display:grid;place-items:center;font-size:18px;font-weight:700;border-radius:8px;pointer-events:none;">+${extra}</span></div>`
-      : `<img src="${u}" loading="lazy" onclick="openLightbox('${u}')">`;
+      ? `<div style="position:relative;"><img src="${su}" loading="lazy" referrerpolicy="no-referrer" onerror="imgFallback(this)" onclick="openLightbox('${su}')"><span style="position:absolute;inset:0;background:rgba(0,0,0,.55);color:#fff;display:grid;place-items:center;font-size:18px;font-weight:700;border-radius:8px;pointer-events:none;">+${extra}</span></div>`
+      : `<img src="${su}" loading="lazy" referrerpolicy="no-referrer" onerror="imgFallback(this)" onclick="openLightbox('${su}')">`;
     return overlay;
   }).join('');
   return `<div class="blog-photos ${cls}">${imgs}</div>`;
+}
+
+// Googleドライブ等の画像URLを、表示しやすい形に整える
+function normalizeImgUrl(u){
+  if(!u) return u;
+  try {
+    // drive.google.com/file/d/ID/view → lh3 形式に変換
+    let m = u.match(/drive\.google\.com\/file\/d\/([\w-]+)/);
+    if(m) return 'https://lh3.googleusercontent.com/d/' + m[1];
+    // drive.google.com/open?id=ID / uc?id=ID / thumbnail?id=ID
+    m = u.match(/[?&]id=([\w-]+)/);
+    if(m && /drive\.google\.com/.test(u)) return 'https://lh3.googleusercontent.com/d/' + m[1];
+  } catch(e){}
+  return u;
+}
+
+// 画像が読み込めなかったとき、Googleドライブの代替URLを順に試す
+function imgFallback(img){
+  try {
+    const cur = img.getAttribute('src') || '';
+    const m = cur.match(/lh3\.googleusercontent\.com\/d\/([\w-]+)/) ||
+              cur.match(/[?&]id=([\w-]+)/) ||
+              cur.match(/drive\.google\.com\/file\/d\/([\w-]+)/);
+    if(!m){ return; }
+    const id = m[1];
+    const tried = img.dataset.fbStep ? parseInt(img.dataset.fbStep,10) : 0;
+    const alts = [
+      'https://drive.google.com/thumbnail?id=' + id + '&sz=w1000',
+      'https://lh3.googleusercontent.com/d/' + id + '=w1000',
+      'https://drive.google.com/uc?export=view&id=' + id
+    ];
+    if(tried < alts.length){
+      img.dataset.fbStep = String(tried + 1);
+      img.src = alts[tried];
+    } else {
+      img.onerror = null; // これ以上は試さない
+    }
+  } catch(e){ img.onerror = null; }
 }
 
 // 画像ライトボックス
@@ -5071,10 +5110,10 @@ function openLightbox(url){
     lb.id = 'imgLightbox';
     lb.className = 'img-lightbox';
     lb.onclick = function(e){ if(e.target===lb || e.target.classList.contains('lb-close')) closeLightbox(); };
-    lb.innerHTML = '<button class="lb-close">✕</button><img id="lbImg" src="" alt="">';
+    lb.innerHTML = '<button class="lb-close">✕</button><img id="lbImg" src="" alt="" referrerpolicy="no-referrer">';
     document.body.appendChild(lb);
   }
-  document.getElementById('lbImg').src = url;
+  document.getElementById('lbImg').src = normalizeImgUrl(url);
   lb.classList.add('open');
 }
 function closeLightbox(){
