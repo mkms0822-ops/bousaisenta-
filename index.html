@@ -1097,7 +1097,7 @@ html.light .icon-opt.selected { border-color:var(--blue); background:rgba(0,100,
   .reorder-pair .tsunami-title,
   .reorder-pair .tsunami-action,
   .reorder-pair .tsunami-link,
-  .reorder-pair .tsunami-body { letter-spacing:0 !important; word-break:break-word; overflow-wrap:anywhere; }
+  .reorder-pair .tsunami-body { letter-spacing:0 !important; word-break:break-word !important; overflow-wrap:anywhere !important; }
   .reorder-pair .jmaw-title,
   .reorder-pair .tsunami-title { line-height:1.25; }
   .reorder-pair .jmaw-badge { white-space:normal; padding:4px 10px; }
@@ -1108,6 +1108,14 @@ html.light .icon-opt.selected { border-color:var(--blue); background:rgba(0,100,
   /* バナー自体の左右パディングを詰めて、文字が使える幅を広げる */
   .reorder-pair #jmaWarningBanner { padding:12px 12px; }
   .reorder-pair #tsunamiBanner { padding:12px 12px; }
+  /* 狭い2カラムだと、ヘッダー（アイコン＋見出し＋バッジ）の横並びで見出し幅が
+     1文字分まで潰れて縦書きになる。ヘッダーを縦積みにして横幅をフルに使わせる。 */
+  .reorder-pair .jmaw-header,
+  .reorder-pair .tsunami-header { flex-direction:column; align-items:flex-start; gap:6px; }
+  .reorder-pair .jmaw-title-wrap,
+  .reorder-pair .tsunami-title-wrap { width:100%; min-width:0; }
+  .reorder-pair .jmaw-badge,
+  .reorder-pair .tsunami-level-badge { align-self:flex-start; flex-shrink:0; }
   /* ペア内では天気ブロックの最小幅指定を緩め、相方カラムを圧迫しないようにする */
   .reorder-pair .weather-today-info { min-width:0 !important; }
   .reorder-pair .weather-today { flex-wrap:wrap; gap:8px; }
