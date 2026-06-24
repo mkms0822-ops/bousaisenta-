@@ -1123,6 +1123,41 @@ html.light .icon-opt.selected { border-color:var(--blue); background:rgba(0,100,
   /* 横並びだと週間天気の7列グリッドが収まらずはみ出すため、ペア内では折りたたむ（非表示） */
   .reorder-pair .weather-week { display:none !important; }
 
+  /* ── 地震サマリー：横並びでは4列だと潰れるので、2×2のコンパクト表示を強制 ── */
+  .reorder-pair .stats-row {
+    grid-template-columns:1fr 1fr !important; grid-template-rows:1fr 1fr !important;
+    gap:0 !important; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; overflow:hidden;
+  }
+  .reorder-pair .stats-row .stat-box {
+    background:none; border:none; border-radius:0; padding:10px 12px; min-width:0;
+    display:flex; flex-direction:row; align-items:center; gap:6px;
+    animation:none !important; opacity:1 !important; transform:none !important;
+  }
+  .reorder-pair .stats-row .stat-box:nth-child(odd) { border-right:1px solid var(--border); }
+  .reorder-pair .stats-row .stat-box:nth-child(1),
+  .reorder-pair .stats-row .stat-box:nth-child(2) { border-bottom:1px solid var(--border); }
+  .reorder-pair .stats-row .stat-label { font-size:9px !important; margin:0; white-space:normal; letter-spacing:0 !important; flex:1 1 auto; opacity:0.8; }
+  .reorder-pair .stats-row .stat-num { font-size:24px !important; line-height:1.1 !important; margin:0; }
+  .reorder-pair .stats-row #statUpdated { font-size:15px !important; }
+  .reorder-pair .stats-row .stat-unit { display:none; }
+
+  /* ── 注目地震カード：横並びでは中身を縦積みにし、大きな数字を縮めてはみ出しを防ぐ ── */
+  .reorder-pair .big-content { flex-direction:column; align-items:flex-start; gap:8px; }
+  .reorder-pair .big-mag { font-size:38px; }
+  .reorder-pair .big-info { width:100%; }
+  .reorder-pair .big-info h2 { font-size:15px; word-break:break-word; overflow-wrap:anywhere; }
+  .reorder-pair .big-shindo { margin-left:0; align-self:flex-start; text-align:left; }
+  .reorder-pair .shindo-val { font-size:30px; }
+  .reorder-pair #latestBig { padding:16px 14px; }
+  .reorder-pair .big-meta { font-size:11px; }
+  /* 字間が広いと狭幅で縦1文字になりやすいので、ペア内では字間を詰める */
+  .reorder-pair .big-card-region,
+  .reorder-pair .big-label,
+  .reorder-pair .shindo-label,
+  .reorder-pair .big-card-tap { letter-spacing:0 !important; }
+  .reorder-pair .big-card-region { white-space:nowrap; }
+
   /* ── 横並び時の警報／津波バナーは要点だけ表示する ──
      ヘッダー（ラベル・タイトル・バッジ）までを見せ、長い説明文・発表中リスト・
      行動文・発表時刻は折りたたむ。公式リンクボタンだけはバナー最下部に残す。 */
