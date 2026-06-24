@@ -582,6 +582,23 @@ html.light .logo-img {
 .hp-dot { position:absolute; left:54.8%; top:22%; width:2.6%; aspect-ratio:1; border-radius:50%; background:radial-gradient(circle,#ff5b5b,#d00000); box-shadow:0 0 8px #ff3030; animation:hpBlink 1.2s infinite; pointer-events:none; }
 .hp-refresh { position:absolute; left:54.0%; top:61.9%; width:13.1%; height:29.1%; cursor:pointer; border-radius:8px; }
 .hp-refresh:active { background:rgba(255,255,255,0.12); }
+/* 押すと出る回転オーバーレイ（通常時は非表示。画像の立体アイコンをそのまま見せる） */
+.hp-refresh-spin {
+  position:absolute; left:50%; top:46%; transform:translate(-50%,-50%);
+  width:150%; height:150%; display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity 0.12s ease;
+  border-radius:50%;
+  /* 下の静止アイコンを隠すための暗いメタル調の円 */
+  background:radial-gradient(circle at 38% 32%, #6b6258 0%, #4a4641 38%, #2c2a27 78%, #211f1d 100%);
+  box-shadow:0 0 6px rgba(0,0,0,0.55), inset 0 1px 2px rgba(255,255,255,0.18);
+  color:#e9ddd2;
+}
+.hp-refresh-spin svg { width:64%; height:64%; display:block; filter:drop-shadow(0 1px 1px rgba(0,0,0,0.5)); }
+.hp-refresh.spinning .hp-refresh-spin { opacity:1; animation:hpRefreshSpin 0.8s linear infinite; }
+@keyframes hpRefreshSpin { to { transform:translate(-50%,-50%) rotate(360deg); } }
+@media (prefers-reduced-motion:reduce){
+  .hp-refresh.spinning .hp-refresh-spin { animation-duration:1.6s; }
+}
 .hp-ham { position:absolute; left:70.0%; top:55.0%; width:17.5%; height:42.0%; cursor:pointer; border-radius:6px; }
 .hp-ham:active { background:rgba(255,255,255,0.12); }
 @keyframes hpBlink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
@@ -2707,7 +2724,14 @@ html.mode-chat.chat-split #modeChatScreen .mc-title{ font-size:13px; margin-bott
       <img class="hp-bg" src="dwa-header-panel-v2.webp" alt="">
       <div class="hp-dot"></div>
       <div class="hp-clock" id="clock" data-tour="live">--:--:--</div>
-      <div class="hp-refresh" id="siteRefreshBtn" onclick="refreshAllData()" role="button" tabindex="0" title="最新情報に更新" aria-label="最新情報に更新"></div>
+      <div class="hp-refresh" id="siteRefreshBtn" onclick="refreshAllData()" role="button" tabindex="0" title="最新情報に更新" aria-label="最新情報に更新">
+        <span class="hp-refresh-spin" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-2.64-6.36"/>
+            <polyline points="21 3 21 9 15 9"/>
+          </svg>
+        </span>
+      </div>
       <div class="hp-ham" data-tour="menu" onclick="openHamburger()" role="button" tabindex="0" title="メニュー" aria-label="メニュー"></div>
     </div>
   </div>
