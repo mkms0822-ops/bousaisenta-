@@ -1979,6 +1979,102 @@ html.light .site-refresh-btn:hover { background:rgba(0,100,180,0.1); }
 .quake-more-btn.open .accordion-arrow { transform: rotate(180deg); }
 
 /* ===================== TUTORIAL TOUR ===================== */
+/* ===================== オープニングアニメーション ===================== */
+#openingScreen{ position:fixed; inset:0; z-index:100100; display:none;
+  align-items:center; justify-content:center; flex-direction:column;
+  background:radial-gradient(circle at 50% 40%, #0a1830 0%, #04080f 70%);
+  overflow:hidden; }
+#openingScreen.show{ display:flex; }
+#openingScreen.hide{ animation:openingFadeOut 0.55s ease forwards; }
+@keyframes openingFadeOut{ to{ opacity:0; visibility:hidden; } }
+.op-grid{ position:absolute; inset:0; opacity:0.25;
+  background-image:linear-gradient(rgba(0,180,255,0.18) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,180,255,0.18) 1px,transparent 1px);
+  background-size:42px 42px; animation:opGridIn 1.6s ease forwards; }
+@keyframes opGridIn{ from{ opacity:0; transform:scale(1.15); } to{ opacity:0.22; transform:scale(1); } }
+.op-radar{ position:absolute; width:min(78vw,520px); height:min(78vw,520px);
+  border-radius:50%; border:1px solid rgba(0,180,255,0.25);
+  box-shadow:0 0 0 1px rgba(0,180,255,0.08) inset; }
+.op-radar::before,.op-radar::after{ content:''; position:absolute; inset:0;
+  border-radius:50%; border:1px solid rgba(0,180,255,0.18); animation:opPing 2.4s ease-out infinite; }
+.op-radar::after{ animation-delay:1.2s; }
+@keyframes opPing{ 0%{ transform:scale(0.35); opacity:0.9; } 100%{ transform:scale(1); opacity:0; } }
+.op-sweep{ position:absolute; width:min(78vw,520px); height:min(78vw,520px);
+  border-radius:50%; overflow:hidden; }
+.op-sweep::before{ content:''; position:absolute; left:50%; top:50%; width:50%; height:50%;
+  transform-origin:top left;
+  background:conic-gradient(from 0deg, rgba(0,255,224,0.45), rgba(0,255,224,0) 40%);
+  animation:opSweep 2.2s linear infinite; }
+@keyframes opSweep{ to{ transform:rotate(360deg); } }
+.op-core{ position:relative; z-index:2; text-align:center; padding:0 20px;
+  animation:opCoreIn 0.9s 0.35s ease both; }
+@keyframes opCoreIn{ from{ opacity:0; transform:translateY(14px) scale(0.96); } to{ opacity:1; transform:none; } }
+.op-mark{ font-size:clamp(42px,12vw,86px); line-height:1; margin-bottom:14px;
+  filter:drop-shadow(0 0 18px rgba(0,180,255,0.5)); }
+.op-title{ font-family:'Noto Sans JP',sans-serif; font-weight:900;
+  font-size:clamp(24px,6.5vw,46px); color:#eaf6ff; letter-spacing:0.06em;
+  text-shadow:0 0 24px rgba(0,180,255,0.4); }
+.op-sub{ margin-top:10px; font-family:'Orbitron',monospace; font-weight:700;
+  font-size:clamp(10px,2.6vw,14px); letter-spacing:0.32em; color:#5fd0ff;
+  white-space:nowrap; overflow:hidden; }
+.op-bar{ margin:22px auto 0; width:min(62vw,260px); height:3px; border-radius:3px;
+  background:rgba(0,180,255,0.18); overflow:hidden; }
+.op-bar>span{ display:block; height:100%; width:0;
+  background:linear-gradient(90deg,#00b4ff,#00ffe0); animation:opBar var(--op-dur,2.6s) ease forwards; }
+@keyframes opBar{ to{ width:100%; } }
+.op-skip{ position:absolute; right:16px; bottom:16px; z-index:3;
+  background:rgba(255,255,255,0.08); border:1px solid rgba(0,180,255,0.3);
+  color:#bfe6ff; font-size:12px; padding:8px 14px; border-radius:20px; cursor:pointer;
+  font-family:'Share Tech Mono',monospace; letter-spacing:0.08em; }
+.op-skip:hover{ background:rgba(0,180,255,0.18); color:#fff; }
+@media (prefers-reduced-motion:reduce){
+  .op-radar::before,.op-radar::after,.op-sweep::before{ animation:none; }
+}
+
+/* ===================== 緊急モード（全画面警告） ===================== */
+html.mode-emg{ overflow:hidden; }
+#emergencyScreen{ position:fixed; inset:0; z-index:99000; display:none;
+  flex-direction:column; align-items:center; justify-content:flex-start;
+  background:linear-gradient(160deg,#2a0606 0%,#160404 60%,#0a0202 100%);
+  color:#ffe9e9; padding:0; overflow-y:auto; }
+html.mode-emg #emergencyScreen{ display:flex; }
+.emg-stripe{ width:100%; height:10px; flex:0 0 auto;
+  background:repeating-linear-gradient(45deg,#ff2d2d 0 18px,#1a0303 18px 36px);
+  animation:emgStripe 0.8s linear infinite; }
+@keyframes emgStripe{ to{ background-position:51px 0; } }
+.emg-inner{ width:100%; max-width:760px; margin:0 auto; padding:26px 20px 60px;
+  text-align:center; }
+.emg-icon{ font-size:clamp(48px,14vw,96px); line-height:1; margin:10px 0 6px;
+  animation:emgPulse 1.1s ease-in-out infinite; }
+@keyframes emgPulse{ 0%,100%{ transform:scale(1); filter:drop-shadow(0 0 0 rgba(255,45,45,0)); }
+  50%{ transform:scale(1.08); filter:drop-shadow(0 0 22px rgba(255,80,80,0.8)); } }
+.emg-heading{ font-family:'Noto Sans JP',sans-serif; font-weight:900;
+  font-size:clamp(26px,7vw,48px); color:#fff; letter-spacing:0.04em;
+  text-shadow:0 0 20px rgba(255,45,45,0.7); margin:0 0 6px; }
+.emg-badge{ display:inline-block; background:#ff2d2d; color:#fff; font-weight:800;
+  font-size:13px; letter-spacing:0.18em; padding:5px 16px; border-radius:20px;
+  margin-bottom:14px; box-shadow:0 0 18px rgba(255,45,45,0.6);
+  animation:emgBadge 1s ease-in-out infinite; }
+@keyframes emgBadge{ 0%,100%{ opacity:1; } 50%{ opacity:0.55; } }
+.emg-message{ font-size:clamp(15px,4vw,19px); line-height:1.85; color:#ffd9d9;
+  background:rgba(255,45,45,0.08); border:1px solid rgba(255,80,80,0.35);
+  border-radius:14px; padding:16px 18px; margin:0 auto 20px; max-width:640px; }
+.emg-quake{ background:rgba(0,0,0,0.32); border:1px solid rgba(255,120,120,0.3);
+  border-radius:14px; padding:16px 18px; margin:0 auto 20px; max-width:640px; text-align:left; }
+.emg-quake .ttl{ font-family:'Share Tech Mono',monospace; font-size:12px;
+  letter-spacing:0.16em; color:#ff9b9b; margin-bottom:10px; }
+.emg-quake .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; }
+.emg-quake .cell{ background:rgba(255,255,255,0.05); border-radius:10px; padding:10px 12px; }
+.emg-quake .cell .k{ font-size:11px; color:#ffb3b3; margin-bottom:3px; }
+.emg-quake .cell .v{ font-size:18px; font-weight:800; color:#fff; }
+.emg-actions{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:6px; }
+.emg-actions a,.emg-actions button{ flex:0 0 auto; text-decoration:none; cursor:pointer;
+  font-size:14px; font-weight:700; padding:12px 18px; border-radius:10px; border:1px solid rgba(255,120,120,0.4);
+  background:rgba(255,255,255,0.06); color:#fff; }
+.emg-actions a:hover,.emg-actions button:hover{ background:rgba(255,45,45,0.25); }
+.emg-exit{ background:#fff !important; color:#7a0000 !important; border-color:#fff !important; }
+.emg-tips{ text-align:left; max-width:640px; margin:18px auto 0; font-size:14px; line-height:1.9; color:#ffdede; }
+.emg-tips li{ margin-bottom:4px; }
 #tourOverlay { display:none; position:fixed; inset:0; z-index:99990; }
 #tourOverlay.open { display:block; }
 /* 4枚のオーバーレイで対象部分だけくり抜く */
@@ -2661,6 +2757,52 @@ html.mode-chat.chat-split #modeChatScreen .mc-title{ font-size:13px; margin-bott
   </div>
 </div>
 
+<!-- ===== オープニングアニメーション ===== -->
+<div id="openingScreen" aria-hidden="true">
+  <div class="op-grid"></div>
+  <div class="op-radar"></div>
+  <div class="op-sweep"></div>
+  <div class="op-core">
+    <div class="op-mark">🛡️</div>
+    <div class="op-title" id="opTitle">防災情報センター</div>
+    <div class="op-sub" id="opSub">DISASTER WARNING ACCOUNT</div>
+    <div class="op-bar"><span id="opBarFill"></span></div>
+  </div>
+  <button type="button" class="op-skip" onclick="skipOpening()">SKIP ▶</button>
+</div>
+
+<!-- ===== 緊急モード（全画面警告） ===== -->
+<div id="emergencyScreen" role="alertdialog" aria-live="assertive">
+  <div class="emg-stripe"></div>
+  <div class="emg-inner">
+    <div class="emg-badge" id="emgBadge">EMERGENCY</div>
+    <div class="emg-icon">⚠️</div>
+    <h2 class="emg-heading" id="emgHeading">緊急情報モード</h2>
+    <div class="emg-message" id="emgMessage">身の安全を最優先に行動してください。</div>
+    <div class="emg-quake" id="emgQuakeBox" style="display:none;">
+      <div class="ttl">// 直近の地震情報</div>
+      <div class="grid">
+        <div class="cell"><div class="k">最大震度</div><div class="v" id="emgShindo">--</div></div>
+        <div class="cell"><div class="k">マグニチュード</div><div class="v" id="emgMag">--</div></div>
+        <div class="cell"><div class="k">震源地</div><div class="v" id="emgPlace">--</div></div>
+        <div class="cell"><div class="k">発生時刻</div><div class="v" id="emgTime">--</div></div>
+      </div>
+    </div>
+    <ul class="emg-tips">
+      <li>頭を守り、丈夫な机の下など安全な場所に身を寄せる。</li>
+      <li>火の始末・出口の確保。あわてて外へ飛び出さない。</li>
+      <li>テレビ・ラジオ・自治体の公式情報で正確な状況を確認する。</li>
+      <li>海岸・川の近くでは津波に警戒し、ただちに高い場所へ。</li>
+    </ul>
+    <div class="emg-actions">
+      <a href="https://www.jma.go.jp/bosai/map.html#contents=tsunami" target="_blank" rel="noopener">🌊 津波情報</a>
+      <a href="https://www.jma.go.jp/bosai/warning/" target="_blank" rel="noopener">⚠️ 警報・注意報</a>
+      <a href="https://radiko.jp/" target="_blank" rel="noopener">📻 ラジオ</a>
+      <button type="button" class="emg-exit" onclick="exitEmergency(true)">✕ 通常画面に戻る</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== TUTORIAL TOUR ===== -->
 <div id="tourOverlay">
   <div class="tour-mask" id="tourMaskTop"></div>
@@ -2892,6 +3034,9 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     </div>
     <nav class="hamburger-nav">
       <div class="hamburger-section-label">// 画面モード</div>
+      <button class="hamburger-link" id="navEmergency" onclick="enterEmergency('manual');closeHamburger();" style="color:#ff6b6b;border-color:rgba(255,45,45,0.35);background:rgba(255,45,45,0.08);width:100%;text-align:left;cursor:pointer;display:none;">
+        <span class="h-link-icon">🚨</span>緊急モード
+      </button>
       <button class="hamburger-link" onclick="enterMode('quake');closeHamburger();" style="color:#00ffe0;border-color:rgba(0,255,224,0.25);background:rgba(0,255,224,0.06);width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">🖥️</span>地震監視モード
       </button>
@@ -2945,6 +3090,9 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       </a>
       <a class="hamburger-link" href="https://earth.nullschool.net/jp/" target="_blank" rel="noopener">
         <span class="h-link-icon">🌍</span>earth ー地球の風ー
+      </a>
+      <a class="hamburger-link" href="https://radiko.jp/" target="_blank" rel="noopener">
+        <span class="h-link-icon">📻</span>radiko（ラジオ）
       </a>
       <div class="hamburger-section-label" style="margin-top:16px;">// 公式アカウント</div>
       <a class="hamburger-link" href="https://x.com/DWAbousai0111" target="_blank" rel="noopener">
@@ -5822,6 +5970,7 @@ async function fetchQuakes(){
     _lastQs = qs;
     renderStats(qs); renderBig(qs); renderList(qs);
     try { renderQuakeMode(qs); } catch(e){}
+    try { maybeAutoEmergency(qs); } catch(e){}
 
     // 津波予報APIの結果でバナーを制御
     let tsunamiApiData = null;
@@ -7397,12 +7546,16 @@ function maybeStartTourOnFirstVisit(){
   setTimeout(function(){
     const waiter = setInterval(function(){
       const ov = document.getElementById('eewOverlay');
-      if(!ov || !ov.classList.contains('active')){
+      const opening = document.getElementById('openingScreen');
+      const openingShown = opening && opening.classList.contains('show');
+      if((!ov || !ov.classList.contains('active')) && !openingShown){
         clearInterval(waiter);
+        // 管理画面の「チュートリアル_初回スキップ」がONなら自動再生しない（即画面を開く）
+        try{ if(SITE_CONFIG && SITE_CONFIG.tutorial && SITE_CONFIG.tutorial.skipFirst){ return; } }catch(e){}
         setTimeout(startTour, 500);
       }
     }, 600);
-  }, 1200); // 地震データの取得を少し待ってから判定
+  }, 1600); // 地震データ＋設定の取得を少し待ってから判定
 }
 
 // ハイライト枠をスクロール完了まで毎フレーム追従させる
@@ -7616,6 +7769,9 @@ function positionTour(){
   mR.style.left=(hx+hw)+'px'; mR.style.top=hy+'px'; mR.style.width=Math.max(0,W-(hx+hw))+'px'; mR.style.height=hh+'px';
   // ポップアップ配置（下に出す。入らなければ上）
   // 実際の高さを使う。max-height(CSS)により画面より大きくはならない（はみ出れば内部スクロール）。
+  // 直前のステップでスタンプ用に幅を縮めている場合があるので、計測前に既定幅へ戻す。
+  pop.style.width = '';
+  pop.style.maxWidth = '';
   const popH = Math.min(pop.offsetHeight || 160, H - 24);
   const popW = pop.offsetWidth || 300;
   // ポップアップ配置：ハイライト（穴）に被らないよう、上下の余白が広い方へ出す
@@ -7686,6 +7842,35 @@ function positionTour(){
         let pTop = hy + hh/2 - popH/2;
         pTop = clampTop(pTop);
         pop.style.left = pLeft + 'px';
+        pop.style.top = pTop + 'px';
+        _placedBeside = true;
+      }
+    }
+    // スタンプカード関連ステップ（カードを開くパスワード欄＝openStampCardForTour、
+    // および「🎁 防災スタンプカード」＝showStamp の説明）では、対象が画面中央のカードや
+    // 右下のボタン付近にあり、説明文を中央寄せにするとカードに被りやすい。
+    // カードは中央・最大480px固定なので、PCでは左右に余白ができる。その広い側へ説明文を
+    // 出し、必要なら説明文の幅を余白に合わせて縮めて、カードと絶対に重ならないようにする。
+    // 余白が狭いスマホでは side 配置をやめ、従来の上下回避にフォールバックする。
+    const _stampStep = (step.onShow === openStampCardForTour) || !!step.showStamp;
+    const _modal = _stampStep ? document.querySelector('#stampOverlay.open .stamp-modal') : null;
+    if(!_placedBeside && _stampStep && _modal){
+      const mr = _modal.getBoundingClientRect();
+      const edge = 12;        // 画面端の余白
+      const gapToCard = 14;   // カードと説明文の間隔
+      const spaceRight = (W - mr.right) - edge - gapToCard;  // 右側に置ける実効幅
+      const spaceLeft  = mr.left - edge - gapToCard;          // 左側に置ける実効幅
+      const minW = 220;       // これ未満になるなら side 配置はあきらめる（スマホ等）
+      const useRight = spaceRight >= spaceLeft;
+      const avail = useRight ? spaceRight : spaceLeft;
+      if(avail >= minW){
+        const w = Math.min(popW, avail);          // 余白に収まる幅に調整
+        pop.style.width = w + 'px';
+        pop.style.maxWidth = w + 'px';
+        // 幅が変わると高さも変わるため再計測してから縦位置を決める
+        const popH2 = Math.min(pop.offsetHeight || popH, H - 24);
+        const pTop = Math.max(12, Math.min(hy + hh/2 - popH2/2, H - popH2 - 12));
+        pop.style.left = (useRight ? (mr.right + gapToCard) : (mr.left - gapToCard - w)) + 'px';
         pop.style.top = pTop + 'px';
         _placedBeside = true;
       }
@@ -7859,9 +8044,168 @@ function syncSplitBtn(){
 // 「設定リセット」＝通常画面に戻る（ユーザー指定の挙動）
 function resetMode(){ exitMode(); }
 
+/* ============================================================
+   機能設定（緊急モード／オープニング／チュートリアル）
+   GASの「機能設定」シートから渡る config を保持し、各機能へ反映する。
+   ============================================================ */
+var SITE_CONFIG = {
+  opening:{ enabled:true, everyVisit:false, title:'防災情報センター', subtitle:'DISASTER WARNING ACCOUNT', seconds:2.6 },
+  emergency:{ manualButton:true, auto:true, autoShindo:5, heading:'緊急情報モード', message:'身の安全を最優先に行動してください。' },
+  tutorial:{ skipFirst:false }
+};
+var _configApplied = false;
+
+function applySiteConfig(cfg){
+  if(!cfg || typeof cfg !== 'object') return;
+  // 受け取った値で安全に上書き（欠けている項目は既定値を維持）
+  if(cfg.opening)   Object.assign(SITE_CONFIG.opening, cfg.opening);
+  if(cfg.emergency) Object.assign(SITE_CONFIG.emergency, cfg.emergency);
+  if(cfg.tutorial)  Object.assign(SITE_CONFIG.tutorial, cfg.tutorial);
+
+  // メニューの「緊急モード」ボタンの表示／非表示
+  var navEmg = document.getElementById('navEmergency');
+  if(navEmg) navEmg.style.display = SITE_CONFIG.emergency.manualButton ? 'flex' : 'none';
+
+  // 緊急モード画面の文言を反映
+  var h = document.getElementById('emgHeading');
+  if(h) h.textContent = SITE_CONFIG.emergency.heading || '緊急情報モード';
+  var m = document.getElementById('emgMessage');
+  if(m) m.textContent = SITE_CONFIG.emergency.message || '';
+
+  _configApplied = true;
+  // 設定到着後に、自動発動の判定をやり直す（既にデータがあれば即反映）
+  try{ if(typeof _lastQs !== 'undefined' && _lastQs) maybeAutoEmergency(_lastQs); }catch(e){}
+}
+
+/* ===== 緊急モード ===== */
+var _emgActive = false;
+var _emgManual = false;        // 手動で入ったか
+var _emgAutoQuakeId = null;    // 自動発動のきっかけになった地震（重複発動防止）
+
+// 設定の「震度」しきい値（5, 5弱, 6強 等）を maxScale 値へ変換
+function shindoThresholdToScale_(v){
+  var s = String(v==null?'':v).replace('震度','').trim();
+  if(/^7/.test(s)) return 70;
+  if(/6強/.test(s)) return 60; if(/6弱/.test(s)) return 55; if(/^6/.test(s)) return 55;
+  if(/5強/.test(s)) return 50; if(/5弱/.test(s)) return 45; if(/^5/.test(s)) return 45;
+  if(/^4/.test(s)) return 40; if(/^3/.test(s)) return 30;
+  var n = parseFloat(s); if(!isNaN(n)){ if(n>=7)return 70; if(n>=6)return 55; if(n>=5)return 45; if(n>=4)return 40; if(n>=3)return 30; }
+  return 45; // 既定は5弱以上
+}
+
+function enterEmergency(reason, quake){
+  var html = document.documentElement;
+  _emgActive = true;
+  _emgManual = (reason === 'manual');
+  // 他モード・チュートリアル・オープニングを閉じる
+  try{ if(_currentMode) exitMode(); }catch(e){}
+  try{ var ov=document.getElementById('tourOverlay'); if(ov) ov.classList.remove('open'); }catch(e){}
+  try{ closeOpening(); }catch(e){}
+  // 地震情報があれば表示
+  var box = document.getElementById('emgQuakeBox');
+  if(quake && box){
+    box.style.display = '';
+    var set = function(id,v){ var el=document.getElementById(id); if(el) el.textContent = (v==null||v===''||v==='--')?'--':v; };
+    set('emgShindo', '震度' + (scaleToText(quake.shindo_num) || '--'));
+    set('emgMag', (quake.magnitude!=null) ? ('M' + quake.magnitude) : '--');
+    set('emgPlace', quake.name || '--');
+    set('emgTime', quake.time_str || '--');
+  } else if(box && reason==='manual'){
+    box.style.display = 'none';
+  }
+  html.classList.add('mode-emg');
+  try{ window.scrollTo(0,0); }catch(e){}
+  // バイブレーション（対応端末のみ・自動発動時）
+  if(reason!=='manual'){ try{ if(navigator.vibrate) navigator.vibrate([200,100,200,100,400]); }catch(e){} }
+}
+
+function exitEmergency(byUser){
+  document.documentElement.classList.remove('mode-emg');
+  _emgActive = false;
+  if(byUser){ _emgManual = false; }
+}
+
+// 地震データ（fetchQuakesの結果 qs）を見て、自動で緊急モードに入るか判定
+function maybeAutoEmergency(qs){
+  try{
+    if(!_configApplied) return;
+    if(!SITE_CONFIG.emergency.auto) return;
+    if(_emgActive) return;
+    if(!qs || !qs.length) return;
+    // 最大震度の地震を選ぶ（先頭が最大とは限らないため全件から）
+    var top = null;
+    for(var i=0;i<qs.length;i++){
+      if(qs[i] && qs[i].isForeign) continue;
+      if(!top || (qs[i].shindo_num||0) > (top.shindo_num||0)) top = qs[i];
+    }
+    if(!top) return;
+    var id = (top.time||'') + '_' + (top.name||'') + '_' + (top.shindo_num||0);
+    if(_emgAutoQuakeId === id) return; // 同じ地震では一度だけ
+    var th = shindoThresholdToScale_(SITE_CONFIG.emergency.autoShindo);
+    if((top.shindo_num||0) >= th){
+      _emgAutoQuakeId = id;
+      enterEmergency('auto', top);
+    }
+  }catch(e){ console.warn('[maybeAutoEmergency]', e); }
+}
+
+/* ===== オープニングアニメーション ===== */
+var OPENING_KEY = 'opening_seen_v1';
+var _openingTimer = null;
+
+function shouldShowOpening(){
+  if(!SITE_CONFIG.opening.enabled) return false;
+  if(SITE_CONFIG.opening.everyVisit) return true;
+  try{ return localStorage.getItem(OPENING_KEY) !== '1'; }catch(e){ return true; }
+}
+
+function runOpening(){
+  var scr = document.getElementById('openingScreen');
+  if(!scr) return;
+  // 文言・秒数を反映
+  var t = document.getElementById('opTitle');  if(t) t.textContent = SITE_CONFIG.opening.title || '防災情報センター';
+  var s = document.getElementById('opSub');    if(s) s.textContent = SITE_CONFIG.opening.subtitle || '';
+  var dur = Math.max(0.8, Number(SITE_CONFIG.opening.seconds) || 2.6);
+  var fill = document.getElementById('opBarFill');
+  if(fill) fill.style.setProperty('--op-dur', dur + 's');
+  scr.classList.add('show');
+  try{ localStorage.setItem(OPENING_KEY, '1'); }catch(e){}
+  clearTimeout(_openingTimer);
+  _openingTimer = setTimeout(closeOpening, dur*1000);
+}
+
+function closeOpening(){
+  var scr = document.getElementById('openingScreen');
+  if(!scr || !scr.classList.contains('show')) return;
+  clearTimeout(_openingTimer);
+  scr.classList.add('hide');
+  setTimeout(function(){ scr.classList.remove('show','hide'); }, 600);
+}
+function skipOpening(){ closeOpening(); }
+
+// 起動時：configはloadArticlesで非同期に届くため、少し待ってからオープニング判定。
+// configが間に合わなくても既定値（表示ON・初回のみ）で動く。
+function bootOpening(){
+  // 既定値でメニューの緊急モードボタンの表示を初期化（config未着でも既定で表示）
+  try{
+    var navEmg0 = document.getElementById('navEmergency');
+    if(navEmg0) navEmg0.style.display = SITE_CONFIG.emergency.manualButton ? 'flex' : 'none';
+  }catch(e){}
+  // 既にローカルで「初回ではない」かつ everyVisit でない場合は、config待ちで遅延させない
+  setTimeout(function(){
+    if(shouldShowOpening()) runOpening();
+  }, 250);
+}
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', bootOpening);
+} else { bootOpening(); }
+
 // Escキーでモード解除
 document.addEventListener('keydown', function(e){
-  if(e.key === 'Escape' && _currentMode){ exitMode(); }
+  if(e.key === 'Escape'){
+    if(_emgActive){ exitEmergency(true); return; }
+    if(_currentMode){ exitMode(); }
+  }
 });
 
 setInterval(fetchQuakes, 30000);
@@ -8368,6 +8712,9 @@ async function loadArticles(){
     if(!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     if(data && data.error){ console.warn('[loadArticles] GAS error:', data.error); }
+
+    // ── 機能設定（緊急モード／オープニング／チュートリアル）を反映 ──
+    if(data && data.config){ try{ applySiteConfig(data.config); }catch(e){ console.warn('[config]', e); } }
 
     // ── 「記事」シート → 防災コラムのカード ──
     const list = (data && Array.isArray(data.articles)) ? data.articles : [];
