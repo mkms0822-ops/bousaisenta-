@@ -824,6 +824,16 @@ main { position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:28
 /* SIDEBAR */
 .sidebar { display:flex; flex-direction:column; gap:16px; }
 .swidget { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px; }
+/* ===== A8 レスポンシブ広告（PC=468x60 / スマホ=320x50 出し分け） ===== */
+.a8-ad{ text-align:center; }
+.a8-ad a{ display:inline-block; line-height:0; }
+.a8-ad img{ height:auto; max-width:100%; }
+.a8-ad .a8-pc{ display:none; }
+.a8-ad .a8-sp{ display:inline-block; }
+@media(min-width:768px){
+  .a8-ad .a8-pc{ display:inline-block; }
+  .a8-ad .a8-sp{ display:none; }
+}
 .sw-title { font-family:'Orbitron',monospace; font-size:10px; letter-spacing:0.2em; color:var(--muted); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
 .sw-title::after { content:''; flex:1; height:1px; background:var(--border); }
 .sw-title-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
@@ -3976,10 +3986,11 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
 
     <div class="swidget">
       <div class="sw-title">// PR<span class="pr-badge">PR</span></div>
-      <a href="https://px.a8.net/svt/ejp?a8mat=4B63GJ+F5YIIA+4VA0+5ZEMP" rel="nofollow noopener sponsored" target="_blank" style="display:block;text-align:center;">
-        <img border="0" alt="" src="https://www29.a8.net/svt/bgt?aid=260624899917&wid=001&eno=01&mid=s00000022716001005000&mc=1" style="width:100%;max-width:320px;height:auto;">
-      </a>
-      <img border="0" width="1" height="1" src="https://www16.a8.net/0.gif?a8mat=4B63GJ+F5YIIA+4VA0+5ZEMP" alt="" style="position:absolute;left:-9999px;">
+      <div class="a8-ad">
+        <a class="a8-pc" href="https://px.a8.net/svt/ejp?a8mat=4B63GJ+F5YIIA+4VA0+5Z6WX" rel="nofollow noopener sponsored" target="_blank"><img src="https://www29.a8.net/svt/bgt?aid=260624899917&wid=001&eno=01&mid=s00000022716001004000&mc=1" width="468" height="60" alt=""></a>
+        <a class="a8-sp" href="https://px.a8.net/svt/ejp?a8mat=4B63GJ+F5YIIA+4VA0+5ZEMP" rel="nofollow noopener sponsored" target="_blank"><img src="https://www29.a8.net/svt/bgt?aid=260624899917&wid=001&eno=01&mid=s00000022716001005000&mc=1" width="320" height="50" alt=""></a>
+        <img border="0" width="1" height="1" src="https://www16.a8.net/0.gif?a8mat=4B63GJ+F5YIIA+4VA0+5ZEMP" alt="" style="position:absolute;left:-9999px;">
+      </div>
     </div>
 
     <div class="swidget">
@@ -5012,6 +5023,12 @@ function openColOverlay(i){
     const liked = isLiked(bid);
     const lcount = likeCountOf(bid);
     footEl.innerHTML =
+      `<div class="a8-ad" style="width:100%;margin:0 0 16px;">` +
+        `<div style="font:700 10px 'Orbitron',monospace;letter-spacing:.12em;color:var(--muted);margin-bottom:6px;">PR</div>` +
+        `<a class="a8-pc" href="https://px.a8.net/svt/ejp?a8mat=4B63GJ+F5YIIA+4VA0+5Z6WX" rel="nofollow noopener sponsored" target="_blank"><img src="https://www29.a8.net/svt/bgt?aid=260624899917&wid=001&eno=01&mid=s00000022716001004000&mc=1" width="468" height="60" alt=""></a>` +
+        `<a class="a8-sp" href="https://px.a8.net/svt/ejp?a8mat=4B63GJ+F5YIIA+4VA0+5ZEMP" rel="nofollow noopener sponsored" target="_blank"><img src="https://www29.a8.net/svt/bgt?aid=260624899917&wid=001&eno=01&mid=s00000022716001005000&mc=1" width="320" height="50" alt=""></a>` +
+        `<img src="https://www11.a8.net/0.gif?a8mat=4B63GJ+F5YIIA+4VA0+5Z6WX" width="1" height="1" alt="" style="position:absolute;left:-9999px;">` +
+      `</div>` +
       `<button type="button" class="like-btn ${liked?'on':''}" id="ovlike" aria-pressed="${liked?'true':'false'}" title="いいね" onclick="toggleLikeCard(${i})"><span class="like-heart">❤️</span><span class="like-count">${lcount}</span></button>` +
       (c.link ? `<a class="blog-card-link" href="${c.link}" target="_blank">リンクを開く →</a>` : '');
   }
