@@ -8273,14 +8273,21 @@ function bootOpening(){
     var navEmg0 = document.getElementById('navEmergency');
     if(navEmg0) navEmg0.style.display = SITE_CONFIG.emergency.manualButton ? 'flex' : 'none';
   }catch(e){}
-  // 既にローカルで「初回ではない」かつ everyVisit でない場合は、config待ちで遅延させない
-  setTimeout(function(){
-    // configが既に届いていれば、その正しい種類で判定する。
-    // まだなら既定（アンテナ）で判定し、後で applySiteConfig 側が必要に応じてやり直す。
-    if(_openingDecided) return;
-    _openingDecided = true;
-    if(shouldShowOpening()) runOpening();
-  }, 250);
+  // オープニングの種類・毎回表示などは config に依存するため、設定が届くのを待ってから
+  // 判定する。届かない環境でも止まらないよう、最大 _maxWait まで待ってフォールバック。
+  var _start = Date.now();
+  var _maxWait = 4000;
+  var _iv = setInterval(function(){
+    if(_openingDecided){ clearInterval(_iv); return; }
+    var configReady = (typeof _configApplied !== 'undefined' && _configApplied);
+    var timedOut = (Date.now() - _start) > _maxWait;
+    if(configReady || timedOut){
+      clearInterval(_iv);
+      if(_openingDecided) return;
+      _openingDecided = true;
+      if(shouldShowOpening()) runOpening();
+    }
+  }, 150);
 }
 if(document.readyState === 'loading'){
   document.addEventListener('DOMContentLoaded', bootOpening);
