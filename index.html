@@ -823,6 +823,11 @@ main { position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:28
 
 /* SIDEBAR */
 .sidebar { display:flex; flex-direction:column; gap:16px; }
+@media (min-width:961px){
+  .sidebar { position:sticky; top:117px; align-self:start; max-height:calc(100vh - 130px); overflow-y:auto; scrollbar-width:thin; }
+  .sidebar::-webkit-scrollbar{ width:7px; }
+  .sidebar::-webkit-scrollbar-thumb{ background:rgba(0,180,255,0.25); border-radius:4px; }
+}
 .swidget { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 20px; }
 /* ===== A8 レスポンシブ広告（PC=468x60 / スマホ=320x50 出し分け） ===== */
 .a8-ad{ text-align:center; }
