@@ -653,7 +653,7 @@ body { padding-top: var(--topbar-h, 0px); }
 @keyframes ticker { 0%{transform:translateX(100vw);} 100%{transform:translateX(-100%);} }
 
 /* MAIN LAYOUT */
-main { position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:28px 24px; display:grid; grid-template-columns:1fr 300px; gap:22px; }
+main { position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:28px 24px; display:grid; grid-template-columns:1fr 300px; gap:22px; align-items:start; }
 
 /* STATS */
 .stats-row { grid-column:1/-1; display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
@@ -3895,6 +3895,15 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <div class="blog-grid anim-ready anim-up" id="blogGrid"></div>
     </div>
 
+    <!-- 避難所マップ（左カラム下部に配置して空間を詰める） -->
+    <div id="section-map" class="swidget anim-ready anim-up" style="padding:24px 26px;">
+      <div class="section-head anim-ready anim-left" style="margin-bottom:14px;">// 避難所マップ</div>
+      <p style="font-size:13px;color:var(--text);line-height:1.9;margin:0;">
+        🗺️ お住まいの地域の避難所・避難場所は、各市区町村のハザードマップポータルサイトよりご確認ください。<br>
+        <a href="https://disaportal.gsi.go.jp/" target="_blank" style="color:var(--blue);">→ 国土交通省 ハザードマップポータルサイト</a>
+      </p>
+    </div>
+
   </div>
 
   <!-- SIDEBAR -->
@@ -4010,15 +4019,6 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
 
   </aside>
 </main>
-
-<!-- ===== FOOTER SECTIONS ===== -->
-<div id="section-map" class="page-section">
-  <div class="page-section-inner">
-    <h2>🗺️ 避難所マップ</h2>
-    <p>お住まいの地域の避難所・避難場所は、各市区町村のハザードマップポータルサイトよりご確認ください。<br>
-    <a href="https://disaportal.gsi.go.jp/" target="_blank" style="color:var(--blue);">→ 国土交通省 ハザードマップポータルサイト</a></p>
-  </div>
-</div>
 
 <!-- QUAKE DETAIL MODAL -->
 <!-- ===== 記事アーカイブ モーダル ===== -->
