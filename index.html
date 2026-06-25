@@ -2,6 +2,12 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<script>
+/* 扉オープニング(splash)の早期判定。
+   前回受信した機能設定の「オープニング_表示」がOFFなら、最初の描画より前に
+   <html> へ splash-off を付け、CSSで扉を一切出さない（スマホでの一瞬のチラ見え防止）。*/
+(function(){try{if(localStorage.getItem('splashEnabled')==='0'){document.documentElement.classList.add('splash-off');}}catch(e){}})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>防災情報センター｜地震速報LIVE・災害情報</title>
 
@@ -2155,6 +2161,8 @@ html.light #updatePromptOverlay { background:rgba(10,20,35,0.5); }
 }
 #splashScreen.fade-out { opacity: 0; pointer-events: none; }
 #splashScreen.hidden { display: none; }
+/* 扉オープニングOFF時は最初の描画から完全に非表示（チラ見え防止） */
+html.splash-off #splashScreen { display: none !important; }
 
 #splashDoors {
   position: absolute; inset: 0; transform-origin: center center;
