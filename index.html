@@ -8104,6 +8104,19 @@ function applySiteConfig(cfg){
   var _showSplash = (SITE_CONFIG.opening.enabled && SITE_CONFIG.opening.kind === 'splash');
   try{ localStorage.setItem('splashEnabled', _showSplash ? '1' : '0'); }catch(e){}
 
+  // アンテナ演出を「config到着を待たず」素早く出すため、表示条件をキャッシュする。
+  // 次回起動時、boot側はこのキャッシュを見て即判定できる（2秒の待ち時間をなくす）。
+  try{
+    localStorage.setItem('openCfg', JSON.stringify({
+      enabled: !!SITE_CONFIG.opening.enabled,
+      kind: SITE_CONFIG.opening.kind || 'radar',
+      everyVisit: !!SITE_CONFIG.opening.everyVisit,
+      seconds: Number(SITE_CONFIG.opening.seconds) || 2.6,
+      title: SITE_CONFIG.opening.title || '',
+      subtitle: SITE_CONFIG.opening.subtitle || ''
+    }));
+  }catch(e){}
+
   // 緊急モードの「動作モード」（自動 / 手動 / OFF）を反映する。
   // mode が来ていればそれを最優先にし、manualButton・auto を導出する。
   // （旧設定しか無い古いデータでも動くよう、mode が無ければ従来値を使う）
@@ -8234,9 +8247,19 @@ function shouldShowOpening(){
 function runOpening(){
   var scr = document.getElementById('openingScreen');
   if(!scr) return;
-  // 文言・秒数を反映
-  var t = document.getElementById('opTitle');  if(t) t.textContent = SITE_CONFIG.opening.title || '防災情報センター';
-  var s = document.getElementById('opSub');    if(s) s.textContent = SITE_CONFIG.opening.subtitle || '';
+  // 文言・秒数を反映。
+  // 万一シートの行ずれ等で title/subtitle に「ON」「OFF」など設定値が
+  // 入ってしまった場合は、それを表示せず既定値にフォールバックする。
+  var _looksLikeFlag = function(v){
+    var s = String(v == null ? '' : v).trim().toLowerCase();
+    return s === 'on' || s === 'off' || s === '自動' || s === '手動' || s === 'アンテナ' || s === '扉';
+  };
+  var cfgTitle = SITE_CONFIG.opening.title;
+  var cfgSub   = SITE_CONFIG.opening.subtitle;
+  var title = (_looksLikeFlag(cfgTitle) || !String(cfgTitle||'').trim()) ? '防災情報センター' : cfgTitle;
+  var sub   = _looksLikeFlag(cfgSub) ? '' : (cfgSub || '');
+  var t = document.getElementById('opTitle');  if(t) t.textContent = title;
+  var s = document.getElementById('opSub');    if(s) s.textContent = sub;
   var dur = Math.max(0.8, Number(SITE_CONFIG.opening.seconds) || 2.6);
   var fill = document.getElementById('opBarFill');
   if(fill) fill.style.setProperty('--op-dur', dur + 's');
@@ -8273,21 +8296,27 @@ function bootOpening(){
     var navEmg0 = document.getElementById('navEmergency');
     if(navEmg0) navEmg0.style.display = SITE_CONFIG.emergency.manualButton ? 'flex' : 'none';
   }catch(e){}
-  // オープニングの種類・毎回表示などは config に依存するため、設定が届くのを待ってから
-  // 判定する。届かない環境でも止まらないよう、最大 _maxWait まで待ってフォールバック。
-  var _start = Date.now();
-  var _maxWait = 4000;
-  var _iv = setInterval(function(){
-    if(_openingDecided){ clearInterval(_iv); return; }
-    var configReady = (typeof _configApplied !== 'undefined' && _configApplied);
-    var timedOut = (Date.now() - _start) > _maxWait;
-    if(configReady || timedOut){
-      clearInterval(_iv);
-      if(_openingDecided) return;
-      _openingDecided = true;
-      if(shouldShowOpening()) runOpening();
+  // 前回受信した設定のキャッシュがあれば、config到着を待たずに即判定して出す
+  // （これで「開いてからアンテナが出るまでの待ち時間」をなくす）。
+  try{
+    var raw = localStorage.getItem('openCfg');
+    if(raw){
+      var c = JSON.parse(raw);
+      if(c && typeof c === 'object'){
+        SITE_CONFIG.opening.enabled    = !!c.enabled;
+        SITE_CONFIG.opening.kind       = c.kind || 'radar';
+        SITE_CONFIG.opening.everyVisit = !!c.everyVisit;
+        if(c.seconds)  SITE_CONFIG.opening.seconds  = Number(c.seconds) || 2.6;
+        if(c.title)    SITE_CONFIG.opening.title    = c.title;
+        if(c.subtitle) SITE_CONFIG.opening.subtitle = c.subtitle;
+      }
     }
-  }, 150);
+  }catch(e){}
+  // キャッシュ（または既定値）で即判定。
+  if(!_openingDecided){
+    _openingDecided = true;
+    if(shouldShowOpening()) runOpening();
+  }
 }
 if(document.readyState === 'loading'){
   document.addEventListener('DOMContentLoaded', bootOpening);
