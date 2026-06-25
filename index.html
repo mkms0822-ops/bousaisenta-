@@ -4848,11 +4848,11 @@ function renderBlog() {
       const tagLabel = TAG_OPTIONS.find(t=>t.val===c.tag)?.label||c.tag;
       const body = (c.body||'').replace(/\n/g,'<br>');
       return `<div class="col-compact-item" id="cc${i}">
-        <button type="button" class="col-compact-head" onclick="toggleColCompact(${i})">
+        <button type="button" class="col-compact-head" onclick="openColOverlay(${i})">
           <span class="col-compact-emoji">${c.icon}</span>
           <span class="col-compact-title">${c.title}</span>
           <span class="col-compact-date">🕐 ${c.updated}</span>
-          <span class="col-compact-chev">▾</span>
+          <span class="col-compact-chev">→</span>
         </button>
         <div class="col-compact-body" id="ccb${i}" style="display:none;">
           ${c.subtitle?`<div class="blog-subtitle">${c.subtitle}</div>`:''}
@@ -5411,8 +5411,8 @@ function renderBlogPhotos(images){
   const imgs = shown.map((u,idx)=>{
     const su = normalizeImgUrl(u);
     const overlay = (idx===lastIdx && extra>0)
-      ? `<div style="position:relative;"><img src="${su}" loading="lazy" referrerpolicy="no-referrer" onerror="imgFallback(this)" onclick="openLightbox('${su}')"><span style="position:absolute;inset:0;background:rgba(0,0,0,.55);color:#fff;display:grid;place-items:center;font-size:18px;font-weight:700;border-radius:8px;pointer-events:none;">+${extra}</span></div>`
-      : `<img src="${su}" loading="lazy" referrerpolicy="no-referrer" onerror="imgFallback(this)" onclick="openLightbox('${su}')">`;
+      ? `<div style="position:relative;"><img src="${su}" loading="lazy" referrerpolicy="no-referrer" onerror="imgFallback(this)" onclick="openLightboxFromImg(this)"><span style="position:absolute;inset:0;background:rgba(0,0,0,.55);color:#fff;display:grid;place-items:center;font-size:18px;font-weight:700;border-radius:8px;pointer-events:none;">+${extra}</span></div>`
+      : `<img src="${su}" loading="lazy" referrerpolicy="no-referrer" onerror="imgFallback(this)" onclick="openLightboxFromImg(this)">`;
     return overlay;
   }).join('');
   return `<div class="blog-photos ${cls}">${imgs}</div>`;
@@ -5457,6 +5457,16 @@ function imgFallback(img){
 }
 
 // 画像ライトボックス
+// クリックされたサムネ画像そのものの「今表示できているURL」を使って開く。
+// （サムネがフォールバックで別URLに切り替わっている場合でも、その表示中URLを引き継ぐ）
+function openLightboxFromImg(imgEl){
+  try {
+    const cur = (imgEl && imgEl.currentSrc) || (imgEl && imgEl.getAttribute('src')) || '';
+    openLightbox(cur);
+  } catch(e){
+    if(imgEl) openLightbox(imgEl.getAttribute('src')||'');
+  }
+}
 function openLightbox(url){
   let lb = document.getElementById('imgLightbox');
   if(!lb){
@@ -5464,10 +5474,13 @@ function openLightbox(url){
     lb.id = 'imgLightbox';
     lb.className = 'img-lightbox';
     lb.onclick = function(e){ if(e.target===lb || e.target.classList.contains('lb-close')) closeLightbox(); };
-    lb.innerHTML = '<button class="lb-close">✕</button><img id="lbImg" src="" alt="" referrerpolicy="no-referrer">';
+    lb.innerHTML = '<button class="lb-close">✕</button><img id="lbImg" src="" alt="" referrerpolicy="no-referrer" onerror="imgFallback(this)">';
     document.body.appendChild(lb);
   }
-  document.getElementById('lbImg').src = normalizeImgUrl(url);
+  const lbImg = document.getElementById('lbImg');
+  // フォールバックの再試行カウンタをリセットしてから読み込む
+  try { delete lbImg.dataset.fbStep; } catch(e){ lbImg.dataset.fbStep = ''; }
+  lbImg.src = normalizeImgUrl(url);
   lb.classList.add('open');
 }
 function closeLightbox(){
