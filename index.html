@@ -973,18 +973,18 @@ footer { position:relative; z-index:1; border-top:1px solid var(--border); paddi
   background:var(--surface2);
 }
 .col-overlay-head .col-ov-tag {
-  display:inline-block; font-size:18px; letter-spacing:0.08em;
+  display:inline-block; font-size:12px; letter-spacing:0.08em;
   padding:2px 12px; border-radius:20px; font-weight:700; margin-bottom:8px;
   background:rgba(0,232,122,0.12); color:var(--safe);
 }
 .col-overlay-head .col-ov-tag.info-tag { background:rgba(255,140,0,0.12); color:var(--accent2); }
 .col-overlay-head .col-ov-tag.tips-tag { background:rgba(0,180,255,0.12); color:var(--blue); }
-.col-overlay-head .col-ov-emoji { font-size:32px; line-height:1; margin-bottom:6px; }
+.col-overlay-head .col-ov-emoji { font-size:26px; line-height:1; margin-bottom:6px; }
 .col-overlay-head h2 {
-  font-size:30px; font-weight:700; line-height:1.4; margin:2px 0 4px; color:var(--text);
+  font-size:21px; font-weight:700; line-height:1.45; margin:2px 0 4px; color:var(--text);
 }
-.col-overlay-head .col-ov-subtitle { font-size:22px; color:var(--blue); line-height:1.4; margin-bottom:4px; }
-.col-overlay-head .col-ov-date { font-family:'Share Tech Mono',monospace; font-size:18px; color:var(--muted); }
+.col-overlay-head .col-ov-subtitle { font-size:15px; color:var(--blue); line-height:1.5; margin-bottom:4px; }
+.col-overlay-head .col-ov-date { font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--muted); }
 .col-overlay-close {
   position:absolute; top:14px; right:14px; z-index:2;
   width:44px; height:44px; border-radius:50%;
@@ -1000,7 +1000,13 @@ footer { position:relative; z-index:1; border-top:1px solid var(--border); paddi
   padding:20px 22px;
   -webkit-overflow-scrolling:touch;
 }
-.col-overlay-body p { font-size:23px; color:var(--text); line-height:1.85; margin:0 0 14px; }
+.col-overlay-body p { font-size:16px; color:var(--text); line-height:1.85; margin:0 0 14px; }
+@media (max-width:640px){
+  .col-overlay-head h2 { font-size:19px; }
+  .col-overlay-head .col-ov-subtitle { font-size:14px; }
+  .col-overlay-body p { font-size:15px; line-height:1.8; }
+  .col-overlay-body { padding:16px 16px; }
+}
 .col-overlay-foot {
   flex:0 0 auto;
   padding:12px 20px;
@@ -4894,12 +4900,8 @@ function renderBlog() {
       <div class="blog-card-footer">
         <span class="blog-card-date">🕐 ${c.updated}</span>
         <button type="button" class="like-btn ${liked?'on':''}" id="like${i}" aria-pressed="${liked?'true':'false'}" title="いいね" onclick="toggleLikeCard(${i})"><span class="like-heart">❤️</span><span class="like-count">${lcount}</span></button>
-        ${c.link
-          ? `<a class="blog-card-link" href="${c.link}" target="_blank">リンクを開く →</a>`
-          : isLong
-            ? `<button class="read-more-btn" id="rbtn${i}" onclick="toggleReadMore(${i})">続きを読む →</button>`
-            : ''
-        }
+        ${c.link ? `<a class="blog-card-link" href="${c.link}" target="_blank">リンクを開く →</a>` : ''}
+        ${isLong ? `<button class="read-more-btn" id="rbtn${i}" onclick="toggleReadMore(${i})">続きを読む →</button>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -5380,12 +5382,8 @@ function renderArchive(){
       ${renderBlogPhotos(c.images)}
       <div class="blog-card-footer">
         <span class="blog-card-date">🕐 ${c.updated}</span>
-        ${c.link
-          ? `<a class="blog-card-link" href="${c.link}" target="_blank">リンクを開く →</a>`
-          : isLong
-            ? `<button class="read-more-btn" id="arbtn${i}" onclick="toggleArchiveReadMore(${i})">続きを読む →</button>`
-            : ''
-        }
+        ${c.link ? `<a class="blog-card-link" href="${c.link}" target="_blank">リンクを開く →</a>` : ''}
+        ${isLong ? `<button class="read-more-btn" id="arbtn${i}" onclick="toggleArchiveReadMore(${i})">続きを読む →</button>` : ''}
       </div>
     </div>`;
   }).join('');
