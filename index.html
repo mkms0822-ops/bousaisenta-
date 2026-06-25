@@ -943,6 +943,72 @@ footer { position:relative; z-index:1; border-top:1px solid var(--border); paddi
 .read-more-btn { font-size:22px; color:var(--cyan); font-weight:700; cursor:pointer; background:none; border:none; padding:0; text-decoration:none; transition:opacity 0.2s; }
 .read-more-btn:hover { opacity:0.75; }
 
+/* ===== コラム全画面オーバーレイ（続きを読む → 全画面で記事全文） ===== */
+.col-overlay {
+  display:none; position:fixed; inset:0; z-index:99900;
+  background:rgba(4,8,15,0.86); backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  opacity:0; transition:opacity 0.25s ease;
+}
+.col-overlay.open { display:flex; opacity:1; }
+.col-overlay-panel {
+  position:relative;
+  margin:auto;
+  width:96%; max-width:860px;
+  height:94vh; max-height:94vh;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:18px;
+  box-shadow:0 24px 80px rgba(0,0,0,0.55);
+  display:flex; flex-direction:column;
+  overflow:hidden;
+  transform:translateY(16px) scale(0.98);
+  transition:transform 0.28s cubic-bezier(.2,.9,.3,1);
+}
+.col-overlay.open .col-overlay-panel { transform:translateY(0) scale(1); }
+.col-overlay-head {
+  flex:0 0 auto;
+  padding:18px 20px 14px;
+  border-bottom:1px solid var(--border);
+  background:var(--surface2);
+}
+.col-overlay-head .col-ov-tag {
+  display:inline-block; font-size:18px; letter-spacing:0.08em;
+  padding:2px 12px; border-radius:20px; font-weight:700; margin-bottom:8px;
+  background:rgba(0,232,122,0.12); color:var(--safe);
+}
+.col-overlay-head .col-ov-tag.info-tag { background:rgba(255,140,0,0.12); color:var(--accent2); }
+.col-overlay-head .col-ov-tag.tips-tag { background:rgba(0,180,255,0.12); color:var(--blue); }
+.col-overlay-head .col-ov-emoji { font-size:32px; line-height:1; margin-bottom:6px; }
+.col-overlay-head h2 {
+  font-size:30px; font-weight:700; line-height:1.4; margin:2px 0 4px; color:var(--text);
+}
+.col-overlay-head .col-ov-subtitle { font-size:22px; color:var(--blue); line-height:1.4; margin-bottom:4px; }
+.col-overlay-head .col-ov-date { font-family:'Share Tech Mono',monospace; font-size:18px; color:var(--muted); }
+.col-overlay-close {
+  position:absolute; top:14px; right:14px; z-index:2;
+  width:44px; height:44px; border-radius:50%;
+  background:var(--surface3); border:1px solid var(--border);
+  color:var(--text); font-size:24px; line-height:1; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition:background 0.2s, transform 0.1s;
+}
+.col-overlay-close:hover { background:var(--surface); }
+.col-overlay-close:active { transform:scale(0.92); }
+.col-overlay-body {
+  flex:1 1 auto; overflow-y:auto;
+  padding:20px 22px;
+  -webkit-overflow-scrolling:touch;
+}
+.col-overlay-body p { font-size:23px; color:var(--text); line-height:1.85; margin:0 0 14px; }
+.col-overlay-foot {
+  flex:0 0 auto;
+  padding:12px 20px;
+  border-top:1px solid var(--border);
+  background:var(--surface2);
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+}
+
 /* DISASTER TAB BAR */
 .disaster-tabs {
   display:flex; gap:0; background:var(--tab-bg);
@@ -4884,15 +4950,95 @@ function toggleColCompact(i){
   item.classList.toggle('open', !open);
 }
 
-function toggleReadMore(i) {  const short = document.getElementById('bshort'+i);
-  const full  = document.getElementById('bfull'+i);
-  const btn   = document.getElementById('rbtn'+i);
-  if (!full) return;
-  const isOpen = full.style.display === 'block';
-  full.style.display  = isOpen ? 'none' : 'block';
-  short.style.display = isOpen ? 'block' : 'none';
-  btn.textContent = isOpen ? '続きを読む →' : '閉じる ↑';
+// 「続きを読む」→ 記事全文を全画面オーバーレイで表示
+function toggleReadMore(i) {
+  openColOverlay(i);
 }
+
+let _colOvScrollY = 0; // オーバーレイを開く前のスクロール位置
+let _colOvIndex = -1;   // 現在開いているカードのindex
+
+function openColOverlay(i){
+  const c = blogCards[i];
+  if(!c) return;
+  _colOvIndex = i;
+  const ov = document.getElementById('colOverlay');
+  if(!ov) return;
+
+  const tc = c.tag==='prep'?'':c.tag==='info'?'info-tag':'tips-tag';
+  const tagLabel = TAG_OPTIONS.find(t=>t.val===c.tag)?.label||c.tag||'';
+  const body = (c.body||'').replace(/\n/g,'<br>');
+  const bid = bookmarkId(c);
+
+  // 見出し
+  const emojiEl = document.getElementById('colOvEmoji');
+  if(emojiEl) emojiEl.textContent = c.icon || '';
+  const tagEl = document.getElementById('colOvTag');
+  if(tagEl){
+    tagEl.className = 'col-ov-tag ' + tc;
+    tagEl.textContent = tagLabel;
+    tagEl.style.display = tagLabel ? '' : 'none';
+  }
+  const titleEl = document.getElementById('colOvTitle');
+  if(titleEl) titleEl.textContent = c.title || '';
+  const subEl = document.getElementById('colOvSubtitle');
+  if(subEl){
+    if(c.subtitle){ subEl.textContent = c.subtitle; subEl.style.display=''; }
+    else { subEl.textContent=''; subEl.style.display='none'; }
+  }
+  const dateEl = document.getElementById('colOvDate');
+  if(dateEl) dateEl.textContent = c.updated ? ('🕐 ' + c.updated) : '';
+
+  // 本文＋写真
+  const bodyEl = document.getElementById('colOvBody');
+  if(bodyEl){
+    bodyEl.innerHTML = `<p>${body}</p>` + renderBlogPhotos(c.images);
+    bodyEl.scrollTop = 0;
+  }
+
+  // フッター（いいね・リンク）
+  const footEl = document.getElementById('colOvFoot');
+  if(footEl){
+    const liked = isLiked(bid);
+    const lcount = likeCountOf(bid);
+    footEl.innerHTML =
+      `<button type="button" class="like-btn ${liked?'on':''}" id="ovlike" aria-pressed="${liked?'true':'false'}" title="いいね" onclick="toggleLikeCard(${i})"><span class="like-heart">❤️</span><span class="like-count">${lcount}</span></button>` +
+      (c.link ? `<a class="blog-card-link" href="${c.link}" target="_blank">リンクを開く →</a>` : '');
+  }
+
+  // 背面スクロールを固定
+  _colOvScrollY = window.scrollY || window.pageYOffset || 0;
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${_colOvScrollY}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  document.body.style.width = '100%';
+
+  ov.classList.add('open');
+  try { refreshLikeButtons(); } catch(e){}
+}
+
+function closeColOverlay(){
+  const ov = document.getElementById('colOverlay');
+  if(!ov) return;
+  ov.classList.remove('open');
+  _colOvIndex = -1;
+  // 背面スクロールの固定を解除して元の位置へ
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  document.body.style.width = '';
+  window.scrollTo(0, _colOvScrollY);
+}
+
+// Escキーで閉じる
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    const ov = document.getElementById('colOverlay');
+    if(ov && ov.classList.contains('open')) closeColOverlay();
+  }
+});
 
 // ===================== ブックマーク（個人用・ローカル保存） =====================
 // 防災コラムの記事を、各ユーザーが端末ローカルに保存して読み返せる機能。
@@ -5040,6 +5186,20 @@ function refreshLikeButtons(){
     const cnt = btn.querySelector('.like-count');
     if(cnt) cnt.textContent = likeCountOf(id);
   });
+  // 全画面オーバーレイが開いていれば、その中のいいねボタンも同期する
+  const ov = document.getElementById('colOverlay');
+  if(ov && ov.classList.contains('open') && _colOvIndex >= 0){
+    const oc = blogCards[_colOvIndex];
+    const ob = document.getElementById('ovlike');
+    if(oc && ob){
+      const oid = bookmarkId(oc);
+      const ol = isLiked(oid);
+      ob.classList.toggle('on', ol);
+      ob.setAttribute('aria-pressed', ol ? 'true' : 'false');
+      const oc2 = ob.querySelector('.like-count');
+      if(oc2) oc2.textContent = likeCountOf(oid);
+    }
+  }
 }
 
 function toggleLikeCard(i){
@@ -5065,6 +5225,8 @@ function toggleLikeCard(i){
       btn.classList.add('like-pop');
     }
   }
+  // オーバーレイ内のいいねボタンも即時同期
+  try { refreshLikeButtons(); } catch(e){}
 
   // サーバーへ反映（いいね／取り消しを履歴に保存＝自動保存）。結果のカウントを正とする。
   const uid = getLikeUid();
@@ -11846,5 +12008,21 @@ document.addEventListener('keydown', function(e){
   });
 })();
 </script>
+
+<!-- ===== コラム全画面オーバーレイ（「続きを読む」で記事全文を表示） ===== -->
+<div class="col-overlay" id="colOverlay" role="dialog" aria-modal="true" aria-labelledby="colOvTitle" onclick="if(event.target===this)closeColOverlay()">
+  <div class="col-overlay-panel">
+    <button type="button" class="col-overlay-close" aria-label="閉じる" onclick="closeColOverlay()">×</button>
+    <div class="col-overlay-head">
+      <div class="col-ov-emoji" id="colOvEmoji"></div>
+      <span class="col-ov-tag" id="colOvTag"></span>
+      <h2 id="colOvTitle"></h2>
+      <div class="col-ov-subtitle" id="colOvSubtitle" style="display:none;"></div>
+      <div class="col-ov-date" id="colOvDate"></div>
+    </div>
+    <div class="col-overlay-body" id="colOvBody"></div>
+    <div class="col-overlay-foot" id="colOvFoot"></div>
+  </div>
+</div>
 </body>
 </html>
