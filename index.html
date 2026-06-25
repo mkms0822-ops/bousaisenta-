@@ -7242,6 +7242,19 @@ const OPEN_SOUND_SRC = "dwa-open-sound-v2.mp3";
 (function(){
   const splash = document.getElementById('splashScreen');
   if(!splash) return;
+
+  // 機能設定の「オープニング_表示」がOFFのとき、ドア演出を出さずに即終了する。
+  // （この設定はGASからは少し遅れて届くため、前回受信時の値を localStorage に
+  //   キャッシュしておき、それを参照して判定する。初回や未取得時は従来通り再生。）
+  var _splashOff = false;
+  try{ _splashOff = (localStorage.getItem('splashEnabled') === '0'); }catch(e){}
+  if(_splashOff){
+    splash.classList.add('hidden');
+    // チュートリアル開始判定だけは通常どおり行う
+    try{ maybeStartTourOnFirstVisit(); }catch(e){}
+    return;
+  }
+
   // ===== オープニングサウンド（ネットフリックス風の二段ドゥン）=====
   function playOpeningSound(){
     var AC = window.AudioContext || window.webkitAudioContext;
@@ -8061,6 +8074,10 @@ function applySiteConfig(cfg){
   if(cfg.opening)   Object.assign(SITE_CONFIG.opening, cfg.opening);
   if(cfg.emergency) Object.assign(SITE_CONFIG.emergency, cfg.emergency);
   if(cfg.tutorial)  Object.assign(SITE_CONFIG.tutorial, cfg.tutorial);
+
+  // ドア演出(splash)は config 到着前に即実行されるため、最新の表示設定を
+  // localStorage にキャッシュしておき、次回起動時に splash 側がこれを参照する。
+  try{ localStorage.setItem('splashEnabled', SITE_CONFIG.opening.enabled ? '1' : '0'); }catch(e){}
 
   // メニューの「緊急モード」ボタンの表示／非表示
   var navEmg = document.getElementById('navEmergency');
