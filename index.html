@@ -7250,8 +7250,8 @@ const OPEN_SOUND_SRC = "dwa-open-sound-v2.mp3";
   try{ _splashOff = (localStorage.getItem('splashEnabled') === '0'); }catch(e){}
   if(_splashOff){
     splash.classList.add('hidden');
-    // チュートリアル開始判定だけは通常どおり行う
-    try{ maybeStartTourOnFirstVisit(); }catch(e){}
+    // ドア演出OFFのときは、チュートリアルも自動再生しない（連動）。
+    // ※メニューから手動でチュートリアルを開くことは引き続き可能。
     return;
   }
 
@@ -7565,7 +7565,13 @@ function maybeStartTourOnFirstVisit(){
         clearInterval(waiter);
         // 管理画面の「チュートリアル_初回スキップ」がONなら自動再生しない（即画面を開く）
         try{ if(SITE_CONFIG && SITE_CONFIG.tutorial && SITE_CONFIG.tutorial.skipFirst){ return; } }catch(e){}
-        setTimeout(startTour, 500);
+        // 緊急モードが発動中（または発動した）ときはチュートリアルを始めない
+        try{ if(typeof _emgActive !== 'undefined' && _emgActive){ return; } }catch(e){}
+        setTimeout(function(){
+          // 500ms待つ間に緊急モードへ移行した場合も開始しない
+          try{ if(typeof _emgActive !== 'undefined' && _emgActive){ return; } }catch(e){}
+          startTour();
+        }, 500);
       }
     }, 600);
   }, 1600); // 地震データ＋設定の取得を少し待ってから判定
@@ -8156,6 +8162,15 @@ function maybeAutoEmergency(qs){
       if(!top || (qs[i].shindo_num||0) > (top.shindo_num||0)) top = qs[i];
     }
     if(!top) return;
+    // 「最近発生した地震」のときだけ自動発動する。
+    // P2P地震APIは過去の地震履歴も返すため、時刻を見ないと古い地震で
+    // 毎回緊急モードが立ち上がってしまう。発生から AUTO_EMG_WINDOW_MIN 分
+    // 以内のものだけを対象にする。
+    var AUTO_EMG_WINDOW_MIN = 30;
+    var qt = new Date(String(top.time||'').replace(/\//g,'-').replace(' ', 'T'));
+    if(isNaN(qt.getTime())) return;                 // 時刻不明は発動しない
+    var ageMin = (Date.now() - qt.getTime()) / 60000;
+    if(ageMin > AUTO_EMG_WINDOW_MIN || ageMin < -5) return; // 古い／未来日時は対象外
     var id = (top.time||'') + '_' + (top.name||'') + '_' + (top.shindo_num||0);
     if(_emgAutoQuakeId === id) return; // 同じ地震では一度だけ
     var th = shindoThresholdToScale_(SITE_CONFIG.emergency.autoShindo);
