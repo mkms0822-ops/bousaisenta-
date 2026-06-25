@@ -2624,6 +2624,11 @@ html.light .scale-item.lv1 { background:rgba(0,0,0,0.04); border-color:rgba(0,0,
 .chat-send-btn:hover{opacity:.88;}
 .chat-send-btn:disabled{opacity:.5;cursor:default;}
 .chat-note{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6;}
+.dengon-cta{text-align:center;}
+.dengon-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;max-width:420px;margin:6px auto 4px;padding:16px 20px;border-radius:12px;font-size:16px;font-weight:800;letter-spacing:.02em;text-decoration:none;color:#fff;background:linear-gradient(135deg,#0066d6,#00b4ff);border:1px solid rgba(0,180,255,.5);box-shadow:0 6px 18px rgba(0,120,220,.35);transition:transform .12s ease,box-shadow .12s ease;}
+.dengon-btn:hover{transform:translateY(-1px);box-shadow:0 9px 24px rgba(0,120,220,.45);}
+.dengon-btn:active{transform:translateY(0);opacity:.9;}
+.dengon-cta .chat-note{margin-top:12px;text-align:left;}
 .chat-login-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;}
 .chat-login-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;}
 .chat-login-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px;}
@@ -3215,9 +3220,9 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <button class="hamburger-link" onclick="enterMode('quake');closeHamburger();" style="color:#00ffe0;border-color:rgba(0,255,224,0.25);background:rgba(0,255,224,0.06);width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">🖥️</span>地震監視モード
       </button>
-      <button class="hamburger-link" onclick="enterMode('chat');closeHamburger();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:rgba(0,180,255,0.05);width:100%;text-align:left;cursor:pointer;">
-        <span class="h-link-icon">💬</span>チャットモード
-      </button>
+      <a class="hamburger-link" href="https://mkms0822-ops.github.io/saigaidengonban/" target="_blank" rel="noopener" onclick="closeHamburger();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:rgba(0,180,255,0.05);width:100%;text-align:left;cursor:pointer;display:flex;align-items:center;text-decoration:none;">
+        <span class="h-link-icon">📨</span>災害用伝言板
+      </a>
 
       <div class="hamburger-section-label">// 防災情報</div>
       <a class="hamburger-link" data-tour="bousai-shindan" href="https://mkms0822-ops.github.io/anatano-bousai-shindan/" target="_blank" rel="noopener" style="color:#00ffe0;border-color:rgba(0,255,224,0.3);background:rgba(0,255,224,0.07);">
@@ -4300,34 +4305,11 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
 <!-- みんなのひとことチャット -->
 <span id="chat-restore-anchor" style="display:none;"></span>
 <div id="section-chat" class="chat-section" data-tour="chat">
-  <div class="section-head anim-ready anim-left">// 💬 みんなのひとことチャット</div>
-  <div class="chat-box">
-    <p class="chat-lead">防災情報の共有や、ひとことメッセージを書き込めます。<br>閲覧は誰でもできます。書き込みには引き継ぎコードでの参加（ログイン）が必要です。</p>
-    <div class="chat-messages" id="chatMessages">
-      <div class="chat-empty">メッセージを読み込み中…</div>
-    </div>
-
-    <!-- 未ログイン時：参加フォーム -->
-    <div id="chatLoginBox" class="chat-login-box">
-      <div class="chat-login-title">🔑 チャットに参加する</div>
-      <div class="chat-login-desc">スタンプカードの「引き継ぎコード」を入力すると参加できます。表示名は初回に決めると、以後固定されます（なりすまし防止）。</div>
-      <input type="text" id="chatLoginCode" class="chat-name-input" maxlength="13" placeholder="引き継ぎコード（例：DWA-AB12-CD34）" style="text-transform:uppercase;">
-      <input type="text" id="chatLoginName" class="chat-name-input" maxlength="20" placeholder="表示名（初回のみ・空欄で匿名）" style="margin-top:8px;">
-      <button type="button" id="chatLoginBtn" class="chat-send-btn" style="margin-top:8px;width:100%;" onclick="chatLogin()">参加する</button>
-      <div class="chat-login-help">コードが分からない場合は、設定 →「スタンプカード」から確認できます。</div>
-    </div>
-
-    <!-- ログイン後：投稿フォーム -->
-    <div id="chatPostBox" class="chat-input-row" style="display:none;">
-      <div class="chat-loggedin" id="chatLoggedin"></div>
-      <div class="chat-send-row">
-        <input type="text" id="chatMessage" class="chat-msg-input" maxlength="140" placeholder="メッセージを入力（140字まで）" onkeydown="if(event.key==='Enter')submitChat()">
-        <button type="button" id="chatSendBtn" class="chat-send-btn" onclick="submitChat()">送信</button>
-      </div>
-      <button type="button" class="chat-logout-btn" onclick="chatLogout()">ログアウト</button>
-    </div>
-
-    <div class="chat-note">※ 投稿は自動更新されます。不適切な投稿は「⚠ 通報」でお知らせください。</div>
+  <div class="section-head anim-ready anim-left">// 📨 災害用伝言板</div>
+  <div class="chat-box dengon-cta">
+    <p class="chat-lead">災害時の安否や連絡を書き残せる「災害用伝言板」を、専用ページでご用意しました。<br>引き継ぎコードで参加でき、ひとことメッセージを共有できます。</p>
+    <a class="dengon-btn" href="https://mkms0822-ops.github.io/saigaidengonban/" target="_blank" rel="noopener">📨 災害用伝言板をひらく</a>
+    <div class="chat-note">※ 伝言板は別ページで開きます。閲覧は誰でも、書き込みには引き継ぎコードでの参加が必要です。緊急の通報・救助要請は <b>119番／110番</b> へ。</div>
   </div>
 </div>
 
@@ -4929,7 +4911,7 @@ function submitSponsor(){
     <a href="#section-column" onclick="smoothScroll('section-column')">防災コラム</a>
     <a href="#section-map" onclick="smoothScroll('section-map')">避難所マップ</a>
     <a href="#section-review" onclick="smoothScroll('section-review')">口コミ</a>
-    <a href="#section-chat" onclick="smoothScroll('section-chat')">チャット</a>
+    <a href="#section-chat" onclick="smoothScroll('section-chat')">災害用伝言板</a>
     <a href="#section-share" onclick="smoothScroll('section-share')">友達に共有</a>
     <a href="#" onclick="openSponsorModal();return false;">協賛企業募集</a>
   </div>
@@ -7717,7 +7699,7 @@ const tourSteps = [
   { sel:'.quake-list', title:'地震リスト', text:'最近発生した地震の一覧です。カードをタップすると詳細が表示されます。', fallbackToTop:true },
   { sel:'[data-tour="bookmark"]', selAlt:'#section-column', title:'🔖 ブックマーク', text:'防災記事カードの右上にあるこのマークをタップすると、その記事をブックマーク（お気に入り保存）できます。あとで読み返したい「備え」や「ヒント」を保存しておくと、必要なときにすぐ見返せます。', onShow:scrollToColumnForTour, fallbackToTop:true },
   { sel:'[data-tour="review"]', title:'⭐ 口コミ・レビュー', text:'このサイトの感想や評価を投稿できるコーナーです。星の数と一言コメントで、使ってみての感想をぜひ聞かせてください。みんなの口コミも読めます。', fallbackToTop:true },
-  { sel:'[data-tour="chat"]', title:'💬 みんなのひとことチャット', text:'防災情報の共有や、ひとことメッセージを書き込めるチャットです。閲覧は誰でもできます。書き込みには「引き継ぎコード」での参加（ログイン）が必要です。地域の気づきや声かけにご活用ください。', fallbackToTop:true },
+  { sel:'[data-tour="chat"]', title:'📨 災害用伝言板', text:'災害時の安否や連絡を書き残せる「災害用伝言板」です。ボタンから専用ページが開きます。閲覧は誰でもでき、書き込みには「引き継ぎコード」での参加が必要です。', fallbackToTop:true },
   { sel:'[data-tour="share"]', title:'📤 友達紹介リンク', text:'あなた専用の紹介リンクで、このサイトを友達に教えられます。紹介リンクから友達がアクセスすると、あなたと友達の両方にスタンプを1つずつプレゼント。LINEやXでかんたんに共有できます。', fallbackToTop:true },
   { sel:'#stampFab', title:'🎁 防災スタンプカード', text:'毎日サイトを開くと、画面右下のこのボタンから1日1個スタンプを押せます。10個・20個貯まると防災グッズのプレゼントに応募できます。さっそく押してみましょう！', showStamp:true, fallbackToCorner:true, onShow:closeDtabsForTour },
   { sel:'#pwInput', title:'🔒 復元用パスワード（任意）', text:'スタンプカードの中には「復元用パスワード」を設定できる欄があります。パスワードを決めておくと、機種変更などで別の端末にデータを引き継ぐとき、引き継ぎコードに加えてこのパスワードが必要になります。他人にコードを知られても大切なスタンプ記録を守れます。設定は任意です。忘れた場合は運営でリセットできます。', onShow:openStampCardForTour },
@@ -9888,6 +9870,7 @@ function appendLocalChat(name, message){
 }
 
 async function loadChat(){
+  if(!document.getElementById('chatMessages')) return; // チャットUIは伝言板へ移行済み（要素が無ければ何もしない）
   if(!ARTICLES_URL || ARTICLES_URL.indexOf('http') !== 0) return;
   try{
     const res = await fetch(ARTICLES_URL + '?type=chat&_=' + Date.now(), { method:'GET' });
@@ -10740,7 +10723,7 @@ function openContactFromStamp(){
 function openChatFromStamp(){
   closeStampCard({noScroll:true});
   setTimeout(function(){
-    try { enterMode('chat'); }
+    try { window.open('https://mkms0822-ops.github.io/saigaidengonban/', '_blank', 'noopener'); }
     catch(e){ try { smoothScroll('section-chat'); } catch(_){} }
   }, 80);
 }
@@ -11644,7 +11627,7 @@ function sendSiteInquiry(){
       <p class="sh-note">ご不明な点は、お問い合わせ窓口かチャットでも受け付けしております。</p>
       <div class="stamp-help-links">
         <button type="button" class="stamp-help-link contact" onclick="openContactFromStamp()">📬 お問い合わせ</button>
-        <button type="button" class="stamp-help-link chat" onclick="openChatFromStamp()">💬 チャット</button>
+        <button type="button" class="stamp-help-link chat" onclick="openChatFromStamp()">📨 災害用伝言板</button>
       </div>
     </div>
     <button class="stamp-close-btn" onclick="closeStampCard()">とじる</button>
