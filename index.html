@@ -2039,7 +2039,7 @@ html.light .site-refresh-btn:hover { background:rgba(0,100,180,0.1); }
 
 /* ===================== 緊急モード（全画面警告） ===================== */
 html.mode-emg{ overflow:hidden; }
-#emergencyScreen{ position:fixed; inset:0; z-index:99000; display:none;
+#emergencyScreen{ position:fixed; inset:0; z-index:100200; display:none;
   flex-direction:column; align-items:center; justify-content:flex-start;
   background:linear-gradient(160deg,#2a0606 0%,#160404 60%,#0a0202 100%);
   color:#ffe9e9; padding:0; overflow-y:auto; }
@@ -8077,7 +8077,7 @@ function resetMode(){ exitMode(); }
    ============================================================ */
 var SITE_CONFIG = {
   opening:{ enabled:true, everyVisit:false, title:'防災情報センター', subtitle:'DISASTER WARNING ACCOUNT', seconds:2.6 },
-  emergency:{ manualButton:true, auto:true, autoShindo:5, heading:'緊急情報モード', message:'身の安全を最優先に行動してください。' },
+  emergency:{ mode:'auto', manualButton:true, auto:true, autoShindo:5, heading:'緊急情報モード', message:'身の安全を最優先に行動してください。' },
   tutorial:{ skipFirst:false }
 };
 var _configApplied = false;
@@ -8092,6 +8092,15 @@ function applySiteConfig(cfg){
   // ドア演出(splash)は config 到着前に即実行されるため、最新の表示設定を
   // localStorage にキャッシュしておき、次回起動時に splash 側がこれを参照する。
   try{ localStorage.setItem('splashEnabled', SITE_CONFIG.opening.enabled ? '1' : '0'); }catch(e){}
+
+  // 緊急モードの「動作モード」（自動 / 手動 / OFF）を反映する。
+  // mode が来ていればそれを最優先にし、manualButton・auto を導出する。
+  // （旧設定しか無い古いデータでも動くよう、mode が無ければ従来値を使う）
+  var emg = SITE_CONFIG.emergency;
+  var mode = String(emg.mode || '').toLowerCase();
+  if(mode === 'auto' || mode === '自動'){ emg.auto = true;  emg.manualButton = true;  emg.mode = 'auto'; }
+  else if(mode === 'manual' || mode === '手動'){ emg.auto = false; emg.manualButton = true;  emg.mode = 'manual'; }
+  else if(mode === 'off' || mode === 'なし' || mode === 'オフ' || mode === '無効'){ emg.auto = false; emg.manualButton = false; emg.mode = 'off'; }
 
   // メニューの「緊急モード」ボタンの表示／非表示
   var navEmg = document.getElementById('navEmergency');
@@ -8132,6 +8141,8 @@ function enterEmergency(reason, quake){
   try{ if(_currentMode) exitMode(); }catch(e){}
   try{ var ov=document.getElementById('tourOverlay'); if(ov) ov.classList.remove('open'); }catch(e){}
   try{ closeOpening(); }catch(e){}
+  // 扉(splash)が残っていると最前面を覆うため確実に隠す
+  try{ var sp=document.getElementById('splashScreen'); if(sp) sp.classList.add('hidden'); }catch(e){}
   // 地震情報があれば表示
   var box = document.getElementById('emgQuakeBox');
   if(quake && box){
