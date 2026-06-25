@@ -672,7 +672,9 @@ body { padding-top: var(--topbar-h, 0px); }
 }
 .topad:hover .topad-track{ animation-play-state:paused; }
 .topad-track a{ display:inline-flex; align-items:center; line-height:0; flex-shrink:0; }
-.topad-track img{ height:60px; width:auto; display:block; }
+.topad-track img{ height:40px; width:auto; display:block; }
+/* スツーレは正方形で面積が大きく見えるため少し小さく */
+.topad-track a.topad-sq img{ height:34px; }
 @keyframes topadMarquee{
   from{ transform:translateX(0); }
   to{ transform:translateX(-50%); }
@@ -682,7 +684,7 @@ body { padding-top: var(--topbar-h, 0px); }
 }
 @media(max-width:520px){
   .topad{ margin-top:10px; }
-  .topad-track img{ height:46px; }
+  .topad-track img{ height:34px; }
 }
 
 /* MAIN LAYOUT */
@@ -3764,11 +3766,11 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <!-- 1セット目 -->
       <a href="https://px.a8.net/svt/ejp?a8mat=4B63GJ+F5YIIA+4VA0+5Z6WX" rel="nofollow noopener sponsored" target="_blank"><img src="https://www29.a8.net/svt/bgt?aid=260624899917&wid=001&eno=01&mid=s00000022716001004000&mc=1" alt="EcoFlow ポータブル電源"></a>
       <a href="https://px.a8.net/svt/ejp?a8mat=4B648K+8CNX9U+4OAC+HXKQP" rel="nofollow noopener sponsored" target="_blank"><img src="https://www20.a8.net/svt/bgt?aid=260625908505&wid=001&eno=01&mid=s00000021810003012000&mc=1" alt="魔法のかまどごはん"></a>
-      <a href="https://px.a8.net/svt/ejp?a8mat=4B648K+70FT9U+5VK4+5YZ75" rel="nofollow noopener sponsored" target="_blank"><img src="https://www23.a8.net/svt/bgt?aid=260625908424&wid=001&eno=01&mid=s00000027418001003000&mc=1" alt="防災ブランド スツーレ"></a>
+      <a class="topad-sq" href="https://px.a8.net/svt/ejp?a8mat=4B648K+70FT9U+5VK4+5YZ75" rel="nofollow noopener sponsored" target="_blank"><img src="https://www23.a8.net/svt/bgt?aid=260625908424&wid=001&eno=01&mid=s00000027418001003000&mc=1" alt="防災ブランド スツーレ"></a>
       <!-- 2セット目（シームレスループ用の複製） -->
       <a href="https://px.a8.net/svt/ejp?a8mat=4B63GJ+F5YIIA+4VA0+5Z6WX" rel="nofollow noopener sponsored" target="_blank"><img src="https://www29.a8.net/svt/bgt?aid=260624899917&wid=001&eno=01&mid=s00000022716001004000&mc=1" alt="EcoFlow ポータブル電源"></a>
       <a href="https://px.a8.net/svt/ejp?a8mat=4B648K+8CNX9U+4OAC+HXKQP" rel="nofollow noopener sponsored" target="_blank"><img src="https://www20.a8.net/svt/bgt?aid=260625908505&wid=001&eno=01&mid=s00000021810003012000&mc=1" alt="魔法のかまどごはん"></a>
-      <a href="https://px.a8.net/svt/ejp?a8mat=4B648K+70FT9U+5VK4+5YZ75" rel="nofollow noopener sponsored" target="_blank"><img src="https://www23.a8.net/svt/bgt?aid=260625908424&wid=001&eno=01&mid=s00000027418001003000&mc=1" alt="防災ブランド スツーレ"></a>
+      <a class="topad-sq" href="https://px.a8.net/svt/ejp?a8mat=4B648K+70FT9U+5VK4+5YZ75" rel="nofollow noopener sponsored" target="_blank"><img src="https://www23.a8.net/svt/bgt?aid=260625908424&wid=001&eno=01&mid=s00000027418001003000&mc=1" alt="防災ブランド スツーレ"></a>
     </div>
   </div>
   <!-- 計測gif -->
