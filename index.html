@@ -652,6 +652,28 @@ body { padding-top: var(--topbar-h, 0px); }
 .ticker-text { font-family:'Share Tech Mono',monospace; font-size:24px; white-space:nowrap; animation:ticker 35s linear infinite; display:inline-block; }
 @keyframes ticker { 0%{transform:translateX(100vw);} 100%{transform:translateX(-100%);} }
 
+/* ===== 上部 広告ローテーションバナー ===== */
+.topad{
+  max-width:1280px; margin:14px auto 0; padding:10px 14px;
+  display:flex; align-items:center; justify-content:center; gap:12px;
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  position:relative; z-index:1;
+}
+.topad-pr{
+  font-family:'Orbitron',monospace; font-size:9px; font-weight:700; letter-spacing:.14em;
+  color:var(--muted); background:rgba(0,180,255,0.10); border:1px solid var(--border);
+  padding:3px 8px; border-radius:5px; flex-shrink:0;
+}
+.topad-stage{ position:relative; min-height:60px; display:flex; align-items:center; justify-content:center; flex:0 1 auto; }
+.topad-slide{
+  display:none; line-height:0; opacity:0; transition:opacity .5s ease;
+}
+.topad-slide.on{ display:inline-block; opacity:1; }
+.topad-slide img{ max-width:100%; height:auto; }
+@media(max-width:520px){
+  .topad{ margin-top:10px; padding:8px 10px; gap:8px; }
+}
+
 /* MAIN LAYOUT */
 main { position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:28px 24px; display:grid; grid-template-columns:1fr 300px; gap:22px; align-items:start; }
 
@@ -3721,6 +3743,23 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
   <a class="d-tab other" href="https://www.jma.go.jp/bosai/risk/" target="_blank">
     <span class="tab-icon">🚨</span>大雨危険度
   </a>
+</div>
+
+<!-- ===== 上部 広告ローテーションバナー（緊急テロップの下／PR） ===== -->
+<div class="topad" id="topAd" aria-label="広告">
+  <span class="topad-pr">PR</span>
+  <div class="topad-stage" id="topAdStage">
+    <!-- EcoFlow 468x60 -->
+    <a class="topad-slide on" href="https://px.a8.net/svt/ejp?a8mat=4B63GJ+F5YIIA+4VA0+5Z6WX" rel="nofollow noopener sponsored" target="_blank"><img src="https://www29.a8.net/svt/bgt?aid=260624899917&wid=001&eno=01&mid=s00000022716001004000&mc=1" width="468" height="60" alt=""></a>
+    <!-- タイガー 魔法のかまどごはん 350x160 -->
+    <a class="topad-slide" href="https://px.a8.net/svt/ejp?a8mat=4B648K+8CNX9U+4OAC+HXKQP" rel="nofollow noopener sponsored" target="_blank"><img src="https://www20.a8.net/svt/bgt?aid=260625908505&wid=001&eno=01&mid=s00000021810003012000&mc=1" width="350" height="160" alt=""></a>
+    <!-- スツーレ 300x250 -->
+    <a class="topad-slide" href="https://px.a8.net/svt/ejp?a8mat=4B648K+70FT9U+5VK4+5YZ75" rel="nofollow noopener sponsored" target="_blank"><img src="https://www23.a8.net/svt/bgt?aid=260625908424&wid=001&eno=01&mid=s00000027418001003000&mc=1" width="300" height="250" alt=""></a>
+  </div>
+  <!-- 計測gif -->
+  <img src="https://www11.a8.net/0.gif?a8mat=4B63GJ+F5YIIA+4VA0+5Z6WX" width="1" height="1" alt="" style="position:absolute;left:-9999px;">
+  <img src="https://www10.a8.net/0.gif?a8mat=4B648K+8CNX9U+4OAC+HXKQP" width="1" height="1" alt="" style="position:absolute;left:-9999px;">
+  <img src="https://www11.a8.net/0.gif?a8mat=4B648K+70FT9U+5VK4+5YZ75" width="1" height="1" alt="" style="position:absolute;left:-9999px;">
 </div>
 
 <!-- ===== MAIN ===== -->
@@ -12170,5 +12209,30 @@ document.addEventListener('keydown', function(e){
     <div class="col-overlay-foot" id="colOvFoot"></div>
   </div>
 </div>
+
+<!-- ===== 上部広告バナー ローテーション ===== -->
+<script>
+(function(){
+  var stage = document.getElementById('topAdStage');
+  if(!stage) return;
+  var slides = stage.querySelectorAll('.topad-slide');
+  if(slides.length <= 1) return;
+  var idx = 0;
+  var INTERVAL = 6000; // 6秒ごとに切替
+  var timer = null;
+  function show(n){
+    slides[idx].classList.remove('on');
+    idx = (n + slides.length) % slides.length;
+    slides[idx].classList.add('on');
+  }
+  function start(){ if(!timer) timer = setInterval(function(){ show(idx+1); }, INTERVAL); }
+  function stop(){ if(timer){ clearInterval(timer); timer = null; } }
+  // タブが非表示の間は止めてリソース節約
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'hidden') stop(); else start();
+  });
+  start();
+})();
+</script>
 </body>
 </html>
