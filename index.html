@@ -668,13 +668,13 @@ body { padding-top: var(--topbar-h, 0px); }
 .topad-stage{ flex:1; overflow:hidden; position:relative; }
 .topad-track{
   display:flex; align-items:center; gap:40px; width:max-content;
-  animation:topadMarquee 40s linear infinite;
+  animation:topadMarquee 13s linear infinite;
 }
 .topad:hover .topad-track{ animation-play-state:paused; }
 .topad-track a{ display:inline-flex; align-items:center; line-height:0; flex-shrink:0; }
-.topad-track img{ height:40px; width:auto; display:block; }
+.topad-track img{ height:80px; width:auto; display:block; }
 /* スツーレは正方形で面積が大きく見えるため少し小さく */
-.topad-track a.topad-sq img{ height:34px; }
+.topad-track a.topad-sq img{ height:68px; }
 @keyframes topadMarquee{
   from{ transform:translateX(0); }
   to{ transform:translateX(-50%); }
@@ -685,6 +685,7 @@ body { padding-top: var(--topbar-h, 0px); }
 @media(max-width:520px){
   .topad{ margin-top:10px; }
   .topad-track img{ height:34px; }
+  .topad-track a.topad-sq img{ height:30px; }
 }
 
 /* MAIN LAYOUT */
