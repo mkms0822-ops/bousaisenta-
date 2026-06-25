@@ -7748,16 +7748,30 @@ function maybeStartTourOnFirstVisit(){
   // また、機能設定(config)が届く前に判定すると「初回スキップ」が効かないため、
   // config の到着（_configApplied）も待つ。最大 _maxWaitMs まで待ってフォールバック。
   var _waitStart = Date.now();
-  var _maxWaitMs = 6000; // configが来ない環境でも、この時間で既定動作に進む
+  var _maxWaitMs = 8000; // configやお知らせが来ない環境でも、この時間で既定動作に進む
   setTimeout(function(){
     const waiter = setInterval(function(){
       const ov = document.getElementById('eewOverlay');
       const opening = document.getElementById('openingScreen');
       const openingShown = opening && opening.classList.contains('show');
+      const splash = document.getElementById('splashScreen');
+      const splashShown = splash && !splash.classList.contains('hidden') && !splash.classList.contains('fade-out');
+      // お知らせポップアップ表示中／表示予定の間は待機
+      // （オープニング→ポップアップ→チュートリアルの順を厳守）
+      const noticeOv = document.getElementById('noticeOverlay');
+      const noticeShown = noticeOv && noticeOv.classList.contains('open');
+      var noticePending = (typeof _noticePending !== 'undefined' && _noticePending);
+      var noticesLoaded = (typeof _noticesLoaded === 'undefined') ? true : _noticesLoaded;
       var configReady = (typeof _configApplied !== 'undefined' && _configApplied);
       var timedOut = (Date.now() - _waitStart) > _maxWaitMs;
-      // EEW・オープニング表示が消え、かつ（configが届いた or タイムアウト）したら判定へ
-      if((!ov || !ov.classList.contains('active')) && !openingShown && (configReady || timedOut)){
+      // お知らせ取得がまだ完了していない間は、未読の有無が確定しないので待つ
+      // （ただしタイムアウトしたら取得を諦めて先に進む）
+      var noticesReady = noticesLoaded || timedOut;
+      // EEW・オープニング(扉/アンテナ)・ポップアップが消え、ポップアップ予定も無く、
+      // お知らせ取得が確定し、かつ（configが届いた or タイムアウト）したら判定へ。
+      // ※ポップアップ表示中・表示予定の間はタイムアウトしても待ち続ける（順序を最優先）
+      if((!ov || !ov.classList.contains('active')) && !openingShown && !splashShown
+         && !noticeShown && !noticePending && noticesReady && (configReady || timedOut)){
         clearInterval(waiter);
         // 管理画面の「チュートリアル_初回スキップ」がONなら自動再生しない（即画面を開く）
         try{ if(SITE_CONFIG && SITE_CONFIG.tutorial && SITE_CONFIG.tutorial.skipFirst){ return; } }catch(e){}
@@ -7859,11 +7873,9 @@ function endTour(completed){
   // 最後まで進んだ場合のみ、設定内チュートリアルへの導線を表示
   if(completed){ showTourDoneDialog(); }
 
-  // チュートリアル完了後に、お知らせ・バージョンアップのポップアップを表示する。
-  // （初回はここで初めて出す。少し待って完了ダイアログと重ならないようにする）
-  setTimeout(function(){
-    try { if(typeof loadNotices === 'function') loadNotices(); } catch(e){}
-  }, completed ? 1200 : 300);
+  // お知らせ・バージョンアップのポップアップは、起動時に
+  // 「オープニング → ポップアップ → チュートリアル」の順で表示済みのため、
+  // チュートリアル完了後にここで再度出すことはしない（逆順・二重表示の防止）。
 }
 
 // チュートリアル完了後の案内ダイアログ
@@ -9228,6 +9240,8 @@ setInterval(loadReviews, 5 * 60 * 1000);
 // 「更新履歴を参照」はサイト内オーバーレイで過去のお知らせ一覧を表示する。
 const NOTICE_DISMISS_KEY = 'dismissed_notices';
 let _allNotices = [];
+let _noticesLoaded = false;  // お知らせの取得が完了したか
+let _noticePending = false;  // 未読ポップアップを出す予定／表示中か（チュートリアルはこれが消えるまで待つ）
 
 // 非表示にしたお知らせIDの集合を取得
 function _getDismissedNotices(){
@@ -9306,9 +9320,16 @@ async function loadNotices(){
       return tb - ta;
     });
     _allNotices = list;
-    console.log('[loadNotices] notices received:', list.length);
+    _noticesLoaded = true;
+    // 未読が1件でもあれば「ポップアップを出す予定」とする（チュートリアルはこれを待つ）
+    try {
+      const _dismissed = _getDismissedNotices();
+      _noticePending = _allNotices.some(function(n){ return _dismissed.indexOf(_noticeKey(n)) < 0; });
+    } catch(e){ _noticePending = _allNotices.length > 0; }
+    console.log('[loadNotices] notices received:', list.length, 'pending:', _noticePending);
     maybeShowLatestNotice();
   } catch(e){
+    _noticesLoaded = true; // 取得失敗でもチュートリアルを止めないため完了扱い
     console.warn('[loadNotices] failed:', e);
   }
 }
@@ -9317,6 +9338,15 @@ async function loadNotices(){
 let _noticeQueue = [];   // これから表示する未読お知らせ（新しい順）
 function maybeShowLatestNotice(){
   if(!_allNotices.length) return;
+  // オープニングアニメーション表示中は出さない（必ずオープニングが終わってから出す）
+  const openingScr = document.getElementById('openingScreen');
+  const splashScr  = document.getElementById('splashScreen');
+  const openingShown = openingScr && openingScr.classList.contains('show');
+  const splashShown  = splashScr && !splashScr.classList.contains('hidden') && !splashScr.classList.contains('fade-out');
+  if(openingShown || splashShown){
+    setTimeout(maybeShowLatestNotice, 400);
+    return;
+  }
   // チュートリアル表示中は競合を避けて出さない
   const tour = document.getElementById('tourOverlay');
   if(tour && tour.classList.contains('open')){
@@ -9369,6 +9399,7 @@ function nextOrCloseNotice(){
 
 function closeNotice(){
   _noticeQueue = []; // 残りキューを破棄（×や背景クリックで「もう見ない」意思とみなす）
+  _noticePending = false; // ポップアップ消化完了 → チュートリアルへ進んでよい
   const ov = document.getElementById('noticeOverlay');
   if(ov) ov.classList.remove('open');
 }
@@ -9461,15 +9492,15 @@ function _hasSeenTutorial(){
 }
 
 // 起動時のお知らせ＆リンク処理。
-// ・チュートリアル済みの人 … 今までどおりすぐ実行。
-// ・初回（チュートリアル未）の人 … ここでは実行せず、チュートリアル完了後に endTour から呼ばれる。
+// 表示順は「オープニング → お知らせポップアップ → チュートリアル」に統一する。
+// ・loadNotices 内のポップアップはオープニング表示中は待機する。
+// ・チュートリアル（maybeStartTourOnFirstVisit）はポップアップが消えるまで待機する。
+// よって初回・再訪のどちらでも、ここで起動時に一度だけ呼べば順序が守られる。
 function runStartupNoticesAndLinks(){
   loadNotices();
   openModalFromHash();
 }
-if(_hasSeenTutorial()){
-  runStartupNoticesAndLinks();
-}
+runStartupNoticesAndLinks();
 // 同じページ内でハッシュだけ変わったとき（リンクから遷移した場合）には常に対応
 window.addEventListener('hashchange', openModalFromHash);
 
