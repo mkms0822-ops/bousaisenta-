@@ -961,6 +961,13 @@ main { position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:28
 .aff-note { font-size:9px; color:var(--muted); margin-top:4px; }
 .ext-link:hover { background:rgba(0,180,255,0.14); border-color:rgba(0,180,255,0.32); }
 .update-bar { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); text-align:center; padding:8px; margin-bottom:8px; }
+/* ===== 公式LINE 友だち追加ウィジェット ===== */
+.line-widget{ border-color:rgba(6,199,85,0.45); box-shadow:0 0 0 1px rgba(6,199,85,0.12) inset; }
+.line-widget .sw-title{ color:#06c755; }
+.line-lead{ font-size:12px; color:var(--text); line-height:1.7; margin:8px 0 12px; }
+.line-btn{ display:flex; justify-content:center; }
+.line-btn img{ height:40px; width:auto; transition:transform .2s, filter .2s; border-radius:6px; }
+.line-btn:hover img{ transform:translateY(-1px); filter:brightness(1.05); }
 .refresh-btn { width:100%; padding:11px; background:rgba(0,180,255,0.1); border:1px solid rgba(0,180,255,0.28); border-radius:8px; color:var(--blue); font-family:'Orbitron',monospace; font-size:11px; letter-spacing:0.12em; cursor:pointer; transition:all 0.2s; }
 .refresh-btn:hover { background:rgba(0,180,255,0.2); }
 .refresh-btn:disabled { opacity:0.4; cursor:not-allowed; }
@@ -4003,6 +4010,14 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     <div class="swidget anim-ready anim-right">
       <div class="update-bar" id="updateBar">最終更新: 取得中...</div>
       <button class="refresh-btn" id="refreshBtn" onclick="fetchQuakes()">↻ 今すぐ更新</button>
+    </div>
+
+    <div class="swidget line-widget anim-ready anim-right">
+      <div class="sw-title">// 公式LINE</div>
+      <p class="line-lead">災害・地震の最新情報をLINEでお届け。友だち追加で防災速報を受け取れます。</p>
+      <a class="line-btn" href="https://lin.ee/QqUtAhJ" target="_blank" rel="noopener">
+        <img src="https://scdn.line-apps.com/n/line_add_friends/btn/ja.png" alt="友だち追加" height="40" border="0">
+      </a>
     </div>
 
     <div class="swidget anim-ready anim-right anim-delay-1">
