@@ -7565,13 +7565,20 @@ function maybeStartTourOnFirstVisit(){
   let seen = false;
   try { seen = localStorage.getItem(TOUR_KEY) === 'true'; } catch(e){}
   if(seen) return;
-  // 全画面の地震警報（EEWオーバーレイ）が表示中の間は待ち、閉じられてから開始する
+  // 全画面の地震警報（EEWオーバーレイ）が表示中の間は待ち、閉じられてから開始する。
+  // また、機能設定(config)が届く前に判定すると「初回スキップ」が効かないため、
+  // config の到着（_configApplied）も待つ。最大 _maxWaitMs まで待ってフォールバック。
+  var _waitStart = Date.now();
+  var _maxWaitMs = 6000; // configが来ない環境でも、この時間で既定動作に進む
   setTimeout(function(){
     const waiter = setInterval(function(){
       const ov = document.getElementById('eewOverlay');
       const opening = document.getElementById('openingScreen');
       const openingShown = opening && opening.classList.contains('show');
-      if((!ov || !ov.classList.contains('active')) && !openingShown){
+      var configReady = (typeof _configApplied !== 'undefined' && _configApplied);
+      var timedOut = (Date.now() - _waitStart) > _maxWaitMs;
+      // EEW・オープニング表示が消え、かつ（configが届いた or タイムアウト）したら判定へ
+      if((!ov || !ov.classList.contains('active')) && !openingShown && (configReady || timedOut)){
         clearInterval(waiter);
         // 管理画面の「チュートリアル_初回スキップ」がONなら自動再生しない（即画面を開く）
         try{ if(SITE_CONFIG && SITE_CONFIG.tutorial && SITE_CONFIG.tutorial.skipFirst){ return; } }catch(e){}
@@ -7583,8 +7590,8 @@ function maybeStartTourOnFirstVisit(){
           startTour();
         }, 500);
       }
-    }, 600);
-  }, 1600); // 地震データ＋設定の取得を少し待ってから判定
+    }, 400);
+  }, 1200); // 地震データ＋設定の取得を少し待ってから判定
 }
 
 // ハイライト枠をスクロール完了まで毎フレーム追従させる
