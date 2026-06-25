@@ -12327,5 +12327,33 @@ document.addEventListener('keydown', function(e){
 })();
 </script>
 
+<!-- ============================================================
+     アクセス計測タグ（防災情報センター本体 → GASへ記録）
+     ============================================================ -->
+<script>
+(function () {
+  var GAS_URL = "https://script.google.com/macros/s/AKfycby8yqQ-1sIZrcpKfzi1D7teL7ogBQHQWUKjzEAYjE8qe76y0biy2IHvkULjeEWuzoCHNA/exec";
+
+  try {
+    var uid = "";
+    try {
+      uid = localStorage.getItem("dwa_visit_uid") || "";
+      if (!uid) {
+        uid = "v_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
+        localStorage.setItem("dwa_visit_uid", uid);
+      }
+    } catch (e) { uid = ""; }
+
+    var params =
+      "type=visit&action=log" +
+      "&uid=" + encodeURIComponent(uid) +
+      "&page=" + encodeURIComponent(location.pathname || "/(本体トップ)") +
+      "&ref=" + encodeURIComponent(document.referrer || "");
+
+    var img = new Image();
+    img.src = GAS_URL + "?" + params;
+  } catch (e) {}
+})();
+</script>
 </body>
 </html>
