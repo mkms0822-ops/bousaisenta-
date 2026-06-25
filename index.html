@@ -9294,9 +9294,67 @@ function _noticeLinks(n){
 function _noticeLinksHtml(links){
   const esc = function(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
   return links.map(function(b){
-    return '<a class="notice-link-btn" href="'+esc(b.url)+'" target="_blank" rel="noopener">'
+    // URLは onclick で安全に処理する（属性に直接入れず、JSON文字列としてエスケープして渡す）
+    const urlJson = esc(JSON.stringify(b.url));
+    return '<a class="notice-link-btn" href="'+esc(b.url)+'" onclick="return noticeLinkClick(event, '+urlJson+');" rel="noopener">'
       + '<span>'+esc(b.label)+'</span><span class="nl-arrow">▶</span></a>';
   }).join('');
+}
+
+// ポップアップのリンクがクリックされたときの処理。
+// ・自サイト（同一オリジン）への #section-xxx / #open-xxx … 新規タブを開かず、
+//   ポップアップを閉じてからその場でスクロール／モーダルを開く（=オープニング再生を防ぐ）。
+// ・外部サイトのURL … 新しいタブで開く（従来どおり）。
+function noticeLinkClick(ev, url){
+  try {
+    if(ev){ ev.preventDefault(); }
+    var u = String(url || '').trim();
+    if(!u) return false;
+
+    var here = location;
+    var target;
+    try { target = new URL(u, here.href); } catch(e){ target = null; }
+
+    // 同一オリジン（同じサイト）かどうか
+    var sameOrigin = target && (target.origin === here.origin);
+    // 同一ページ（パスも同じ）でのアンカー移動かどうか
+    var samePage = sameOrigin && (target.pathname === here.pathname);
+
+    if(sameOrigin && target.hash){
+      var hash = target.hash.replace(/^#/, '').toLowerCase();
+      // まずポップアップ／更新履歴を閉じる（残りのお知らせキューも破棄）
+      try { if(typeof closeNotice === 'function') closeNotice(); } catch(e){}
+      try { if(typeof closeNoticeHistory === 'function') closeNoticeHistory(); } catch(e){}
+
+      // #open-xxx 系（モーダルを開く）か、#section-xxx 系（スクロール）かで分岐
+      var modalMap = {
+        'open-stamp':   function(){ if(typeof openStampCard==='function') openStampCard(); },
+        'open-shindan': function(){ if(typeof openShindanModal==='function') openShindanModal(); },
+        'open-post':    function(){ if(typeof openPostModal==='function') openPostModal(); }
+      };
+
+      if(samePage || !target.pathname || target.pathname === '/'){
+        // 同一ページ内：再読み込みせずその場で処理（オープニングは再生されない）
+        setTimeout(function(){
+          if(modalMap[hash]){ modalMap[hash](); return; }
+          // セクションへスクロール
+          var el = document.getElementById(hash);
+          if(el && typeof el.scrollIntoView === 'function'){
+            el.scrollIntoView({ behavior:'smooth', block:'start' });
+          }
+        }, 220); // ポップアップが閉じるアニメーションの後に実行
+        return false;
+      }
+    }
+
+    // ここまで該当しなければ外部リンク → 新しいタブで開く
+    window.open(u, '_blank', 'noopener');
+    return false;
+  } catch(e){
+    // 何かあれば従来動作（新規タブ）にフォールバック
+    try { window.open(String(url||''), '_blank', 'noopener'); } catch(e2){}
+    return false;
+  }
 }
 
 async function loadNotices(){
@@ -9425,7 +9483,8 @@ function openNoticeHistory(){
         const escq = function(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
         const linksHtml = links.length
           ? '<div class="nhi-links">' + links.map(function(b){
-              return '<a class="nhi-link-btn" href="'+escq(b.url)+'" target="_blank" rel="noopener">'+escq(b.label)+' ▶</a>';
+              const urlJson = escq(JSON.stringify(b.url));
+              return '<a class="nhi-link-btn" href="'+escq(b.url)+'" onclick="return noticeLinkClick(event, '+urlJson+');" rel="noopener">'+escq(b.label)+' ▶</a>';
             }).join('') + '</div>'
           : '';
         return '<div class="nhist-item">'
