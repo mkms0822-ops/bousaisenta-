@@ -6323,6 +6323,8 @@ async function fetchQuakes(){
         <a href="https://www.jma.go.jp/bosai/map.html#elem=int&contents=earthquake_map" target="_blank" style="color:var(--blue);font-size:12px;">→ 気象庁公式へ</a>
       </div>`;
     document.getElementById('updateBar').textContent = '取得失敗 — 再試行してください';
+    // 地震データの取得失敗を管理者へ報告（10分に1回までに自動で抑制される）
+    try { if(window.dwaReportError) window.dwaReportError('地震データの取得に失敗: '+(e?.message||'不明'), 'fetchQuakes'); } catch(_e){}
   }
   btn.disabled = false; btn.textContent = '↻ 今すぐ更新';
 }
@@ -12349,6 +12351,79 @@ document.addEventListener('keydown', function(e){
     var img = new Image();
     img.src = GAS_URL + "?" + params;
   } catch (e) {}
+})();
+</script>
+
+<!-- ============================================================
+     エラー自動報告タグ（サイトでエラー → GASへ送信 → 管理者へメール）
+     ・JavaScriptエラー、未処理のPromise拒否を自動で報告
+     ・送りすぎ防止：同じ内容は10分に1回、1ページ表示あたり最大5件まで
+     ・画像ビーコン方式なので、ページが壊れかけていても送信できる
+     ※GAS側に handleErrorLog と doGet の errlog 分岐を追加し、再デプロイすること
+     ============================================================ -->
+<script>
+(function () {
+  var GAS_URL = "https://script.google.com/macros/s/AKfycby8yqQ-1sIZrcpKfzi1D7teL7ogBQHQWUKjzEAYjE8qe76y0biy2IHvkULjeEWuzoCHNA/exec";
+
+  var _sentCount = 0;          // このページ表示で送った件数
+  var MAX_PER_PAGE = 5;        // 1ページ表示あたりの上限（無限ループ防止）
+  var _recent = {};            // 同一エラーの連発を抑える
+
+  function reportError(message, source) {
+    try {
+      if (!message) return;
+      message = String(message).substring(0, 500);
+      source = String(source || "").substring(0, 200);
+
+      // 1ページあたりの上限
+      if (_sentCount >= MAX_PER_PAGE) return;
+
+      // 同じ内容は10分に1回だけ（ブラウザ内で抑制）
+      var key = message + "@" + source;
+      var now = Date.now();
+      if (_recent[key] && (now - _recent[key]) < 10 * 60 * 1000) return;
+      _recent[key] = now;
+      _sentCount++;
+
+      var uid = "";
+      try { uid = localStorage.getItem("dwa_visit_uid") || ""; } catch (e) {}
+
+      var params =
+        "type=errlog" +
+        "&message=" + encodeURIComponent(message) +
+        "&source=" + encodeURIComponent(source) +
+        "&page=" + encodeURIComponent(location.pathname || "/") +
+        "&ua=" + encodeURIComponent((navigator.userAgent || "").substring(0, 180));
+
+      var img = new Image();
+      img.src = GAS_URL + "?" + params + "&_=" + now;
+    } catch (e) {}
+  }
+
+  // JavaScriptの実行エラーを捕捉
+  window.addEventListener("error", function (ev) {
+    try {
+      var msg = ev.message || "(不明なエラー)";
+      var loc = "";
+      if (ev.filename) {
+        loc = ev.filename.split("/").pop() + ":" + (ev.lineno || "?") + ":" + (ev.colno || "?");
+      }
+      reportError(msg, loc);
+    } catch (e) {}
+  });
+
+  // Promiseの未処理エラーを捕捉（地震データ取得失敗などもここに来ることがある）
+  window.addEventListener("unhandledrejection", function (ev) {
+    try {
+      var reason = ev.reason;
+      var msg = (reason && reason.message) ? reason.message : String(reason || "(Promiseエラー)");
+      reportError("未処理のPromiseエラー: " + msg, "");
+    } catch (e) {}
+  });
+
+  // 他のスクリプトから手動で報告したいとき用に公開（任意）
+  // 例: window.dwaReportError("地震データ取得に失敗", "fetchQuakes");
+  window.dwaReportError = reportError;
 })();
 </script>
 </body>
