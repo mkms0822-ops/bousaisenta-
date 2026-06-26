@@ -2911,7 +2911,7 @@ html.mode-chat.chat-split #modeChatScreen .mc-title{ font-size:13px; margin-bott
     <div class="notice-foot">
       <button class="notice-btn ghost" onclick="openNoticeHistory()">📜 更新履歴を参照</button>
       <button class="notice-btn" id="noticeNextBtn" onclick="nextOrCloseNotice()">閉じる</button>
-      <div class="notice-dismiss">
+      <div class="notice-dismiss" id="noticeDismissWrap">
         <button onclick="dismissNoticeForever()">このお知らせを今後表示しない</button>
       </div>
     </div>
@@ -9533,8 +9533,19 @@ function noticeLinkClick(ev, url){
   }
 }
 
+// お知らせが「常に表示ON」かどうかを判定する。
+// GAS側で alwaysShow フラグ（または「常に表示」列）を付けて渡してくる。
+// ON のときは利用者が「今後表示しない」を押しても毎回表示する。
+function _isAlwaysShow(n){
+  if(!n) return false;
+  var v = (n.alwaysShow !== undefined) ? n.alwaysShow
+        : (n['常に表示'] !== undefined ? n['常に表示'] : false);
+  if(v === true || v === 1) return true;
+  var s = String(v).trim().toLowerCase();
+  return (s==='true' || s==='on' || s==='オン' || s==='有効' || s==='1' || s==='常に表示' || s==='はい');
+}
+
 async function loadNotices(){
-  if(!ARTICLES_URL || ARTICLES_URL.indexOf('http') !== 0) return;
   try {
     const res = await fetch(ARTICLES_URL + '?type=notice&_=' + Date.now(), { method:'GET' });
     if(!res.ok) throw new Error('HTTP ' + res.status);
@@ -9558,7 +9569,7 @@ async function loadNotices(){
     // 未読が1件でもあれば「ポップアップを出す予定」とする（チュートリアルはこれを待つ）
     try {
       const _dismissed = _getDismissedNotices();
-      _noticePending = _allNotices.some(function(n){ return _dismissed.indexOf(_noticeKey(n)) < 0; });
+      _noticePending = _allNotices.some(function(n){ return _isAlwaysShow(n) || _dismissed.indexOf(_noticeKey(n)) < 0; });
     } catch(e){ _noticePending = _allNotices.length > 0; }
     console.log('[loadNotices] notices received:', list.length, 'pending:', _noticePending);
     maybeShowLatestNotice();
@@ -9590,9 +9601,9 @@ function maybeShowLatestNotice(){
   // すでに表示中なら二重起動しない
   const ovOpen = document.getElementById('noticeOverlay');
   if(ovOpen && ovOpen.classList.contains('open')) return;
-  // 未読だけをキューに積む（_allNotices は新しい順にソート済み）
+  // 未読、または「常に表示ON」のものをキューに積む（_allNotices は新しい順にソート済み）
   const dismissed = _getDismissedNotices();
-  _noticeQueue = _allNotices.filter(function(n){ return dismissed.indexOf(_noticeKey(n)) < 0; });
+  _noticeQueue = _allNotices.filter(function(n){ return _isAlwaysShow(n) || dismissed.indexOf(_noticeKey(n)) < 0; });
   showNextNotice();
 }
 
@@ -9623,6 +9634,11 @@ function showNotice(n){
   }
   const ov = document.getElementById('noticeOverlay');
   if(ov){ ov.classList.add('open'); }
+
+  // 「常に表示ON」のお知らせは消せないようにする（毎回必ず表示するため）。
+  // OFF/通常のお知らせは従来どおり「今後表示しない」を選べる。
+  const dismissWrap = document.getElementById('noticeDismissWrap');
+  if(dismissWrap){ dismissWrap.style.display = _isAlwaysShow(n) ? 'none' : ''; }
 }
 
 // 「閉じる／次へ」：表示中のお知らせを閉じ、未読が残っていれば次を表示する
