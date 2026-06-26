@@ -8533,22 +8533,26 @@ function maybeAutoEmergency(qs){
     if(!SITE_CONFIG.emergency.auto) return;
     if(_emgActive) return;
     if(!qs || !qs.length) return;
-    // 最大震度の地震を選ぶ（先頭が最大とは限らないため全件から）
-    var top = null;
-    for(var i=0;i<qs.length;i++){
-      if(qs[i] && qs[i].isForeign) continue;
-      if(!top || (qs[i].shindo_num||0) > (top.shindo_num||0)) top = qs[i];
-    }
-    if(!top) return;
     // 「最近発生した地震」のときだけ自動発動する。
     // P2P地震APIは過去の地震履歴も返すため、時刻を見ないと古い地震で
     // 毎回緊急モードが立ち上がってしまう。発生から AUTO_EMG_WINDOW_MIN 分
     // 以内のものだけを対象にする。
+    // ★重要：先に「2時間以内」で絞り込んでから、その中で最大震度を選ぶ。
+    //   （先に全件から最大震度を選ぶと、何日も前の大きな地震が選ばれて
+    //     時間切れで弾かれ、直近の地震が判定されない不具合になるため）
     var AUTO_EMG_WINDOW_MIN = 120;
-    var qt = new Date(String(top.time||'').replace(/\//g,'-').replace(' ', 'T'));
-    if(isNaN(qt.getTime())) return;                 // 時刻不明は発動しない
-    var ageMin = (Date.now() - qt.getTime()) / 60000;
-    if(ageMin > AUTO_EMG_WINDOW_MIN || ageMin < -5) return; // 古い／未来日時は対象外
+    var top = null;
+    for(var i=0;i<qs.length;i++){
+      var q = qs[i];
+      if(!q || q.isForeign) continue;                        // 海外は対象外
+      var qti = new Date(String(q.time||'').replace(/\//g,'-').replace(' ', 'T'));
+      if(isNaN(qti.getTime())) continue;                     // 時刻不明は対象外
+      var ageI = (Date.now() - qti.getTime()) / 60000;
+      if(ageI > AUTO_EMG_WINDOW_MIN || ageI < -5) continue;  // 古い／未来日時は対象外
+      // ここまで来た地震は「2時間以内の国内地震」。その中で最大震度を選ぶ。
+      if(!top || (q.shindo_num||0) > (top.shindo_num||0)) top = q;
+    }
+    if(!top) return;                                         // 2時間以内の地震が無い
     var id = (top.time||'') + '_' + (top.name||'') + '_' + (top.shindo_num||0);
     if(_emgAutoQuakeId === id) return; // 同じ地震では一度だけ
     var th = shindoThresholdToScale_(SITE_CONFIG.emergency.autoShindo);
