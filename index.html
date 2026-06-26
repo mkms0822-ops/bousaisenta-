@@ -8544,7 +8544,7 @@ function maybeAutoEmergency(qs){
     // P2P地震APIは過去の地震履歴も返すため、時刻を見ないと古い地震で
     // 毎回緊急モードが立ち上がってしまう。発生から AUTO_EMG_WINDOW_MIN 分
     // 以内のものだけを対象にする。
-    var AUTO_EMG_WINDOW_MIN = 30;
+    var AUTO_EMG_WINDOW_MIN = 120;
     var qt = new Date(String(top.time||'').replace(/\//g,'-').replace(' ', 'T'));
     if(isNaN(qt.getTime())) return;                 // 時刻不明は発動しない
     var ageMin = (Date.now() - qt.getTime()) / 60000;
