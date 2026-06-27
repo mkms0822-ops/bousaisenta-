@@ -10248,6 +10248,32 @@ function reapplyAllSettings(){
     v = g('body_font');    if (v && typeof setFont === 'function') setFont(v);
     v = g('num_font');     if (v && typeof setNumFont === 'function') setNumFont(v);
     v = g('mobile_scale'); if (v && typeof setMobileScale === 'function') setMobileScale(v);
+
+    // 天気・地域設定の再適用。
+    // localStorage には復元済みだが、内部変数・ウィジェット表示・地域UI・
+    // 天気データの再取得は別途呼ばないと画面に反映されない（ここが抜けていると
+    // 「復元しても気象設定だけ解除されたように見える」不具合になる）。
+    try {
+      _weatherEnabled     = g('weather_enabled')      !== '0';
+      _weatherWeekEnabled = g('weather_week_enabled') === '1';
+      _weatherCityCode    = g('weather_city_code')    || '';
+      _weatherCityName    = g('weather_city_name')    || '';
+      _weatherPrefCode    = g('weather_pref_code')    || '';
+      _weatherClass10Code = g('weather_class10_code') || '';
+      // 地域セレクトのUIを再構築・選択状態を反映
+      if (typeof initWeatherSelects === 'function') { try { initWeatherSelects(); } catch(e){} }
+      if (typeof syncWeatherSettingsUI === 'function') { try { syncWeatherSettingsUI(); } catch(e){} }
+      // ウィジェット本体の表示／非表示と週間予報を反映
+      const wWidget = document.getElementById('weatherWidget');
+      if (wWidget) wWidget.classList.toggle('active', !!_weatherEnabled);
+      const wWeek = document.getElementById('weatherWeek');
+      if (wWeek) wWeek.classList.toggle('show', !!_weatherWeekEnabled);
+      // 地域が設定済みかつ天気ONなら、その地域の天気を取得し直す
+      if (_weatherEnabled && _weatherCityCode && typeof fetchWeather === 'function') {
+        try { fetchWeather(); } catch(e){}
+      }
+    } catch(e){}
+
     // 各種トグル系UIをまとめて更新（存在すれば）
     try { if (typeof updateSettingsUI === 'function') updateSettingsUI(); } catch(e){}
     try { if (typeof updateNumFontUI === 'function') updateNumFontUI(); } catch(e){}
