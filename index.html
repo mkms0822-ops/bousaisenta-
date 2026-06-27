@@ -1448,6 +1448,20 @@ body.reorder-on .reorder-block { outline:none; }
 .lo-btn:disabled { opacity:0.3; cursor:default; }
 .lo-btn.lo-pair { width:auto; padding:0 10px; font-size:11px; font-weight:700; letter-spacing:0.02em; }
 .lo-btn.lo-pair.on { background:var(--blue); color:#fff; border-color:var(--blue); }
+/* 表示/非表示トグル */
+.lo-btn.lo-vis { background:rgba(0,180,255,0.12); }
+.lo-btn.lo-vis.off {
+  background:rgba(150,150,150,0.15); border-color:rgba(150,150,150,0.5); color:var(--muted);
+}
+/* 非表示中の項目は薄く表示し、ひと目で分かるようにする */
+.lo-item.lo-item-hidden { opacity:0.5; }
+.lo-item.lo-item-hidden .lo-name { text-decoration:line-through; text-decoration-color:rgba(150,150,150,0.6); }
+.lo-hidden-badge {
+  display:inline-block; font-size:9px; font-weight:700; letter-spacing:0.06em;
+  background:rgba(150,150,150,0.25); color:var(--muted);
+  padding:1px 7px; border-radius:999px; margin-left:8px; vertical-align:middle;
+  text-decoration:none;
+}
 .lo-row.pair .lo-pairwrap {
   position:relative; flex:1; display:flex; gap:10px;
   outline:2px solid rgba(0,180,255,0.5); outline-offset:3px; border-radius:11px;
@@ -11767,7 +11781,7 @@ function sendSiteInquiry(){
   <div class="layout-panel" role="dialog" aria-modal="true" aria-label="レイアウト編集">
     <button class="lo-close-x" onclick="closeLayoutEditor()" aria-label="閉じる">✕</button>
     <h2>📐 レイアウト編集</h2>
-    <p class="lo-desc">ホーム上部の項目の並び順を変えたり、2つを横並びにできます。「横並び」を押すと、その項目と次の項目が左右に並びます。決めたら「保存」を押してください。</p>
+    <p class="lo-desc">ホーム上部の項目の並び順を変えたり、2つを横並びにできます。「横並び」を押すと、その項目と次の項目が左右に並びます。👁ボタンで項目の表示／非表示を切り替えられます（非表示にすると画面から消え、下の項目が上に詰まります）。決めたら「保存」を押してください。</p>
     <div class="lo-list" id="loList"></div>
     <div class="lo-actions">
       <button class="lo-reset" onclick="resetLayoutEditor()">初期に戻す</button>
@@ -12135,6 +12149,7 @@ document.addEventListener('keydown', function(e){
   var META = {
     stats:   { emoji:'📊', name:'地震サマリー',   sub:'本日の件数・最大M・震度など' },
     weather: { emoji:'🌤️', name:'天気予報',       sub:'天気ウィジェット' },
+    spaceweather: { emoji:'🛰️', name:'宇宙天気',  sub:'NICT 太陽フレア・地磁気など' },
     latest:  { emoji:'🎯', name:'注目の地震',     sub:'最新の注目地震' },
     tsunami: { emoji:'🌊', name:'津波バナー',     sub:'発令時のみ表示' },
     jmawarn: { emoji:'⚠️', name:'気象警報バナー', sub:'発令時のみ表示' },
@@ -12170,23 +12185,25 @@ document.addEventListener('keydown', function(e){
     return document.querySelector('.reorder-block[data-block="'+key+'"]');
   }
 
-  // 保存レイアウトの読み込み: [{block, pair}] / 無ければDOM順から生成
+  // 保存レイアウトの読み込み: [{block, pair, hidden}] / 無ければDOM順から生成
   function loadLayout(zone){
     var saved = null;
     try { saved = JSON.parse(localStorage.getItem(ZONES[zone].key) || 'null'); } catch(e){}
     var present = domBlocks(zone).map(function(b){ return b.getAttribute('data-block'); });
     if(!Array.isArray(saved) || !saved.length){
-      return present.map(function(k){ return { block:k, pair:false }; });
+      return present.map(function(k){ return { block:k, pair:false, hidden:false }; });
     }
     // 保存値を正規化：存在するブロックだけ、重複除去、未保存の新ブロックは末尾に追加
     var seen = {}, out = [];
     saved.forEach(function(it){
       var k = it && it.block;
-      if(k && present.indexOf(k) >= 0 && !seen[k]){ seen[k] = 1; out.push({ block:k, pair: !!it.pair }); }
+      if(k && present.indexOf(k) >= 0 && !seen[k]){ seen[k] = 1; out.push({ block:k, pair: !!it.pair, hidden: !!it.hidden }); }
     });
-    present.forEach(function(k){ if(!seen[k]){ out.push({ block:k, pair:false }); } });
+    present.forEach(function(k){ if(!seen[k]){ out.push({ block:k, pair:false, hidden:false }); } });
     // pairable でないゾーンは pair を無視
     if(!ZONES[zone].pairable){ out.forEach(function(it){ it.pair = false; }); }
+    // 非表示の要素は横並び(pair)を解除しておく（表示が複雑になるのを防ぐ）
+    out.forEach(function(it){ if(it.hidden) it.pair = false; });
     // 末尾要素のpairは無効（相方がいない）
     if(out.length && out[out.length-1].pair) out[out.length-1].pair = false;
     return out;
@@ -12211,9 +12228,24 @@ document.addEventListener('keydown', function(e){
       var it = layout[i];
       var el = blockEl(it.block);
       if(!el) continue;
+      // 非表示指定のブロックは display:none にして配置自体をスキップ。
+      // DOMから外さず非表示にするので、下の項目が自然に上へ詰まり空白も残らない。
+      if(it.hidden){
+        el.style.display = 'none';
+        el.setAttribute('data-layout-hidden', '1');
+        // 念のためペアラッパーには入れない（単独で隠す）
+        if(anchor) c.insertBefore(el, anchor); else c.appendChild(el);
+        continue;
+      } else {
+        // 再表示：以前隠していた場合に display を元へ戻す
+        if(el.getAttribute('data-layout-hidden')){
+          el.style.removeProperty('display');
+          el.removeAttribute('data-layout-hidden');
+        }
+      }
       if(zone === 'top' && ZONES.top.pairable && it.pair && (i+1)<layout.length){
         var el2 = blockEl(layout[i+1].block);
-        if(el2){
+        if(el2 && !layout[i+1].hidden){
           var wrap = document.createElement('div');
           wrap.className = 'reorder-pair';
           if(anchor) c.insertBefore(wrap, anchor); else c.appendChild(wrap);
@@ -12314,11 +12346,14 @@ document.addEventListener('keydown', function(e){
 
   function itemNode(zone, idx, compact){
     var key = draft[zone][idx].block;
+    var isHidden = !!draft[zone][idx].hidden;
     var m = META[key] || { emoji:'⬛', name:key, sub:'' };
     var node = document.createElement('div');
-    node.className = 'lo-item';
+    node.className = 'lo-item' + (isHidden ? ' lo-item-hidden' : '');
     node.innerHTML = '<span class="lo-emoji">'+m.emoji+'</span>'+
-      '<span class="lo-name">'+m.name+'<span class="lo-sub">'+(m.sub||'')+'</span></span>';
+      '<span class="lo-name">'+m.name+
+      (isHidden ? '<span class="lo-hidden-badge">非表示</span>' : '')+
+      '<span class="lo-sub">'+(m.sub||'')+'</span></span>';
     // 地震サマリーには表示タイプ切替（横長／コンパクト）を付ける
     if(key === 'stats'){
       node.classList.add('lo-item-stats');
@@ -12352,17 +12387,35 @@ document.addEventListener('keydown', function(e){
     down.disabled = (lastIdx >= layout.length - 1);
     down.onclick = function(){ moveItem(zone, idx, 1); };
     wrap.appendChild(up); wrap.appendChild(down);
+    // 表示／非表示トグル（発令時のみ表示のバナーを除く）
+    if(zone !== 'top' || (layout[idx].block !== 'tsunami' && layout[idx].block !== 'jmawarn')){
+      var vis = document.createElement('button');
+      var isHidden = !!layout[idx].hidden;
+      vis.className = 'lo-btn lo-vis' + (isHidden ? ' off' : '');
+      vis.innerHTML = isHidden ? '🚫' : '👁';
+      vis.title = isHidden ? '非表示（タップで表示）' : '表示中（タップで非表示）';
+      vis.onclick = function(){ toggleHidden(zone, idx); };
+      wrap.appendChild(vis);
+    }
     // 横並びトグル（topゾーンのみ、相方がいる場合）
     if(ZONES[zone].pairable){
       var pair = document.createElement('button');
       pair.className = 'lo-btn lo-pair' + (paired ? ' on' : '');
       pair.textContent = paired ? '解除' : '横並び';
       var canPair = (idx + 1) < layout.length;
-      pair.disabled = (!paired && !canPair);
+      // 非表示中は横並びにできない
+      pair.disabled = (!paired && (!canPair || !!layout[idx].hidden));
       pair.onclick = function(){ togglePair(zone, idx); };
       wrap.appendChild(pair);
     }
     return wrap;
+  }
+
+  function toggleHidden(zone, idx){
+    var it = draft[zone][idx];
+    it.hidden = !it.hidden;
+    if(it.hidden){ it.pair = false; }       // 非表示にしたら横並び解除
+    renderEditor();
   }
 
   function moveItem(zone, idx, dir){
@@ -12397,8 +12450,8 @@ document.addEventListener('keydown', function(e){
   }
 
   window.openLayoutEditor = function(){
-    draft.top = loadLayout('top').map(function(o){ return { block:o.block, pair:o.pair }; });
-    draft.main = loadLayout('main').map(function(o){ return { block:o.block, pair:false }; });
+    draft.top = loadLayout('top').map(function(o){ return { block:o.block, pair:o.pair, hidden:!!o.hidden }; });
+    draft.main = loadLayout('main').map(function(o){ return { block:o.block, pair:false, hidden:!!o.hidden }; });
     draft.statsType = getStatsType();
     renderEditor();
     var ov = document.getElementById('layoutOverlay');
@@ -12418,8 +12471,8 @@ document.addEventListener('keydown', function(e){
   };
   window.resetLayoutEditor = function(){
     try { localStorage.removeItem(ZONES.top.key); localStorage.removeItem(ZONES.main.key); localStorage.removeItem(STATS_TYPE_KEY); } catch(e){}
-    draft.top = loadLayout('top').map(function(o){ return { block:o.block, pair:o.pair }; });
-    draft.main = loadLayout('main').map(function(o){ return { block:o.block, pair:false }; });
+    draft.top = loadLayout('top').map(function(o){ return { block:o.block, pair:o.pair, hidden:!!o.hidden }; });
+    draft.main = loadLayout('main').map(function(o){ return { block:o.block, pair:false, hidden:!!o.hidden }; });
     draft.statsType = getStatsType();
     renderEditor();
     applyAll();
