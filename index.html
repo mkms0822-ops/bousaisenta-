@@ -2039,6 +2039,61 @@ html.light #jmaWarningBanner.warn-clear .jmaw-link {
 html.light #weatherWidget { background:var(--surface); }
 html.light .weather-today { background:var(--surface2); }
 html.light .weather-day { background:var(--surface2); }
+
+/* 宇宙天気カード */
+.space-weather-card {
+  grid-column: 1/-1;
+  display:block;
+  border-radius:14px; padding:16px 20px;
+  background:var(--surface2); border:1px solid var(--border);
+  color:inherit;
+}
+.sw-head {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:12px; flex-wrap:wrap; gap:6px;
+  text-decoration:none; color:inherit;
+}
+.sw-title { font-size:14px; font-weight:700; color:var(--text); }
+.sw-source {
+  font-family:'Share Tech Mono',monospace; font-size:10px;
+  letter-spacing:0.06em; color:var(--muted);
+}
+.sw-body {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+  margin-bottom:12px;
+}
+.sw-row {
+  background:var(--surface3); border-radius:9px; padding:10px 8px;
+  text-align:center; border:1px solid var(--border);
+  text-decoration:none; color:inherit; display:block;
+  transition:border-color .15s;
+}
+.sw-row:hover { border-color:var(--blue); }
+.sw-label {
+  display:block; font-size:10px; color:var(--muted); margin-bottom:5px;
+  letter-spacing:0.04em;
+}
+.sw-val {
+  display:block; font-size:13px; font-weight:700;
+  font-family:'Orbitron',monospace; color:var(--blue);
+}
+.sw-val.lv-quiet  { color:#3fb27f; }   /* 静穏 */
+.sw-val.lv-active { color:#d8b13a; }   /* やや活発 */
+.sw-val.lv-warn   { color:#e8862e; }   /* 警戒 */
+.sw-val.lv-severe { color:#e0552c; }   /* 厳重警戒 */
+.sw-foot {
+  display:flex; align-items:center; justify-content:space-between;
+  font-size:11px; color:var(--muted); flex-wrap:wrap; gap:6px;
+  text-decoration:none; margin-top:2px;
+}
+.sw-link { color:var(--blue); font-weight:700; }
+html.light .space-weather-card { background:var(--surface); }
+html.light .sw-row { background:var(--surface2); }
+@media (max-width:380px){
+  .sw-body { grid-template-columns:repeat(3,1fr); gap:5px; }
+  .sw-row { padding:8px 4px; }
+  .sw-val { font-size:11px; }
+}
 @media (max-width:700px){
   .weather-week { grid-template-columns:repeat(4,1fr); }
 }
@@ -3271,6 +3326,9 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <a class="hamburger-link" href="https://earth.nullschool.net/jp/" target="_blank" rel="noopener">
         <span class="h-link-icon">🌍</span>earth ー地球の風ー
       </a>
+      <a class="hamburger-link" href="https://swc.nict.go.jp/" target="_blank" rel="noopener">
+        <span class="h-link-icon">🛰️</span>NICT 宇宙天気予報
+      </a>
       <a class="hamburger-link" href="https://radiko.jp/" target="_blank" rel="noopener">
         <span class="h-link-icon">📻</span>radiko（ラジオ）
       </a>
@@ -3879,6 +3937,41 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
         </div>
       </div>
       <div class="weather-week" id="weatherWeek"></div>
+    </div>
+  </div>
+
+  <!-- SPACE WEATHER (宇宙天気) -->
+  <div class="reorder-block reorder-fullwidth" data-block="spaceweather" data-zone="top">
+    <div class="reorder-bar">
+      <span class="reorder-handle" title="ドラッグで移動">⠿ 並び替え（宇宙天気）</span>
+      <span class="reorder-arrows">
+        <button type="button" class="reorder-up" onclick="moveBlock(this,-1)" aria-label="上へ">▲</button>
+        <button type="button" class="reorder-down" onclick="moveBlock(this,1)" aria-label="下へ">▼</button>
+      </span>
+    </div>
+    <div id="spaceWeatherCard" class="space-weather-card anim-ready anim-up" data-tour="spaceweather">
+      <a class="sw-head" href="https://swc.nict.go.jp/" target="_blank" rel="noopener">
+        <span class="sw-title">🛰️ 宇宙天気</span>
+        <span class="sw-source">NICT 宇宙天気予報</span>
+      </a>
+      <div class="sw-body">
+        <a class="sw-row" href="https://swc.nict.go.jp/trend/flare.html" target="_blank" rel="noopener">
+          <span class="sw-label">太陽フレア</span>
+          <span class="sw-val" id="swFlare">--</span>
+        </a>
+        <a class="sw-row" href="https://swc.nict.go.jp/trend/geomag.html" target="_blank" rel="noopener">
+          <span class="sw-label">地磁気</span>
+          <span class="sw-val" id="swGeomag">--</span>
+        </a>
+        <a class="sw-row" href="https://swc.nict.go.jp/trend/dellinger.html" target="_blank" rel="noopener">
+          <span class="sw-label">電波・GPS</span>
+          <span class="sw-val" id="swRadio">--</span>
+        </a>
+      </div>
+      <a class="sw-foot" href="https://swc.nict.go.jp/forecast/" target="_blank" rel="noopener">
+        <span id="swUpdated">最新の宇宙環境の状況</span>
+        <span class="sw-link">予報を詳しく見る →</span>
+      </a>
     </div>
   </div>
 
@@ -6925,6 +7018,62 @@ function syncWeatherSettingsUI(){
   // 30分ごとに天気更新
   setInterval(()=>{ if(_weatherEnabled && _weatherPrefCode) fetchWeather(); }, 30*60*1000);
 })();
+
+// ===================== 宇宙天気（NICT） =====================
+// NICT宇宙天気予報の現況を取得してカードに表示する。
+// 取得に失敗しても、カード自体は swc.nict.go.jp への外部リンクとして機能する
+// （要約が出せない場合は「NICTで確認」と案内するだけで、リンクは常に有効）。
+(function initSpaceWeather(){
+  // 警戒度の文字列 → 表示ラベルと色クラス
+  function levelClass(v){
+    var s = String(v||'').toLowerCase();
+    // NICTは 静穏 / やや活発 / 活発 / 警戒 などの語を使う
+    if(/severe|厳重|major|大規模/.test(s)) return 'lv-severe';
+    if(/warn|警戒|活発|storm|嵐/.test(s))  return 'lv-warn';
+    if(/active|やや|moderate|minor/.test(s)) return 'lv-active';
+    return 'lv-quiet';
+  }
+  function setVal(id, text, level){
+    var el = document.getElementById(id);
+    if(!el) return;
+    el.textContent = text || '--';
+    el.className = 'sw-val ' + levelClass(level != null ? level : text);
+  }
+
+  async function fetchSpaceWeather(){
+    var ctrl = new AbortController();
+    var tid = setTimeout(function(){ ctrl.abort(); }, 9000);
+    try{
+      // NICTの宇宙天気概況(JSON)。CORS不可の環境では catch に落ちる。
+      var r = await fetch('https://swc.nict.go.jp/forecast/data/current.json',
+                          { signal: ctrl.signal, cache:'no-store' });
+      clearTimeout(tid);
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      var d = await r.json();
+      // フィールド名は環境によって異なりうるため、ありそうなキーを順に拾う。
+      var flare  = d.flare  || d.solar  || (d.forecast && d.forecast.flare)  || '';
+      var geomag = d.geomag || d.geomagnetic || (d.forecast && d.forecast.geomag) || '';
+      var radio  = d.radio  || d.swf || d.proton || (d.forecast && d.forecast.radio) || '';
+      setVal('swFlare',  flare  ? String(flare)  : '静穏', flare);
+      setVal('swGeomag', geomag ? String(geomag) : '静穏', geomag);
+      setVal('swRadio',  radio  ? String(radio)  : '正常', radio);
+      var up = document.getElementById('swUpdated');
+      if(up) up.textContent = '更新: ' + new Date().toLocaleString('ja-JP',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    }catch(e){
+      clearTimeout(tid);
+      // 取得不可：各項目はそれぞれNICTの該当ページへのリンクとして機能する
+      setVal('swFlare',  '確認 →', '');
+      setVal('swGeomag', '確認 →', '');
+      setVal('swRadio',  '確認 →', '');
+      var up2 = document.getElementById('swUpdated');
+      if(up2) up2.textContent = 'NICTで最新の宇宙天気を確認';
+    }
+  }
+
+  fetchSpaceWeather();
+  // 宇宙天気は更新頻度が高くないので30分ごとに再取得
+  setInterval(fetchSpaceWeather, 30*60*1000);
+})();
 // ===================== HAMBURGER MENU =====================
 function openHamburger(){
   document.getElementById('hamburgerOverlay').classList.add('open');
@@ -7744,6 +7893,7 @@ const tourSteps = [
   { sel:'[data-tour="lang"]', title:'🌐 English / 多言語表示', text:'メニューの中の「English / 言語」ボタンです。お使いのブラウザの翻訳機能を使うと、このサイトを英語など多言語で読めます。ボタンを押すと、スマホ・パソコン別の翻訳手順を日本語と英語で案内します。海外の方や、英語で読みたい方はこちらをご利用ください。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="line-stamp"]', title:'🎟️ LINEスタンプ', text:'メニューの「公式アカウント」にある「LINEスタンプ」ボタンです。タップするとQRコードが表示され、スマホのカメラで読み取るとLINE公式アカウントのショップカードが開きます。スタンプを貯めると特典がもらえるので、ぜひ友だち追加して貯めてみてください。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="tabs"]', title:'気象情報タブ（収納式）', text:'台風・雨雲レーダー・警報・注意報・危険警報など、気象・災害情報へのリンク集です。ふだんは「災害情報タブ」ボタンに収納されていて、タップすると開きます（いまチュートリアル用に開いています）。目的の情報にすぐアクセスできます。', onShow:openDtabsForTour },
+  { sel:'[data-tour="spaceweather"]', title:'🛰️ 宇宙天気', text:'NICT（情報通信研究機構）が発表する「宇宙天気」の状況です。太陽フレア・地磁気の乱れ・電波やGPSへの影響をまとめています。大規模な太陽フレアが起きると、通信・放送・測位（GPS）などに影響が出ることがあります。各項目をタップすると、NICTの詳しい解説ページが開きます。', onShow:closeDtabsForTour, fallbackToTop:true },
   { sel:'[data-tour="stats"]', title:'本日の地震サマリー', text:'本日の有感地震の回数、最大マグニチュード・最大震度、最終更新時刻をひと目で確認できます。', onShow:closeDtabsForTour },
   { sel:'.quake-list', title:'地震リスト', text:'最近発生した地震の一覧です。カードをタップすると詳細が表示されます。', fallbackToTop:true },
   { sel:'[data-tour="bookmark"]', selAlt:'#section-column', title:'🔖 ブックマーク', text:'防災記事カードの右上にあるこのマークをタップすると、その記事をブックマーク（お気に入り保存）できます。あとで読み返したい「備え」や「ヒント」を保存しておくと、必要なときにすぐ見返せます。', onShow:scrollToColumnForTour, fallbackToTop:true },
