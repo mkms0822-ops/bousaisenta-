@@ -7561,8 +7561,9 @@ function updateSettingsUI(){
   // 通知
   const toggle = document.getElementById('notifyToggle');
   if(toggle){
-    toggle.checked = Notification.permission === 'granted' && isNotifyEnabled();
-    toggle.disabled = Notification.permission === 'denied';
+    const _hasNotif = ('Notification' in window);
+    toggle.checked = _hasNotif && Notification.permission === 'granted' && isNotifyEnabled();
+    toggle.disabled = !_hasNotif || Notification.permission === 'denied';
   }
   // 音
   for(let i=0;i<7;i++){
@@ -8758,7 +8759,7 @@ function updateNotifyBtn(perm){
 }
 
 function sendNotification(title, body, icon){
-  if(Notification.permission !== 'granted') return;
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
   if(!isNotifyEnabled()) return; // ソフトOFFの場合は送信しない
   try {
     new Notification(title, {
@@ -8772,7 +8773,7 @@ function sendNotification(title, body, icon){
 }
 
 function notifyQuake(q){
-  if(!q || Notification.permission !== 'granted') return;
+  if(!q || !('Notification' in window) || Notification.permission !== 'granted') return;
   const key = `quake_${q.name}_${q.magnitude}_${q.time}`;
   if(_notifiedKeys.has(key)) return;
   // 発生から60分以上たった地震は通知しない（再読み込み・初回訪問時の誤通知防止）
@@ -8791,7 +8792,7 @@ function notifyQuake(q){
 }
 
 function notifyTsunami(grade, areas){
-  if(Notification.permission !== 'granted') return;
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
   const key = `tsunami_${grade}_${new Date().toDateString()}`;
   if(_notifiedKeys.has(key)) return;
   _rememberNotified(key);
@@ -10258,7 +10259,7 @@ function dwaUrlB64ToUint8(base64String){
 
 async function enableStampReminder(){
   try{
-    if(!('serviceWorker' in navigator) || !('PushManager' in window)){
+    if(!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)){
       showStampToast('お使いのブラウザは通知に対応していません');
       return false;
     }
