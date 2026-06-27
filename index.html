@@ -6081,8 +6081,20 @@ function fillBigCard(suffix, q, isOverseas){
 }
 
 function renderBig(qs){
-  const jpList = qs.filter(q => !q.isForeign);
-  const ovList = qs.filter(q =>  q.isForeign);
+  // 注目カード・警戒バナーは「直近2時間以内に発生した地震」だけを対象にする。
+  // P2P地震APIは過去の地震履歴も返すため、時刻で絞らないと前日の大きな
+  // 地震がいつまでもトップに警報表示されてしまう（自動緊急モードと同じ2時間に統一）。
+  var BIG_WINDOW_MIN = 120;
+  function _isRecent(q){
+    if(!q || !q.time) return false;
+    var qt = new Date(String(q.time).replace(/\//g,'-').replace(' ', 'T'));
+    if(isNaN(qt.getTime())) return false;
+    var ageMin = (Date.now() - qt.getTime()) / 60000;
+    return ageMin <= BIG_WINDOW_MIN && ageMin >= -5; // 未来日時(時計ずれ)は許容5分
+  }
+
+  const jpList = qs.filter(q => !q.isForeign && _isRecent(q));
+  const ovList = qs.filter(q =>  q.isForeign && _isRecent(q));
   // 日本側は「震度5弱以上(maxScale>=45)」のみ対象。その中で最大震度→同震度ならMが大きい方を選ぶ。
   const SHINDO_5W = 45; // 5弱
   const jpEligible = jpList.filter(q => (q.shindo_num||0) >= SHINDO_5W);
