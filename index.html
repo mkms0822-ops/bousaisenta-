@@ -6029,11 +6029,15 @@ let _lastQs = null;  // 直近の取得データ（バナー再描画用）
 // fetch をタイムアウト＋自動リトライ付きで実行するヘルパー。
 // メインの地震APIが一時的な通信失敗(Failed to fetch)で落ちるのを防ぐ。
 // retries=2 なら最大3回(初回+2回)試行。失敗ごとに待ち時間を延ばす(800ms→1600ms)。
-async function fetchWithRetry(url, { retries = 2, timeout = 8000, backoff = 800 } = {}){
+async function fetchWithRetry(url, { retries = 2, timeout = 12000, backoff = 800 } = {}){
   let lastErr;
   for(let attempt = 0; attempt <= retries; attempt++){
     const ctrl = new AbortController();
-    const tid  = setTimeout(()=>ctrl.abort(), timeout);
+    // タイムアウトで中断する際は必ず「理由」を付ける。
+    // これがないと "signal is aborted without reason" という分かりにくい
+    // エラーになってしまうため。
+    let timedOut = false;
+    const tid  = setTimeout(()=>{ timedOut = true; ctrl.abort(new DOMException('タイムアウト('+timeout+'ms)', 'TimeoutError')); }, timeout);
     try{
       const r = await fetch(url, { signal: ctrl.signal, cache: 'no-store' });
       clearTimeout(tid);
@@ -6041,7 +6045,10 @@ async function fetchWithRetry(url, { retries = 2, timeout = 8000, backoff = 800 
       return r;
     }catch(e){
       clearTimeout(tid);
-      lastErr = e;
+      // 中断がタイムアウト由来なら、分かりやすいエラーに置き換える。
+      lastErr = (timedOut || e?.name === 'AbortError' || e?.name === 'TimeoutError')
+        ? new Error('応答がありません（タイムアウト）')
+        : e;
       // 最終試行なら諦めて投げる。それ以外は待ってから再試行。
       if(attempt < retries){
         const wait = backoff * Math.pow(2, attempt);
@@ -6447,9 +6454,9 @@ async function fetchQuakes(){
     // メインの地震APIはリトライ付き(最大3回)。津波/USGSは補助情報なので
     // 失敗しても null で握りつぶし、本体表示を止めない。
     const [rQuake, rTsunami, rUsgs] = await Promise.all([
-      fetchWithRetry(P2P_API,        { retries: 2, timeout: 8000 }),
-      fetchWithRetry(P2P_TSUNAMI_API,{ retries: 1, timeout: 8000 }).catch(()=>null),
-      fetchWithRetry(USGS_API,       { retries: 1, timeout: 8000 }).catch(()=>null)
+      fetchWithRetry(P2P_API,        { retries: 2, timeout: 12000 }),
+      fetchWithRetry(P2P_TSUNAMI_API,{ retries: 1, timeout: 12000 }).catch(()=>null),
+      fetchWithRetry(USGS_API,       { retries: 1, timeout: 12000 }).catch(()=>null)
     ]);
 
     if(!rQuake.ok) throw new Error('HTTP '+rQuake.status);
@@ -6504,8 +6511,11 @@ async function fetchQuakes(){
         <a href="https://www.jma.go.jp/bosai/map.html#elem=int&contents=earthquake_map" target="_blank" style="color:var(--blue);font-size:12px;">→ 気象庁公式へ</a>
       </div>`;
     document.getElementById('updateBar').textContent = '取得失敗 — 再試行してください';
-    // 地震データの取得失敗を管理者へ報告（10分に1回までに自動で抑制される）
-    try { if(window.dwaReportError) window.dwaReportError('地震データの取得に失敗: '+(e?.message||'不明'), 'fetchQuakes'); } catch(_e){}
+    // 地震データの取得失敗を管理者へ報告（10分に1回までに自動で抑制される）。
+    // ただしタイムアウト等の一時的な通信失敗は頻発しても異常ではないため報告しない。
+    const msg = e?.message || '不明';
+    const transient = /タイムアウト|応答がありません|Failed to fetch|NetworkError|aborted/i.test(msg);
+    try { if(!transient && window.dwaReportError) window.dwaReportError('地震データの取得に失敗: '+msg, 'fetchQuakes'); } catch(_e){}
   }
   btn.disabled = false; btn.textContent = '↻ 今すぐ更新';
 }
