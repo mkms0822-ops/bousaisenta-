@@ -12757,5 +12757,149 @@ document.addEventListener('keydown', function(e){
   window.dwaReportError = reportError;
 })();
 </script>
+
+<!-- ============================================================
+     ボタン・イベント計測タグ（防災情報センター本体 → GASへ記録）
+     ・dwaTrack(cat, label) … 汎用の計測送信（画像ビーコン方式）
+        cat   : "button"（操作ボタン） / "event"（システムイベント） / "action"（画面操作）
+        label : 集計時に並ぶ名前（例「スタンプカード」「気象警報表示」「タブ:天気」）
+     ・主要な関数を“ラップ”して、HTML側を書き換えずに発生を記録する
+     ・送りすぎ防止：同じ cat+label は5秒に1回まで
+     ※GAS側に handleEvent の cat 対応／adminRunStats の eventStats を入れて再デプロイすること
+     ============================================================ -->
+<script>
+(function () {
+  var GAS_URL = "https://script.google.com/macros/s/AKfycby8yqQ-1sIZrcpKfzi1D7teL7ogBQHQWUKjzEAYjE8qe76y0biy2IHvkULjeEWuzoCHNA/exec";
+  var _recent = {};   // 同一イベントの連発抑制
+
+  function track(cat, label) {
+    try {
+      cat = String(cat || "button");
+      label = String(label || "").substring(0, 40);
+      if (!label) return;
+
+      // 同じ cat+label は5秒に1回だけ送る（連打・二重発火対策）
+      var key = cat + "|" + label;
+      var now = Date.now();
+      if (_recent[key] && (now - _recent[key]) < 5000) return;
+      _recent[key] = now;
+
+      var uid = "";
+      try { uid = localStorage.getItem("dwa_visit_uid") || ""; } catch (e) {}
+
+      var params =
+        "type=event" +
+        "&cat=" + encodeURIComponent(cat) +
+        "&name=" + encodeURIComponent(label) +
+        "&site=main" +
+        "&uid=" + encodeURIComponent(uid) +
+        "&page=" + encodeURIComponent(location.pathname || "/") +
+        "&ref=" + encodeURIComponent(document.referrer || "");
+
+      var img = new Image();
+      img.src = GAS_URL + "?" + params + "&_=" + now;
+    } catch (e) {}
+  }
+  window.dwaTrack = track;
+
+  // 既存の関数を壊さずに前後で計測を挟む“ラッパー”
+  function wrap(fnName, cat, label) {
+    try {
+      var orig = window[fnName];
+      if (typeof orig !== "function") return;
+      if (orig.__dwaWrapped) return;          // 二重ラップ防止
+      var wrapped = function () {
+        track(cat, (typeof label === "function") ? label.apply(this, arguments) : label);
+        return orig.apply(this, arguments);
+      };
+      wrapped.__dwaWrapped = true;
+      window[fnName] = wrapped;
+    } catch (e) {}
+  }
+
+  function setup() {
+    // ---- 主要ボタン（操作系）----
+    wrap("openShindanModal",   "button", "被害想定診断を開く");
+    wrap("openStampCard",      "button", "スタンプカードを開く");
+    wrap("openSettings",       "button", "設定を開く");
+    wrap("openSponsorModal",   "button", "協賛企業募集を開く");
+    wrap("openArchiveModal",   "button", "記事アーカイブを開く");
+    wrap("openOverseasModal",  "button", "海外地震履歴を開く");
+    wrap("openTranslateModal", "button", "言語/翻訳を開く");
+    wrap("openLineStampQr",    "button", "LINEスタンプを開く");
+    wrap("openInstaQr",        "button", "Instagramを開く");
+    wrap("openBigDetail",      "button", "注目地震の詳細を見る");
+
+    // ---- 画面モード・操作系 ----
+    wrap("enterEmergency",     "action", "緊急モードに入る");
+    wrap("enterMode",          "action", function (m) { return "画面モード:" + (m === "quake" ? "地震監視" : (m || "")); });
+    wrap("toggleDtabs",        "action", "災害情報タブ開閉");
+    wrap("refreshAllData",     "action", "最新情報に更新");
+    wrap("openHamburger",      "action", "メニューを開く");
+
+    // ---- システムイベント（警報・地震の表示）----
+    // 津波バナー：実際に表示されたときだけ記録（grade を見て段階も残す）
+    wrap("_showTsunamiBanner",  "event", function (banner, grade) {
+      var g = String(grade || "");
+      var name = (g.indexOf("Major") >= 0) ? "大津波警報表示"
+               : (g.indexOf("Warning") >= 0) ? "津波警報表示"
+               : (g.indexOf("Watch") >= 0) ? "津波注意報表示" : "津波情報表示";
+      return name;
+    });
+    // 緊急地震速報オーバーレイ
+    wrap("triggerEEW",          "event", "緊急地震速報オーバーレイ");
+  }
+
+  // 気象警報バナーが active になった瞬間を監視して記録（関数名に依存しない確実な方法）
+  function watchJmaWarning() {
+    try {
+      var el = document.getElementById("jmaWarningBanner");
+      if (!el || typeof MutationObserver === "undefined") return;
+      var wasActive = el.classList.contains("active");
+      var ob = new MutationObserver(function () {
+        var nowActive = el.classList.contains("active");
+        if (nowActive && !wasActive) {
+          var label = "気象警報表示";
+          if (el.classList.contains("warn-special")) label = "気象特別警報表示";
+          else if (el.classList.contains("warn-clear")) label = "";  // 平常表示は記録しない
+          if (label) track("event", label);
+        }
+        wasActive = nowActive;
+      });
+      ob.observe(el, { attributes: true, attributeFilter: ["class"] });
+    } catch (e) {}
+  }
+
+  // タブ切替（災害情報タブ・気象タブなど）をイベント委譲でまとめて記録
+  function watchTabs() {
+    try {
+      document.addEventListener("click", function (ev) {
+        var t = ev.target;
+        if (!t || typeof t.closest !== "function") return;
+        // data-track 属性があるものは最優先（手動で付けた計測ポイント）
+        var trackEl = t.closest("[data-track]");
+        if (trackEl) {
+          var dt = trackEl.getAttribute("data-track") || "";
+          var sep = dt.indexOf(":");
+          if (sep > 0) track(dt.substring(0, sep), dt.substring(sep + 1));
+          else track("action", dt);
+        }
+      }, true);
+    } catch (e) {}
+  }
+
+  function init() {
+    setup();
+    watchJmaWarning();
+    watchTabs();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>
 </body>
 </html>
