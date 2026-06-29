@@ -8697,11 +8697,7 @@ function startSettingsTour(){
 function maybeStartTourOnFirstVisit(){
   let seen = false;
   try { seen = isTutorialSeen(); } catch(e){}
-  // 「毎回表示」ONなら、既読でも自動再生の判定対象にする。
-  // ただしこの判定は config 到着前にも呼ばれ得るため、待機ループ側でも再確認する。
-  var _everyVisit = false;
-  try{ _everyVisit = !!(SITE_CONFIG && SITE_CONFIG.tutorial && SITE_CONFIG.tutorial.everyVisit); }catch(e){}
-  if(seen && !_everyVisit) return;
+  if(seen) return;
   // 全画面の地震警報（EEWオーバーレイ）が表示中の間は待ち、閉じられてから開始する。
   // また、機能設定(config)が届く前に判定すると「初回スキップ」が効かないため、
   // config の到着（_configApplied）も待つ。最大 _maxWaitMs まで待ってフォールバック。
@@ -8731,15 +8727,8 @@ function maybeStartTourOnFirstVisit(){
       if((!ov || !ov.classList.contains('active')) && !openingShown && !splashShown
          && !noticeShown && !noticePending && noticesReady && (configReady || timedOut)){
         clearInterval(waiter);
-        // config 到着後の最終判定。
-        // (1) 「チュートリアル_表示」がOFF（skipFirst=true / show=false）なら自動再生しない。
-        try{ if(SITE_CONFIG && SITE_CONFIG.tutorial && (SITE_CONFIG.tutorial.skipFirst || SITE_CONFIG.tutorial.show === false)){ return; } }catch(e){}
-        // (2) 「毎回表示」がOFFのとき、既読ユーザーには出さない。
-        //     （関数冒頭では config 未着の可能性があるため、ここで再確認する）
-        try{
-          var _ev = !!(SITE_CONFIG && SITE_CONFIG.tutorial && SITE_CONFIG.tutorial.everyVisit);
-          if(!_ev){ var _s=false; try{ _s=isTutorialSeen(); }catch(e2){} if(_s) return; }
-        }catch(e){}
+        // 管理画面の「チュートリアル_初回スキップ」がONなら自動再生しない（即画面を開く）
+        try{ if(SITE_CONFIG && SITE_CONFIG.tutorial && SITE_CONFIG.tutorial.skipFirst){ return; } }catch(e){}
         // 緊急モードが発動中（または発動した）ときはチュートリアルを始めない
         try{ if(typeof _emgActive !== 'undefined' && _emgActive){ return; } }catch(e){}
         setTimeout(function(){
@@ -9243,7 +9232,7 @@ function resetMode(){ exitMode(); }
 var SITE_CONFIG = {
   opening:{ enabled:true, kind:'radar', everyVisit:false, title:'防災情報センター', subtitle:'DISASTER WARNING ACCOUNT', seconds:2.6 },
   emergency:{ mode:'auto', manualButton:true, auto:true, autoShindo:5, heading:'緊急情報モード', message:'身の安全を最優先に行動してください。' },
-  tutorial:{ skipFirst:false, show:true, everyVisit:false }
+  tutorial:{ skipFirst:false }
 };
 var _configApplied = false;
 
@@ -9253,16 +9242,6 @@ function applySiteConfig(cfg){
   if(cfg.opening)   Object.assign(SITE_CONFIG.opening, cfg.opening);
   if(cfg.emergency) Object.assign(SITE_CONFIG.emergency, cfg.emergency);
   if(cfg.tutorial)  Object.assign(SITE_CONFIG.tutorial, cfg.tutorial);
-
-  // チュートリアル設定の正規化。
-  // 管理画面（GAS）からは tutorial.show（表示する/しない）と
-  // tutorial.everyVisit（毎回出す/初回のみ）が届く。
-  // 旧形式 skipFirst（true=自動再生しない）しか無い場合も矛盾なく動くようそろえる。
-  var tut = SITE_CONFIG.tutorial;
-  // show が明示で false のときは「自動再生しない」＝ skipFirst:true 相当にする。
-  if(tut.show === false){ tut.skipFirst = true; }
-  // show が明示で true、かつ skipFirst が config 由来でなければ自動再生を許可。
-  else if(tut.show === true && cfg.tutorial && cfg.tutorial.skipFirst === undefined){ tut.skipFirst = false; }
 
   // 扉演出(splash)は config 到着前に即実行されるため、「扉を出すべきか」を
   // localStorage にキャッシュし、次回起動時に splash 側がこれを参照する。
@@ -10943,7 +10922,11 @@ const SYNC_KEYS = [
   'openSoundOff','alert_flash_banner_enabled','tsunami_banner_enabled','jma_warning_banner_enabled',
   // 天気・地域
   'weather_enabled','weather_week_enabled','weather_city_code','weather_city_name',
-  'weather_class10_code','weather_pref_code'
+  'weather_class10_code','weather_pref_code',
+  // レイアウト（ブロックの並び替え・横並び・表示タイプ）
+  'layout_top_v2','layout_main_v2','layout_stats_type_v1',
+  // 熱中症 暑さ指数（表示する都道府県のしぼり込み）
+  'heat_pref_only','heat_pref_list'
 ];
 // 同期から必ず除外するキー（端末固有・コード自体・大きすぎる記録）
 // stamp_code（コード本体）, notified_keys（通知済み）, own_ref_codes（端末の紹介履歴）は対象外。
@@ -11132,6 +11115,19 @@ function reapplyAllSettings(){
       if (_weatherEnabled && _weatherCityCode && typeof fetchWeather === 'function') {
         try { fetchWeather(); } catch(e){}
       }
+    } catch(e){}
+
+    // レイアウト（ブロックの並び替え・横並び・表示タイプ）の再適用。
+    // localStorage には復元済みなので、公開した適用関数を呼んで画面に反映する。
+    // （これが無いと「復元してもレイアウトだけ初期配置のまま」になる）
+    try { if (typeof window.__applyLayout === 'function') window.__applyLayout(); } catch(e){}
+
+    // 熱中症 暑さ指数：表示する都道府県のしぼり込みを再適用。
+    try {
+      _heatPrefOnly = g('heat_pref_only') === '1';
+      try { var _hp = JSON.parse(g('heat_pref_list') || '[]'); _heatPrefList = Array.isArray(_hp) ? _hp.filter(function(x){ return x; }).slice(0,2) : []; } catch(e){ _heatPrefList = []; }
+      if (typeof syncHeatPrefSettingsUI === 'function') { try { syncHeatPrefSettingsUI(); } catch(e){} }
+      if (typeof renderHeat === 'function') { try { renderHeat(); } catch(e){} }
     } catch(e){}
 
     // 各種トグル系UIをまとめて更新（存在すれば）
@@ -13184,6 +13180,8 @@ document.addEventListener('keydown', function(e){
 
   // 天気の週間予報などが再描画された後にも折りたたみを当て直せるよう公開
   window.applyPairCollapse = applyPairCollapse;
+  // 設定の同期復元後に、レイアウト（並び替え・横並び・表示タイプ）を画面へ再適用するため公開する。
+  window.__applyLayout = applyAll;
 
   function init(){ applyAll(); }
   if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', init); }
