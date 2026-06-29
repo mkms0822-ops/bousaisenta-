@@ -1388,6 +1388,27 @@ html.light .icon-opt.selected { border-color:var(--blue); background:rgba(0,100,
   .reorder-pair .tsunami-link {
     display:block; width:100%; box-sizing:border-box; text-align:center; margin-top:0;
   }
+  /* ── 熱中症 暑さ指数：横並び（半幅）でも崩れないよう調整 ── */
+  .reorder-pair #heatWidget { padding:13px 13px; }
+  /* ヘッダーを縦積みにして見出しが縦1文字化するのを防ぐ */
+  .reorder-pair .heat-header { flex-direction:column; align-items:flex-start; gap:6px; margin-bottom:9px; }
+  .reorder-pair .heat-title-wrap { width:100%; min-width:0; }
+  .reorder-pair .heat-label,
+  .reorder-pair .heat-title { letter-spacing:0 !important; word-break:break-word; overflow-wrap:anywhere; }
+  .reorder-pair .heat-updated { font-size:9px; }
+  /* 5段階凡例は半幅だと潰れるので、文字だけ縮めて色帯は維持 */
+  .reorder-pair .heat-legend { gap:3px; }
+  .reorder-pair .heat-legend .hl-lab { font-size:9px; letter-spacing:0; }
+  .reorder-pair .heat-legend .hl-rng { font-size:7.5px; }
+  /* 絞り込みは2×2に折り返して押しやすく */
+  .reorder-pair .heat-filter { gap:5px; }
+  .reorder-pair .heat-filter .hf { min-width:calc(50% - 3px); flex:1 1 calc(50% - 3px); font-size:11px; padding:7px 4px; }
+  /* 地点行：予測/実況チップが入り切るよう、名前を上・チップを下の縦積みに */
+  .reorder-pair .heat-pt { flex-direction:column; align-items:flex-start; gap:6px; }
+  .reorder-pair .heat-pt .hpt-two { justify-content:flex-start; width:100%; }
+  .reorder-pair .heat-pref-btn { gap:8px; padding:10px 11px; }
+  .reorder-pair .heat-pref-btn .hp-name { font-size:13px; word-break:break-word; }
+  .reorder-pair .heat-pref-btn .hp-max { font-size:10px; }
 /* さらに狭い画面では、Orbitron等の大きな見出しが横に収まらないので一段縮める */
 @media (max-width:480px){
   .reorder-pair .jmaw-title,
@@ -1688,6 +1709,72 @@ html.light #tsunamiBanner.warn-major .tsunami-link:hover { background:rgba(200,2
 /* RESPONSIVE */
 @media (max-width:960px) { main { grid-template-columns:1fr; } .stats-row { grid-template-columns:repeat(2,1fr); } #latestBig { grid-column:1; } #tsunamiBanner { grid-column:1; } #jmaWarningBanner { grid-column:1; } .blog-grid { grid-template-columns:1fr; } }
 @media (max-width:500px) { header { padding:6px 14px; } .big-mag { font-size:48px; } .stats-row { grid-template-columns:repeat(2,1fr); } }
+
+/* ===================== 熱中症 暑さ指数（WBGT） ===================== */
+#heatWidget{
+  border-radius:14px; padding:16px 20px; position:relative; z-index:5;
+  background:linear-gradient(135deg,rgba(255,90,30,0.10),rgba(255,140,0,0.06));
+  border:1px solid rgba(255,140,40,0.28);
+}
+.heat-header{ display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.heat-icon{ font-size:24px; line-height:1; filter:drop-shadow(0 0 8px rgba(255,120,40,0.5)); }
+.heat-title-wrap{ flex:1; min-width:0; }
+.heat-label{ font-family:var(--num-font); font-size:10px; letter-spacing:0.14em; color:rgba(255,160,80,0.85); text-transform:uppercase; }
+.heat-title{ font-size:clamp(14px,2vw,17px); font-weight:700; color:var(--text); margin-top:2px; }
+.heat-updated{ font-family:var(--num-font); font-size:10px; color:var(--muted); white-space:nowrap; }
+.heat-body{ border-top:1px solid rgba(255,140,40,0.18); padding-top:12px; }
+
+/* 5段階凡例 */
+.heat-legend{ display:grid; grid-template-columns:repeat(5,1fr); gap:5px; margin-bottom:13px; }
+.heat-legend .hl{ border-radius:8px; padding:6px 3px 7px; text-align:center; }
+.heat-legend .hl-lab{ display:block; font-size:11px; font-weight:800; line-height:1.15; }
+.heat-legend .hl-rng{ display:block; font-family:var(--num-font); font-size:8.5px; font-weight:700; opacity:.9; margin-top:2px; }
+.hl1{ background:#1971c2; color:#eaf3ff; }
+.hl2{ background:#4dabf7; color:#06243f; }
+.hl3{ background:#ffd43b; color:#3a2c00; }
+.hl4{ background:#ff922b; color:#3a1d00; }
+.hl5{ background:#ff2800; color:#fff; }
+
+/* レベル絞り込みボタン */
+.heat-filter{ display:flex; gap:7px; margin-bottom:13px; flex-wrap:wrap; }
+.heat-filter .hf{ flex:1; min-width:84px; border:1px solid var(--border); background:var(--surface2); color:var(--text); border-radius:9px; padding:8px 5px; font-size:12px; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px; transition:.15s; font-family:var(--user-font); }
+.heat-filter .hf .hf-dot{ width:9px; height:9px; border-radius:50%; }
+.heat-filter .hf .hf-cnt{ font-family:var(--num-font); font-size:10px; color:var(--muted); font-weight:700; }
+.heat-filter .hf.active{ border-color:rgba(255,140,40,0.7); box-shadow:0 0 12px rgba(255,120,40,0.25); transform:translateY(-1px); }
+.heat-filter .hf3 .hf-dot{ background:#ffd43b; } .heat-filter .hf4 .hf-dot{ background:#ff922b; } .heat-filter .hf5 .hf-dot{ background:#ff2800; }
+.heat-filter .hfall .hf-dot{ display:none; }
+
+/* 都道府県アコーディオン */
+.heat-prefs{ display:flex; flex-direction:column; gap:7px; }
+.heat-pref{ background:var(--surface2); border:1px solid var(--border); border-radius:11px; overflow:hidden; }
+.heat-pref-btn{ width:100%; border:none; background:transparent; color:var(--text); display:flex; align-items:center; gap:10px; padding:11px 13px; cursor:pointer; text-align:left; font:inherit; font-family:var(--user-font); }
+.heat-pref-btn .hp-badge{ flex:0 0 auto; width:58px; height:28px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:800; }
+.heat-pref-btn .hp-name{ font-size:14.5px; font-weight:700; flex:1; }
+.heat-pref-btn .hp-max{ font-family:var(--num-font); font-size:11px; color:var(--muted); }
+.heat-pref-btn .hp-chev{ transition:transform .2s; color:var(--muted); font-size:12px; }
+.heat-pref.open .hp-chev{ transform:rotate(90deg); }
+.heat-pref-body{ display:none; border-top:1px solid var(--border); }
+.heat-pref.open .heat-pref-body{ display:block; }
+.heat-pt{ display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid rgba(0,180,255,0.06); }
+.heat-pt:last-child{ border-bottom:none; }
+.heat-pt .hpt-name{ flex:1; font-size:13px; }
+.heat-pt .hpt-two{ display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+.heat-pt .hpt-k{ font-family:var(--num-font); font-size:8.5px; color:var(--muted); display:block; text-align:center; margin-bottom:2px; letter-spacing:0.06em; }
+.heat-chip{ display:inline-flex; align-items:center; gap:4px; border-radius:18px; padding:3px 9px; font-size:11px; font-weight:800; white-space:nowrap; }
+.heat-chip small{ font-family:var(--num-font); font-weight:700; opacity:.85; }
+.heat-chip.c0{ background:var(--surface3); color:var(--muted); }
+.heat-chip.c1{ background:#1971c2; color:#eaf3ff; }
+.heat-chip.c2{ background:#4dabf7; color:#06243f; }
+.heat-chip.c3{ background:#ffd43b; color:#3a2c00; }
+.heat-chip.c4{ background:#ff922b; color:#3a1d00; }
+.heat-chip.c5{ background:#ff2800; color:#fff; }
+
+.heat-foot{ margin-top:12px; }
+.heat-link{ background:rgba(255,140,40,0.1); border:1px solid rgba(255,140,40,0.3); color:#ffb060; font-family:var(--num-font); font-size:11px; padding:7px 14px; border-radius:7px; cursor:pointer; letter-spacing:0.04em; }
+.heat-note{ font-size:10.5px; color:var(--muted); line-height:1.7; margin-top:9px; }
+.heat-loading, .heat-empty{ text-align:center; color:var(--muted); font-size:12.5px; padding:22px 10px; }
+@media (max-width:520px){ .heat-legend .hl-lab{ font-size:10px; } .heat-filter .hf{ min-width:70px; font-size:11px; } }
+@media (prefers-reduced-motion:reduce){ .heat-pref .hp-chev, .heat-filter .hf{ transition:none; } }
 
 /* ===================== 気象警報バナー（気象庁・全国） ===================== */
 #jmaWarningBanner {
@@ -3984,6 +4071,49 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
         </div>
       </div>
       <div class="weather-week" id="weatherWeek"></div>
+    </div>
+  </div>
+
+  <!-- HEAT INDEX (熱中症 暑さ指数 WBGT) -->
+  <div class="reorder-block reorder-fullwidth" data-block="heat" data-zone="top">
+    <div class="reorder-bar">
+      <span class="reorder-handle" title="ドラッグで移動">⠿ 並び替え（暑さ指数）</span>
+      <span class="reorder-arrows">
+        <button type="button" class="reorder-up" onclick="moveBlock(this,-1)" aria-label="上へ">▲</button>
+        <button type="button" class="reorder-down" onclick="moveBlock(this,1)" aria-label="下へ">▼</button>
+      </span>
+    </div>
+    <div id="heatWidget" class="anim-ready anim-up">
+      <div class="heat-header">
+        <div class="heat-icon">🌡️</div>
+        <div class="heat-title-wrap">
+          <div class="heat-label">HEAT INDEX / 熱中症 暑さ指数（WBGT）</div>
+          <div class="heat-title" id="heatTitle">全国の暑さ指数</div>
+        </div>
+        <div class="heat-updated" id="heatUpd"></div>
+      </div>
+      <div class="heat-body">
+        <div class="heat-legend">
+          <div class="hl hl1"><span class="hl-lab">ほぼ安全</span><span class="hl-rng">21未満</span></div>
+          <div class="hl hl2"><span class="hl-lab">注意</span><span class="hl-rng">21–25</span></div>
+          <div class="hl hl3"><span class="hl-lab">警戒</span><span class="hl-rng">25–28</span></div>
+          <div class="hl hl4"><span class="hl-lab">厳重警戒</span><span class="hl-rng">28–31</span></div>
+          <div class="hl hl5"><span class="hl-lab">危険</span><span class="hl-rng">31以上</span></div>
+        </div>
+        <div class="heat-filter" id="heatFilter">
+          <button class="hf hfall active" data-lv="0">すべて<span class="hf-cnt" id="heatCntAll"></span></button>
+          <button class="hf hf3" data-lv="3"><span class="hf-dot"></span>警戒以上<span class="hf-cnt" id="heatCnt3"></span></button>
+          <button class="hf hf4" data-lv="4"><span class="hf-dot"></span>厳重警戒以上<span class="hf-cnt" id="heatCnt4"></span></button>
+          <button class="hf hf5" data-lv="5"><span class="hf-dot"></span>危険<span class="hf-cnt" id="heatCnt5"></span></button>
+        </div>
+        <div id="heatPrefs" class="heat-prefs">
+          <div class="heat-loading" id="heatLoading">暑さ指数を読み込み中…</div>
+        </div>
+        <div class="heat-foot">
+          <button class="heat-link" type="button" onclick="window.open('https://www.wbgt.env.go.jp/','_blank','noopener,noreferrer')">環境省 熱中症予防情報サイト（公式）→</button>
+          <div class="heat-note" id="heatNote">出典：環境省 熱中症予防情報サイト（暑さ指数 電子情報提供サービス）。掲載値は予測値・実況推定値で、独自に算出したものであり実際の値と若干異なる場合があります。立地条件によっても差が出ます。アラートの正式発表は環境省サイトでご確認ください。</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -6445,6 +6575,13 @@ function renderList(qs){
 
 // ===================== FETCH =====================
 async function fetchQuakes(){
+  // 端末がオフラインなら、無駄な通信失敗を避けてスキップする。
+  // (スリープ復帰直後や電波の弱い場所で起きる "Failed to fetch" 対策)
+  if(navigator.onLine === false){
+    try{ document.getElementById('updateBar').textContent =
+      'オフライン中 — 接続が戻り次第、自動で更新します'; }catch(_e){}
+    return;
+  }
   const btn = document.getElementById('refreshBtn');
   btn.disabled = true; btn.textContent = '取得中...';
   document.getElementById('updateBar').textContent = 'P2P地震情報APIからデータを取得中...';
@@ -6512,9 +6649,10 @@ async function fetchQuakes(){
       </div>`;
     document.getElementById('updateBar').textContent = '取得失敗 — 再試行してください';
     // 地震データの取得失敗を管理者へ報告（10分に1回までに自動で抑制される）。
-    // ただしタイムアウト等の一時的な通信失敗は頻発しても異常ではないため報告しない。
+    // ただしタイムアウトや通信瞬断などの一時的な失敗は頻発しても異常では
+    // ないため報告しない（本当に対処が必要なエラーだけ通知する）。
     const msg = e?.message || '不明';
-    const transient = /タイムアウト|応答がありません|Failed to fetch|NetworkError|aborted/i.test(msg);
+    const transient = /タイムアウト|応答がありません|Failed to fetch|NetworkError|aborted|Load failed/i.test(msg);
     try { if(!transient && window.dwaReportError) window.dwaReportError('地震データの取得に失敗: '+msg, 'fetchQuakes'); } catch(_e){}
   }
   btn.disabled = false; btn.textContent = '↻ 今すぐ更新';
@@ -7077,6 +7215,105 @@ function syncWeatherSettingsUI(){
   document.getElementById('weatherWeek').classList.toggle('show', _weatherWeekEnabled);
   // 30分ごとに天気更新
   setInterval(()=>{ if(_weatherEnabled && _weatherPrefCode) fetchWeather(); }, 30*60*1000);
+})();
+
+// ===================== 熱中症 暑さ指数（WBGT） =====================
+// GAS（ARTICLES_URL ?type=heat）から、都道府県ごとにまとめた暑さ指数を取得し、
+// 5段階の色分け＋都道府県→地点の二段階で表示する。予測値と実況値の両方を出す。
+// 出典：環境省 熱中症予防情報サイト（利用条件によりサイト内に出典明記が必須）。
+(function initHeat(){
+  var HEAT = { prefs:[], filter:0, updatedAt:'', inSeason:true };
+  var LV = {
+    1:{c:'c1', t:'ほぼ安全'}, 2:{c:'c2', t:'注意'}, 3:{c:'c3', t:'警戒'},
+    4:{c:'c4', t:'厳重警戒'}, 5:{c:'c5', t:'危険'}
+  };
+  function hEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function heatChip(lv, val){
+    if(val==null || !lv){ return '<span class="heat-chip c0">—</span>'; }
+    var info = LV[lv] || {c:'c0', t:'—'};
+    return '<span class="heat-chip '+info.c+'">'+info.t+' <small>'+val+'℃</small></span>';
+  }
+
+  function renderHeat(){
+    var box = document.getElementById('heatPrefs');
+    if(!box) return;
+    var upd = document.getElementById('heatUpd');
+    if(upd) upd.textContent = HEAT.updatedAt ? ('更新 '+HEAT.updatedAt) : '';
+
+    if(HEAT.inSeason === false){
+      var fil0 = document.getElementById('heatFilter'); if(fil0) fil0.style.display='none';
+      box.innerHTML = '<div class="heat-empty">暑さ指数（WBGT）の提供は毎年4月下旬〜10月下旬です。期間外のため表示していません。</div>';
+      return;
+    }
+    var fil = document.getElementById('heatFilter'); if(fil) fil.style.display='flex';
+
+    var c3=0,c4=0,c5=0;
+    HEAT.prefs.forEach(function(p){ if(p.maxLevel>=3)c3++; if(p.maxLevel>=4)c4++; if(p.maxLevel>=5)c5++; });
+    var setTxt=function(id,t){ var el=document.getElementById(id); if(el) el.textContent=t; };
+    setTxt('heatCntAll',' ('+HEAT.prefs.length+')');
+    setTxt('heatCnt3',' ('+c3+')'); setTxt('heatCnt4',' ('+c4+')'); setTxt('heatCnt5',' ('+c5+')');
+
+    var shown = HEAT.prefs.filter(function(p){ return HEAT.filter===0 ? true : p.maxLevel>=HEAT.filter; });
+    if(!shown.length){ box.innerHTML = '<div class="heat-empty">この条件に該当する地域はありません。</div>'; return; }
+
+    var html='';
+    shown.forEach(function(p, idx){
+      var info = LV[p.maxLevel] || {c:'c0', t:'—'};
+      var maxF = (p.maxForecast!=null) ? (p.maxForecast+'℃') : '—';
+      html += '<div class="heat-pref" id="heatPref_'+idx+'">';
+      html +=   '<button class="heat-pref-btn" type="button" onclick="window.__heatToggle('+idx+')">';
+      html +=     '<span class="hp-badge heat-chip '+info.c+'">'+info.t+'</span>';
+      html +=     '<span class="hp-name">'+hEsc(p.pref)+'</span>';
+      html +=     '<span class="hp-max">最高 '+maxF+'</span>';
+      html +=     '<span class="hp-chev">▶</span>';
+      html +=   '</button>';
+      html +=   '<div class="heat-pref-body">';
+      p.points.forEach(function(pt){
+        html += '<div class="heat-pt"><span class="hpt-name">'+hEsc(pt.name)+'</span><span class="hpt-two">';
+        html +=   '<span><span class="hpt-k">予測</span>'+heatChip(pt.fLv, pt.f)+'</span>';
+        html +=   '<span><span class="hpt-k">実況</span>'+heatChip(pt.nLv, pt.n)+'</span>';
+        html += '</span></div>';
+      });
+      html +=   '</div></div>';
+    });
+    box.innerHTML = html;
+  }
+
+  window.__heatToggle = function(idx){
+    var el = document.getElementById('heatPref_'+idx);
+    if(el) el.classList.toggle('open');
+  };
+
+  function loadHeat(){
+    if(typeof ARTICLES_URL === 'undefined' || !ARTICLES_URL || ARTICLES_URL.indexOf('http')!==0) return;
+    var box = document.getElementById('heatPrefs');
+    fetch(ARTICLES_URL + '?type=heat&_=' + Date.now(), { method:'GET' })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(!d || !d.ok){ if(box) box.innerHTML='<div class="heat-empty">暑さ指数を取得できませんでした。</div>'; return; }
+        HEAT.prefs = d.prefs || [];
+        HEAT.updatedAt = d.updatedAt || '';
+        HEAT.inSeason = d.inSeason;
+        renderHeat();
+      })
+      .catch(function(){ if(box) box.innerHTML='<div class="heat-empty">通信エラーで暑さ指数を表示できませんでした。</div>'; });
+  }
+
+  var filterBar = document.getElementById('heatFilter');
+  if(filterBar){
+    filterBar.addEventListener('click', function(e){
+      var btn = e.target.closest('button'); if(!btn) return;
+      HEAT.filter = parseInt(btn.getAttribute('data-lv'),10) || 0;
+      var btns = this.querySelectorAll('button');
+      for(var i=0;i<btns.length;i++) btns[i].classList.toggle('active', btns[i]===btn);
+      renderHeat();
+    });
+  }
+
+  loadHeat();
+  // 実況は随時更新されるので30分おきに再取得
+  setInterval(loadHeat, 30*60*1000);
 })();
 
 // ===================== 宇宙天気（NICT） =====================
@@ -8921,6 +9158,12 @@ document.addEventListener('keydown', function(e){
 });
 
 setInterval(fetchQuakes, 30000);
+
+// オフラインから復帰したら、次回の定期更新を待たずに即座に再取得する。
+// (スリープ復帰やトンネル通過後などに、すぐ最新の地震情報へ追いつくため)
+window.addEventListener('online', function(){
+  try{ if(typeof fetchQuakes === 'function') fetchQuakes(); }catch(_e){}
+});
 
 // ===================== PUSH NOTIFICATION =====================
 // 通知済みキーを管理（重複送信防止）
@@ -12195,6 +12438,7 @@ document.addEventListener('keydown', function(e){
   var META = {
     stats:   { emoji:'📊', name:'地震サマリー',   sub:'本日の件数・最大M・震度など' },
     weather: { emoji:'🌤️', name:'天気予報',       sub:'天気ウィジェット' },
+    heat:    { emoji:'🌡️', name:'熱中症 暑さ指数', sub:'WBGT・都道府県別（夏期）' },
     spaceweather: { emoji:'🛰️', name:'宇宙天気',  sub:'NICT 太陽フレア・地磁気など' },
     latest:  { emoji:'🎯', name:'注目の地震',     sub:'最新の注目地震' },
     tsunami: { emoji:'🌊', name:'津波バナー',     sub:'発令時のみ表示' },
