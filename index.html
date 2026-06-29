@@ -1805,21 +1805,21 @@ html.light #tsunamiBanner.warn-major .tsunami-link:hover { background:rgba(200,2
 /* ===== 地点モーダル（中央にふわっと出る） ===== */
 .heat-modal-overlay{ position:fixed; inset:0; z-index:1200; display:none; align-items:center; justify-content:center; padding:16px; background:rgba(2,6,14,0.66); backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px); }
 .heat-modal-overlay.open{ display:flex; animation:heatFade .18s ease; }
-.heat-modal{ width:100%; max-width:460px; max-height:86vh; display:flex; flex-direction:column; border-radius:16px; overflow:hidden; background:linear-gradient(180deg,#0d1626,#0a1220); border:1px solid rgba(255,140,40,0.34); box-shadow:0 24px 70px rgba(0,0,0,0.6); animation:heatPop .2s cubic-bezier(.2,.9,.3,1.2); }
-.heat-modal-head{ display:flex; align-items:center; gap:11px; padding:14px 16px; border-bottom:1px solid rgba(255,140,40,0.2); background:linear-gradient(135deg,rgba(255,90,30,0.12),rgba(255,140,0,0.05)); }
+.heat-modal{ width:100%; max-width:460px; max-height:86vh; display:flex; flex-direction:column; border-radius:16px; overflow:hidden; background:#ffffff; border:1px solid rgba(255,140,40,0.34); box-shadow:0 24px 70px rgba(0,0,0,0.6); animation:heatPop .2s cubic-bezier(.2,.9,.3,1.2); }
+.heat-modal-head{ display:flex; align-items:center; gap:11px; padding:14px 16px; border-bottom:1px solid rgba(0,0,0,0.08); background:linear-gradient(135deg,rgba(255,90,30,0.10),rgba(255,140,0,0.04)); }
 .heat-modal-head .hm-badge{ flex:0 0 auto; min-width:62px; height:30px; padding:0 10px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; }
 .heat-modal-head .hm-titlewrap{ flex:1; min-width:0; }
-.heat-modal-head .hm-pref{ font-size:17px; font-weight:800; line-height:1.2; color:#ffffff; }
-.heat-modal-head .hm-sub{ font-family:var(--num-font); font-size:10px; color:rgba(220,232,255,0.65); letter-spacing:0.06em; margin-top:2px; }
-.heat-modal-head .hm-close{ flex:0 0 auto; width:32px; height:32px; border-radius:9px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:17px; line-height:1; cursor:pointer; }
-.heat-modal-head .hm-close:hover{ border-color:rgba(255,140,40,0.5); }
+.heat-modal-head .hm-pref{ font-size:17px; font-weight:800; line-height:1.2; color:#111111; }
+.heat-modal-head .hm-sub{ font-family:var(--num-font); font-size:10px; color:rgba(0,0,0,0.55); letter-spacing:0.06em; margin-top:2px; }
+.heat-modal-head .hm-close{ flex:0 0 auto; width:32px; height:32px; border-radius:9px; border:1px solid rgba(0,0,0,0.15); background:#f2f2f2; color:#222; font-size:17px; line-height:1; cursor:pointer; }
+.heat-modal-head .hm-close:hover{ border-color:rgba(255,140,40,0.6); background:#ececec; }
 .heat-modal-body{ overflow-y:auto; -webkit-overflow-scrolling:touch; padding:6px 0; }
-.heat-modal-body .heat-pt{ padding:11px 16px; border-bottom:1px solid rgba(255,255,255,0.07); }
-/* モーダルは常に濃紺背景なので、地点名・ラベルは明るい固定色にする（テーマ非依存） */
-.heat-modal-body .hpt-name{ color:#eaf2ff; font-weight:700; }
-.heat-modal-body .hpt-k{ color:rgba(220,232,255,0.6); }
-.heat-modal-foot{ padding:9px 16px 12px; border-top:1px solid rgba(255,140,40,0.16); }
-.heat-modal-foot .hm-note{ font-size:10px; color:var(--muted); line-height:1.6; }
+.heat-modal-body .heat-pt{ padding:11px 16px; border-bottom:1px solid rgba(0,0,0,0.07); }
+/* モーダルは白背景なので、地点名・ラベルは黒系の見やすい色にする（テーマ非依存） */
+.heat-modal-body .hpt-name{ color:#1a1a1a; font-weight:700; }
+.heat-modal-body .hpt-k{ color:rgba(0,0,0,0.5); }
+.heat-modal-foot{ padding:9px 16px 12px; border-top:1px solid rgba(0,0,0,0.08); }
+.heat-modal-foot .hm-note{ font-size:10px; color:rgba(0,0,0,0.55); line-height:1.6; }
 @keyframes heatFade{ from{opacity:0;} to{opacity:1;} }
 @keyframes heatPop{ from{opacity:0; transform:translateY(14px) scale(.97);} to{opacity:1; transform:none;} }
 @media (prefers-reduced-motion:reduce){ .heat-modal-overlay.open, .heat-modal{ animation:none; } .heat-region .hr-chev, .heat-pref-chip{ transition:none; } }
