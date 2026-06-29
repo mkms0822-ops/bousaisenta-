@@ -3617,7 +3617,29 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
             <option value="">-- 都道府県を選択してください --</option>
           </select>
         </div>
-        <div id="weatherSelectedInfo" style="margin-top:8px;font-size:11px;color:var(--muted);"></div>
+      </div>
+    </div>
+
+    <!-- 熱中症 暑さ指数（表示する都道府県をしぼる） -->
+    <div class="settings-section" data-stour="heatpref">
+      <div class="settings-section-label">// 熱中症 暑さ指数</div>
+      <div class="settings-row">
+        <span class="settings-row-label">登録した都道府県だけ表示</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="heatPrefToggle" onchange="onHeatPrefToggle()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div id="heatPrefSelects" style="display:none;">
+        <div style="margin-top:10px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:5px;">都道府県①</div>
+          <select id="heatPrefSelect1" onchange="onHeatPrefSelectChange()" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--surface3);color:var(--text);font-size:13px;"></select>
+        </div>
+        <div style="margin-top:8px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:5px;">都道府県②（任意）</div>
+          <select id="heatPrefSelect2" onchange="onHeatPrefSelectChange()" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--surface3);color:var(--text);font-size:13px;"></select>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:var(--muted);line-height:1.6;">最大2か所まで登録できます。ONのあいだ、熱中症の暑さ指数は登録した都道府県だけを表示します。</div>
       </div>
     </div>
 
@@ -6806,6 +6828,13 @@ function demoTsunami(level){
 
 // 保存済み設定
 let _weatherEnabled     = localStorage.getItem('weather_enabled')      !== '0';
+// 熱中症 暑さ指数：登録した都道府県だけ表示する設定（最大2県）
+let _heatPrefOnly = localStorage.getItem('heat_pref_only') === '1';
+let _heatPrefList = (function(){
+  try { var a = JSON.parse(localStorage.getItem('heat_pref_list') || '[]'); return Array.isArray(a) ? a.filter(function(x){ return x; }).slice(0,2) : []; }
+  catch(e){ return []; }
+})();
+const HEAT_ALL_PREFS = ['北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'];
 let _columnCompact      = localStorage.getItem('column_compact')        === '1';let _weatherWeekEnabled = localStorage.getItem('weather_week_enabled') === '1';
 let _weatherCityCode    = localStorage.getItem('weather_city_code')    || ''; // class20s
 let _weatherCityName    = localStorage.getItem('weather_city_name')    || '';
@@ -6985,6 +7014,56 @@ function toggleWeatherWeek(){
   _weatherWeekEnabled = document.getElementById('weatherWeekToggle').checked;
   localStorage.setItem('weather_week_enabled', _weatherWeekEnabled ? '1' : '0');
   document.getElementById('weatherWeek').classList.toggle('show', _weatherWeekEnabled);
+}
+
+// ===== 熱中症 暑さ指数：表示する都道府県の設定 =====
+// 2つのドロップダウンに47都道府県を並べる（②は「指定なし」を選べる）
+function _populateHeatPrefSelects(){
+  const s1 = document.getElementById('heatPrefSelect1');
+  const s2 = document.getElementById('heatPrefSelect2');
+  if(!s1 || !s2) return;
+  const opt = function(val,label){ return '<option value="'+val+'">'+label+'</option>'; };
+  let h1 = opt('', '-- 選択してください --');
+  let h2 = opt('', '-- 指定なし --');
+  for(let i=0;i<HEAT_ALL_PREFS.length;i++){
+    h1 += opt(HEAT_ALL_PREFS[i], HEAT_ALL_PREFS[i]);
+    h2 += opt(HEAT_ALL_PREFS[i], HEAT_ALL_PREFS[i]);
+  }
+  s1.innerHTML = h1;
+  s2.innerHTML = h2;
+  s1.value = _heatPrefList[0] || '';
+  s2.value = _heatPrefList[1] || '';
+}
+
+// 設定パネルを開いたとき、現在の状態をUIへ反映する
+function syncHeatPrefSettingsUI(){
+  const tg = document.getElementById('heatPrefToggle');
+  const wrap = document.getElementById('heatPrefSelects');
+  if(tg) tg.checked = _heatPrefOnly;
+  if(wrap) wrap.style.display = _heatPrefOnly ? 'block' : 'none';
+  _populateHeatPrefSelects();
+}
+
+function onHeatPrefToggle(){
+  const tg = document.getElementById('heatPrefToggle');
+  _heatPrefOnly = !!(tg && tg.checked);
+  localStorage.setItem('heat_pref_only', _heatPrefOnly ? '1' : '0');
+  const wrap = document.getElementById('heatPrefSelects');
+  if(wrap) wrap.style.display = _heatPrefOnly ? 'block' : 'none';
+  if(typeof renderHeat === 'function'){ try { renderHeat(); } catch(e){} }
+}
+
+function onHeatPrefSelectChange(){
+  const s1 = document.getElementById('heatPrefSelect1');
+  const s2 = document.getElementById('heatPrefSelect2');
+  const list = [];
+  const v1 = s1 ? s1.value : '';
+  const v2 = s2 ? s2.value : '';
+  if(v1) list.push(v1);
+  if(v2 && v2 !== v1) list.push(v2); // 同じ県の重複は除く
+  _heatPrefList = list.slice(0,2);
+  localStorage.setItem('heat_pref_list', JSON.stringify(_heatPrefList));
+  if(typeof renderHeat === 'function'){ try { renderHeat(); } catch(e){} }
 }
 
 // 天気コード → 絵文字・説明
@@ -7360,6 +7439,11 @@ function syncWeatherSettingsUI(){
     HEAT.prefs.forEach(function(p){ HEAT_PREF_INDEX[p.pref] = p; });
 
     var shown = HEAT.prefs.filter(function(p){ return HEAT.filter===0 ? true : p.maxLevel>=HEAT.filter; });
+    // 設定「登録した都道府県だけ表示」がONなら、登録県だけにしぼる
+    if(_heatPrefOnly && _heatPrefList.length){
+      shown = shown.filter(function(p){ return _heatPrefList.indexOf(p.pref) >= 0; });
+      if(!shown.length){ box.innerHTML = '<div class="heat-empty">登録した都道府県のデータが見つかりません。設定をご確認ください。</div>'; return; }
+    }
     if(!shown.length){ box.innerHTML = '<div class="heat-empty">この条件に該当する地域はありません。</div>'; return; }
 
     // 地方ごとにまとめる
@@ -8096,6 +8180,7 @@ function openSettings(){
   document.getElementById('settingsOverlay').classList.add('open');
   document.body.style.overflow = 'hidden'; // 背景のホーム画面が一緒にスクロールしないよう固定
   initWeatherSelects(); // 設定を開くたびに地域データを遅延ロード
+  try { syncHeatPrefSettingsUI(); } catch(e){} // 熱中症 都道府県設定のUI反映
 }
 function closeSettings(){
   document.getElementById('settingsOverlay').classList.remove('open');
@@ -10138,7 +10223,16 @@ function _fmtNoticeTitle(t){
   if(looksLikeDate){
     const d = new Date(s);
     if(!isNaN(d.getTime())){
-      return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日のお知らせ';
+      // 文字列に GMT±hhmm が含まれていれば、その оффセットで実際の暦日を求める
+      // （実行環境のタイムゾーンに依存して日付がずれるのを防ぐ）。
+      const m = s.match(/GMT([+-])(\d{2})(\d{2})/);
+      let dd = d;
+      if(m){
+        const sign = m[1]==='-' ? -1 : 1;
+        const offMin = sign * (parseInt(m[2],10)*60 + parseInt(m[3],10));
+        dd = new Date(d.getTime() + (offMin*60000) + (d.getTimezoneOffset()*60000));
+      }
+      return dd.getFullYear()+'年'+(dd.getMonth()+1)+'月'+dd.getDate()+'日のお知らせ';
     }
   }
   return s;
@@ -10408,10 +10502,14 @@ function openNoticeHistory(){
               return '<a class="nhi-link-btn" href="'+escq(b.url)+'" onclick="return noticeLinkClick(event, '+urlJson+');" rel="noopener">'+escq(b.label)+' ▶</a>';
             }).join('') + '</div>'
           : '';
+        let hTitle = _fmtNoticeTitle(n.title);
+        let hBody  = _noticeBody(n);
+        if(!hBody && hTitle){ hBody = hTitle; hTitle = ''; }
+        const escTitle = String(hTitle||'お知らせ').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         return '<div class="nhist-item">'
           + '<div class="nhi-date">' + _fmtNoticeDate(n.date) + '</div>'
-          + '<div class="nhi-title">' + String(n.title||'お知らせ').replace(/</g,'&lt;') + '</div>'
-          + '<div class="nhi-text">' + _noticeHtml(n.body || n.text || '') + '</div>'
+          + '<div class="nhi-title">' + escTitle + '</div>'
+          + '<div class="nhi-text">' + _noticeHtml(hBody) + '</div>'
           + linksHtml
           + '</div>';
       }).join('');
