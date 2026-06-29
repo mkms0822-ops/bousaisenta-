@@ -7311,9 +7311,20 @@ function syncWeatherSettingsUI(){
     });
   }
 
-  loadHeat();
-  // 実況は随時更新されるので30分おきに再取得
-  setInterval(loadHeat, 30*60*1000);
+  // 初回ロードは、このスクリプトブロックを最後まで実行し終えた後に行う。
+  // （ARTICLES_URL は後方で const 宣言されるため、ここで直接触れると
+  //  Temporal Dead Zone により ReferenceError になり、以降の初期化＝テーマ復元や
+  //  地震サマリー描画まで止まってしまう。defer して安全に呼ぶ。）
+  function startHeat(){
+    loadHeat();
+    // 実況は随時更新されるので30分おきに再取得
+    setInterval(loadHeat, 30*60*1000);
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', startHeat);
+  } else {
+    setTimeout(startHeat, 0);
+  }
 })();
 
 // ===================== 宇宙天気（NICT） =====================
