@@ -8478,6 +8478,27 @@ const OPEN_SOUND_SRC = "dwa-open-sound-v2.mp3";
 
 // ===================== TUTORIAL TOUR =====================
 const TOUR_KEY = 'tutorial_seen';
+// チュートリアルの版数。機能追加でチュートリアルを更新したら、この数字を1つ上げると、
+// すでに見たことのある既存ユーザーにも「その回だけ」自動でチュートリアルを再表示できる。
+const TUTORIAL_VERSION = 2;
+const TUTORIAL_VER_KEY = 'tutorial_seen_version';
+// 「このユーザーは最新版のチュートリアルを見た」かどうか。
+// 旧フラグ(tutorial_seen==='true')しか無い古いユーザーは「version 1 を見た」とみなす。
+function isTutorialSeen(){
+  try {
+    var ver = parseInt(localStorage.getItem(TUTORIAL_VER_KEY) || '', 10);
+    if(!isNaN(ver)) return ver >= TUTORIAL_VERSION;
+    // 版数未記録だが旧フラグがあるusers → version 1 扱い
+    if(localStorage.getItem(TOUR_KEY) === 'true') return TUTORIAL_VERSION <= 1;
+    return false;
+  } catch(e){ return false; }
+}
+function markTutorialSeen(){
+  try {
+    localStorage.setItem(TOUR_KEY, 'true');
+    localStorage.setItem(TUTORIAL_VER_KEY, String(TUTORIAL_VERSION));
+  } catch(e){}
+}
 const tourSteps = [
   { sel:'.hp-header', title:'防災情報センターへようこそ', text:'地震速報をリアルタイムで表示する防災情報サイトです。ヘッダー右のこの機器パネルに、LIVE表示・現在時刻・更新ボタン・メニューがまとまっています。主な使い方を簡単にご案内します。' },
   { sel:'[data-tour="emg-plate"]', title:'🚨 緊急対応マニュアル', text:'ヘッダーの「緊急対応マニュアル」ボタンです。地震・火災・救急・台風・防犯など、いざという時の対応手順をタップで確認できます。迷ったらここを開き、状況を選ぶだけでやるべきことが表示されます。', fallbackToTop:true },
@@ -8632,6 +8653,7 @@ const settingsTourSteps = [
   { sel:'[data-stour="app"]', title:'📲 アプリとして使う', text:'スマホのホーム画面にこのサイトを追加できます。アプリのように1タップで起動でき、地震速報をすばやく確認できます。' },
   { sel:'[data-stour="layout"]', title:'📐 レイアウトの並び替え', text:'トップpage内の各ブロックの並び順を、好みに合わせて入れ替えられます。「レイアウトを編集」で並び替え、「リセット」で初期配置に戻せます。' },
   { sel:'[data-stour="weather"]', title:'🌤️ 天気予報', text:'天気予報ウィジェットの表示／非表示、週間予報の表示を切り替えられます。地域（都道府県・市区町村）を選ぶと、その地点の予報が表示されます。' },
+  { sel:'[data-stour="heatpref"]', title:'🌡️ 熱中症 暑さ指数', text:'熱中症の暑さ指数（WBGT）を、見たい都道府県だけにしぼって表示できます。スイッチをONにして都道府県を最大2つまで選ぶと、暑さ指数の一覧がその県だけになります。OFFにすると全国すべての都道府県を表示します。よく見る地域を登録しておくと便利です。' },
   { sel:'[data-stour="alertbanner"]', title:'⚠️ 警報バナー', text:'画面に出る4種類の警報表示を、それぞれ表示するか設定できます。①地震警戒バナー②津波バナー③気象警報バナー（気象庁の警報・危険警報・特別警報を自動表示）④大地震オーバーレイ（全画面表示）。OFFにすると、その警報が発令されても画面に表示しません。' },
   { sel:'[data-stour="opensound"]', title:'🔊 オープニングサウンド', text:'アプリ起動時に流れるオープニング音（扉が開く効果音）のオン／オフを切り替えられます。音を鳴らしたくない場合は、ここをOFFにしてください。' },
   { sel:'[data-stour="demo"]', title:'🚨 動作テスト（デモ）', text:'大地震・津波警報のほか、気象警報（レベル3）・危険警報（レベル4）・特別警報（レベル5）の通知が「実際にどう表示されるか」を、安全に体験できるデモ機能です。いざという時の見え方を事前に確認しておきましょう。' },
@@ -8674,7 +8696,7 @@ function startSettingsTour(){
 
 function maybeStartTourOnFirstVisit(){
   let seen = false;
-  try { seen = localStorage.getItem(TOUR_KEY) === 'true'; } catch(e){}
+  try { seen = isTutorialSeen(); } catch(e){}
   if(seen) return;
   // 全画面の地震警報（EEWオーバーレイ）が表示中の間は待ち、閉じられてから開始する。
   // また、機能設定(config)が届く前に判定すると「初回スキップ」が効かないため、
@@ -8783,7 +8805,7 @@ function endTour(completed){
   }
 
   // --- メインチュートリアルの終了処理 ---
-  try { localStorage.setItem(TOUR_KEY, 'true'); } catch(e){}
+  try { markTutorialSeen(); } catch(e){}
   // チュートリアル終了時：気象情報タブは収納状態に戻す
   if(typeof collapseDtabs === 'function') collapseDtabs();
   // チュートリアル終了後はページ最上部（TOP）へ戻す
@@ -10569,7 +10591,7 @@ function openModalFromHash(){
 
 // チュートリアルを見たことがあるか（初回判定）
 function _hasSeenTutorial(){
-  try { return localStorage.getItem(TOUR_KEY) === 'true'; } catch(e){ return false; }
+  try { return isTutorialSeen(); } catch(e){ return false; }
 }
 
 // 起動時のお知らせ＆リンク処理。
@@ -10864,7 +10886,7 @@ function stampTodayStr(){
 // チュートリアル未完了の間は出さない（完了後に出現させるため）。
 // 完了済みなら、本日「閉じた」場合のみ非表示。
 function tutorialDone(){
-  try { return localStorage.getItem(TOUR_KEY) === 'true'; } catch(e){ return false; }
+  try { return isTutorialSeen(); } catch(e){ return false; }
 }
 function shouldShowFab(s){
   if (!tutorialDone()) return false;
