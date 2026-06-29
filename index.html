@@ -7455,7 +7455,7 @@ function syncWeatherSettingsUI(){
     fetch(ARTICLES_URL + '?type=heat&_=' + Date.now(), { method:'GET' })
       .then(function(r){ return r.json(); })
       .then(function(d){
-        if(!d || !d.ok){ if(box) box.innerHTML='<div class="heat-empty">暑さ指数を取得できませんでした。</div>'; return; }
+        if(!d || (!d.prefs && d.inSeason !== false)){ if(box) box.innerHTML='<div class="heat-empty">暑さ指数を取得できませんでした。</div>'; return; }
         HEAT.prefs = d.prefs || [];
         HEAT.updatedAt = d.updatedAt || '';
         HEAT.inSeason = d.inSeason;
@@ -10078,6 +10078,21 @@ function _fmtNoticeDate(d){
   const y=t.getFullYear(), m=('0'+(t.getMonth()+1)).slice(-2), day=('0'+t.getDate()).slice(-2);
   return y+'.'+m+'.'+day;
 }
+// タイトルに生のDate文字列（"Sat Jun 27 2026 00:00:00 GMT+0900..." 等）が
+// 紛れ込んでいた場合は、日本語の日付に整形して表示する。通常の文字列はそのまま返す。
+function _fmtNoticeTitle(t){
+  const s = String(t==null?'':t).trim();
+  if(!s) return '';
+  // GMT付きの英語Date文字列、または ISO風の日付文字列だけのケースを検出
+  const looksLikeDate = /\b\d{4}\b/.test(s) && /(GMT|\d{2}:\d{2}:\d{2}|Mon|Tue|Wed|Thu|Fri|Sat|Sun|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/.test(s);
+  if(looksLikeDate){
+    const d = new Date(s);
+    if(!isNaN(d.getTime())){
+      return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日のお知らせ';
+    }
+  }
+  return s;
+}
 // テキスト内のURLを自動リンク化（XSS対策のためまずエスケープ）
 function _noticeHtml(text){
   const esc = String(text||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -10261,7 +10276,7 @@ function showNotice(n){
   const titleEl = document.getElementById('noticeTitle');
   const dateEl  = document.getElementById('noticeDate');
   const textEl  = document.getElementById('noticeText');
-  if(titleEl) titleEl.textContent = n.title || 'お知らせ';
+  if(titleEl) titleEl.textContent = _fmtNoticeTitle(n.title) || 'お知らせ';
   if(dateEl)  dateEl.textContent  = _fmtNoticeDate(n.date);
   if(textEl)  textEl.innerHTML    = _noticeHtml(n.body || n.text || '');
   const linksEl = document.getElementById('noticeLinks');
