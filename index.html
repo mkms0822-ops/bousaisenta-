@@ -7050,7 +7050,7 @@ function onHeatPrefToggle(){
   localStorage.setItem('heat_pref_only', _heatPrefOnly ? '1' : '0');
   const wrap = document.getElementById('heatPrefSelects');
   if(wrap) wrap.style.display = _heatPrefOnly ? 'block' : 'none';
-  if(typeof renderHeat === 'function'){ try { renderHeat(); } catch(e){} }
+  if(typeof window.__heatRerender === 'function'){ window.__heatRerender(); }
 }
 
 function onHeatPrefSelectChange(){
@@ -7063,7 +7063,7 @@ function onHeatPrefSelectChange(){
   if(v2 && v2 !== v1) list.push(v2); // 同じ県の重複は除く
   _heatPrefList = list.slice(0,2);
   localStorage.setItem('heat_pref_list', JSON.stringify(_heatPrefList));
-  if(typeof renderHeat === 'function'){ try { renderHeat(); } catch(e){} }
+  if(typeof window.__heatRerender === 'function'){ window.__heatRerender(); }
 }
 
 // 天気コード → 絵文字・説明
@@ -7497,6 +7497,9 @@ function syncWeatherSettingsUI(){
     var el = document.getElementById('heatRegion_'+rg);
     if(el) el.classList.toggle('open', !!HEAT_OPEN_REGIONS[rg]);
   };
+
+  // 設定変更時などに外部から再描画させるためのフック
+  window.__heatRerender = function(){ try { renderHeat(); } catch(e){} };
 
   // すべての地方グループを開く
   window.__heatExpandAll = function(){
