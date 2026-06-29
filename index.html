@@ -6064,7 +6064,13 @@ function renderVersionList(){
     wrap.innerHTML = '<div style="color:var(--muted);font-size:14px;padding:12px 0;">更新履歴はまだありません。</div>';
     return;
   }
-  wrap.innerHTML = versionItems.map(function(p){
+  // 新しい順（日付降順）に並べる。日付が無いものは末尾。
+  const sorted = versionItems.slice().sort(function(a,b){
+    const ta = new Date(a.updated).getTime(); const tb = new Date(b.updated).getTime();
+    const va = isNaN(ta) ? -Infinity : ta; const vb = isNaN(tb) ? -Infinity : tb;
+    return vb - va;
+  });
+  wrap.innerHTML = sorted.map(function(p){
     const body = (p.body||'').replace(/\n/g,'<br>');
     const imgs = (p.images && p.images.length)
       ? '<div class="pd-photos ' + (p.images.length===1?'n1':p.images.length===2?'n2':'nmore') + '" style="display:grid;margin-top:8px;">'
@@ -9897,11 +9903,16 @@ async function loadArticles(){
       };
     });
     archiveItems = sheetCards.filter(c => c.tag === 'archive');
-    const normalCards = sheetCards.filter(c => c.tag !== 'archive');
+    // 「バージョンアップ」タグの記事は更新履歴として集める（記事シート由来）
+    const sheetVersionItems = sheetCards.filter(c => c.tag === 'version');
+    versionItems = sheetVersionItems.slice();
+    // 通常のコラム表示からは アーカイブ／バージョンアップ を除外する
+    const normalCards = sheetCards.filter(c => c.tag !== 'archive' && c.tag !== 'version');
     // シート由来の記事で、既存の非シート記事は残す
     blogCards = normalCards.concat(blogCards.filter(c => !c.fromSheet));
     renderBlog();
     renderArchiveBadge();
+    refreshVersionUI();
     try { loadLikes(); } catch(e){}
 
     // ── プライバシーポリシー ──
@@ -9961,8 +9972,16 @@ async function loadArticles(){
         archiveItems = archiveItems.concat(postArchiveItems);
         renderArchiveBadge();
       }
-      // タグが「バージョンアップ」の記事は更新履歴として集める
-      versionItems = allPostItems.filter(c => c.tag === 'version');
+      // タグが「バージョンアップ」の記事は更新履歴として集める（記事シート分に追記・重複除去）
+      const postVersionItems = allPostItems.filter(c => c.tag === 'version');
+      if(postVersionItems.length){
+        const seen = {};
+        versionItems.forEach(function(v){ seen[(v.title||'')+'|'+(v.updated||'')] = true; });
+        postVersionItems.forEach(function(v){
+          const k = (v.title||'')+'|'+(v.updated||'');
+          if(!seen[k]){ versionItems.push(v); seen[k] = true; }
+        });
+      }
       refreshVersionUI();
       // 通常の新着記事（アーカイブ・バージョンアップ以外）をサイドバーに表示（最大6件）
       postItems = allPostItems.filter(c => c.tag !== 'archive' && c.tag !== 'version').slice(0, 6);
@@ -10302,14 +10321,37 @@ function showNextNotice(){
 }
 
 let _currentNotice = null;
+// お知らせの本文を、想定されるあらゆるフィールド名から拾う。
+// （GAS側の列名ゆれ・列ずれに強くするため）
+function _noticeBody(n){
+  if(!n) return '';
+  const cands = [n.body, n.text, n.message, n.content, n.honbun,
+                 n['本文'], n['メッセージ'], n['内容'], n['お知らせ本文']];
+  for(let i=0;i<cands.length;i++){
+    const v = String(cands[i]==null?'':cands[i]).trim();
+    if(v) return v;
+  }
+  return '';
+}
 function showNotice(n){
   _currentNotice = n;
   const titleEl = document.getElementById('noticeTitle');
   const dateEl  = document.getElementById('noticeDate');
   const textEl  = document.getElementById('noticeText');
-  if(titleEl) titleEl.textContent = _fmtNoticeTitle(n.title) || 'お知らせ';
+
+  let title = _fmtNoticeTitle(n.title);
+  let body  = _noticeBody(n);
+
+  // 列ずれ等で本文が空・タイトルだけにメッセージが入っているケースの救済：
+  // 本文が空なら、タイトルの文字を本文として表示し、見出しは汎用の「お知らせ」にする。
+  if(!body && title){
+    body = title;
+    title = '';
+  }
+
+  if(titleEl) titleEl.textContent = title || 'お知らせ';
   if(dateEl)  dateEl.textContent  = _fmtNoticeDate(n.date);
-  if(textEl)  textEl.innerHTML    = _noticeHtml(n.body || n.text || '');
+  if(textEl)  textEl.innerHTML    = _noticeHtml(body);
   const linksEl = document.getElementById('noticeLinks');
   if(linksEl) linksEl.innerHTML = _noticeLinksHtml(_noticeLinks(n));
   // 残り件数があれば「閉じる」ボタンに「次へ」を示すラベルを出す
