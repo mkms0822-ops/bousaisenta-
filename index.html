@@ -1776,6 +1776,51 @@ html.light #tsunamiBanner.warn-major .tsunami-link:hover { background:rgba(200,2
 @media (max-width:520px){ .heat-legend .hl-lab{ font-size:10px; } .heat-filter .hf{ min-width:70px; font-size:11px; } }
 @media (prefers-reduced-motion:reduce){ .heat-pref .hp-chev, .heat-filter .hf{ transition:none; } }
 
+/* ===== 暑さ指数：地方グループ＋都道府県選択（オーバーレイ式） ===== */
+/* 地方（近畿・関東…）の折りたたみグループ */
+.heat-region{ background:var(--surface2); border:1px solid var(--border); border-radius:11px; overflow:hidden; }
+.heat-region-btn{ width:100%; border:none; background:transparent; color:var(--text); display:flex; align-items:center; gap:10px; padding:11px 13px; cursor:pointer; text-align:left; font:inherit; font-family:var(--user-font); }
+.heat-region-btn .hr-name{ font-size:14px; font-weight:800; flex:1; letter-spacing:0.02em; }
+.heat-region-btn .hr-max{ flex:0 0 auto; height:22px; min-width:54px; padding:0 8px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:800; }
+.heat-region-btn .hr-cnt{ font-family:var(--num-font); font-size:10px; color:var(--muted); font-weight:700; }
+.heat-region-btn .hr-chev{ transition:transform .2s; color:var(--muted); font-size:12px; }
+.heat-region.open .hr-chev{ transform:rotate(90deg); }
+.heat-region-body{ display:none; border-top:1px solid var(--border); padding:10px; }
+.heat-region.open .heat-region-body{ display:block; }
+
+/* 都道府県チップのグリッド */
+.heat-pref-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:7px; }
+.heat-pref-chip{ position:relative; border:1px solid var(--border); background:var(--surface3); color:var(--text); border-radius:9px; padding:9px 8px 8px; cursor:pointer; text-align:left; font:inherit; font-family:var(--user-font); display:flex; flex-direction:column; gap:5px; transition:.13s; overflow:hidden; }
+.heat-pref-chip:hover{ transform:translateY(-1px); border-color:rgba(255,140,40,0.55); }
+.heat-pref-chip:active{ transform:translateY(0); }
+.heat-pref-chip .hpc-bar{ position:absolute; left:0; top:0; bottom:0; width:4px; }
+.heat-pref-chip .hpc-name{ font-size:13.5px; font-weight:800; padding-left:4px; }
+.heat-pref-chip .hpc-meta{ display:flex; align-items:center; gap:6px; padding-left:4px; }
+.heat-pref-chip .hpc-lv{ font-size:10px; font-weight:800; border-radius:11px; padding:2px 7px; }
+.heat-pref-chip .hpc-max{ font-family:var(--num-font); font-size:10px; color:var(--muted); font-weight:700; }
+.heat-pref-chip .hpc-go{ position:absolute; right:7px; bottom:7px; color:var(--muted); font-size:11px; }
+.hpc-bar.c0{ background:var(--surface3); } .hpc-bar.c1{ background:#1971c2; } .hpc-bar.c2{ background:#4dabf7; }
+.hpc-bar.c3{ background:#ffd43b; } .hpc-bar.c4{ background:#ff922b; } .hpc-bar.c5{ background:#ff2800; }
+
+/* ===== 地点モーダル（中央にふわっと出る） ===== */
+.heat-modal-overlay{ position:fixed; inset:0; z-index:1200; display:none; align-items:center; justify-content:center; padding:16px; background:rgba(2,6,14,0.66); backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px); }
+.heat-modal-overlay.open{ display:flex; animation:heatFade .18s ease; }
+.heat-modal{ width:100%; max-width:460px; max-height:86vh; display:flex; flex-direction:column; border-radius:16px; overflow:hidden; background:linear-gradient(180deg,#0d1626,#0a1220); border:1px solid rgba(255,140,40,0.34); box-shadow:0 24px 70px rgba(0,0,0,0.6); animation:heatPop .2s cubic-bezier(.2,.9,.3,1.2); }
+.heat-modal-head{ display:flex; align-items:center; gap:11px; padding:14px 16px; border-bottom:1px solid rgba(255,140,40,0.2); background:linear-gradient(135deg,rgba(255,90,30,0.12),rgba(255,140,0,0.05)); }
+.heat-modal-head .hm-badge{ flex:0 0 auto; min-width:62px; height:30px; padding:0 10px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; }
+.heat-modal-head .hm-titlewrap{ flex:1; min-width:0; }
+.heat-modal-head .hm-pref{ font-size:17px; font-weight:800; line-height:1.2; }
+.heat-modal-head .hm-sub{ font-family:var(--num-font); font-size:10px; color:var(--muted); letter-spacing:0.06em; margin-top:2px; }
+.heat-modal-head .hm-close{ flex:0 0 auto; width:32px; height:32px; border-radius:9px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:17px; line-height:1; cursor:pointer; }
+.heat-modal-head .hm-close:hover{ border-color:rgba(255,140,40,0.5); }
+.heat-modal-body{ overflow-y:auto; -webkit-overflow-scrolling:touch; padding:6px 0; }
+.heat-modal-body .heat-pt{ padding:11px 16px; }
+.heat-modal-foot{ padding:9px 16px 12px; border-top:1px solid rgba(255,140,40,0.16); }
+.heat-modal-foot .hm-note{ font-size:10px; color:var(--muted); line-height:1.6; }
+@keyframes heatFade{ from{opacity:0;} to{opacity:1;} }
+@keyframes heatPop{ from{opacity:0; transform:translateY(14px) scale(.97);} to{opacity:1; transform:none;} }
+@media (prefers-reduced-motion:reduce){ .heat-modal-overlay.open, .heat-modal{ animation:none; } .heat-region .hr-chev, .heat-pref-chip{ transition:none; } }
+
 /* ===================== 気象警報バナー（気象庁・全国） ===================== */
 #jmaWarningBanner {
   display:none; grid-column:1/-1;
@@ -4088,7 +4133,7 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
         <div class="heat-icon">🌡️</div>
         <div class="heat-title-wrap">
           <div class="heat-label">HEAT INDEX / 熱中症 暑さ指数（WBGT）</div>
-          <div class="heat-title" id="heatTitle">全国の暑さ指数</div>
+          <div class="heat-title" id="heatTitle">都道府県を選んで確認</div>
         </div>
         <div class="heat-updated" id="heatUpd"></div>
       </div>
@@ -4113,6 +4158,24 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
           <button class="heat-link" type="button" onclick="window.open('https://www.wbgt.env.go.jp/','_blank','noopener,noreferrer')">環境省 熱中症予防情報サイト（公式）→</button>
           <div class="heat-note" id="heatNote">出典：環境省 熱中症予防情報サイト（暑さ指数 電子情報提供サービス）。掲載値は予測値・実況推定値で、独自に算出したものであり実際の値と若干異なる場合があります。立地条件によっても差が出ます。アラートの正式発表は環境省サイトでご確認ください。</div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 暑さ指数：都道府県の地点モーダル -->
+  <div class="heat-modal-overlay" id="heatModalOverlay" role="dialog" aria-modal="true" aria-labelledby="heatModalPref">
+    <div class="heat-modal" role="document">
+      <div class="heat-modal-head">
+        <span class="hm-badge heat-chip c0" id="heatModalBadge">—</span>
+        <div class="hm-titlewrap">
+          <div class="hm-pref" id="heatModalPref">—</div>
+          <div class="hm-sub" id="heatModalSub"></div>
+        </div>
+        <button type="button" class="hm-close" id="heatModalClose" aria-label="閉じる">✕</button>
+      </div>
+      <div class="heat-modal-body" id="heatModalBody"></div>
+      <div class="heat-modal-foot">
+        <div class="hm-note">予測＝今日の最高WBGT予測値／実況＝直近の実況推定値。出典：環境省 熱中症予防情報サイト。</div>
       </div>
     </div>
   </div>
@@ -7235,6 +7298,27 @@ function syncWeatherSettingsUI(){
     return '<span class="heat-chip '+info.c+'">'+info.t+' <small>'+val+'℃</small></span>';
   }
 
+  // 都道府県 → 地方 の対応（GASは都道府県名のみ返すので、フロントで地方にまとめる）
+  var HEAT_REGION_OF = {
+    '北海道':'北海道',
+    '青森県':'東北','岩手県':'東北','宮城県':'東北','秋田県':'東北','山形県':'東北','福島県':'東北',
+    '茨城県':'関東','栃木県':'関東','群馬県':'関東','埼玉県':'関東','千葉県':'関東','東京都':'関東','神奈川県':'関東',
+    '山梨県':'甲信','長野県':'甲信',
+    '新潟県':'北陸','富山県':'北陸','石川県':'北陸','福井県':'北陸',
+    '静岡県':'東海','愛知県':'東海','岐阜県':'東海','三重県':'東海',
+    '滋賀県':'近畿','京都府':'近畿','大阪府':'近畿','兵庫県':'近畿','奈良県':'近畿','和歌山県':'近畿',
+    '鳥取県':'中国','島根県':'中国','岡山県':'中国','広島県':'中国','山口県':'中国',
+    '徳島県':'四国','香川県':'四国','愛媛県':'四国','高知県':'四国',
+    '福岡県':'九州','佐賀県':'九州','長崎県':'九州','熊本県':'九州','大分県':'九州','宮崎県':'九州','鹿児島県':'九州',
+    '沖縄県':'沖縄'
+  };
+  // 地方の表示順
+  var HEAT_REGION_ORDER = ['北海道','東北','関東','甲信','北陸','東海','近畿','中国','四国','九州','沖縄','その他'];
+  var HEAT_OPEN_REGIONS = {};   // 開いている地方の記憶（再描画でも維持）
+  var HEAT_PREF_INDEX = {};     // 県名 → prefデータ（モーダル表示用）
+
+  function regionOf_(prefName){ return HEAT_REGION_OF[prefName] || 'その他'; }
+
   function renderHeat(){
     var box = document.getElementById('heatPrefs');
     if(!box) return;
@@ -7254,36 +7338,116 @@ function syncWeatherSettingsUI(){
     setTxt('heatCntAll',' ('+HEAT.prefs.length+')');
     setTxt('heatCnt3',' ('+c3+')'); setTxt('heatCnt4',' ('+c4+')'); setTxt('heatCnt5',' ('+c5+')');
 
+    // 県名→prefデータの索引（モーダルで使う。フィルタに関係なく全件）
+    HEAT_PREF_INDEX = {};
+    HEAT.prefs.forEach(function(p){ HEAT_PREF_INDEX[p.pref] = p; });
+
     var shown = HEAT.prefs.filter(function(p){ return HEAT.filter===0 ? true : p.maxLevel>=HEAT.filter; });
     if(!shown.length){ box.innerHTML = '<div class="heat-empty">この条件に該当する地域はありません。</div>'; return; }
 
-    var html='';
-    shown.forEach(function(p, idx){
-      var info = LV[p.maxLevel] || {c:'c0', t:'—'};
-      var maxF = (p.maxForecast!=null) ? (p.maxForecast+'℃') : '—';
-      html += '<div class="heat-pref" id="heatPref_'+idx+'">';
-      html +=   '<button class="heat-pref-btn" type="button" onclick="window.__heatToggle('+idx+')">';
-      html +=     '<span class="hp-badge heat-chip '+info.c+'">'+info.t+'</span>';
-      html +=     '<span class="hp-name">'+hEsc(p.pref)+'</span>';
-      html +=     '<span class="hp-max">最高 '+maxF+'</span>';
-      html +=     '<span class="hp-chev">▶</span>';
-      html +=   '</button>';
-      html +=   '<div class="heat-pref-body">';
-      p.points.forEach(function(pt){
-        html += '<div class="heat-pt"><span class="hpt-name">'+hEsc(pt.name)+'</span><span class="hpt-two">';
-        html +=   '<span><span class="hpt-k">予測</span>'+heatChip(pt.fLv, pt.f)+'</span>';
-        html +=   '<span><span class="hpt-k">実況</span>'+heatChip(pt.nLv, pt.n)+'</span>';
-        html += '</span></div>';
+    // 地方ごとにまとめる
+    var groups = {};
+    shown.forEach(function(p){
+      var rg = regionOf_(p.pref);
+      if(!groups[rg]) groups[rg] = { region:rg, prefs:[], maxLevel:0 };
+      groups[rg].prefs.push(p);
+      if(p.maxLevel > groups[rg].maxLevel) groups[rg].maxLevel = p.maxLevel;
+    });
+
+    var regions = HEAT_REGION_ORDER.filter(function(r){ return groups[r]; });
+    var html = '';
+    regions.forEach(function(rg){
+      var g = groups[rg];
+      // 県は危険度の高い順 → 同レベルは予測最高の高い順
+      g.prefs.sort(function(a,b){
+        if(b.maxLevel !== a.maxLevel) return b.maxLevel - a.maxLevel;
+        var af=(a.maxForecast==null?-1:a.maxForecast), bf=(b.maxForecast==null?-1:b.maxForecast);
+        return bf-af;
       });
-      html +=   '</div></div>';
+      var info = LV[g.maxLevel] || {c:'c0', t:'—'};
+      var isOpen = !!HEAT_OPEN_REGIONS[rg];
+      html += '<div class="heat-region'+(isOpen?' open':'')+'" id="heatRegion_'+hEsc(rg)+'">';
+      html +=   '<button class="heat-region-btn" type="button" onclick="window.__heatRegionToggle(\''+hEsc(rg)+'\')">';
+      html +=     '<span class="hr-name">'+hEsc(rg)+'</span>';
+      html +=     '<span class="hr-max heat-chip '+info.c+'">'+info.t+'</span>';
+      html +=     '<span class="hr-cnt">'+g.prefs.length+'件</span>';
+      html +=     '<span class="hr-chev">▶</span>';
+      html +=   '</button>';
+      html +=   '<div class="heat-region-body"><div class="heat-pref-grid">';
+      g.prefs.forEach(function(p){
+        var pInfo = LV[p.maxLevel] || {c:'c0', t:'—'};
+        var maxF = (p.maxForecast!=null) ? (p.maxForecast+'℃') : '—';
+        var pn = p.pref.replace(/'/g,'\\\'');
+        html += '<button class="heat-pref-chip" type="button" onclick="window.__heatOpenPref(\''+hEsc(pn)+'\')">';
+        html +=   '<span class="hpc-bar '+pInfo.c+'"></span>';
+        html +=   '<span class="hpc-name">'+hEsc(p.pref)+'</span>';
+        html +=   '<span class="hpc-meta"><span class="hpc-lv heat-chip '+pInfo.c+'">'+pInfo.t+'</span></span>';
+        html +=   '<span class="hpc-max">最高 '+maxF+'</span>';
+        html +=   '<span class="hpc-go">▶</span>';
+        html += '</button>';
+      });
+      html +=   '</div></div></div>';
     });
     box.innerHTML = html;
   }
 
-  window.__heatToggle = function(idx){
-    var el = document.getElementById('heatPref_'+idx);
-    if(el) el.classList.toggle('open');
+  window.__heatRegionToggle = function(rg){
+    HEAT_OPEN_REGIONS[rg] = !HEAT_OPEN_REGIONS[rg];
+    var el = document.getElementById('heatRegion_'+rg);
+    if(el) el.classList.toggle('open', !!HEAT_OPEN_REGIONS[rg]);
   };
+
+  // ===== 都道府県モーダル =====
+  function buildModalBody_(p){
+    var html = '';
+    if(!p || !p.points || !p.points.length){
+      return '<div class="heat-empty">この都道府県のデータがありません。</div>';
+    }
+    p.points.forEach(function(pt){
+      html += '<div class="heat-pt"><span class="hpt-name">'+hEsc(pt.name)+'</span><span class="hpt-two">';
+      html +=   '<span><span class="hpt-k">予測</span>'+heatChip(pt.fLv, pt.f)+'</span>';
+      html +=   '<span><span class="hpt-k">実況</span>'+heatChip(pt.nLv, pt.n)+'</span>';
+      html += '</span></div>';
+    });
+    return html;
+  }
+
+  window.__heatOpenPref = function(prefName){
+    var p = HEAT_PREF_INDEX[prefName];
+    if(!p) return;
+    var ov = document.getElementById('heatModalOverlay');
+    var badge = document.getElementById('heatModalBadge');
+    var prefEl = document.getElementById('heatModalPref');
+    var subEl = document.getElementById('heatModalSub');
+    var bodyEl = document.getElementById('heatModalBody');
+    if(!ov || !bodyEl) return;
+    var info = LV[p.maxLevel] || {c:'c0', t:'—'};
+    if(badge){ badge.className = 'hm-badge heat-chip '+info.c; badge.textContent = info.t; }
+    if(prefEl) prefEl.textContent = p.pref;
+    if(subEl){
+      var maxF = (p.maxForecast!=null) ? ('最高予測 '+p.maxForecast+'℃') : '';
+      subEl.textContent = (regionOf_(p.pref)) + '　' + (p.points.length) + '地点' + (maxF ? '　'+maxF : '');
+    }
+    bodyEl.innerHTML = buildModalBody_(p);
+    ov.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.__heatCloseModal = function(){
+    var ov = document.getElementById('heatModalOverlay');
+    if(ov) ov.classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  (function bindHeatModal_(){
+    var ov = document.getElementById('heatModalOverlay');
+    var btn = document.getElementById('heatModalClose');
+    if(btn) btn.addEventListener('click', window.__heatCloseModal);
+    if(ov) ov.addEventListener('click', function(e){ if(e.target === ov) window.__heatCloseModal(); });
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape'){ var o=document.getElementById('heatModalOverlay'); if(o && o.classList.contains('open')) window.__heatCloseModal(); }
+    });
+  })();
 
   function loadHeat(){
     if(typeof ARTICLES_URL === 'undefined' || !ARTICLES_URL || ARTICLES_URL.indexOf('http')!==0) return;
@@ -9586,7 +9750,7 @@ function renderGuideSteps(){
 // ==================== お知らせ・記事（スプレッドシート連携）====================
 // クイズと同じGASウェブアプリから記事データを読み込みます。
 // スプレッドシートの「記事」シートを編集するだけでサイトに反映されます。
-const ARTICLES_URL = 'https://script.google.com/macros/s/AKfycbyZDX0JlROTMBbBIG_xkAWq8VHx7tcg7PF-dg4pZH0agHURP8rKURxEYDRRJHRrtqS_vg/exec';
+const ARTICLES_URL = 'https://script.google.com/macros/s/AKfycby8yqQ-1sIZrcpKfzi1D7teL7ogBQHQWUKjzEAYjE8qe76y0biy2IHvkULjeEWuzoCHNA/exec';
 
 function escapeHtmlA(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -12914,7 +13078,7 @@ document.addEventListener('keydown', function(e){
      ============================================================ -->
 <script>
 (function () {
-  var GAS_URL = "https://script.google.com/macros/s/AKfycbyZDX0JlROTMBbBIG_xkAWq8VHx7tcg7PF-dg4pZH0agHURP8rKURxEYDRRJHRrtqS_vg/exec";
+  var GAS_URL = "https://script.google.com/macros/s/AKfycby8yqQ-1sIZrcpKfzi1D7teL7ogBQHQWUKjzEAYjE8qe76y0biy2IHvkULjeEWuzoCHNA/exec";
 
   try {
     var uid = "";
@@ -12948,7 +13112,7 @@ document.addEventListener('keydown', function(e){
      ============================================================ -->
 <script>
 (function () {
-  var GAS_URL = "https://script.google.com/macros/s/AKfycbyZDX0JlROTMBbBIG_xkAWq8VHx7tcg7PF-dg4pZH0agHURP8rKURxEYDRRJHRrtqS_vg/exec";
+  var GAS_URL = "https://script.google.com/macros/s/AKfycby8yqQ-1sIZrcpKfzi1D7teL7ogBQHQWUKjzEAYjE8qe76y0biy2IHvkULjeEWuzoCHNA/exec";
 
   var _sentCount = 0;          // このページ表示で送った件数
   var MAX_PER_PAGE = 5;        // 1ページ表示あたりの上限（無限ループ防止）
@@ -13034,7 +13198,7 @@ document.addEventListener('keydown', function(e){
      ============================================================ -->
 <script>
 (function () {
-  var GAS_URL = "https://script.google.com/macros/s/AKfycbyZDX0JlROTMBbBIG_xkAWq8VHx7tcg7PF-dg4pZH0agHURP8rKURxEYDRRJHRrtqS_vg/exec";
+  var GAS_URL = "https://script.google.com/macros/s/AKfycby8yqQ-1sIZrcpKfzi1D7teL7ogBQHQWUKjzEAYjE8qe76y0biy2IHvkULjeEWuzoCHNA/exec";
   var _recent = {};   // 同一イベントの連発抑制
 
   function track(cat, label) {
