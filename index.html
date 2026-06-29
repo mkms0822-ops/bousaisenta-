@@ -1778,6 +1778,10 @@ html.light #tsunamiBanner.warn-major .tsunami-link:hover { background:rgba(200,2
 
 /* ===== 暑さ指数：地方グループ＋都道府県選択（オーバーレイ式） ===== */
 /* 地方（近畿・関東…）の折りたたみグループ */
+.heat-toolbar{ display:flex; gap:8px; margin-bottom:11px; }
+.heat-toolbar .heat-tool-btn{ flex:1; border:1px solid var(--border); background:var(--surface2); color:var(--text); border-radius:9px; padding:8px 6px; font-size:12px; font-weight:700; cursor:pointer; font-family:var(--user-font); transition:.13s; }
+.heat-toolbar .heat-tool-btn:hover{ border-color:rgba(255,140,40,0.55); }
+.heat-toolbar .heat-tool-btn:active{ transform:translateY(1px); }
 .heat-region{ background:var(--surface2); border:1px solid var(--border); border-radius:11px; overflow:hidden; }
 .heat-region-btn{ width:100%; border:none; background:transparent; color:var(--text); display:flex; align-items:center; gap:10px; padding:11px 13px; cursor:pointer; text-align:left; font:inherit; font-family:var(--user-font); }
 .heat-region-btn .hr-name{ font-size:14px; font-weight:800; flex:1; letter-spacing:0.02em; }
@@ -4153,6 +4157,10 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
           <button class="hf hf3" data-lv="3"><span class="hf-dot"></span>警戒以上<span class="hf-cnt" id="heatCnt3"></span></button>
           <button class="hf hf4" data-lv="4"><span class="hf-dot"></span>厳重警戒以上<span class="hf-cnt" id="heatCnt4"></span></button>
           <button class="hf hf5" data-lv="5"><span class="hf-dot"></span>危険<span class="hf-cnt" id="heatCnt5"></span></button>
+        </div>
+        <div class="heat-toolbar" id="heatToolbar">
+          <button type="button" class="heat-tool-btn" onclick="window.__heatExpandAll()">すべて開く</button>
+          <button type="button" class="heat-tool-btn" onclick="window.__heatCollapseAll()">すべて閉じる</button>
         </div>
         <div id="heatPrefs" class="heat-prefs">
           <div class="heat-loading" id="heatLoading">暑さ指数を読み込み中…</div>
@@ -7398,6 +7406,26 @@ function syncWeatherSettingsUI(){
     HEAT_OPEN_REGIONS[rg] = !HEAT_OPEN_REGIONS[rg];
     var el = document.getElementById('heatRegion_'+rg);
     if(el) el.classList.toggle('open', !!HEAT_OPEN_REGIONS[rg]);
+  };
+
+  // すべての地方グループを開く
+  window.__heatExpandAll = function(){
+    var groups = document.querySelectorAll('#heatPrefs .heat-region');
+    for(var i=0;i<groups.length;i++){
+      var id = groups[i].id.replace('heatRegion_','');
+      HEAT_OPEN_REGIONS[id] = true;
+      groups[i].classList.add('open');
+    }
+  };
+
+  // すべての地方グループを閉じる
+  window.__heatCollapseAll = function(){
+    var groups = document.querySelectorAll('#heatPrefs .heat-region');
+    for(var i=0;i<groups.length;i++){
+      var id = groups[i].id.replace('heatRegion_','');
+      HEAT_OPEN_REGIONS[id] = false;
+      groups[i].classList.remove('open');
+    }
   };
 
   // ===== 都道府県モーダル =====
