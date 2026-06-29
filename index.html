@@ -5599,6 +5599,9 @@ function getBookmarks(){
 }
 function saveBookmarks(obj){
   try { localStorage.setItem(BOOKMARK_KEY, JSON.stringify(obj)); } catch(e){}
+  // ブックマークが変わったらサーバー（専用枠）へ自動保存（間引き）。
+  // _applyingBookmarkSync 中（＝サーバーからの復元反映中）は呼ばない（保存ループ防止）。
+  if (!_applyingBookmarkSync) { try { pushBookmarksToServer(); } catch(e){} }
 }
 function isBookmarked(id){
   const bm = getBookmarks();
@@ -11021,6 +11024,90 @@ function pushSettingsToServer(){
   }, 1200); // 連続変更は1.2秒にまとめる
 }
 
+// ============================================================
+// ブックマーク同期（専用枠・本文/画像込み）
+//   ・設定同期とは別に、ブックマーク全体を引き継ぎコードへ保存／復元する。
+//   ・saveBookmarks() から自動保存（間引き）。起動時に取得して新しければ反映。
+// ============================================================
+const BM_SYNC_TS_KEY = 'bookmarks_synced_at';
+let _bmSyncTimer = null;
+let _bmSyncBusy = false;
+let _applyingBookmarkSync = false;
+
+function getBmSyncTs(){ let t=0; try{ t=Number(localStorage.getItem(BM_SYNC_TS_KEY))||0; }catch(e){} return t; }
+function setBmSyncTs(t){ try{ localStorage.setItem(BM_SYNC_TS_KEY, String(t)); }catch(e){} }
+
+// サーバーから取得して、新しければ反映
+async function pullBookmarksFromServer(){
+  if (typeof ARTICLES_URL === 'undefined' || !ARTICLES_URL || ARTICLES_URL.indexOf('http') !== 0) return;
+  const code = (typeof getStampCode === 'function') ? getStampCode() : '';
+  if (!/^DWA-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)) return;
+  try {
+    let purl = ARTICLES_URL + '?type=bookmarks&action=get&code=' + encodeURIComponent(code);
+    try { const pw = localStorage.getItem('stamp_pw') || ''; if (pw) purl += '&password=' + encodeURIComponent(pw); } catch(e){}
+    purl += '&_=' + Date.now();
+    const res = await fetch(purl, { method:'GET' });
+    const data = await res.json();
+    if (!data || !data.ok || !data.found) return;
+    const serverTs = Number(data.updatedAt) || 0;
+    const localTs = getBmSyncTs();
+    if (serverTs > localTs && data.bookmarks && typeof data.bookmarks === 'object') {
+      _applyingBookmarkSync = true;
+      try {
+        localStorage.setItem(BOOKMARK_KEY, JSON.stringify(data.bookmarks));
+        setBmSyncTs(serverTs);
+        // 画面のバッジ・一覧・カードの🔖状態を更新
+        try { if (typeof refreshBookmarkBadge === 'function') refreshBookmarkBadge(); } catch(e){}
+        try { if (typeof renderBookmarkList === 'function') renderBookmarkList(); } catch(e){}
+        try { if (typeof renderBlog === 'function') renderBlog(); } catch(e){}
+      } catch(e){}
+      _applyingBookmarkSync = false;
+    }
+  } catch(e){}
+}
+
+// サーバーへ保存（自動・間引きあり）
+function pushBookmarksToServer(){
+  if (typeof ARTICLES_URL === 'undefined' || !ARTICLES_URL || ARTICLES_URL.indexOf('http') !== 0) return;
+  const code = (typeof getStampCode === 'function') ? getStampCode() : '';
+  if (!/^DWA-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)) return;
+  clearTimeout(_bmSyncTimer);
+  _bmSyncTimer = setTimeout(async ()=>{
+    if (_bmSyncBusy) { pushBookmarksToServer(); return; }
+    _bmSyncBusy = true;
+    const ts = Date.now();
+    let payload = '{}';
+    try { payload = localStorage.getItem(BOOKMARK_KEY) || '{}'; } catch(e){}
+    try {
+      let url = ARTICLES_URL + '?type=bookmarks&action=save'
+        + '&code=' + encodeURIComponent(code)
+        + '&ts=' + ts
+        + '&data=' + encodeURIComponent(payload);
+      try { const pw = localStorage.getItem('stamp_pw') || ''; if (pw) url += '&password=' + encodeURIComponent(pw); } catch(e){}
+      url += '&_=' + Date.now();
+      const res = await fetch(url, { method:'GET' });
+      const d = await res.json();
+      if (d && d.ok) {
+        if (d.saved) {
+          setBmSyncTs(d.updatedAt || ts);
+        } else if (d.reason === 'stale' && d.bookmarks) {
+          // サーバーが新しかった → そちらを採用
+          _applyingBookmarkSync = true;
+          try {
+            localStorage.setItem(BOOKMARK_KEY, JSON.stringify(d.bookmarks));
+            setBmSyncTs(d.updatedAt || ts);
+            try { if (typeof refreshBookmarkBadge === 'function') refreshBookmarkBadge(); } catch(e){}
+            try { if (typeof renderBookmarkList === 'function') renderBookmarkList(); } catch(e){}
+            try { if (typeof renderBlog === 'function') renderBlog(); } catch(e){}
+          } catch(e){}
+          _applyingBookmarkSync = false;
+        }
+      }
+    } catch(e){}
+    _bmSyncBusy = false;
+  }, 1200);
+}
+
 // 「設定を保存する」ボタン：現在の設定を、いますぐ手動でサーバーへ保存する。
 async function saveSettingsNow(){
   const btn = document.getElementById('saveSettingsBtn');
@@ -11139,6 +11226,7 @@ function reapplyAllSettings(){
 
 // 起動時に一度サーバーから取得（少し遅延させ、他の初期化の後に実行）
 setTimeout(function(){ try { pullSettingsFromServer(); } catch(e){} }, 1500);
+setTimeout(function(){ try { pullBookmarksFromServer(); } catch(e){} }, 1700);
 // ★ VAPID公開鍵（Cloudflare Workerと同じ値）
 const DWA_VAPID_PUBLIC = 'BOalyHewQwWikaNJ9_ST5ifSoxP8I7gXvHWNTVPLLLdm6Ck1-xbp6Hj443YwER-LeCCpjmYZOjV9dz-aTCVR368';
 
