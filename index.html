@@ -10058,18 +10058,12 @@ window.kioskUI = (function(){
     autoFit();
   }
 
-  // 起動時：保存済み設定を復元（'auto' なら自動フィット、数値なら手動）
+  // 起動時：常に自動フィットから開始する（全画面に収めることを最優先）。
+  // 手動でサイズを変えたい場合は歯車パネルのボタンでその場で変更できる。
+  // （以前の手動設定が localStorage に残っていても、起動時は自動で収める）
   function restoreScale(){
-    let saved = 'auto';
-    try { var v = localStorage.getItem(SCALE_KEY); if(v) saved = v; } catch(e){}
-    if(saved === 'auto'){
-      _autoFit = true;
-      autoFit();
-    } else {
-      _autoFit = false;
-      _manualScale = parseFloat(saved) || 1;
-      applyScale(_manualScale);
-    }
+    _autoFit = true;
+    autoFit();
   }
 
   // 平常時 / 緊急時 の切替
