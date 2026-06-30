@@ -10016,24 +10016,29 @@ window.kioskUI = (function(){
     if(rng && !_autoFit) rng.value = Math.round(s*100);
   }
 
-  // 自動フィット：中身（k-body）が枠に収まる縮小率を計算して適用
-  function autoFit(){
-    if(!_autoFit) return;
+  // 自動フィット：ヘッダー＋中身の合計が枠に収まる縮小率を計算して適用
+  function _computeFit(){
     const sg = document.getElementById('signage');
+    const head = document.querySelector('#modeKioskScreen .k-head');
     const body = document.querySelector('#modeKioskScreen .k-body');
     if(!sg || !body) return;
-    // いったん等倍にして本来の高さを測る
+    // 等倍に戻して本来の高さを測る（transformはレイアウト高に影響しないが念のため）
     sg.style.setProperty('--k-scale', 1);
-    // 次の描画フレームで測定（レイアウト確定後）
-    requestAnimationFrame(function(){
-      const need = body.scrollHeight;   // 中身が全部入るのに必要な高さ
-      const avail = body.clientHeight;  // 枠で見えている高さ
-      let s = 1;
-      if(need > avail + 2 && need > 0){
-        s = (avail / need) * 0.99;      // わずかに余裕を持たせる
-      }
-      applyScale(s);
-    });
+    const availH = sg.clientHeight;                 // 枠の高さ（固定）
+    const headH  = head ? head.offsetHeight : 0;     // ヘッダーの高さ
+    const needH  = headH + body.scrollHeight;        // ヘッダー＋中身全部
+    let s = 1;
+    if(needH > availH + 1 && needH > 0){
+      s = (availH / needH) * 0.985;                  // わずかに余裕を持たせる
+    }
+    applyScale(s);
+  }
+  function autoFit(){
+    if(!_autoFit) return;
+    // 描画・フォント反映が安定してから測るため、複数タイミングで測り直す
+    requestAnimationFrame(function(){ if(_autoFit) _computeFit(); });
+    setTimeout(function(){ if(_autoFit) _computeFit(); }, 120);
+    setTimeout(function(){ if(_autoFit) _computeFit(); }, 400);
   }
 
   // 手動でサイズ指定（スライダー・プリセット）→自動フィットを解除
