@@ -11079,13 +11079,21 @@ function pushBookmarksToServer(){
     let payload = '{}';
     try { payload = localStorage.getItem(BOOKMARK_KEY) || '{}'; } catch(e){}
     try {
-      let url = ARTICLES_URL + '?type=bookmarks&action=save'
-        + '&code=' + encodeURIComponent(code)
-        + '&ts=' + ts
-        + '&data=' + encodeURIComponent(payload);
-      try { const pw = localStorage.getItem('stamp_pw') || ''; if (pw) url += '&password=' + encodeURIComponent(pw); } catch(e){}
-      url += '&_=' + Date.now();
-      const res = await fetch(url, { method:'GET' });
+      // 保存はPOSTで送る。GETだとブックマークが増えるほどURLが長くなり、
+      // GASのURL長制限を超えて400になるため。CORSプリフライトを避けるため
+      // Content-Type は text/plain（シンプルリクエスト）にし、本体はJSON文字列で送る。
+      let pw = '';
+      try { pw = localStorage.getItem('stamp_pw') || ''; } catch(e){}
+      const body = JSON.stringify({
+        type: 'bookmarks', action: 'save',
+        code: code, ts: ts, data: payload, password: pw
+      });
+      const url = ARTICLES_URL + '?_=' + Date.now();
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: body
+      });
       const d = await res.json();
       if (d && d.ok) {
         if (d.saved) {
