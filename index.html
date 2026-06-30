@@ -3239,11 +3239,12 @@ button.dwa-plate{ padding:0; }
 
   /* ===== 2. メイン：固定の防災速報 ===== */
 #modeKioskScreen .k-body {
-    /* ヘッダー以外（天気・地震・警報・下部ローテーション）を1つの縦スクロール領域に。
-       これでカード同士が重ならず、収まらない時だけスクロールして全部見せる。 */
-    flex:1 1 auto; min-height:0;
+    /* ヘッダー以外（天気・地震・警報・下部ローテーション）をまとめる領域。
+       中身を内部スクロールで隠さず、すべて展開する。全体が画面に収まらない分は
+       signage 全体を transform:scale で縮めて対応する（自動フィット）。 */
+    flex:0 0 auto;
     display:flex; flex-direction:column;
-    overflow-y:auto;
+    overflow:visible;
     -webkit-overflow-scrolling:touch;
   }
   #modeKioskScreen .k-body::-webkit-scrollbar { width:4px; }
