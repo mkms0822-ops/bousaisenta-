@@ -2888,7 +2888,10 @@ html.light .scale-item.lv1 { background:rgba(0,0,0,0.04); border-color:rgba(0,0,
   box-shadow:0 2px 18px rgba(0,0,0,0.5);
   font-family:var(--user-font);
 }
-html.mode-quake .mode-bar, html.mode-chat .mode-bar{ display:flex; }
+html.mode-quake .mode-bar, html.mode-chat .mode-bar, html.mode-kiosk .mode-bar{ display:flex; }
+/* キオスク時は「2画面」「モード切替」は無効なので隠す（戻る・リセットは残す） */
+html.mode-kiosk .mode-bar .mb-split,
+html.mode-kiosk .mode-bar button[onclick="cycleMode()"]{ display:none !important; }
 .mode-bar .mode-name{
   font-family:'Orbitron',monospace; font-weight:700; font-size:14px;
   color:var(--cyan); letter-spacing:0.04em; display:flex; align-items:center; gap:8px;
@@ -2917,8 +2920,9 @@ html.mode-quake .mode-bar, html.mode-chat .mode-bar{ display:flex; }
 
 /* モード起動時：通常ページを隠す */
 html.mode-quake body > :not(.mode-bar):not(.mode-screen),
-html.mode-chat  body > :not(.mode-bar):not(.mode-screen){ display:none !important; }
-html.mode-quake, html.mode-chat{ overflow:hidden; }
+html.mode-chat  body > :not(.mode-bar):not(.mode-screen),
+html.mode-kiosk body > :not(.mode-bar):not(.mode-screen){ display:none !important; }
+html.mode-quake, html.mode-chat, html.mode-kiosk{ overflow:hidden; }
 
 /* モード用フルスクリーン領域 */
 .mode-screen{
@@ -2927,6 +2931,7 @@ html.mode-quake, html.mode-chat{ overflow:hidden; }
 }
 html.mode-quake #modeQuakeScreen{ display:block; }
 html.mode-chat  #modeChatScreen { display:flex; flex-direction:column; }
+html.mode-kiosk #modeKioskScreen{ display:block; }
 
 /* --- 地震監視モード --- */
 #modeQuakeScreen .mq-grid{
@@ -3084,6 +3089,351 @@ button.dwa-plate{ padding:0; }
 .inline-policy-link:hover{ opacity:0.82; }
 .inline-policy-link:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; border-radius:3px; }
 
+
+/* ========== キオスクモード（スコープ化） ========== */
+  /* ===== デザイントークン =====
+     背景：深いネイビー（防災指令室の質感）
+     アクセント：震度の信号灯カラー（緑→黄→橙→赤）
+     緊急時：画面全体が赤系の緊急配色に切り替わる */
+  #modeKioskScreen{
+    --k-bg:#0a1020;
+    --k-bg2:#0f1830;
+    --k-panel:#131d38;
+    --k-panel2:#18244a;
+    --k-line:rgba(120,160,220,0.16);
+    --k-text:#e8eef8;
+    --k-muted:#8ea3c4;
+    --k-blue:#4da3ff;
+    --k-cyan:#5fe3ff;
+    /* 信号灯 */
+    --k-lv1:#3ddc84;  /* 平穏/弱 */
+    --k-lv2:#ffe14d;  /* 警戒 */
+    --k-lv3:#ff9f40;  /* 厳重警戒 */
+    --k-lv4:#ff5a4d;  /* 危険 */
+    --k-lv5:#c026d3;  /* 特別 */
+    --k-num:'DSEG7 Classic', 'Courier New', ui-monospace, monospace;
+    --k-disp:'Hiragino Sans','Noto Sans JP',system-ui,sans-serif;
+    /* ヘッダーのオーバーレイ濃度（テーマで調整） */
+    --k-head-grad1:rgba(20,32,64,0.95);
+    --k-head-grad2:rgba(15,24,48,0.6);
+  }
+
+  /* ===== 背景テーマ（5色：ダーク3／ライト2） =====
+     利用者が設定で選び、選択は保存される。
+     背景・パネル・文字・境界線を連動して切り替える。
+     信号灯カラー(lv1〜5)はどのテーマでも共通。 */
+
+  /* 1. ナイトネイビー（既定・指令室） */
+  #modeKioskScreen[data-ktheme="navy"]{
+    --k-bg:#0a1020; --k-bg2:#0f1830; --k-panel:#131d38; --k-panel2:#18244a;
+    --k-line:rgba(120,160,220,0.16); --k-text:#e8eef8; --k-muted:#8ea3c4;
+    --k-head-grad1:rgba(20,32,64,0.95); --k-head-grad2:rgba(15,24,48,0.6);
+  }
+  /* 2. ミッドナイト（純黒系・夜間や明所コントラスト重視） */
+  #modeKioskScreen[data-ktheme="midnight"]{
+    --k-bg:#050608; --k-bg2:#0c0e12; --k-panel:#14171d; --k-panel2:#1c2027;
+    --k-line:rgba(180,190,210,0.14); --k-text:#eef1f6; --k-muted:#9aa3b2;
+    --k-head-grad1:rgba(18,20,26,0.96); --k-head-grad2:rgba(10,11,14,0.6);
+  }
+  /* 3. スレートグレー（ニュートラルな中間トーン） */
+  #modeKioskScreen[data-ktheme="slate"]{
+    --k-bg:#1e242e; --k-bg2:#262d39; --k-panel:#2e3744; --k-panel2:#384353;
+    --k-line:rgba(200,210,225,0.16); --k-text:#eef2f7; --k-muted:#a8b3c2;
+    --k-head-grad1:rgba(46,55,68,0.95); --k-head-grad2:rgba(38,45,57,0.6);
+  }
+  /* 4. デイライト（明るいライト・日中の屋内向け） */
+  #modeKioskScreen[data-ktheme="daylight"]{
+    --k-bg:#eef2f8; --k-bg2:#f6f9fd; --k-panel:#ffffff; --k-panel2:#eaf0f8;
+    --k-line:rgba(40,70,120,0.16); --k-text:#16203a; --k-muted:#5a6b86;
+    --k-head-grad1:rgba(255,255,255,0.95); --k-head-grad2:rgba(238,244,252,0.7);
+  }
+  /* 5. セピア（暖色ライト・目に優しい） */
+  #modeKioskScreen[data-ktheme="sepia"]{
+    --k-bg:#efe7d6; --k-bg2:#f6f0e3; --k-panel:#fffaf0; --k-panel2:#f0e6d2;
+    --k-line:rgba(120,90,50,0.18); --k-text:#3a2e1d; --k-muted:#7d6a4e;
+    --k-head-grad1:rgba(255,250,240,0.95); --k-head-grad2:rgba(240,230,210,0.7);
+  }
+#modeKioskScreen * { box-sizing:border-box; margin:0; padding:0; }
+  #modeKioskScreen .ksg-body{ height:100%; }
+  #modeKioskScreen .ksg-body{
+    background:var(--k-bg);
+    color:var(--k-text);
+    font-family:var(--k-disp);
+    overflow:hidden;
+    /* 縦長サイネージ想定：9:16 を中央に置く（デモ用枠） */
+    display:flex; align-items:center; justify-content:center;
+    min-height:100%;
+  }
+
+  /* ===== サイネージ枠（縦長 9:16） ===== */
+#modeKioskScreen .signage {
+    position:relative;
+    width:min(440px, 96vw);
+    height:min(782px, 94vh);
+    aspect-ratio:9/16;
+    background:var(--k-bg2);
+    border:1px solid var(--k-line);
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 30px 90px rgba(0,0,0,0.6);
+    display:flex; flex-direction:column;
+  }
+
+  /* ===== 1. 上部ヘッダー＋スクロールバナー ===== */
+#modeKioskScreen .k-head {
+    flex:0 0 auto;
+    padding:14px 16px 10px;
+    background:linear-gradient(180deg, var(--k-head-grad1), var(--k-head-grad2));
+    border-bottom:1px solid var(--k-line);
+  }
+#modeKioskScreen .k-brand { display:flex; align-items:center; gap:10px; }
+#modeKioskScreen .k-logo {
+    width:34px; height:34px; border-radius:9px; flex:0 0 auto;
+    display:grid; place-items:center; font-size:18px;
+    background:var(--k-panel2);
+    border:1px solid rgba(95,227,255,0.3);
+    box-shadow:0 0 18px rgba(95,227,255,0.15) inset;
+  }
+#modeKioskScreen .k-brand .bt { flex:1; min-width:0; }
+#modeKioskScreen .k-brand .bt b { font-size:15px; letter-spacing:.04em; display:block; }
+#modeKioskScreen .k-brand .bt span { font-size:10px; color:var(--k-muted); letter-spacing:.18em; }
+#modeKioskScreen .k-clock { font-family:var(--k-num); font-size:16px; color:var(--k-cyan); letter-spacing:.06em; }
+#modeKioskScreen .k-clock .date { font-family:var(--k-disp); font-size:10px; color:var(--k-muted); display:block; text-align:right; letter-spacing:.1em; }
+
+  /* スクロールバナー（速報ティッカー） */
+#modeKioskScreen .k-ticker {
+    margin-top:11px; height:30px; border-radius:8px; overflow:hidden;
+    background:linear-gradient(90deg, rgba(255,60,60,0.16), rgba(255,60,60,0.04));
+    border:1px solid rgba(255,80,80,0.25);
+    display:flex; align-items:center;
+  }
+#modeKioskScreen .k-ticker .tk-tag {
+    flex:0 0 auto; align-self:stretch; display:flex; align-items:center;
+    padding:0 11px; font-size:10px; font-weight:800; letter-spacing:.1em;
+    background:rgba(255,70,70,0.9); color:#1a0606;
+  }
+#modeKioskScreen .k-ticker .tk-track { flex:1; overflow:hidden; white-space:nowrap; }
+#modeKioskScreen .k-ticker .tk-track span {
+    display:inline-block; padding-left:100%;
+    font-size:12.5px; color:#ffd9d9; letter-spacing:.02em;
+    animation:k-k-tkScroll 22s linear infinite;
+  }
+  @keyframes k-tkScroll{ to{ transform:translateX(-100%); } }
+
+  /* ===== 2. メイン：固定の防災速報 ===== */
+#modeKioskScreen .k-main {
+    flex:1 1 auto; min-height:0;
+    padding:16px;
+    display:flex; flex-direction:column; gap:13px;
+  }
+#modeKioskScreen .k-section-label {
+    display:flex; align-items:center; gap:8px;
+    font-size:10px; letter-spacing:.2em; color:var(--k-muted);
+  }
+#modeKioskScreen .k-section-label::before { content:''; width:5px; height:5px; border-radius:50%; background:var(--k-lv1); box-shadow:0 0 8px var(--k-lv1); }
+#modeKioskScreen .k-section-label .live { margin-left:auto; display:flex; align-items:center; gap:5px; color:#ff8a8a; font-weight:800; }
+#modeKioskScreen .k-section-label .live i { width:7px; height:7px; border-radius:50%; background:#ff5a4d; box-shadow:0 0 10px #ff5a4d; animation:k-k-pulse 1.1s infinite; }
+  @keyframes k-pulse{ 0%,100%{ opacity:1; } 50%{ opacity:.25; } }
+
+  /* 最新地震カード（主役） */
+#modeKioskScreen .quake-card {
+    background:var(--k-panel);
+    border:1px solid var(--k-line); border-radius:14px;
+    padding:16px; position:relative; overflow:hidden;
+  }
+#modeKioskScreen .quake-card .qc-region { font-size:11px; color:var(--k-muted); letter-spacing:.1em; margin-bottom:3px; }
+#modeKioskScreen .quake-card .qc-name { font-size:19px; font-weight:800; line-height:1.3; margin-bottom:12px; }
+#modeKioskScreen .qc-grid { display:grid; grid-template-columns:auto 1fr; gap:14px; align-items:center; }
+#modeKioskScreen .qc-shindo {
+    flex:0 0 auto; width:104px; height:104px; border-radius:16px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    color:#0a0a0a; position:relative;
+  }
+#modeKioskScreen .qc-shindo .sl { font-size:11px; font-weight:800; letter-spacing:.08em; opacity:.85; margin-bottom:1px; }
+#modeKioskScreen .qc-shindo .sv { font-family:var(--k-num); font-size:46px; font-weight:900; line-height:1; display:flex; align-items:baseline; justify-content:center; gap:1px; }
+#modeKioskScreen .qc-shindo .sv b { font-size:54px; font-weight:900; }
+#modeKioskScreen .qc-shindo .sv em { font-size:24px; font-weight:800; font-style:normal; font-family:var(--k-disp); }
+#modeKioskScreen .qc-meta { display:flex; flex-direction:column; gap:9px; }
+#modeKioskScreen .qc-row { display:flex; align-items:baseline; gap:8px; }
+#modeKioskScreen .qc-row .l { font-size:11px; color:var(--k-muted); width:64px; flex:0 0 auto; }
+#modeKioskScreen .qc-row .v { font-family:var(--k-num); font-size:21px; font-weight:700; color:var(--k-text); }
+#modeKioskScreen .qc-row .u { font-size:11px; color:var(--k-muted); }
+
+  /* 警報ステータス2連 */
+#modeKioskScreen .k-status { display:grid; grid-template-columns:1fr 1fr; gap:11px; }
+#modeKioskScreen .st-card {
+    background:var(--k-panel); border:1px solid var(--k-line); border-radius:12px;
+    padding:13px; display:flex; flex-direction:column; gap:7px;
+  }
+#modeKioskScreen .st-card .st-top { display:flex; align-items:center; gap:8px; }
+#modeKioskScreen .st-card .st-ic { font-size:18px; }
+#modeKioskScreen .st-card .st-name { font-size:11px; color:var(--k-muted); letter-spacing:.05em; }
+#modeKioskScreen .st-card .st-val { font-size:16px; font-weight:800; }
+#modeKioskScreen .st-card.ok .st-val { color:var(--k-lv1); }
+#modeKioskScreen .st-card.warn .st-val { color:var(--k-lv3); }
+#modeKioskScreen .st-card.danger .st-val { color:var(--k-lv4); }
+#modeKioskScreen .st-card .st-sub { font-size:10px; color:var(--k-muted); }
+
+  /* ===== 3. 下部ローテーションゾーン ===== */
+#modeKioskScreen .k-rotate {
+    flex:0 0 auto;
+    margin:0 16px 16px; border-radius:14px;
+    background:var(--k-panel); border:1px solid var(--k-line);
+    height:172px; position:relative; overflow:hidden;
+  }
+#modeKioskScreen .rot-slide {
+    position:absolute; inset:0; padding:15px 16px;
+    opacity:0; transform:translateY(8px);
+    transition:opacity .5s, transform .5s; pointer-events:none;
+    display:flex; flex-direction:column; gap:10px;
+  }
+#modeKioskScreen .rot-slide.active { opacity:1; transform:none; }
+#modeKioskScreen .rot-head { display:flex; align-items:center; gap:8px; }
+#modeKioskScreen .rot-head .ri { font-size:18px; }
+#modeKioskScreen .rot-head .rt { font-size:13px; font-weight:800; letter-spacing:.04em; }
+#modeKioskScreen .rot-head .rtag { margin-left:auto; font-size:9px; color:var(--k-muted); letter-spacing:.14em; }
+
+  /* 熱中症スライド */
+  /* 熱中症：設定県の観測点リスト */
+#modeKioskScreen .rot-head .hp-pref { font-size:13px; font-weight:800; color:var(--k-lv3); }
+#modeKioskScreen .heat-list {
+    flex:1; min-height:0; overflow:hidden; position:relative;
+    margin-top:2px;
+  }
+#modeKioskScreen .heat-list .hl-track { display:flex; flex-direction:column; gap:0; }
+  /* 件数が多いとき、ゆっくり縦スクロールして全件見せる */
+#modeKioskScreen .heat-list.scrolling .hl-track { animation:k-k-heatScroll linear infinite; }
+  @keyframes k-heatScroll{
+    0%,8%{ transform:translateY(0); }
+    92%,100%{ transform:translateY(var(--scroll-end,0)); }
+  }
+#modeKioskScreen .hl-row {
+    display:flex; align-items:center; gap:8px;
+    padding:6px 2px; border-bottom:1px solid var(--k-line);
+    flex:0 0 auto;
+  }
+#modeKioskScreen .hl-row .hl-name { font-size:12.5px; font-weight:700; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#modeKioskScreen .hl-row .hl-badge { flex:0 0 auto; font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px; color:#1a0a00; }
+#modeKioskScreen .hl-row .hl-temp { flex:0 0 auto; font-family:var(--k-num); font-size:13px; font-weight:700; min-width:52px; text-align:right; }
+
+  /* コラム見出しスライド */
+#modeKioskScreen .col-title { font-size:14px; font-weight:800; line-height:1.4; }
+  #modeKioskScreen .col-body{ font-size:11px; color:var(--k-muted); line-height:1.6;
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+
+  /* 備えヒントスライド */
+#modeKioskScreen .tip-row { display:flex; gap:9px; align-items:flex-start; }
+#modeKioskScreen .tip-row .tn { font-family:var(--k-num); color:var(--k-cyan); font-size:13px; font-weight:800; flex:0 0 auto; padding-top:1px; }
+#modeKioskScreen .tip-row .tx { font-size:12px; line-height:1.5; }
+
+  /* ローテーション・インジケータ */
+#modeKioskScreen .rot-dots { position:absolute; bottom:10px; right:14px; display:flex; gap:5px; }
+#modeKioskScreen .rot-dots i { width:6px; height:6px; border-radius:50%; background:rgba(150,180,230,0.3); transition:.3s; }
+#modeKioskScreen .rot-dots i.on { background:var(--k-cyan); width:16px; border-radius:3px; }
+
+  /* ===== 緊急時オーバーレイ（全画面切替） ===== */
+#modeKioskScreen .k-emergency {
+    position:absolute; inset:0; z-index:50; display:none;
+    flex-direction:column; align-items:center; justify-content:center;
+    padding:28px; text-align:center;
+    background:
+      radial-gradient(700px 500px at 50% 30%, rgba(255,70,60,0.4), transparent 70%),
+      linear-gradient(180deg,#2a0808,#160404);
+    animation:k-k-emFade .3s ease;
+  }
+#modeKioskScreen .k-emergency.show { display:flex; }
+  @keyframes k-emFade{ from{ opacity:0; } to{ opacity:1; } }
+#modeKioskScreen .em-flash { position:absolute; inset:0; background:rgba(255,60,50,0.0); animation:k-k-emFlash 1s infinite; pointer-events:none; }
+  @keyframes k-emFlash{ 0%,100%{ background:rgba(255,60,50,0); } 50%{ background:rgba(255,60,50,0.14); } }
+#modeKioskScreen .em-icon { font-size:64px; margin-bottom:6px; animation:k-k-shake .5s infinite; }
+  @keyframes k-shake{ 0%,100%{ transform:translateX(0); } 25%{ transform:translateX(-4px); } 75%{ transform:translateX(4px); } }
+#modeKioskScreen .em-label { font-size:13px; letter-spacing:.3em; color:#ffb3ad; font-weight:800; margin-bottom:8px; }
+#modeKioskScreen .em-title { font-size:30px; font-weight:900; line-height:1.25; margin-bottom:18px; text-shadow:0 0 24px rgba(255,80,70,0.5); }
+#modeKioskScreen .em-shindo {
+    width:140px; height:140px; border-radius:20px; margin:0 auto 18px;
+    background:#ff5a4d; color:#1a0404;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    box-shadow:0 0 40px rgba(255,80,70,0.6);
+  }
+#modeKioskScreen .em-shindo .l { font-size:13px; font-weight:800; letter-spacing:.1em; }
+#modeKioskScreen .em-shindo .v { font-family:var(--k-num); font-size:64px; font-weight:900; line-height:1; display:flex; align-items:baseline; justify-content:center; gap:2px; }
+#modeKioskScreen .em-shindo .v b { font-size:74px; font-weight:900; }
+#modeKioskScreen .em-shindo .v em { font-size:32px; font-weight:800; font-style:normal; font-family:var(--k-disp); }
+#modeKioskScreen .em-action {
+    font-size:18px; font-weight:800; line-height:1.5; color:#fff;
+    background:rgba(0,0,0,0.3); border:1px solid rgba(255,120,110,0.5);
+    border-radius:14px; padding:16px 22px; max-width:90%;
+  }
+#modeKioskScreen .em-meta { margin-top:16px; font-family:var(--k-num); font-size:15px; color:#ffd0cc; letter-spacing:.06em; }
+
+  /* 緊急時は枠全体の縁を赤く */
+#modeKioskScreen .signage.is-emergency { border-color:rgba(255,80,70,0.6); box-shadow:0 0 60px rgba(255,70,60,0.4), 0 30px 90px rgba(0,0,0,0.6); }
+
+  /* ===== 設定（歯車）ボタン＋パネル：右上 ===== */
+#modeKioskScreen .gear-btn {
+    position:absolute; top:12px; right:12px; z-index:60;
+    width:76px; height:76px; border-radius:50%; cursor:pointer;
+    display:grid; place-items:center; font-size:36px; line-height:1;
+    background:rgba(10,16,32,0.45); color:var(--k-text);
+    border:1px solid var(--k-line);
+    -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+    transition:.18s;
+  }
+#modeKioskScreen .gear-btn:hover { transform:rotate(40deg); border-color:var(--k-cyan); color:var(--k-cyan); }
+  #modeKioskScreen[data-ktheme="daylight"] .gear-btn,
+  #modeKioskScreen[data-ktheme="sepia"] .gear-btn{ background:rgba(255,255,255,0.55); }
+
+#modeKioskScreen .settings-panel {
+    position:absolute; top:96px; right:12px; z-index:61;
+    width:248px; max-height:calc(100% - 110px); overflow-y:auto;
+    background:var(--k-panel); border:1px solid var(--k-line);
+    border-radius:14px; padding:14px;
+    box-shadow:0 18px 50px rgba(0,0,0,0.45);
+    opacity:0; transform:translateY(-8px) scale(.97); pointer-events:none;
+    transition:opacity .18s, transform .18s;
+  }
+#modeKioskScreen .settings-panel.open { opacity:1; transform:none; pointer-events:auto; }
+#modeKioskScreen .sp-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+#modeKioskScreen .sp-head span { font-size:13px; font-weight:800; letter-spacing:.08em; }
+#modeKioskScreen .sp-close {
+    width:24px; height:24px; border-radius:6px; cursor:pointer;
+    background:transparent; border:1px solid var(--k-line); color:var(--k-muted);
+    font-size:12px; line-height:1; display:grid; place-items:center; transition:.15s;
+  }
+#modeKioskScreen .sp-close:hover { color:var(--k-text); border-color:var(--k-cyan); }
+#modeKioskScreen .sp-group { margin-bottom:14px; }
+#modeKioskScreen .sp-group:last-child { margin-bottom:0; }
+#modeKioskScreen .sp-label { font-size:10px; color:var(--k-muted); letter-spacing:.12em; margin-bottom:8px; }
+
+  /* セグメント（平常時/緊急時） */
+#modeKioskScreen .sp-segment { display:flex; gap:6px; }
+#modeKioskScreen .sp-segment button {
+    flex:1; font-family:var(--k-disp); font-size:12px; font-weight:700; cursor:pointer;
+    border:1px solid var(--k-line); background:var(--k-panel2); color:var(--k-text);
+    padding:9px 10px; border-radius:9px; transition:.15s;
+  }
+#modeKioskScreen .sp-segment button:hover { border-color:var(--k-cyan); }
+#modeKioskScreen .sp-segment button.active { background:var(--k-cyan); color:#04121f; border-color:var(--k-cyan); }
+  /* 対象地域セレクト */
+#modeKioskScreen .sp-select {
+    width:100%; font-family:var(--k-disp); font-size:13px; font-weight:700;
+    background:var(--k-panel2); color:var(--k-text); border:1px solid var(--k-line);
+    border-radius:9px; padding:9px 11px; cursor:pointer;
+  }
+#modeKioskScreen .sp-select:focus { outline:none; border-color:var(--k-cyan); }
+#modeKioskScreen .theme-swatches { display:flex; gap:9px; align-items:center; flex-wrap:wrap; }
+#modeKioskScreen .theme-swatches .sw {
+    width:26px; height:26px; padding:0; border-radius:50%;
+    background:var(--c); border:2px solid rgba(150,170,210,0.35);
+    cursor:pointer; transition:.15s;
+  }
+#modeKioskScreen .theme-swatches .sw:hover { transform:scale(1.12); }
+#modeKioskScreen .theme-swatches .sw.active { border-color:var(--k-cyan); box-shadow:0 0 0 3px rgba(95,227,255,0.25); }
+
+  @media (prefers-reduced-motion:reduce){
+#modeKioskScreen * { animation:none !important; }
+  }
+
 </style>
 </head>
 
@@ -3127,6 +3477,165 @@ button.dwa-plate{ padding:0; }
     <div class="mc-title">💬 みんなのひとことチャット（フルスクリーン）</div>
     <div id="modeChatHost"></div>
   </div>
+</div>
+
+<!-- キオスクモード -->
+<div class="mode-screen" id="modeKioskScreen" data-ktheme="navy">
+<div class="ksg-body" data-ktheme="navy">
+<div class="signage" id="signage">
+
+  <!-- 1. ヘッダー＋スクロールバナー -->
+  <div class="k-head">
+    <div class="k-brand">
+      <div class="k-logo">🛡️</div>
+      <div class="bt">
+        <b>防災情報センター</b>
+        <span>DISASTER PREVENTION CENTER</span>
+      </div>
+      <div class="k-clock">
+        <span id="clock">15:08:23</span>
+        <span class="date" id="date">2026.06.30 火</span>
+      </div>
+    </div>
+    <div class="k-ticker">
+      <div class="tk-tag">速報</div>
+      <div class="tk-track"><span id="tickerText">気象庁発表：山梨県東部・富士五湖で最大震度6弱を観測。津波の心配はありません。　／　全国の地震・気象情報を10秒ごとに自動更新中。</span></div>
+    </div>
+  </div>
+
+  <!-- 2. メイン：固定の防災速報 -->
+  <div class="k-main">
+    <div class="k-section-label">
+      最新の地震情報
+      <span class="live"><i></i>LIVE</span>
+    </div>
+
+    <div class="quake-card">
+      <div class="qc-region">🗾 日本・国内</div>
+      <div class="qc-name" id="qName">山梨県東部・富士五湖</div>
+      <div class="qc-grid">
+        <div class="qc-shindo" id="qShindo" style="background:var(--lv4);">
+          <span class="sl">最大震度</span>
+          <span class="sv" id="qShindoVal"><b>6</b><em>弱</em></span>
+        </div>
+        <div class="qc-meta">
+          <div class="qc-row"><span class="l">マグニチュード</span><span class="v" id="qMag">5.6</span></div>
+          <div class="qc-row"><span class="l">深さ</span><span class="v" id="qDepth">20</span><span class="u">km</span></div>
+          <div class="qc-row"><span class="l">発生時刻</span><span class="v" id="qTime" style="font-size:15px;">22:29</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="k-section-label" style="margin-top:2px;">発令中の警報・情報</div>
+    <div class="k-status">
+      <div class="st-card warn">
+        <div class="st-top"><span class="st-ic">🌡️</span><span class="st-name">熱中症警戒</span></div>
+        <div class="st-val">厳重警戒</div>
+        <div class="st-sub">京都府・近畿で発表中</div>
+      </div>
+      <div class="st-card ok">
+        <div class="st-top"><span class="st-ic">🌊</span><span class="st-name">津波情報</span></div>
+        <div class="st-val">心配なし</div>
+        <div class="st-sub">現在、警報・注意報なし</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 下部ローテーションゾーン -->
+  <div class="k-rotate" id="rotate">
+    <!-- スライド1：熱中症（設定した都道府県の観測点リスト） -->
+    <div class="rot-slide active">
+      <div class="rot-head">
+        <span class="ri">🌡️</span>
+        <span class="rt">熱中症 暑さ指数</span>
+        <span class="hp-pref" id="heatPrefName">愛知県</span>
+        <span class="rtag" id="heatPrefMeta">11地点</span>
+      </div>
+      <div class="heat-list" id="heatList">
+        <!-- JSで地点行を流し込む -->
+      </div>
+    </div>
+    <!-- スライド2：防災コラム -->
+    <div class="rot-slide">
+      <div class="rot-head"><span class="ri">📰</span><span class="rt">防災コラム</span><span class="rtag">最新記事</span></div>
+      <div class="col-title">岩手県沖と富士五湖の地震は「別もの」です</div>
+      <div class="col-body">短期間に強い地震が続くと不安になりますが、2つの震源は500km以上離れ、しくみも異なります。大切なのは、根拠のないうわさに振り回されず、家具の固定や備蓄など現実的な備えを進めることです。</div>
+    </div>
+    <!-- スライド3：備えのヒント -->
+    <div class="rot-slide">
+      <div class="rot-head"><span class="ri">💡</span><span class="rt">今日の備えヒント</span><span class="rtag">TIP</span></div>
+      <div class="tip-row"><span class="tn">01</span><span class="tx">寝る場所の近くに、倒れてくる家具がないか確認しましょう。</span></div>
+      <div class="tip-row"><span class="tn">02</span><span class="tx">水・モバイルバッテリー・懐中電灯を、すぐ持ち出せる場所に。</span></div>
+      <div class="tip-row"><span class="tn">03</span><span class="tx">信頼できる情報源（気象庁・自治体）を事前に決めておく。</span></div>
+    </div>
+    <!-- スライド4：避難所案内 -->
+    <div class="rot-slide">
+      <div class="rot-head"><span class="ri">🗺️</span><span class="rt">避難所マップ</span><span class="rtag">GUIDE</span></div>
+      <div class="col-title">お住まいの地域の避難所を確認</div>
+      <div class="col-body">国土交通省ハザードマップポータルサイトで、最寄りの避難所・避難場所と、浸水・土砂災害の危険区域を確認できます。いざという時の経路を、平常時に確認しておきましょう。</div>
+    </div>
+
+    <div class="rot-dots" id="rotDots">
+      <i class="on"></i><i></i><i></i><i></i>
+    </div>
+  </div>
+
+  <!-- 緊急時オーバーレイ（全画面切替） -->
+  <div class="k-emergency" id="emergency">
+    <div class="em-flash"></div>
+    <div class="em-icon">⚠️</div>
+    <div class="em-label">EARTHQUAKE EARLY WARNING</div>
+    <div class="em-title">強い揺れに警戒してください</div>
+    <div class="em-shindo">
+      <span class="l">最大震度</span>
+      <span class="v"><b>6</b><em>強</em></span>
+    </div>
+    <div class="em-action">身を守ってください。<br>机の下などで頭を保護し、<br>揺れがおさまるまで待機。</div>
+    <div class="em-meta">岩手県沖　M7.2　深さ44km</div>
+  </div>
+
+</div>
+
+<!-- 設定（歯車）：右上。デモ切替・背景テーマを収納 -->
+<button class="gear-btn" id="gearBtn" onclick="kioskUI.toggleSettings()" aria-label="設定">⚙</button>
+
+<div class="settings-panel" id="settingsPanel">
+  <div class="sp-head">
+    <span>設定</span>
+    <button class="sp-close" onclick="kioskUI.toggleSettings(false)" aria-label="閉じる">✕</button>
+  </div>
+
+  <div class="sp-group">
+    <div class="sp-label">表示モード（デモ）</div>
+    <div class="sp-segment">
+      <button class="active" id="btnNormal" onclick="kioskUI.setMode('normal')">平常時</button>
+      <button id="btnEmg" onclick="kioskUI.setMode('emergency')">緊急時</button>
+    </div>
+  </div>
+
+  <div class="sp-group">
+    <div class="sp-label">熱中症の対象地域</div>
+    <select class="sp-select" id="heatPrefSelect" onchange="setHeatPref(this.value)">
+      <option value="aichi">愛知県（東海）</option>
+      <option value="tokyo">東京都（関東）</option>
+      <option value="osaka">大阪府（近畿）</option>
+      <option value="kyoto">京都府（近畿）</option>
+      <option value="fukuoka">福岡県（九州）</option>
+    </select>
+  </div>
+
+  <div class="sp-group">
+    <div class="sp-label">背景テーマ</div>
+    <div class="theme-swatches" id="themeSwatches">
+      <button class="sw" data-ktheme="navy"     style="--c:#0f1830" title="ナイトネイビー" onclick="kioskUI.setTheme('navy')"></button>
+      <button class="sw" data-ktheme="midnight" style="--c:#0c0e12" title="ミッドナイト" onclick="kioskUI.setTheme('midnight')"></button>
+      <button class="sw" data-ktheme="slate"    style="--c:#2e3744" title="スレートグレー" onclick="kioskUI.setTheme('slate')"></button>
+      <button class="sw" data-ktheme="daylight" style="--c:#f6f9fd" title="デイライト" onclick="kioskUI.setTheme('daylight')"></button>
+      <button class="sw" data-ktheme="sepia"    style="--c:#f6f0e3" title="セピア" onclick="kioskUI.setTheme('sepia')"></button>
+    </div>
+  </div>
+</div>
+</div>
 </div>
 
 <!-- 固定トップバー（header+ticker+tabs を JS でここへ集約） -->
@@ -3467,6 +3976,9 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       </button>
       <button class="hamburger-link" onclick="enterMode('quake');closeHamburger();" style="color:#00ffe0;border-color:rgba(0,255,224,0.25);background:rgba(0,255,224,0.06);width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">🖥️</span>地震監視モード
+      </button>
+      <button class="hamburger-link" onclick="enterMode('kiosk');closeHamburger();" style="color:#ffc24d;border-color:rgba(255,180,60,0.3);background:rgba(255,180,60,0.07);width:100%;text-align:left;cursor:pointer;">
+        <span class="h-link-icon">📺</span>キオスクモード
       </button>
       <a class="hamburger-link" href="https://mkms0822-ops.github.io/saigaidengonban/" target="_blank" rel="noopener" onclick="closeHamburger();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:rgba(0,180,255,0.05);width:100%;text-align:left;cursor:pointer;display:flex;align-items:center;text-decoration:none;">
         <span class="h-link-icon">📨</span>災害用伝言板
@@ -9085,11 +9597,230 @@ let _currentMode = null;          // null | 'quake' | 'chat'
 let _chatHostMoved = false;       // チャットDOMをモードへ移動済みか
 let _monitorFallbackTimer = null;
 
+// ===== キオスクモード 専用スクリプト（名前空間 kioskUI に隔離）=====
+window.kioskUI = (function(){
+  'use strict';
+  // キオスクモードが起動済みかのフラグ（重複初期化防止）
+  let _kioskInited = false;
+
+  // 時計
+  function tick(){
+    const n = new Date();
+    const p = x => String(x).padStart(2,'0');
+    const wd = ['日','月','火','水','木','金','土'][n.getDay()];
+    const c = document.getElementById('clock');
+    const d = document.getElementById('date');
+    if(c) c.textContent = p(n.getHours())+':'+p(n.getMinutes())+':'+p(n.getSeconds());
+    if(d) d.textContent = n.getFullYear()+'.'+p(n.getMonth()+1)+'.'+p(n.getDate())+' '+wd;
+  }
+  setInterval(function(){ try{ tick(); }catch(e){} }, 1000);
+
+  // 下部ローテーション
+  const slides = document.querySelectorAll('.rot-slide');
+  const dots = document.querySelectorAll('#rotDots i');
+  let idx = 0;
+  let rotTimer = null;
+  function showSlide(i){
+    slides.forEach((s,n)=> s.classList.toggle('active', n===i));
+    dots.forEach((d,n)=> d.classList.toggle('on', n===i));
+  }
+  function startRotation(){
+    stopRotation();
+    rotTimer = setInterval(()=>{
+      idx = (idx+1) % slides.length;
+      showSlide(idx);
+    }, 6000); // 6秒ごとに切替
+  }
+  function stopRotation(){ if(rotTimer){ clearInterval(rotTimer); rotTimer=null; } }
+  // startRotation(); （start()で開始）
+
+  // ===== 熱中症：都道府県別の観測点データ =====
+  // 実機では既存GAS(type=heat)から取得して同じ形({name,level,temp})に整形して流し込めます。
+  // level: 1=ほぼ安全 2=注意 3=警戒 4=厳重警戒 5=危険
+  const HEAT_COLORS = { 1:'var(--lv1)', 2:'var(--lv2)', 3:'var(--lv2)', 4:'var(--lv3)', 5:'var(--lv4)' };
+  const HEAT_LABELS = { 1:'ほぼ安全', 2:'注意', 3:'警戒', 4:'厳重警戒', 5:'危険' };
+  const HEAT_DATA = {
+    aichi: { name:'愛知県', region:'東海', points:[
+      {name:'伊良湖',level:3,temp:27.4},{name:'南知多',level:3,temp:26.4},{name:'名古屋',level:4,temp:29.1},
+      {name:'大府',level:3,temp:27.5},{name:'岡崎',level:3,temp:27.0},{name:'愛西',level:4,temp:28.1},
+      {name:'新城',level:3,temp:27.7},{name:'稲武',level:3,temp:26.1},{name:'豊田',level:4,temp:28.3},
+      {name:'豊橋',level:3,temp:27.2},{name:'東海',level:4,temp:28.6}
+    ]},
+    tokyo: { name:'東京都', region:'関東', points:[
+      {name:'東京',level:4,temp:29.3},{name:'練馬',level:4,temp:28.8},{name:'八王子',level:3,temp:27.6},
+      {name:'府中',level:4,temp:28.2},{name:'大島',level:2,temp:24.9},{name:'三宅島',level:2,temp:24.1},
+      {name:'八丈島',level:2,temp:23.8},{name:'父島',level:3,temp:26.7}
+    ]},
+    osaka: { name:'大阪府', region:'近畿', points:[
+      {name:'大阪',level:5,temp:31.2},{name:'堺',level:4,temp:29.6},{name:'枚方',level:4,temp:29.0},
+      {name:'熊取',level:4,temp:28.4},{name:'能勢',level:3,temp:27.1},{name:'生駒山',level:3,temp:26.3}
+    ]},
+    kyoto: { name:'京都府', region:'近畿', points:[
+      {name:'京都',level:3,temp:27.2},{name:'園部',level:4,temp:28.3},{name:'宮津',level:3,temp:26.9},
+      {name:'福知山',level:4,temp:28.4},{name:'美山',level:4,temp:28.0},{name:'舞鶴',level:3,temp:27.9},
+      {name:'間人',level:3,temp:25.8},{name:'京田辺',level:4,temp:29.5}
+    ]},
+    fukuoka: { name:'福岡県', region:'九州', points:[
+      {name:'福岡',level:4,temp:29.4},{name:'八幡',level:4,temp:28.7},{name:'飯塚',level:4,temp:28.5},
+      {name:'久留米',level:5,temp:30.1},{name:'大牟田',level:4,temp:29.2},{name:'行橋',level:3,temp:27.8}
+    ]}
+  };
+
+  const HEATPREF_KEY = 'kiosk_heatpref';
+
+  function renderHeatList(key){
+    const data = HEAT_DATA[key];
+    if(!data) return;
+    const nameEl = document.getElementById('heatPrefName');
+    const metaEl = document.getElementById('heatPrefMeta');
+    const listEl = document.getElementById('heatList');
+    if(nameEl) nameEl.textContent = data.name;
+    if(metaEl) metaEl.textContent = data.region + '　' + data.points.length + '地点';
+    if(!listEl) return;
+
+    let rows = '';
+    data.points.forEach(p=>{
+      const col = HEAT_COLORS[p.level] || 'var(--lv2)';
+      const lab = HEAT_LABELS[p.level] || '注意';
+      rows += '<div class="hl-row">'
+        + '<span class="hl-name">'+p.name+'</span>'
+        + '<span class="hl-badge" style="background:'+col+'">'+lab+'</span>'
+        + '<span class="hl-temp">'+p.temp.toFixed(1)+'℃</span>'
+        + '</div>';
+    });
+    listEl.innerHTML = '<div class="hl-track">'+rows+'</div>';
+
+    // 件数が多くて枠に収まらない場合は、ゆっくり縦スクロールして全件見せる
+    requestAnimationFrame(()=>{
+      const track = listEl.querySelector('.hl-track');
+      if(!track) return;
+      const over = track.scrollHeight - listEl.clientHeight;
+      if(over > 4){
+        listEl.style.setProperty('--scroll-end', '-'+over+'px');
+        // 1地点あたり約1.6秒で全件巡回（最低12秒）
+        const dur = Math.max(12, data.points.length * 1.6);
+        track.style.animationDuration = dur + 's';
+        listEl.classList.add('scrolling');
+      } else {
+        listEl.classList.remove('scrolling');
+      }
+    });
+  }
+
+  function setHeatPref(key){
+    if(!HEAT_DATA[key]) key = 'aichi';
+    renderHeatList(key);
+    const sel = document.getElementById('heatPrefSelect');
+    if(sel) sel.value = key;
+    try { localStorage.setItem(HEATPREF_KEY, key); } catch(e){}
+  }
+
+  // 起動時：保存済みの対象都道府県を復元
+  function restoreHeatPref(){
+    let saved = 'aichi';
+    try { saved = localStorage.getItem(HEATPREF_KEY) || 'aichi'; } catch(e){}
+    setHeatPref(saved);
+  }
+
+  // ===== 設定パネル（歯車）の開閉 =====
+  function toggleSettings(force){
+    const p = document.getElementById('settingsPanel');
+    if(!p) return;
+    const willOpen = (typeof force === 'boolean') ? force : !p.classList.contains('open');
+    p.classList.toggle('open', willOpen);
+  }
+  // パネル外をクリックしたら閉じる
+  document.addEventListener('click', function(e){
+    const p = document.getElementById('settingsPanel');
+    const g = document.getElementById('gearBtn');
+    if(!p || !g) return;
+    if(p.classList.contains('open') && !p.contains(e.target) && !g.contains(e.target)){
+      p.classList.remove('open');
+    }
+  });
+
+  // ===== 背景テーマ（5色）の切替と保存 =====
+  const THEME_KEY = 'kiosk_theme';
+  const THEMES = ['navy','midnight','slate','daylight','sepia'];
+
+  function setTheme(name){
+    if(THEMES.indexOf(name) < 0) name = 'navy';
+    // 本体ではなくキオスク画面に適用（本体テーマと干渉しないため）
+    var ks = document.getElementById('modeKioskScreen');
+    if(ks) ks.setAttribute('data-ktheme', name);
+    // スウォッチの選択状態を更新
+    document.querySelectorAll('#themeSwatches .sw').forEach(b=>{
+      b.classList.toggle('active', b.getAttribute('data-ktheme') === name);
+    });
+    try { localStorage.setItem(THEME_KEY, name); } catch(e){}
+  }
+
+  // 起動時：保存済みテーマを復元（無ければ navy）
+  function restoreTheme(){
+    let saved = 'navy';
+    try { saved = localStorage.getItem(THEME_KEY) || 'navy'; } catch(e){}
+    setTheme(saved);
+  }
+
+  // 平常時 / 緊急時 の切替
+  // 震度文字列（例 "6弱" "5強" "7"）を、数字を大きく・弱/強を小さく整形する。
+  // 実データを流し込むときは setShindo(el, "6弱") の形で使えます。
+  function setShindo(el, text){
+    if(!el) return;
+    const m = String(text||'').match(/^(\d+)\s*([弱強]?)$/);
+    if(m){
+      el.innerHTML = '<b>'+m[1]+'</b>' + (m[2] ? '<em>'+m[2]+'</em>' : '');
+    } else {
+      el.textContent = text || '--';
+    }
+  }
+
+  function setMode(mode){
+    const sig = document.getElementById('signage');
+    const emg = document.getElementById('emergency');
+    const bN = document.getElementById('btnNormal');
+    const bE = document.getElementById('btnEmg');
+    if(mode==='emergency'){
+      // 緊急時：ローテーションを止め、全画面を警報表示に
+      stopRotation();
+      emg.classList.add('show');
+      sig.classList.add('is-emergency');
+      bN.classList.remove('active'); bE.classList.add('active');
+    } else {
+      emg.classList.remove('show');
+      sig.classList.remove('is-emergency');
+      startRotation();
+      bE.classList.remove('active'); bN.classList.add('active');
+    }
+  }
+
+
+  // 起動・停止のフック
+  function start(){
+    // 時計・ローテーションを開始
+    try{ tick(); }catch(e){}
+    if(!_kioskInited){
+      _kioskInited = true;
+    }
+    startRotation();
+    // 保存済みテーマ・対象県を反映
+    try{ restoreTheme(); }catch(e){}
+    try{ restoreHeatPref(); }catch(e){}
+  }
+  function stop(){
+    stopRotation();
+  }
+
+  return { setMode:setMode, setTheme:setTheme, toggleSettings:toggleSettings, start:start, stop:stop };
+})();
+
+
 function setModeBarName(mode){
   const el = document.getElementById('modeBarName');
   if(!el) return;
   el.textContent = mode === 'quake' ? '地震監視モード'
-                 : mode === 'chat'  ? 'チャットモード' : 'モード';
+                 : mode === 'chat'  ? 'チャットモード'
+                 : mode === 'kiosk' ? '📺 キオスクモード' : 'モード';
 }
 
 // 地震監視モードの右側を最新データで描画（fetchQuakes から呼ばれる）
@@ -9168,7 +9899,7 @@ function restoreChat(){
 function enterMode(mode){
   const html = document.documentElement;
   // いったん両モードを外してから対象を付与
-  html.classList.remove('mode-quake','mode-chat');
+  html.classList.remove('mode-quake','mode-chat','mode-kiosk');
   // モード切替時は2画面表示を解除（チャット以外では使わない）
   html.classList.remove('chat-split');
   syncSplitBtn();
@@ -9190,6 +9921,11 @@ function enterMode(mode){
     // チャットを最新化（関数があれば）
     if(typeof loadChat === 'function'){ try{ loadChat(); }catch(e){} }
     else if(typeof fetchChat === 'function'){ try{ fetchChat(); }catch(e){} }
+  } else if(mode === 'kiosk'){
+    html.classList.add('mode-kiosk');
+    _currentMode = 'kiosk';
+    setModeBarName('kiosk');
+    if(window.kioskUI && typeof window.kioskUI.start === 'function'){ window.kioskUI.start(); }
   }
   try{ window.scrollTo(0,0); }catch(e){}
 }
@@ -9201,9 +9937,10 @@ function cycleMode(){
 function exitMode(){
   const html = document.documentElement;
   restoreChat();
-  html.classList.remove('mode-quake','mode-chat');
+  html.classList.remove('mode-quake','mode-chat','mode-kiosk');
   html.classList.remove('chat-split');
   syncSplitBtn();
+  if(window.kioskUI && typeof window.kioskUI.stop === 'function'){ window.kioskUI.stop(); }
   _currentMode = null;
   // iframe を解放（バックグラウンドでの通信を止める）
   const frame = document.getElementById('mqMonitorFrame');
