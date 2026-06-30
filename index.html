@@ -11422,7 +11422,7 @@ function _noticeLinksHtml(links){
   return links.map(function(b){
     // URLは onclick で安全に処理する（属性に直接入れず、JSON文字列としてエスケープして渡す）
     const urlJson = esc(JSON.stringify(b.url));
-    return '<a class="notice-link-btn" href="'+esc(b.url)+'" onclick="return noticeLinkClick(event, '+urlJson+');" rel="noopener">'
+    return '<a class="notice-link-btn" href="'+esc(b.url)+'" target="_blank" onclick="return noticeLinkClick(event, '+urlJson+');" rel="noopener noreferrer">'
       + '<span>'+esc(b.label)+'</span><span class="nl-arrow">▶</span></a>';
   }).join('');
 }
@@ -11433,9 +11433,8 @@ function _noticeLinksHtml(links){
 // ・外部サイトのURL … 新しいタブで開く（従来どおり）。
 function noticeLinkClick(ev, url){
   try {
-    if(ev){ ev.preventDefault(); }
     var u = String(url || '').trim();
-    if(!u) return false;
+    if(!u){ if(ev){ ev.preventDefault(); } return false; }
 
     var here = location;
     var target;
@@ -11447,6 +11446,8 @@ function noticeLinkClick(ev, url){
     var samePage = sameOrigin && (target.pathname === here.pathname);
 
     if(sameOrigin && target.hash){
+      // 内部リンク（サイト内移動）→ ブラウザの遷移を止めて独自処理
+      if(ev){ ev.preventDefault(); }
       var hash = target.hash.replace(/^#/, '').toLowerCase();
       // まずポップアップ／更新履歴を閉じる（残りのお知らせキューも破棄）
       try { if(typeof closeNotice === 'function') closeNotice(); } catch(e){}
@@ -11473,13 +11474,12 @@ function noticeLinkClick(ev, url){
       }
     }
 
-    // ここまで該当しなければ外部リンク → 新しいタブで開く
-    window.open(u, '_blank', 'noopener');
-    return false;
+    // 外部リンク → ブラウザ本来の動作（aタグ href + target="_blank"）に任せる。
+    // preventDefault しないので、ポップアップブロックの影響を受けず確実に開く。
+    return true;
   } catch(e){
-    // 何かあれば従来動作（新規タブ）にフォールバック
-    try { window.open(String(url||''), '_blank', 'noopener'); } catch(e2){}
-    return false;
+    // 何かあってもブラウザのデフォルト動作（リンクを開く）に任せる
+    return true;
   }
 }
 
