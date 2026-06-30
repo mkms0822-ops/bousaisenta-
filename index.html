@@ -10022,22 +10022,32 @@ window.kioskUI = (function(){
   function _computeFit(){
     const sg = document.getElementById('signage');
     const body = document.querySelector('#modeKioskScreen .k-body');
+    const last = document.querySelector('#modeKioskScreen .k-rotate'); // 中身の最後の要素
     if(!sg || !body) return;
-    // 等倍に戻す
+    // 等倍に戻して実際の描画位置を測る
     sg.style.setProperty('--k-scale', 1);
+    body.scrollTop = 0; // スクロール位置を先頭に戻してから測る
     void sg.offsetHeight; // 強制リフロー
-    // k-body は overflow-y:auto なので、scrollHeight が中身全体（はみ出し含む）を返す。
-    // clientHeight は見えている枠。両者の比から、中身が枠に収まる縮小率を出す。
-    const avail = body.clientHeight;   // k-bodyの見えている高さ
-    const need  = body.scrollHeight;   // k-bodyの中身全体の高さ
+    const sgRect = sg.getBoundingClientRect();
+    // 中身の最下端（k-rotateの下端）。無ければk-bodyのscrollHeightで代替。
+    let contentBottom;
+    if(last){
+      const lr = last.getBoundingClientRect();
+      contentBottom = lr.bottom;
+    } else {
+      const br = body.getBoundingClientRect();
+      contentBottom = br.top + body.scrollHeight;
+    }
+    const availH = sg.clientHeight;                 // 枠の高さ
+    const needH  = contentBottom - sgRect.top;      // 枠上端から中身最下端までの実高
     let s = 1;
-    if(need > avail + 1 && avail > 0){
-      s = (avail / need) * 0.97;       // 余裕を持たせる
-      if(s < 0.4) s = 0.4;
+    if(needH > availH + 1 && availH > 0){
+      s = (availH / needH) * 0.97;
+      if(s < 0.35) s = 0.35;
     }
     applyScale(s);
     const dbg = document.getElementById('sizeDbg');
-    if(dbg) dbg.textContent = '枠'+Math.round(avail)+' / 必要'+Math.round(need)+' → '+Math.round(s*100)+'%';
+    if(dbg) dbg.textContent = '枠'+Math.round(availH)+' / 必要'+Math.round(needH)+' → '+Math.round(s*100)+'%';
   }
   function autoFit(){
     if(!_autoFit) return;
