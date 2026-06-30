@@ -10021,33 +10021,36 @@ window.kioskUI = (function(){
   // 自動フィット：ヘッダー＋中身の合計が枠に収まる縮小率を計算して適用
   function _computeFit(){
     const sg = document.getElementById('signage');
+    const stage = document.querySelector('#modeKioskScreen .ksg-body'); // 画面の利用可能領域
     const body = document.querySelector('#modeKioskScreen .k-body');
-    const last = document.querySelector('#modeKioskScreen .k-rotate'); // 中身の最後の要素
+    const last = document.querySelector('#modeKioskScreen .k-rotate');
     if(!sg || !body) return;
-    // 等倍に戻して実際の描画位置を測る
     sg.style.setProperty('--k-scale', 1);
-    body.scrollTop = 0; // スクロール位置を先頭に戻してから測る
+    if(body) body.scrollTop = 0;
     void sg.offsetHeight; // 強制リフロー
+
+    // (1) 中身が枠に収まるか（k-rotateの実下端 vs 枠下端）
     const sgRect = sg.getBoundingClientRect();
-    // 中身の最下端（k-rotateの下端）。無ければk-bodyのscrollHeightで代替。
-    let contentBottom;
-    if(last){
-      const lr = last.getBoundingClientRect();
-      contentBottom = lr.bottom;
-    } else {
-      const br = body.getBoundingClientRect();
-      contentBottom = br.top + body.scrollHeight;
-    }
-    const availH = sg.clientHeight;                 // 枠の高さ
-    const needH  = contentBottom - sgRect.top;      // 枠上端から中身最下端までの実高
-    let s = 1;
-    if(needH > availH + 1 && availH > 0){
-      s = (availH / needH) * 0.97;
-      if(s < 0.35) s = 0.35;
-    }
+    let contentBottom = sgRect.bottom;
+    if(last){ contentBottom = last.getBoundingClientRect().bottom; }
+    const innerNeed = contentBottom - sgRect.top;     // 枠上端→中身最下端
+    const frameH = sg.clientHeight;                   // 枠の高さ
+
+    // (2) 枠そのものが画面（親領域）に収まるか
+    const stageH = stage ? stage.clientHeight : (window.innerHeight || frameH);
+    const frameNeed = sg.offsetHeight;                // 枠の実高さ
+
+    // 必要な縮小率を両方から求め、より小さい方（より縮める方）を採用
+    let sInner = 1, sFrame = 1;
+    if(innerNeed > frameH + 1 && frameH > 0) sInner = frameH / innerNeed;
+    if(frameNeed > stageH + 1 && stageH > 0) sFrame = stageH / frameNeed;
+    let s = Math.min(sInner, sFrame) * 0.97;
+    if(s > 1) s = 1;
+    if(s < 0.35) s = 0.35;
+
     applyScale(s);
     const dbg = document.getElementById('sizeDbg');
-    if(dbg) dbg.textContent = '枠'+Math.round(availH)+' / 必要'+Math.round(needH)+' → '+Math.round(s*100)+'%';
+    if(dbg) dbg.textContent = '画面'+Math.round(stageH)+' 枠'+Math.round(frameNeed)+' 中身'+Math.round(innerNeed)+' → '+Math.round(s*100)+'%';
   }
   function autoFit(){
     if(!_autoFit) return;
