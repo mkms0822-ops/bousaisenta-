@@ -3720,6 +3720,7 @@ button.dwa-plate{ padding:0; }
     <input type="range" class="sp-range" id="sizeRange" min="70" max="180" step="5" value="100"
            oninput="kioskUI.setScale(this.value/100)">
     <div class="size-presets">
+      <button onclick="kioskUI.setAutoFit()">自動</button>
       <button onclick="kioskUI.setScale(0.85)">小</button>
       <button onclick="kioskUI.setScale(1.0)">標準</button>
       <button onclick="kioskUI.setScale(1.3)">大</button>
@@ -9932,6 +9933,8 @@ window.kioskUI = (function(){
     const sel = document.getElementById('heatPrefSelect');
     if(sel) sel.value = prefName;
     try { localStorage.setItem(HEATPREF_KEY, prefName); } catch(e){}
+    // 内容の高さが変わったので、自動フィット中なら縮小率を再計算
+    try { if(typeof autoFit === 'function') autoFit(); } catch(e){}
   }
 
   // 起動時：保存済みの対象都道府県を復元
@@ -9999,25 +10002,69 @@ window.kioskUI = (function(){
 
   // ===== 表示サイズ（枠ごとスケール）=====
   const SCALE_KEY = 'kiosk_scale';
+  let _autoFit = true;        // 自動フィットが有効か
+  let _manualScale = 1;       // 手動指定値
+
+  // 実際に枠へscaleを適用する（手動値 or 自動計算値）
+  function applyScale(s){
+    s = Math.max(0.5, Math.min(1.8, s));
+    const sg = document.getElementById('signage');
+    if(sg) sg.style.setProperty('--k-scale', s);
+    const lab = document.getElementById('sizeVal');
+    if(lab) lab.textContent = _autoFit ? '自動 ('+Math.round(s*100)+'%)' : Math.round(s*100)+'%';
+    const rng = document.getElementById('sizeRange');
+    if(rng && !_autoFit) rng.value = Math.round(s*100);
+  }
+
+  // 自動フィット：中身（k-body）が枠に収まる縮小率を計算して適用
+  function autoFit(){
+    if(!_autoFit) return;
+    const sg = document.getElementById('signage');
+    const body = document.querySelector('#modeKioskScreen .k-body');
+    if(!sg || !body) return;
+    // いったん等倍にして本来の高さを測る
+    sg.style.setProperty('--k-scale', 1);
+    // 次の描画フレームで測定（レイアウト確定後）
+    requestAnimationFrame(function(){
+      const need = body.scrollHeight;   // 中身が全部入るのに必要な高さ
+      const avail = body.clientHeight;  // 枠で見えている高さ
+      let s = 1;
+      if(need > avail + 2 && need > 0){
+        s = (avail / need) * 0.99;      // わずかに余裕を持たせる
+      }
+      applyScale(s);
+    });
+  }
+
+  // 手動でサイズ指定（スライダー・プリセット）→自動フィットを解除
   function setScale(v){
     let s = parseFloat(v);
     if(isNaN(s)) s = 1;
-    // 安全な範囲に丸める（極端な拡大縮小で画面外に出ないように）
-    s = Math.max(0.7, Math.min(1.8, s));
-    const sg = document.getElementById('signage');
-    if(sg) sg.style.setProperty('--k-scale', s);
-    // スライダー・数値表示を同期
-    const rng = document.getElementById('sizeRange');
-    if(rng) rng.value = Math.round(s * 100);
-    const lab = document.getElementById('sizeVal');
-    if(lab) lab.textContent = Math.round(s * 100) + '%';
-    try { localStorage.setItem(SCALE_KEY, String(s)); } catch(e){}
+    _autoFit = false;
+    _manualScale = Math.max(0.7, Math.min(1.8, s));
+    applyScale(_manualScale);
+    try { localStorage.setItem(SCALE_KEY, String(_manualScale)); } catch(e){}
   }
-  // 起動時：保存済みサイズを復元（無ければ 100%）
+
+  // 自動フィットに切り替え
+  function setAutoFit(){
+    _autoFit = true;
+    try { localStorage.setItem(SCALE_KEY, 'auto'); } catch(e){}
+    autoFit();
+  }
+
+  // 起動時：保存済み設定を復元（'auto' なら自動フィット、数値なら手動）
   function restoreScale(){
-    let saved = 1;
-    try { var v = localStorage.getItem(SCALE_KEY); if(v) saved = parseFloat(v) || 1; } catch(e){}
-    setScale(saved);
+    let saved = 'auto';
+    try { var v = localStorage.getItem(SCALE_KEY); if(v) saved = v; } catch(e){}
+    if(saved === 'auto'){
+      _autoFit = true;
+      autoFit();
+    } else {
+      _autoFit = false;
+      _manualScale = parseFloat(saved) || 1;
+      applyScale(_manualScale);
+    }
   }
 
   // 平常時 / 緊急時 の切替
@@ -10070,8 +10117,18 @@ window.kioskUI = (function(){
     }catch(e){}
     // 保存済みテーマ・対象県を反映（対象県の設定で天気も連動描画される）
     try{ restoreTheme(); }catch(e){}
-    try{ restoreScale(); }catch(e){}
     try{ restoreHeatPref(); }catch(e){}
+    // サイズ（自動フィット/手動）は中身を描画し終えた後に計算する
+    try{ restoreScale(); }catch(e){}
+    // 画面リサイズ・回転時に自動フィットを再計算（多重登録を防ぐ）
+    if(!window.__kioskResizeBound){
+      window.__kioskResizeBound = true;
+      let _rt = null;
+      window.addEventListener('resize', function(){
+        clearTimeout(_rt);
+        _rt = setTimeout(function(){ try{ autoFit(); }catch(e){} }, 150);
+      });
+    }
     // GAS設定のテロップを反映（既に届いていれば）
     try{
       if(typeof SITE_CONFIG !== 'undefined' && SITE_CONFIG.kiosk && SITE_CONFIG.kiosk.ticker){
@@ -10083,7 +10140,7 @@ window.kioskUI = (function(){
     stopRotation();
   }
 
-  return { setMode:setMode, setTheme:setTheme, setScale:setScale, toggleSettings:toggleSettings, setTicker:setTicker, setHeatPref:setHeatPref, onHeatData:onHeatData, start:start, stop:stop };
+  return { setMode:setMode, setTheme:setTheme, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setHeatPref:setHeatPref, onHeatData:onHeatData, start:start, stop:stop };
 })();
 
 
