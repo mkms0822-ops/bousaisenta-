@@ -10023,21 +10023,21 @@ window.kioskUI = (function(){
     const sg = document.getElementById('signage');
     const body = document.querySelector('#modeKioskScreen .k-body');
     if(!sg || !body) return;
-    // 等倍に戻して本来の高さを測る
+    // 等倍に戻す
     sg.style.setProperty('--k-scale', 1);
     void sg.offsetHeight; // 強制リフロー
-    // signage は overflow:hidden の固定枠。中身がはみ出していれば
-    // scrollHeight が「中身全体の本当の高さ」を返す（k-rotate等も含む）。
-    const availH = sg.clientHeight;     // 枠の高さ（固定）
-    const needH  = sg.scrollHeight;     // 中身全体の高さ（はみ出し含む）
+    // k-body は overflow-y:auto なので、scrollHeight が中身全体（はみ出し含む）を返す。
+    // clientHeight は見えている枠。両者の比から、中身が枠に収まる縮小率を出す。
+    const avail = body.clientHeight;   // k-bodyの見えている高さ
+    const need  = body.scrollHeight;   // k-bodyの中身全体の高さ
     let s = 1;
-    if(needH > availH + 1 && availH > 0){
-      s = (availH / needH) * 0.96;      // 余裕を持たせて確実に収める
+    if(need > avail + 1 && avail > 0){
+      s = (avail / need) * 0.97;       // 余裕を持たせる
       if(s < 0.4) s = 0.4;
     }
     applyScale(s);
     const dbg = document.getElementById('sizeDbg');
-    if(dbg) dbg.textContent = '枠'+Math.round(availH)+' / 必要'+Math.round(needH)+' → '+Math.round(s*100)+'%';
+    if(dbg) dbg.textContent = '枠'+Math.round(avail)+' / 必要'+Math.round(need)+' → '+Math.round(s*100)+'%';
   }
   function autoFit(){
     if(!_autoFit) return;
