@@ -3168,8 +3168,10 @@ button.dwa-plate{ padding:0; }
   /* ===== サイネージ枠（縦長 9:16） ===== */
 #modeKioskScreen .signage {
     position:relative;
-    width:min(440px, 96vw);
-    height:min(782px, 94vh);
+    /* 高さを基準に9:16比でサイズ決定。PCの大画面では画面の高さをできるだけ使い、
+       縦型サイネージらしく大きく表示する。幅・高さとも画面内に収まるよう上限を付ける。 */
+    height:min(96vh, calc(96vw * 16 / 9));
+    width:min(96vw, calc(96vh * 9 / 16));
     aspect-ratio:9/16;
     background:var(--k-bg2);
     border:1px solid var(--k-line);
@@ -3371,21 +3373,42 @@ button.dwa-plate{ padding:0; }
 
   /* ===== 設定（歯車）ボタン＋パネル：右上 ===== */
 #modeKioskScreen .gear-btn {
-    position:absolute; top:12px; right:12px; z-index:60;
-    width:76px; height:76px; border-radius:50%; cursor:pointer;
-    display:grid; place-items:center; font-size:36px; line-height:1;
+    flex:0 0 auto; margin-left:8px; z-index:60;
+    width:38px; height:38px; border-radius:50%; cursor:pointer;
+    display:grid; place-items:center; font-size:18px; line-height:1;
     background:rgba(10,16,32,0.45); color:var(--k-text);
     border:1px solid var(--k-line);
     -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
-    transition:.18s;
+    transition:.18s; padding:0;
   }
 #modeKioskScreen .gear-btn:hover { transform:rotate(40deg); border-color:var(--k-cyan); color:var(--k-cyan); }
+  /* ===== 天気予報カード ===== */
+  #modeKioskScreen .k-section-label .wx-pref{ margin-left:auto; font-size:13px; font-weight:800; color:var(--k-cyan); }
+  #modeKioskScreen .wx-card{
+    background:var(--k-panel); border:1px solid var(--k-line); border-radius:14px;
+    padding:13px 15px; display:flex; flex-direction:column; gap:11px;
+  }
+  #modeKioskScreen .wx-today{ display:flex; align-items:center; gap:13px; }
+  #modeKioskScreen .wx-today .wx-ic{ font-size:38px; line-height:1; }
+  #modeKioskScreen .wx-today .wx-temp{ display:flex; align-items:baseline; gap:2px; font-family:var(--k-num); }
+  #modeKioskScreen .wx-today .wx-hi{ font-size:30px; font-weight:900; color:#ff7a5a; }
+  #modeKioskScreen .wx-today .wx-sep{ font-size:18px; color:var(--k-muted); margin:0 2px; }
+  #modeKioskScreen .wx-today .wx-lo{ font-size:22px; font-weight:800; color:var(--k-blue); }
+  #modeKioskScreen .wx-today .wx-unit{ font-size:13px; color:var(--k-muted); margin-left:2px; }
+  #modeKioskScreen .wx-today .wx-desc{ margin-left:auto; font-size:13px; font-weight:700; text-align:right; line-height:1.4; }
+  #modeKioskScreen .wx-week{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; border-top:1px solid var(--k-line); padding-top:10px; }
+  #modeKioskScreen .wx-d{ display:flex; flex-direction:column; align-items:center; gap:3px; }
+  #modeKioskScreen .wx-d .d-day{ font-size:10px; color:var(--k-muted); font-weight:700; }
+  #modeKioskScreen .wx-d .d-ic{ font-size:18px; line-height:1; }
+  #modeKioskScreen .wx-d .d-temp{ font-family:var(--k-num); font-size:11px; font-weight:700; }
+  #modeKioskScreen .wx-d .d-temp .h{ color:#ff7a5a; }
+  #modeKioskScreen .wx-d .d-temp .l{ color:var(--k-muted); }
   #modeKioskScreen[data-ktheme="daylight"] .gear-btn,
   #modeKioskScreen[data-ktheme="sepia"] .gear-btn{ background:rgba(255,255,255,0.55); }
 
 #modeKioskScreen .settings-panel {
-    position:absolute; top:96px; right:12px; z-index:61;
-    width:248px; max-height:calc(100% - 110px); overflow-y:auto;
+    position:absolute; top:64px; right:12px; z-index:61;
+    width:248px; max-height:calc(100% - 80px); overflow-y:auto;
     background:var(--k-panel); border:1px solid var(--k-line);
     border-radius:14px; padding:14px;
     box-shadow:0 18px 50px rgba(0,0,0,0.45);
@@ -3496,16 +3519,33 @@ button.dwa-plate{ padding:0; }
         <span id="clock">15:08:23</span>
         <span class="date" id="date">2026.06.30 火</span>
       </div>
+      <button class="gear-btn" id="gearBtn" onclick="kioskUI.toggleSettings()" aria-label="設定">⚙</button>
     </div>
     <div class="k-ticker">
       <div class="tk-tag">速報</div>
-      <div class="tk-track"><span id="tickerText">気象庁発表：山梨県東部・富士五湖で最大震度6弱を観測。津波の心配はありません。　／　全国の地震・気象情報を10秒ごとに自動更新中。</span></div>
+      <div class="tk-track"><span id="kTickerText">全国の地震・気象情報を自動更新中。</span></div>
     </div>
   </div>
 
   <!-- 2. メイン：固定の防災速報 -->
   <div class="k-main">
+    <!-- 天気予報（最上部・設定県と同じ地域） -->
     <div class="k-section-label">
+      天気予報
+      <span class="wx-pref" id="kWxPref">愛知県</span>
+    </div>
+    <div class="wx-card" id="kWxCard">
+      <div class="wx-today">
+        <div class="wx-ic" id="kWxIcon">☀️</div>
+        <div class="wx-temp"><span class="wx-hi" id="kWxHi">33</span><span class="wx-sep">/</span><span class="wx-lo" id="kWxLo">26</span><span class="wx-unit">℃</span></div>
+        <div class="wx-desc" id="kWxDesc">晴れ時々くもり</div>
+      </div>
+      <div class="wx-week" id="kWxWeek">
+        <!-- JSで週間を流し込む -->
+      </div>
+    </div>
+
+    <div class="k-section-label" style="margin-top:2px;">
       最新の地震情報
       <span class="live"><i></i>LIVE</span>
     </div>
@@ -3514,14 +3554,14 @@ button.dwa-plate{ padding:0; }
       <div class="qc-region">🗾 日本・国内</div>
       <div class="qc-name" id="qName">山梨県東部・富士五湖</div>
       <div class="qc-grid">
-        <div class="qc-shindo" id="qShindo" style="background:var(--lv4);">
+        <div class="qc-shindo" id="qShindo" style="background:var(--k-lv4);">
           <span class="sl">最大震度</span>
           <span class="sv" id="qShindoVal"><b>6</b><em>弱</em></span>
         </div>
         <div class="qc-meta">
           <div class="qc-row"><span class="l">マグニチュード</span><span class="v" id="qMag">5.6</span></div>
           <div class="qc-row"><span class="l">深さ</span><span class="v" id="qDepth">20</span><span class="u">km</span></div>
-          <div class="qc-row"><span class="l">発生時刻</span><span class="v" id="qTime" style="font-size:15px;">22:29</span></div>
+          <div class="qc-row"><span class="l">発生日時</span><span class="v" id="qDateTime" style="font-size:14px;"><span id="qDate">2026/6/26</span> <span id="qTime">22:29</span></span></div>
         </div>
       </div>
     </div>
@@ -3597,8 +3637,6 @@ button.dwa-plate{ padding:0; }
 </div>
 
 <!-- 設定（歯車）：右上。デモ切替・背景テーマを収納 -->
-<button class="gear-btn" id="gearBtn" onclick="kioskUI.toggleSettings()" aria-label="設定">⚙</button>
-
 <div class="settings-panel" id="settingsPanel">
   <div class="sp-head">
     <span>設定</span>
@@ -9637,8 +9675,48 @@ window.kioskUI = (function(){
   // ===== 熱中症：都道府県別の観測点データ =====
   // 実機では既存GAS(type=heat)から取得して同じ形({name,level,temp})に整形して流し込めます。
   // level: 1=ほぼ安全 2=注意 3=警戒 4=厳重警戒 5=危険
-  const HEAT_COLORS = { 1:'var(--lv1)', 2:'var(--lv2)', 3:'var(--lv2)', 4:'var(--lv3)', 5:'var(--lv4)' };
+  const HEAT_COLORS = { 1:'var(--k-lv1)', 2:'var(--k-lv2)', 3:'var(--k-lv2)', 4:'var(--k-lv3)', 5:'var(--k-lv4)' };
   const HEAT_LABELS = { 1:'ほぼ安全', 2:'注意', 3:'警戒', 4:'厳重警戒', 5:'危険' };
+  // ===== 天気予報（設定県と同じ地域）=====
+  // 実機では本体の天気取得（気象庁/外部API）から同じ形に整えて流し込めます。
+  const WX_DATA = {
+    aichi:  { name:'愛知県', icon:'☀️', desc:'晴れ時々くもり', hi:33, lo:26,
+      week:[['今日','☀️',33,26],['明日','⛅',31,25],['水','🌧️',28,24],['木','☁️',30,25],['金','☀️',34,27]] },
+    tokyo:  { name:'東京都', icon:'⛅', desc:'くもり一時雨', hi:31, lo:24,
+      week:[['今日','⛅',31,24],['明日','🌧️',27,23],['水','☁️',29,24],['木','☀️',32,25],['金','☀️',33,26]] },
+    osaka:  { name:'大阪府', icon:'☀️', desc:'晴れ', hi:34, lo:27,
+      week:[['今日','☀️',34,27],['明日','☀️',35,28],['水','⛅',33,27],['木','🌧️',29,25],['金','⛅',31,26]] },
+    kyoto:  { name:'京都府', icon:'⛅', desc:'くもり時々晴れ', hi:33, lo:25,
+      week:[['今日','⛅',33,25],['明日','☀️',34,26],['水','🌧️',28,24],['木','☁️',30,25],['金','☀️',33,26]] },
+    fukuoka:{ name:'福岡県', icon:'🌧️', desc:'雨のちくもり', hi:30, lo:25,
+      week:[['今日','🌧️',30,25],['明日','☁️',31,25],['水','⛅',32,26],['木','☀️',33,26],['金','☀️',34,27]] }
+  };
+
+  function renderWeather(key){
+    const w = WX_DATA[key]; if(!w) return;
+    const set = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+    set('kWxPref', w.name);
+    set('kWxIcon', w.icon);
+    set('kWxHi', w.hi);
+    set('kWxLo', w.lo);
+    set('kWxDesc', w.desc);
+    const wk = document.getElementById('kWxWeek');
+    if(wk){
+      wk.innerHTML = w.week.map(d=>
+        '<div class="wx-d"><span class="d-day">'+d[0]+'</span>'
+        +'<span class="d-ic">'+d[1]+'</span>'
+        +'<span class="d-temp"><span class="h">'+d[2]+'</span>/<span class="l">'+d[3]+'</span></span></div>'
+      ).join('');
+    }
+  }
+
+  // ===== テロップ（速報バナー）=====
+  // 本体のGAS設定(config.kiosk.ticker)から流し込まれる。未設定なら既定文。
+  function setTicker(text){
+    const el = document.getElementById('kTickerText');
+    if(el && text){ el.textContent = text; }
+  }
+
   const HEAT_DATA = {
     aichi: { name:'愛知県', region:'東海', points:[
       {name:'伊良湖',level:3,temp:27.4},{name:'南知多',level:3,temp:26.4},{name:'名古屋',level:4,temp:29.1},
@@ -9680,7 +9758,7 @@ window.kioskUI = (function(){
 
     let rows = '';
     data.points.forEach(p=>{
-      const col = HEAT_COLORS[p.level] || 'var(--lv2)';
+      const col = HEAT_COLORS[p.level] || 'var(--k-lv2)';
       const lab = HEAT_LABELS[p.level] || '注意';
       rows += '<div class="hl-row">'
         + '<span class="hl-name">'+p.name+'</span>'
@@ -9710,6 +9788,7 @@ window.kioskUI = (function(){
   function setHeatPref(key){
     if(!HEAT_DATA[key]) key = 'aichi';
     renderHeatList(key);
+    renderWeather(key);           // 天気予報も同じ県に連動
     const sel = document.getElementById('heatPrefSelect');
     if(sel) sel.value = key;
     try { localStorage.setItem(HEATPREF_KEY, key); } catch(e){}
@@ -9803,15 +9882,21 @@ window.kioskUI = (function(){
       _kioskInited = true;
     }
     startRotation();
-    // 保存済みテーマ・対象県を反映
+    // 保存済みテーマ・対象県を反映（対象県の設定で天気も連動描画される）
     try{ restoreTheme(); }catch(e){}
     try{ restoreHeatPref(); }catch(e){}
+    // GAS設定のテロップを反映（既に届いていれば）
+    try{
+      if(typeof SITE_CONFIG !== 'undefined' && SITE_CONFIG.kiosk && SITE_CONFIG.kiosk.ticker){
+        setTicker(SITE_CONFIG.kiosk.ticker);
+      }
+    }catch(e){}
   }
   function stop(){
     stopRotation();
   }
 
-  return { setMode:setMode, setTheme:setTheme, toggleSettings:toggleSettings, start:start, stop:stop };
+  return { setMode:setMode, setTheme:setTheme, toggleSettings:toggleSettings, setTicker:setTicker, start:start, stop:stop };
 })();
 
 
@@ -9979,7 +10064,8 @@ function resetMode(){ exitMode(); }
 var SITE_CONFIG = {
   opening:{ enabled:true, kind:'radar', everyVisit:false, title:'防災情報センター', subtitle:'DISASTER WARNING ACCOUNT', seconds:2.6 },
   emergency:{ mode:'auto', manualButton:true, auto:true, autoShindo:5, heading:'緊急情報モード', message:'身の安全を最優先に行動してください。' },
-  tutorial:{ skipFirst:false }
+  tutorial:{ skipFirst:false },
+  kiosk:{ ticker:'' }
 };
 var _configApplied = false;
 
@@ -9989,6 +10075,11 @@ function applySiteConfig(cfg){
   if(cfg.opening)   Object.assign(SITE_CONFIG.opening, cfg.opening);
   if(cfg.emergency) Object.assign(SITE_CONFIG.emergency, cfg.emergency);
   if(cfg.tutorial)  Object.assign(SITE_CONFIG.tutorial, cfg.tutorial);
+  if(cfg.kiosk){
+    Object.assign(SITE_CONFIG.kiosk, cfg.kiosk);
+    // キオスクのテロップに即反映（キオスク表示中なら見た目も更新）
+    try{ if(window.kioskUI && typeof window.kioskUI.setTicker === 'function'){ window.kioskUI.setTicker(SITE_CONFIG.kiosk.ticker); } }catch(e){}
+  }
 
   // 扉演出(splash)は config 到着前に即実行されるため、「扉を出すべきか」を
   // localStorage にキャッシュし、次回起動時に splash 側がこれを参照する。
