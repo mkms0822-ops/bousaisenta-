@@ -3231,7 +3231,7 @@ button.dwa-plate{ padding:0; }
 #modeKioskScreen .k-ticker .tk-track span {
     display:inline-block; padding-left:100%;
     font-size:12.5px; color:#ffd9d9; letter-spacing:.02em;
-    animation:k-k-tkScroll 22s linear infinite;
+    animation:k-tkScroll 22s linear infinite;
   }
   @keyframes k-tkScroll{ to{ transform:translateX(-100%); } }
 
@@ -3260,7 +3260,7 @@ button.dwa-plate{ padding:0; }
   }
 #modeKioskScreen .k-section-label::before { content:''; width:5px; height:5px; border-radius:50%; background:var(--k-lv1); box-shadow:0 0 8px var(--k-lv1); }
 #modeKioskScreen .k-section-label .live { margin-left:auto; display:flex; align-items:center; gap:5px; color:#ff8a8a; font-weight:800; }
-#modeKioskScreen .k-section-label .live i { width:7px; height:7px; border-radius:50%; background:#ff5a4d; box-shadow:0 0 10px #ff5a4d; animation:k-k-pulse 1.1s infinite; }
+#modeKioskScreen .k-section-label .live i { width:7px; height:7px; border-radius:50%; background:#ff5a4d; box-shadow:0 0 10px #ff5a4d; animation:k-pulse 1.1s infinite; }
   @keyframes k-pulse{ 0%,100%{ opacity:1; } 50%{ opacity:.25; } }
 
   /* 最新地震カード（主役） */
@@ -3330,7 +3330,7 @@ button.dwa-plate{ padding:0; }
   }
 #modeKioskScreen .heat-list .hl-track { display:flex; flex-direction:column; gap:0; }
   /* 件数が多いとき、ゆっくり縦スクロールして全件見せる */
-#modeKioskScreen .heat-list.scrolling .hl-track { animation:k-k-heatScroll linear infinite; }
+#modeKioskScreen .heat-list.scrolling .hl-track { animation:k-heatScroll linear infinite; }
   @keyframes k-heatScroll{
     0%,8%{ transform:translateY(0); }
     92%,100%{ transform:translateY(var(--scroll-end,0)); }
@@ -3367,13 +3367,13 @@ button.dwa-plate{ padding:0; }
     background:
       radial-gradient(700px 500px at 50% 30%, rgba(255,70,60,0.4), transparent 70%),
       linear-gradient(180deg,#2a0808,#160404);
-    animation:k-k-emFade .3s ease;
+    animation:k-emFade .3s ease;
   }
 #modeKioskScreen .k-emergency.show { display:flex; }
   @keyframes k-emFade{ from{ opacity:0; } to{ opacity:1; } }
-#modeKioskScreen .em-flash { position:absolute; inset:0; background:rgba(255,60,50,0.0); animation:k-k-emFlash 1s infinite; pointer-events:none; }
+#modeKioskScreen .em-flash { position:absolute; inset:0; background:rgba(255,60,50,0.0); animation:k-emFlash 1s infinite; pointer-events:none; }
   @keyframes k-emFlash{ 0%,100%{ background:rgba(255,60,50,0); } 50%{ background:rgba(255,60,50,0.14); } }
-#modeKioskScreen .em-icon { font-size:64px; margin-bottom:6px; animation:k-k-shake .5s infinite; }
+#modeKioskScreen .em-icon { font-size:64px; margin-bottom:6px; animation:k-shake .5s infinite; }
   @keyframes k-shake{ 0%,100%{ transform:translateX(0); } 25%{ transform:translateX(-4px); } 75%{ transform:translateX(4px); } }
 #modeKioskScreen .em-label { font-size:13px; letter-spacing:.3em; color:#ffb3ad; font-weight:800; margin-bottom:8px; }
 #modeKioskScreen .em-title { font-size:30px; font-weight:900; line-height:1.25; margin-bottom:18px; text-shadow:0 0 24px rgba(255,80,70,0.5); }
@@ -3717,12 +3717,13 @@ button.dwa-plate{ padding:0; }
 
   <div class="sp-group">
     <div class="sp-label">表示サイズ <span id="sizeVal" class="size-val">100%</span></div>
-    <input type="range" class="sp-range" id="sizeRange" min="70" max="130" step="5" value="100"
+    <input type="range" class="sp-range" id="sizeRange" min="70" max="180" step="5" value="100"
            oninput="kioskUI.setScale(this.value/100)">
     <div class="size-presets">
-      <button onclick="kioskUI.setScale(0.8)">小</button>
+      <button onclick="kioskUI.setScale(0.85)">小</button>
       <button onclick="kioskUI.setScale(1.0)">標準</button>
-      <button onclick="kioskUI.setScale(1.15)">大</button>
+      <button onclick="kioskUI.setScale(1.3)">大</button>
+      <button onclick="kioskUI.setScale(1.6)">特大</button>
     </div>
   </div>
 
@@ -9752,29 +9753,55 @@ window.kioskUI = (function(){
   // ===== 天気予報（設定県と同じ地域）=====
   // type=heat には天気（晴れ/雨や気温の最高最低）が含まれないため、天気は当面サンプル。
   // 本体に天気取得を実装したら、同じ県名キーでここへ流し込めます。
-  const WX_DATA = {
-    '愛知県': { name:'愛知県', icon:'☀️', desc:'晴れ時々くもり', hi:33, lo:26,
-      week:[['今日','☀️',33,26],['明日','⛅',31,25],['水','🌧️',28,24],['木','☁️',30,25],['金','☀️',34,27]] },
-    '東京都': { name:'東京都', icon:'⛅', desc:'くもり一時雨', hi:31, lo:24,
-      week:[['今日','⛅',31,24],['明日','🌧️',27,23],['水','☁️',29,24],['木','☀️',32,25],['金','☀️',33,26]] },
-    '大阪府': { name:'大阪府', icon:'☀️', desc:'晴れ', hi:34, lo:27,
-      week:[['今日','☀️',34,27],['明日','☀️',35,28],['水','⛅',33,27],['木','🌧️',29,25],['金','⛅',31,26]] },
-    '京都府': { name:'京都府', icon:'⛅', desc:'くもり時々晴れ', hi:33, lo:25,
-      week:[['今日','⛅',33,25],['明日','☀️',34,26],['水','🌧️',28,24],['木','☁️',30,25],['金','☀️',33,26]] },
-    '福岡県': { name:'福岡県', icon:'🌧️', desc:'雨のちくもり', hi:30, lo:25,
-      week:[['今日','🌧️',30,25],['明日','☁️',31,25],['水','⛅',32,26],['木','☀️',33,26],['金','☀️',34,27]] }
+  // ※実天気APIが無いため、地域ごとの代表的なサンプル天気を全47都道府県に割り当て、
+  //   どの県を選んでも「準備中」にならないようにする。
+  // 地域別の天気サンプル（今日の天気＋週間）。気温は地域の気候傾向に寄せた目安。
+  const WX_REGION = {
+    '北海道': { icon:'⛅', desc:'くもり時々晴れ', hi:26, lo:18,
+      week:[['今日','⛅',26,18],['明日','☀️',27,18],['水','🌧️',23,17],['木','☁️',25,18],['金','☀️',28,19]] },
+    '東北':   { icon:'☁️', desc:'くもり', hi:29, lo:21,
+      week:[['今日','☁️',29,21],['明日','⛅',30,22],['水','🌧️',26,21],['木','☀️',31,22],['金','⛅',30,22]] },
+    '関東':   { icon:'⛅', desc:'くもり一時雨', hi:31, lo:24,
+      week:[['今日','⛅',31,24],['明日','🌧️',28,23],['水','☁️',30,24],['木','☀️',33,25],['金','☀️',34,26]] },
+    '北陸':   { icon:'🌧️', desc:'雨のちくもり', hi:30, lo:23,
+      week:[['今日','🌧️',30,23],['明日','☁️',31,24],['水','⛅',32,24],['木','☀️',33,25],['金','⛅',31,24]] },
+    '中部':   { icon:'☀️', desc:'晴れ時々くもり', hi:33, lo:25,
+      week:[['今日','☀️',33,25],['明日','⛅',32,25],['水','🌧️',29,24],['木','☁️',31,25],['金','☀️',34,26]] },
+    '近畿':   { icon:'☀️', desc:'晴れ', hi:34, lo:26,
+      week:[['今日','☀️',34,26],['明日','☀️',35,27],['水','⛅',33,26],['木','🌧️',30,25],['金','⛅',32,26]] },
+    '中国':   { icon:'⛅', desc:'くもり時々晴れ', hi:32, lo:25,
+      week:[['今日','⛅',32,25],['明日','☀️',33,26],['水','🌧️',29,24],['木','☁️',31,25],['金','☀️',33,26]] },
+    '四国':   { icon:'☀️', desc:'晴れ', hi:33, lo:25,
+      week:[['今日','☀️',33,25],['明日','⛅',32,25],['水','🌧️',30,24],['木','☀️',34,26],['金','☀️',34,27]] },
+    '九州':   { icon:'🌧️', desc:'雨のちくもり', hi:32, lo:26,
+      week:[['今日','🌧️',32,26],['明日','☁️',33,26],['水','⛅',34,27],['木','☀️',34,27],['金','☀️',35,28]] },
+    '沖縄':   { icon:'⛅', desc:'晴れ時々スコール', hi:31, lo:27,
+      week:[['今日','⛅',31,27],['明日','🌧️',30,27],['水','☀️',32,28],['木','⛅',31,27],['金','☀️',32,28]] }
   };
+  // 都道府県 → 地域
+  const WX_REGION_OF = {
+    '北海道':'北海道',
+    '青森県':'東北','岩手県':'東北','宮城県':'東北','秋田県':'東北','山形県':'東北','福島県':'東北',
+    '茨城県':'関東','栃木県':'関東','群馬県':'関東','埼玉県':'関東','千葉県':'関東','東京都':'関東','神奈川県':'関東',
+    '新潟県':'北陸','富山県':'北陸','石川県':'北陸','福井県':'北陸',
+    '山梨県':'中部','長野県':'中部','岐阜県':'中部','静岡県':'中部','愛知県':'中部','三重県':'中部',
+    '滋賀県':'近畿','京都府':'近畿','大阪府':'近畿','兵庫県':'近畿','奈良県':'近畿','和歌山県':'近畿',
+    '鳥取県':'中国','島根県':'中国','岡山県':'中国','広島県':'中国','山口県':'中国',
+    '徳島県':'四国','香川県':'四国','愛媛県':'四国','高知県':'四国',
+    '福岡県':'九州','佐賀県':'九州','長崎県':'九州','熊本県':'九州','大分県':'九州','宮崎県':'九州','鹿児島県':'九州',
+    '沖縄県':'沖縄'
+  };
+  // 県名から天気サンプルを返す（地域別テンプレートで全県カバー）
+  function getWeather(prefName){
+    const region = WX_REGION_OF[prefName] || '関東';
+    const base = WX_REGION[region] || WX_REGION['関東'];
+    return base;
+  }
 
   function renderWeather(prefName){
-    // 天気サンプルに無い県は、天気カードに県名だけ出して数値は「—」にする（壊さない）
-    const w = WX_DATA[prefName];
+    const w = getWeather(prefName);
     const set = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
     set('kWxPref', prefName || '--');
-    if(!w){
-      set('kWxIcon', '—'); set('kWxHi', '—'); set('kWxLo', '—'); set('kWxDesc', '天気予報は準備中');
-      const wk0 = document.getElementById('kWxWeek'); if(wk0) wk0.innerHTML = '';
-      return;
-    }
     set('kWxIcon', w.icon);
     set('kWxHi', w.hi);
     set('kWxLo', w.lo);
@@ -9976,7 +10003,7 @@ window.kioskUI = (function(){
     let s = parseFloat(v);
     if(isNaN(s)) s = 1;
     // 安全な範囲に丸める（極端な拡大縮小で画面外に出ないように）
-    s = Math.max(0.7, Math.min(1.3, s));
+    s = Math.max(0.7, Math.min(1.8, s));
     const sg = document.getElementById('signage');
     if(sg) sg.style.setProperty('--k-scale', s);
     // スライダー・数値表示を同期
