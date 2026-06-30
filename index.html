@@ -3213,8 +3213,8 @@ button.dwa-plate{ padding:0; }
   /* スクロールバナー（速報ティッカー） */
 #modeKioskScreen .k-ticker {
     margin-top:7px; height:24px; border-radius:8px; overflow:hidden;
-    background:linear-gradient(90deg, rgba(255,60,60,0.16), rgba(255,60,60,0.04));
-    border:1px solid rgba(255,80,80,0.25);
+    background:linear-gradient(90deg, rgba(200,30,30,0.55), rgba(180,30,30,0.35));
+    border:1px solid rgba(255,80,80,0.4);
     display:flex; align-items:center;
   }
 #modeKioskScreen .k-ticker .tk-tag {
@@ -3225,7 +3225,8 @@ button.dwa-plate{ padding:0; }
 #modeKioskScreen .k-ticker .tk-track { flex:1; overflow:hidden; white-space:nowrap; }
 #modeKioskScreen .k-ticker .tk-track span {
     display:inline-block; padding-left:100%;
-    font-size:12.5px; color:#ffd9d9; letter-spacing:.02em;
+    font-size:12.5px; color:#ffffff; font-weight:700; letter-spacing:.02em;
+    text-shadow:0 1px 3px rgba(0,0,0,0.6), 0 0 2px rgba(0,0,0,0.5);
     animation:k-tkScroll 22s linear infinite;
   }
   @keyframes k-tkScroll{ to{ transform:translateX(-100%); } }
@@ -9822,6 +9823,31 @@ window.kioskUI = (function(){
     if(el && text){ el.textContent = text; }
   }
 
+  // 速報テロップの色（GAS設定 config.kiosk.tickerColor から流し込み）。
+  // 色名 → { 背景グラデ, タグ背景, 文字色 }。白文字＋影で常に可読。
+  const TICKER_COLORS = {
+    '赤':     { bg:'linear-gradient(90deg, rgba(200,30,30,0.55), rgba(180,30,30,0.35))',  border:'rgba(255,80,80,0.4)',  tag:'rgba(255,70,70,0.9)' },
+    'オレンジ':{ bg:'linear-gradient(90deg, rgba(220,120,20,0.6), rgba(200,100,20,0.38))', border:'rgba(255,160,60,0.45)', tag:'rgba(245,140,40,0.92)' },
+    '黄':     { bg:'linear-gradient(90deg, rgba(200,160,20,0.62), rgba(180,140,20,0.4))',  border:'rgba(240,200,60,0.5)',  tag:'rgba(235,190,40,0.92)' },
+    '青':     { bg:'linear-gradient(90deg, rgba(30,90,200,0.55), rgba(30,80,180,0.35))',   border:'rgba(80,140,255,0.45)', tag:'rgba(60,120,235,0.9)' },
+    '緑':     { bg:'linear-gradient(90deg, rgba(30,150,80,0.55), rgba(30,130,70,0.35))',   border:'rgba(80,210,130,0.45)', tag:'rgba(50,180,100,0.9)' },
+    '紫':     { bg:'linear-gradient(90deg, rgba(130,50,190,0.55), rgba(110,40,170,0.35))', border:'rgba(180,110,235,0.45)', tag:'rgba(160,80,220,0.9)' },
+    'グレー':  { bg:'linear-gradient(90deg, rgba(90,95,105,0.62), rgba(70,75,85,0.42))',    border:'rgba(150,160,175,0.45)', tag:'rgba(120,128,140,0.92)' },
+    '白':     { bg:'linear-gradient(90deg, rgba(70,75,85,0.5), rgba(55,60,70,0.32))',      border:'rgba(200,210,225,0.45)', tag:'rgba(225,230,240,0.92)' },
+    '黒':     { bg:'linear-gradient(90deg, rgba(20,22,28,0.72), rgba(10,12,16,0.5))',      border:'rgba(120,130,145,0.4)',  tag:'rgba(40,44,54,0.95)' }
+  };
+  function setTickerColor(name){
+    const c = TICKER_COLORS[String(name||'').trim()] || TICKER_COLORS['赤'];
+    const bar = document.querySelector('#modeKioskScreen .k-ticker');
+    if(!bar) return;
+    bar.style.background = c.bg;
+    bar.style.borderColor = c.border;
+    const tag = bar.querySelector('.tk-tag');
+    if(tag) tag.style.background = c.tag;
+    // 白タグ・黒タグはタグ文字色を反転して読みやすく
+    if(tag){ tag.style.color = (name==='白') ? '#1a1a1a' : (name==='黒' ? '#f0f0f0' : '#1a0606'); }
+  }
+
   const HEATPREF_KEY = 'kiosk_heatpref';
 
   // 実データ（本体が type=heat から取得して window.__heatPrefs に公開）を優先。
@@ -10144,13 +10170,16 @@ window.kioskUI = (function(){
       if(typeof SITE_CONFIG !== 'undefined' && SITE_CONFIG.kiosk && SITE_CONFIG.kiosk.ticker){
         setTicker(SITE_CONFIG.kiosk.ticker);
       }
+      if(typeof SITE_CONFIG !== 'undefined' && SITE_CONFIG.kiosk && SITE_CONFIG.kiosk.tickerColor){
+        setTickerColor(SITE_CONFIG.kiosk.tickerColor);
+      }
     }catch(e){}
   }
   function stop(){
     stopRotation();
   }
 
-  return { setMode:setMode, setTheme:setTheme, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setHeatPref:setHeatPref, onHeatData:onHeatData, start:start, stop:stop };
+  return { setMode:setMode, setTheme:setTheme, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setTickerColor:setTickerColor, setHeatPref:setHeatPref, onHeatData:onHeatData, start:start, stop:stop };
 })();
 
 
@@ -10319,7 +10348,7 @@ var SITE_CONFIG = {
   opening:{ enabled:true, kind:'radar', everyVisit:false, title:'防災情報センター', subtitle:'DISASTER WARNING ACCOUNT', seconds:2.6 },
   emergency:{ mode:'auto', manualButton:true, auto:true, autoShindo:5, heading:'緊急情報モード', message:'身の安全を最優先に行動してください。' },
   tutorial:{ skipFirst:false },
-  kiosk:{ ticker:'' }
+  kiosk:{ ticker:'', tickerColor:'赤' }
 };
 var _configApplied = false;
 
@@ -10333,6 +10362,7 @@ function applySiteConfig(cfg){
     Object.assign(SITE_CONFIG.kiosk, cfg.kiosk);
     // キオスクのテロップに即反映（キオスク表示中なら見た目も更新）
     try{ if(window.kioskUI && typeof window.kioskUI.setTicker === 'function'){ window.kioskUI.setTicker(SITE_CONFIG.kiosk.ticker); } }catch(e){}
+    try{ if(window.kioskUI && typeof window.kioskUI.setTickerColor === 'function'){ window.kioskUI.setTickerColor(SITE_CONFIG.kiosk.tickerColor); } }catch(e){}
   }
 
   // 扉演出(splash)は config 到着前に即実行されるため、「扉を出すべきか」を
@@ -11363,7 +11393,10 @@ function _noticeHtml(text){
 function _noticeLinks(n){
   if(!n) return [];
   let arr = [];
-  if(Array.isArray(n.links)){
+  if(Array.isArray(n.buttons)){
+    // GASの readNoticeSheet が返す形式： buttons:[{label, url}, ...]
+    arr = n.buttons;
+  } else if(Array.isArray(n.links)){
     arr = n.links;
   } else {
     // シート列（ボタン1ラベル/ボタン1URL …）形式にも対応
