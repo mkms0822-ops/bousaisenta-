@@ -3181,11 +3181,12 @@ button.dwa-plate{ padding:0; }
     box-shadow:0 30px 90px rgba(0,0,0,0.6);
     display:flex; flex-direction:column;
   }
-  /* 横長で背の高いPC画面：高さを基準に9:16比で大きく表示する */
+  /* 横長で背の高いPC画面：高さを基準に表示。ただし中身（約820px）を超えて
+     縦長にしすぎると各カードが間延び・あふれするため、上限を820pxに抑える。 */
   @media (min-aspect-ratio: 3/4) and (min-width: 700px) {
     #modeKioskScreen .signage {
-      height:min(94vh, 900px);
-      width:calc(min(94vh, 900px) * 9 / 16);
+      height:min(94vh, 820px);
+      width:calc(min(94vh, 820px) * 9 / 16);
     }
   }
 
@@ -3241,10 +3242,8 @@ button.dwa-plate{ padding:0; }
        中身が枠を超えるとき（スマホ）は通常どおり上から並んでスクロールする。 */
     justify-content:flex-start;
   }
-  /* PC等・縦に余裕がある時だけ均等配置にして大きな空白を防ぐ */
-  @media (min-aspect-ratio: 3/4) and (min-width: 700px) {
-    #modeKioskScreen .k-main { justify-content:space-between; gap:10px; }
-  }
+  /* PC等でも上詰めで並べ、収まらない分だけ k-main 内でスクロールさせる
+     （space-between で散らすと各カードが間延びして枠からあふれるため使わない） */
   /* k-main内のスクロールバーは控えめに（サイネージの見た目を保つ） */
   #modeKioskScreen .k-main::-webkit-scrollbar { width:4px; }
   #modeKioskScreen .k-main::-webkit-scrollbar-thumb { background:var(--k-line); border-radius:4px; }
