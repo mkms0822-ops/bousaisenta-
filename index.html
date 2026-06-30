@@ -10055,7 +10055,7 @@ window.kioskUI = (function(){
 
     // 必要な縮小率を両方から求め、より小さい方（より縮める方）を採用
     let sInner = 1, sFrame = 1;
-    if(innerNeed > frameH + 1 && frameH > 0) sInner = (frameH / innerNeed) * 0.93;
+    if(innerNeed > frameH + 1 && frameH > 0) sInner = (frameH / innerNeed) * 0.85;
     // 枠は画面の94%以内に収める（上部バーやブラウザUIの分の余裕を確保）
     if(stageH > 0) sFrame = (stageH * 0.94) / frameNeed;
     let s = Math.min(sInner, sFrame);
