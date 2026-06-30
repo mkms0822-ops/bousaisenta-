@@ -10013,7 +10013,16 @@ window.kioskUI = (function(){
   function applyScale(s){
     s = Math.max(0.5, Math.min(1.8, s));
     const sg = document.getElementById('signage');
-    if(sg) sg.style.setProperty('--k-scale', s);
+    if(sg){
+      sg.style.setProperty('--k-scale', s);
+      // transform:scale は見た目だけ縮め、占有スペースは元のままなので、
+      // 縮小すると下に余白ができて中身が画面外へ押し出される。
+      // 縮んだ高さの分だけ margin-bottom を負にして占有スペースを詰める。
+      // （transform-origin:top center なので縦は上基準で縮む）
+      const baseH = sg.offsetHeight; // 等倍時の高さ（offsetHeightはscale非依存）
+      const gap = baseH * (1 - s);
+      sg.style.marginBottom = (s < 1 ? (-gap) : 0) + 'px';
+    }
     const lab = document.getElementById('sizeVal');
     if(lab) lab.textContent = _autoFit ? '自動 ('+Math.round(s*100)+'%)' : Math.round(s*100)+'%';
     const rng = document.getElementById('sizeRange');
@@ -10028,6 +10037,7 @@ window.kioskUI = (function(){
     const last = document.querySelector('#modeKioskScreen .k-rotate');
     if(!sg || !body) return;
     sg.style.setProperty('--k-scale', 1);
+    sg.style.marginBottom = '0px';
     if(body) body.scrollTop = 0;
     void sg.offsetHeight; // 強制リフロー
 
