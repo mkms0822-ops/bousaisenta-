@@ -3159,40 +3159,33 @@ button.dwa-plate{ padding:0; }
     background:var(--k-bg);
     color:var(--k-text);
     font-family:var(--k-disp);
-    overflow:auto;
-    /* 縦長サイネージ：枠を上端から配置（中央寄せだと上に余白ができ下がはみ出すため）。
-       横方向は中央。 */
-    display:flex; align-items:flex-start; justify-content:center;
+    overflow:hidden;
+    /* 各項目を画面上部から縦並びで直接表示（オーバーレイ枠なし） */
+    display:flex; flex-direction:column; align-items:stretch;
     min-height:100%;
-    padding-top:8px;
+    padding:8px 10px 0;
   }
 
   /* ===== サイネージ枠（縦長 9:16） ===== */
 #modeKioskScreen .signage {
     position:relative;
-    /* 既定（縦長スマホ向け）：画面の幅いっぱいを使い、高さは9:16比で算出。
-       これで縦長画面でも枠が画面からはみ出さず、中身が切れない。
-       横長PCでは下の @media で高さ基準に切り替える。
-       aspect-ratio は使わず、width/height だけで確定させて二重指定の競合を防ぐ。 */
-    width:min(96vw, 440px);
-    height:min(94vh, calc(min(96vw, 440px) * 16 / 9));
-    background:var(--k-bg2);
-    border:1px solid var(--k-line);
-    border-radius:18px;
-    overflow:hidden;
-    box-shadow:0 30px 90px rgba(0,0,0,0.6);
+    /* オーバーレイ枠は廃止。画面いっぱいに各項目を縦並びで直接表示する。
+       サイズ調整は中身全体を transform:scale で拡大縮小（枠の二重構造がないので
+       占有スペースのズレが起きない）。 */
+    width:100%;
+    max-width:560px;        /* 横に広がりすぎないよう上限 */
+    margin:0 auto;
+    background:transparent;
     display:flex; flex-direction:column;
-    /* 設定パネルの「表示サイズ」で枠ごと拡大縮小（全項目が同じ比率で連動） */
     transform:scale(var(--k-scale, 1));
     transform-origin:top center;
     transition:transform .18s ease;
   }
-  /* 横長で背の高いPC画面：高さを基準に表示。ただし中身（約820px）を超えて
-     縦長にしすぎると各カードが間延び・あふれするため、上限を820pxに抑える。 */
+  /* 旧9:16枠用の @media は無効化（枠デザインを使わないため） */
   @media (min-aspect-ratio: 3/4) and (min-width: 700px) {
     #modeKioskScreen .signage {
-      height:min(96vh, 880px);
-      width:calc(min(96vh, 880px) * 9 / 16);
+      width:100%;
+      height:auto;
     }
   }
 
@@ -10033,38 +10026,23 @@ window.kioskUI = (function(){
   // 自動フィット：ヘッダー＋中身の合計が枠に収まる縮小率を計算して適用
   function _computeFit(){
     const sg = document.getElementById('signage');
-    const stage = document.querySelector('#modeKioskScreen .ksg-body'); // 画面の利用可能領域
-    const body = document.querySelector('#modeKioskScreen .k-body');
-    const last = document.querySelector('#modeKioskScreen .k-rotate');
-    if(!sg || !body) return;
+    const stage = document.querySelector('#modeKioskScreen .ksg-body'); // 画面領域
+    if(!sg || !stage) return;
+    // 等倍に戻して中身の本来の高さを測る
     sg.style.setProperty('--k-scale', 1);
     sg.style.marginBottom = '0px';
-    if(body) body.scrollTop = 0;
     void sg.offsetHeight; // 強制リフロー
-
-    // (1) 中身が枠に収まるか（k-rotateの実下端 vs 枠下端）
-    const sgRect = sg.getBoundingClientRect();
-    let contentBottom = sgRect.bottom;
-    if(last){ contentBottom = last.getBoundingClientRect().bottom; }
-    const innerNeed = contentBottom - sgRect.top;     // 枠上端→中身最下端
-    const frameH = sg.clientHeight;                   // 枠の高さ
-
-    // (2) 枠そのものが画面（親領域）に収まるか
-    const stageH = stage ? stage.clientHeight : (window.innerHeight || frameH);
-    const frameNeed = sg.offsetHeight;                // 枠の実高さ
-
-    // 必要な縮小率を両方から求め、より小さい方（より縮める方）を採用
-    let sInner = 1, sFrame = 1;
-    if(innerNeed > frameH + 1 && frameH > 0) sInner = (frameH / innerNeed) * 0.85;
-    // 枠は画面の94%以内に収める（上部バーやブラウザUIの分の余裕を確保）
-    if(stageH > 0) sFrame = (stageH * 0.94) / frameNeed;
-    let s = Math.min(sInner, sFrame);
-    if(s > 1) s = 1;
+    const stageH = stage.clientHeight;     // 画面で使える高さ
+    const contentH = sg.scrollHeight;      // 各項目を縦並びした中身全体の高さ
+    let s = 1;
+    if(contentH > 0 && stageH > 0){
+      s = (stageH / contentH) * 0.985;     // 画面にちょうど収める（わずかに余裕）
+    }
+    if(s > 1) s = 1;          // 画面より小さい中身は拡大しない
     if(s < 0.35) s = 0.35;
-
     applyScale(s);
     const dbg = document.getElementById('sizeDbg');
-    if(dbg) dbg.textContent = '画面'+Math.round(stageH)+' 枠'+Math.round(frameNeed)+' 中身'+Math.round(innerNeed)+' → '+Math.round(s*100)+'%';
+    if(dbg) dbg.textContent = '画面'+Math.round(stageH)+' / 中身'+Math.round(contentH)+' → '+Math.round(s*100)+'%';
   }
   function autoFit(){
     if(!_autoFit) return;
