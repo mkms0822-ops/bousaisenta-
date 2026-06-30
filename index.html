@@ -3653,12 +3653,12 @@ button.dwa-plate{ padding:0; }
 
   <div class="sp-group">
     <div class="sp-label">熱中症の対象地域</div>
-    <select class="sp-select" id="heatPrefSelect" onchange="setHeatPref(this.value)">
-      <option value="aichi">愛知県（東海）</option>
-      <option value="tokyo">東京都（関東）</option>
-      <option value="osaka">大阪府（近畿）</option>
-      <option value="kyoto">京都府（近畿）</option>
-      <option value="fukuoka">福岡県（九州）</option>
+    <select class="sp-select" id="heatPrefSelect" onchange="kioskUI.setHeatPref(this.value)">
+      <option value="愛知県">愛知県</option>
+      <option value="東京都">東京都</option>
+      <option value="大阪府">大阪府</option>
+      <option value="京都府">京都府</option>
+      <option value="福岡県">福岡県</option>
     </select>
   </div>
 
@@ -8143,6 +8143,14 @@ function syncWeatherSettingsUI(){
         HEAT.prefs = d.prefs || [];
         HEAT.updatedAt = d.updatedAt || '';
         HEAT.inSeason = d.inSeason;
+        // キオスクモードからも同じデータを使えるよう公開し、再描画を促す
+        try {
+          window.__heatPrefs = HEAT.prefs;
+          window.__heatUpdatedAt = HEAT.updatedAt;
+          if (window.kioskUI && typeof window.kioskUI.onHeatData === 'function') {
+            window.kioskUI.onHeatData(HEAT.prefs, HEAT.updatedAt);
+          }
+        } catch(e){}
         renderHeat();
       })
       .catch(function(){ if(box) box.innerHTML='<div class="heat-empty">通信エラーで暑さ指数を表示できませんでした。</div>'; });
@@ -9675,27 +9683,34 @@ window.kioskUI = (function(){
   // ===== 熱中症：都道府県別の観測点データ =====
   // 実機では既存GAS(type=heat)から取得して同じ形({name,level,temp})に整形して流し込めます。
   // level: 1=ほぼ安全 2=注意 3=警戒 4=厳重警戒 5=危険
-  const HEAT_COLORS = { 1:'var(--k-lv1)', 2:'var(--k-lv2)', 3:'var(--k-lv2)', 4:'var(--k-lv3)', 5:'var(--k-lv4)' };
+  const HEAT_COLORS = { 1:'var(--k-lv1)', 2:'var(--k-lv2)', 3:'var(--k-lv3)', 4:'var(--k-lv4)', 5:'var(--k-lv5)' };
   const HEAT_LABELS = { 1:'ほぼ安全', 2:'注意', 3:'警戒', 4:'厳重警戒', 5:'危険' };
   // ===== 天気予報（設定県と同じ地域）=====
-  // 実機では本体の天気取得（気象庁/外部API）から同じ形に整えて流し込めます。
+  // type=heat には天気（晴れ/雨や気温の最高最低）が含まれないため、天気は当面サンプル。
+  // 本体に天気取得を実装したら、同じ県名キーでここへ流し込めます。
   const WX_DATA = {
-    aichi:  { name:'愛知県', icon:'☀️', desc:'晴れ時々くもり', hi:33, lo:26,
+    '愛知県': { name:'愛知県', icon:'☀️', desc:'晴れ時々くもり', hi:33, lo:26,
       week:[['今日','☀️',33,26],['明日','⛅',31,25],['水','🌧️',28,24],['木','☁️',30,25],['金','☀️',34,27]] },
-    tokyo:  { name:'東京都', icon:'⛅', desc:'くもり一時雨', hi:31, lo:24,
+    '東京都': { name:'東京都', icon:'⛅', desc:'くもり一時雨', hi:31, lo:24,
       week:[['今日','⛅',31,24],['明日','🌧️',27,23],['水','☁️',29,24],['木','☀️',32,25],['金','☀️',33,26]] },
-    osaka:  { name:'大阪府', icon:'☀️', desc:'晴れ', hi:34, lo:27,
+    '大阪府': { name:'大阪府', icon:'☀️', desc:'晴れ', hi:34, lo:27,
       week:[['今日','☀️',34,27],['明日','☀️',35,28],['水','⛅',33,27],['木','🌧️',29,25],['金','⛅',31,26]] },
-    kyoto:  { name:'京都府', icon:'⛅', desc:'くもり時々晴れ', hi:33, lo:25,
+    '京都府': { name:'京都府', icon:'⛅', desc:'くもり時々晴れ', hi:33, lo:25,
       week:[['今日','⛅',33,25],['明日','☀️',34,26],['水','🌧️',28,24],['木','☁️',30,25],['金','☀️',33,26]] },
-    fukuoka:{ name:'福岡県', icon:'🌧️', desc:'雨のちくもり', hi:30, lo:25,
+    '福岡県': { name:'福岡県', icon:'🌧️', desc:'雨のちくもり', hi:30, lo:25,
       week:[['今日','🌧️',30,25],['明日','☁️',31,25],['水','⛅',32,26],['木','☀️',33,26],['金','☀️',34,27]] }
   };
 
-  function renderWeather(key){
-    const w = WX_DATA[key]; if(!w) return;
+  function renderWeather(prefName){
+    // 天気サンプルに無い県は、天気カードに県名だけ出して数値は「—」にする（壊さない）
+    const w = WX_DATA[prefName];
     const set = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
-    set('kWxPref', w.name);
+    set('kWxPref', prefName || '--');
+    if(!w){
+      set('kWxIcon', '—'); set('kWxHi', '—'); set('kWxLo', '—'); set('kWxDesc', '天気予報は準備中');
+      const wk0 = document.getElementById('kWxWeek'); if(wk0) wk0.innerHTML = '';
+      return;
+    }
     set('kWxIcon', w.icon);
     set('kWxHi', w.hi);
     set('kWxLo', w.lo);
@@ -9717,66 +9732,99 @@ window.kioskUI = (function(){
     if(el && text){ el.textContent = text; }
   }
 
-  const HEAT_DATA = {
-    aichi: { name:'愛知県', region:'東海', points:[
-      {name:'伊良湖',level:3,temp:27.4},{name:'南知多',level:3,temp:26.4},{name:'名古屋',level:4,temp:29.1},
-      {name:'大府',level:3,temp:27.5},{name:'岡崎',level:3,temp:27.0},{name:'愛西',level:4,temp:28.1},
-      {name:'新城',level:3,temp:27.7},{name:'稲武',level:3,temp:26.1},{name:'豊田',level:4,temp:28.3},
-      {name:'豊橋',level:3,temp:27.2},{name:'東海',level:4,temp:28.6}
-    ]},
-    tokyo: { name:'東京都', region:'関東', points:[
-      {name:'東京',level:4,temp:29.3},{name:'練馬',level:4,temp:28.8},{name:'八王子',level:3,temp:27.6},
-      {name:'府中',level:4,temp:28.2},{name:'大島',level:2,temp:24.9},{name:'三宅島',level:2,temp:24.1},
-      {name:'八丈島',level:2,temp:23.8},{name:'父島',level:3,temp:26.7}
-    ]},
-    osaka: { name:'大阪府', region:'近畿', points:[
-      {name:'大阪',level:5,temp:31.2},{name:'堺',level:4,temp:29.6},{name:'枚方',level:4,temp:29.0},
-      {name:'熊取',level:4,temp:28.4},{name:'能勢',level:3,temp:27.1},{name:'生駒山',level:3,temp:26.3}
-    ]},
-    kyoto: { name:'京都府', region:'近畿', points:[
-      {name:'京都',level:3,temp:27.2},{name:'園部',level:4,temp:28.3},{name:'宮津',level:3,temp:26.9},
-      {name:'福知山',level:4,temp:28.4},{name:'美山',level:4,temp:28.0},{name:'舞鶴',level:3,temp:27.9},
-      {name:'間人',level:3,temp:25.8},{name:'京田辺',level:4,temp:29.5}
-    ]},
-    fukuoka: { name:'福岡県', region:'九州', points:[
-      {name:'福岡',level:4,temp:29.4},{name:'八幡',level:4,temp:28.7},{name:'飯塚',level:4,temp:28.5},
-      {name:'久留米',level:5,temp:30.1},{name:'大牟田',level:4,temp:29.2},{name:'行橋',level:3,temp:27.8}
-    ]}
-  };
-
   const HEATPREF_KEY = 'kiosk_heatpref';
 
-  function renderHeatList(key){
-    const data = HEAT_DATA[key];
-    if(!data) return;
+  // 実データ（本体が type=heat から取得して window.__heatPrefs に公開）を優先。
+  // 未取得のあいだはサンプルで表示し、データが届いたら自動で実データに切り替える。
+  // データ形式: [{ pref:"愛知県", points:[{name, f, fLv, n, nLv}] }]
+  const HEAT_SAMPLE = {
+    '愛知県': [
+      {name:'伊良湖',nLv:3,n:27.4},{name:'南知多',nLv:3,n:26.4},{name:'名古屋',nLv:4,n:29.1},
+      {name:'大府',nLv:3,n:27.5},{name:'岡崎',nLv:3,n:27.0},{name:'愛西',nLv:4,n:28.1},
+      {name:'新城',nLv:3,n:27.7},{name:'稲武',nLv:3,n:26.1},{name:'豊田',nLv:4,n:28.3},
+      {name:'豊橋',nLv:3,n:27.2},{name:'東海',nLv:4,n:28.6}
+    ],
+    '東京都': [
+      {name:'東京',nLv:4,n:29.3},{name:'練馬',nLv:4,n:28.8},{name:'八王子',nLv:3,n:27.6},
+      {name:'府中',nLv:4,n:28.2},{name:'大島',nLv:2,n:24.9},{name:'八丈島',nLv:2,n:23.8}
+    ],
+    '大阪府': [
+      {name:'大阪',nLv:5,n:31.2},{name:'堺',nLv:4,n:29.6},{name:'枚方',nLv:4,n:29.0},
+      {name:'熊取',nLv:4,n:28.4},{name:'能勢',nLv:3,n:27.1}
+    ]
+  };
+  let _heatPrefs = null;      // 実データ（届いたら配列）
+  let _heatUpdatedAt = '';
+
+  // 実データ or サンプルから、県名→pointsの配列を返す
+  function getHeatPoints(prefName){
+    if(_heatPrefs && _heatPrefs.length){
+      for(let i=0;i<_heatPrefs.length;i++){
+        if(_heatPrefs[i].pref === prefName) return _heatPrefs[i].points || [];
+      }
+      return [];
+    }
+    return HEAT_SAMPLE[prefName] || [];
+  }
+  // 選択できる県名の一覧（実データ優先、無ければサンプルのキー）
+  function getHeatPrefNames(){
+    if(_heatPrefs && _heatPrefs.length){
+      return _heatPrefs.map(function(p){ return p.pref; });
+    }
+    return Object.keys(HEAT_SAMPLE);
+  }
+
+  // 県セレクトを実データの都道府県で埋める
+  function populateHeatSelect(){
+    const sel = document.getElementById('heatPrefSelect');
+    if(!sel) return;
+    const names = getHeatPrefNames();
+    const cur = sel.value;
+    sel.innerHTML = names.map(function(n){ return '<option value="'+n+'">'+n+'</option>'; }).join('');
+    // 以前の選択を維持（あれば）
+    let saved = cur;
+    try { saved = saved || localStorage.getItem(HEATPREF_KEY) || ''; } catch(e){}
+    if(saved && names.indexOf(saved) >= 0) sel.value = saved;
+  }
+
+  function renderHeatList(prefName){
+    const points = getHeatPoints(prefName);
     const nameEl = document.getElementById('heatPrefName');
     const metaEl = document.getElementById('heatPrefMeta');
     const listEl = document.getElementById('heatList');
-    if(nameEl) nameEl.textContent = data.name;
-    if(metaEl) metaEl.textContent = data.region + '　' + data.points.length + '地点';
+    if(nameEl) nameEl.textContent = prefName || '--';
+    if(metaEl) metaEl.textContent = (_heatUpdatedAt ? _heatUpdatedAt+'　' : '') + points.length + '地点';
     if(!listEl) return;
 
+    if(!points.length){
+      listEl.innerHTML = '<div class="hl-row"><span class="hl-name" style="color:var(--k-muted)">データを取得中…</span></div>';
+      listEl.classList.remove('scrolling');
+      return;
+    }
+
     let rows = '';
-    data.points.forEach(p=>{
-      const col = HEAT_COLORS[p.level] || 'var(--k-lv2)';
-      const lab = HEAT_LABELS[p.level] || '注意';
+    points.forEach(function(p){
+      // 実況(n/nLv)を優先。無ければ予測(f/fLv)。
+      const lv = (p.nLv || p.fLv || 0);
+      const val = (p.n != null ? p.n : (p.f != null ? p.f : null));
+      const col = HEAT_COLORS[lv] || 'var(--k-lv2)';
+      const lab = HEAT_LABELS[lv] || '—';
+      const tempStr = (val != null) ? (Number(val).toFixed(1) + '℃') : '—';
       rows += '<div class="hl-row">'
         + '<span class="hl-name">'+p.name+'</span>'
         + '<span class="hl-badge" style="background:'+col+'">'+lab+'</span>'
-        + '<span class="hl-temp">'+p.temp.toFixed(1)+'℃</span>'
+        + '<span class="hl-temp">'+tempStr+'</span>'
         + '</div>';
     });
     listEl.innerHTML = '<div class="hl-track">'+rows+'</div>';
 
-    // 件数が多くて枠に収まらない場合は、ゆっくり縦スクロールして全件見せる
-    requestAnimationFrame(()=>{
+    requestAnimationFrame(function(){
       const track = listEl.querySelector('.hl-track');
       if(!track) return;
       const over = track.scrollHeight - listEl.clientHeight;
       if(over > 4){
         listEl.style.setProperty('--scroll-end', '-'+over+'px');
-        // 1地点あたり約1.6秒で全件巡回（最低12秒）
-        const dur = Math.max(12, data.points.length * 1.6);
+        const dur = Math.max(12, points.length * 1.6);
         track.style.animationDuration = dur + 's';
         listEl.classList.add('scrolling');
       } else {
@@ -9785,20 +9833,37 @@ window.kioskUI = (function(){
     });
   }
 
-  function setHeatPref(key){
-    if(!HEAT_DATA[key]) key = 'aichi';
-    renderHeatList(key);
-    renderWeather(key);           // 天気予報も同じ県に連動
+  function setHeatPref(prefName){
+    const names = getHeatPrefNames();
+    if(names.indexOf(prefName) < 0) prefName = names[0] || '愛知県';
+    renderHeatList(prefName);
+    renderWeather(prefName);       // 天気も同じ県に連動
     const sel = document.getElementById('heatPrefSelect');
-    if(sel) sel.value = key;
-    try { localStorage.setItem(HEATPREF_KEY, key); } catch(e){}
+    if(sel) sel.value = prefName;
+    try { localStorage.setItem(HEATPREF_KEY, prefName); } catch(e){}
   }
 
   // 起動時：保存済みの対象都道府県を復元
   function restoreHeatPref(){
-    let saved = 'aichi';
-    try { saved = localStorage.getItem(HEATPREF_KEY) || 'aichi'; } catch(e){}
+    let saved = '';
+    try { saved = localStorage.getItem(HEATPREF_KEY) || ''; } catch(e){}
+    populateHeatSelect();
+    const names = getHeatPrefNames();
+    if(!saved || names.indexOf(saved) < 0) saved = names[0] || '愛知県';
     setHeatPref(saved);
+  }
+
+  // 本体が type=heat を取得したら呼ばれる（実データに差し替え）
+  function onHeatData(prefs, updatedAt){
+    _heatPrefs = prefs || [];
+    _heatUpdatedAt = updatedAt || '';
+    populateHeatSelect();
+    // 現在表示中の県を実データで再描画（無ければ先頭県）
+    let cur = '';
+    try { cur = localStorage.getItem(HEATPREF_KEY) || ''; } catch(e){}
+    const names = getHeatPrefNames();
+    if(!cur || names.indexOf(cur) < 0) cur = names[0] || '愛知県';
+    setHeatPref(cur);
   }
 
   // ===== 設定パネル（歯車）の開閉 =====
@@ -9882,6 +9947,13 @@ window.kioskUI = (function(){
       _kioskInited = true;
     }
     startRotation();
+    // 本体が既に type=heat を取得済みなら、その実データを取り込む
+    try{
+      if(window.__heatPrefs && window.__heatPrefs.length){
+        _heatPrefs = window.__heatPrefs;
+        _heatUpdatedAt = window.__heatUpdatedAt || '';
+      }
+    }catch(e){}
     // 保存済みテーマ・対象県を反映（対象県の設定で天気も連動描画される）
     try{ restoreTheme(); }catch(e){}
     try{ restoreHeatPref(); }catch(e){}
@@ -9896,7 +9968,7 @@ window.kioskUI = (function(){
     stopRotation();
   }
 
-  return { setMode:setMode, setTheme:setTheme, toggleSettings:toggleSettings, setTicker:setTicker, start:start, stop:stop };
+  return { setMode:setMode, setTheme:setTheme, toggleSettings:toggleSettings, setTicker:setTicker, setHeatPref:setHeatPref, onHeatData:onHeatData, start:start, stop:stop };
 })();
 
 
