@@ -3168,17 +3168,25 @@ button.dwa-plate{ padding:0; }
   /* ===== サイネージ枠（縦長 9:16） ===== */
 #modeKioskScreen .signage {
     position:relative;
-    /* 高さを基準に9:16比でサイズ決定。PCの大画面では画面の高さをできるだけ使い、
-       縦型サイネージらしく大きく表示する。幅・高さとも画面内に収まるよう上限を付ける。 */
-    height:min(96vh, calc(96vw * 16 / 9));
-    width:min(96vw, calc(96vh * 9 / 16));
-    aspect-ratio:9/16;
+    /* 既定（縦長スマホ向け）：画面の幅いっぱいを使い、高さは9:16比で算出。
+       これで縦長画面でも枠が画面からはみ出さず、中身が切れない。
+       横長PCでは下の @media で高さ基準に切り替える。
+       aspect-ratio は使わず、width/height だけで確定させて二重指定の競合を防ぐ。 */
+    width:min(96vw, 440px);
+    height:min(94vh, calc(min(96vw, 440px) * 16 / 9));
     background:var(--k-bg2);
     border:1px solid var(--k-line);
     border-radius:18px;
     overflow:hidden;
     box-shadow:0 30px 90px rgba(0,0,0,0.6);
     display:flex; flex-direction:column;
+  }
+  /* 横長で背の高いPC画面：高さを基準に9:16比で大きく表示する */
+  @media (min-aspect-ratio: 3/4) and (min-width: 700px) {
+    #modeKioskScreen .signage {
+      height:min(94vh, 900px);
+      width:calc(min(94vh, 900px) * 9 / 16);
+    }
   }
 
   /* ===== 1. 上部ヘッダー＋スクロールバナー ===== */
@@ -3227,7 +3235,20 @@ button.dwa-plate{ padding:0; }
     flex:1 1 auto; min-height:0;
     padding:16px;
     display:flex; flex-direction:column; gap:13px;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    /* 中身が枠より小さいとき（PC等）は上下に程よく散らして空白を減らす。
+       中身が枠を超えるとき（スマホ）は通常どおり上から並んでスクロールする。 */
+    justify-content:flex-start;
   }
+  /* PC等・縦に余裕がある時だけ均等配置にして大きな空白を防ぐ */
+  @media (min-aspect-ratio: 3/4) and (min-width: 700px) {
+    #modeKioskScreen .k-main { justify-content:space-between; gap:10px; }
+  }
+  /* k-main内のスクロールバーは控えめに（サイネージの見た目を保つ） */
+  #modeKioskScreen .k-main::-webkit-scrollbar { width:4px; }
+  #modeKioskScreen .k-main::-webkit-scrollbar-thumb { background:var(--k-line); border-radius:4px; }
+  #modeKioskScreen .k-main::-webkit-scrollbar-track { background:transparent; }
 #modeKioskScreen .k-section-label {
     display:flex; align-items:center; gap:8px;
     font-size:10px; letter-spacing:.2em; color:var(--k-muted);
