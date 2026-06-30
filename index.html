@@ -3160,9 +3160,11 @@ button.dwa-plate{ padding:0; }
     color:var(--k-text);
     font-family:var(--k-disp);
     overflow:auto;
-    /* 縦長サイネージ想定：9:16 を中央に置く（デモ用枠） */
-    display:flex; align-items:center; justify-content:center;
+    /* 縦長サイネージ：枠を上端から配置（中央寄せだと上に余白ができ下がはみ出すため）。
+       横方向は中央。 */
+    display:flex; align-items:flex-start; justify-content:center;
     min-height:100%;
+    padding-top:8px;
   }
 
   /* ===== サイネージ枠（縦長 9:16） ===== */
@@ -3182,7 +3184,7 @@ button.dwa-plate{ padding:0; }
     display:flex; flex-direction:column;
     /* 設定パネルの「表示サイズ」で枠ごと拡大縮小（全項目が同じ比率で連動） */
     transform:scale(var(--k-scale, 1));
-    transform-origin:center center;
+    transform-origin:top center;
     transition:transform .18s ease;
   }
   /* 横長で背の高いPC画面：高さを基準に表示。ただし中身（約820px）を超えて
