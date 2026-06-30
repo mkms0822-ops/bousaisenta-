@@ -3232,24 +3232,24 @@ button.dwa-plate{ padding:0; }
   @keyframes k-tkScroll{ to{ transform:translateX(-100%); } }
 
   /* ===== 2. メイン：固定の防災速報 ===== */
-#modeKioskScreen .k-main {
+#modeKioskScreen .k-body {
+    /* ヘッダー以外（天気・地震・警報・下部ローテーション）を1つの縦スクロール領域に。
+       これでカード同士が重ならず、収まらない時だけスクロールして全部見せる。 */
     flex:1 1 auto; min-height:0;
-    padding:16px;
-    display:flex; flex-direction:column; gap:13px;
+    display:flex; flex-direction:column;
     overflow-y:auto;
     -webkit-overflow-scrolling:touch;
-    justify-content:flex-start;
   }
-  /* k-main の各カードは flex で縮められると中身（震度の数字など）が
-     切れてしまうため、縮小を禁止して本来の高さを保たせる。
-     収まらない分は k-main 自体のスクロールで見せる。 */
+  #modeKioskScreen .k-body::-webkit-scrollbar { width:4px; }
+  #modeKioskScreen .k-body::-webkit-scrollbar-thumb { background:var(--k-line); border-radius:4px; }
+  #modeKioskScreen .k-body::-webkit-scrollbar-track { background:transparent; }
+#modeKioskScreen .k-main {
+    flex:0 0 auto;
+    padding:16px;
+    display:flex; flex-direction:column; gap:13px;
+  }
+  /* 各カードは本来の高さを保つ（縮小で中身が切れるのを防ぐ） */
   #modeKioskScreen .k-main > * { flex:0 0 auto; }
-  /* PC等でも上詰めで並べ、収まらない分だけ k-main 内でスクロールさせる
-     （space-between で散らすと各カードが間延びして枠からあふれるため使わない） */
-  /* k-main内のスクロールバーは控えめに（サイネージの見た目を保つ） */
-  #modeKioskScreen .k-main::-webkit-scrollbar { width:4px; }
-  #modeKioskScreen .k-main::-webkit-scrollbar-thumb { background:var(--k-line); border-radius:4px; }
-  #modeKioskScreen .k-main::-webkit-scrollbar-track { background:transparent; }
 #modeKioskScreen .k-section-label {
     display:flex; align-items:center; gap:8px;
     font-size:10px; letter-spacing:.2em; color:var(--k-muted);
@@ -3549,6 +3549,8 @@ button.dwa-plate{ padding:0; }
     </div>
   </div>
 
+  <!-- メイン＋下部ローテーションを1つのスクロール領域にまとめる（重なり防止） -->
+  <div class="k-body">
   <!-- 2. メイン：固定の防災速報 -->
   <div class="k-main">
     <!-- 天気予報（最上部・設定県と同じ地域） -->
@@ -3641,6 +3643,7 @@ button.dwa-plate{ padding:0; }
       <i class="on"></i><i></i><i></i><i></i>
     </div>
   </div>
+  </div><!-- /k-body -->
 
   <!-- 緊急時オーバーレイ（全画面切替） -->
   <div class="k-emergency" id="emergency">
