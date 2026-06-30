@@ -11619,6 +11619,13 @@ async function restoreStampCode(){
     // 入力したパスワードを端末に保存（以後の設定同期などに利用）
     try { if (password) localStorage.setItem('stamp_pw', password); else localStorage.removeItem('stamp_pw'); } catch(e){}
     applyServerStamp(Object.assign({}, d, { added:false, authoritative:true }));
+    // ★スタンプだけでなく、ブックマークと各種設定もこのコードで復元する。
+    //   初期化直後は同期タイムスタンプが無く serverTs>localTs を確実に通すため、
+    //   念のため同期TSを一旦クリアしてからサーバーの値を取りに行く。
+    try { localStorage.removeItem('bookmarks_synced_at'); } catch(e){}
+    try { localStorage.removeItem('settings_synced_at'); } catch(e){}
+    try { if (typeof pullBookmarksFromServer === 'function') await pullBookmarksFromServer(); } catch(e){}
+    try { if (typeof pullSettingsFromServer === 'function') await pullSettingsFromServer(); } catch(e){}
     showRestoreDoneModal(d.count || 0);
   } catch(e) {
     alert('通信エラーで復元できませんでした。時間をおいてお試しください。');
