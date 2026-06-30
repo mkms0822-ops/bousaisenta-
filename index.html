@@ -3717,7 +3717,9 @@ button.dwa-plate{ padding:0; }
 
   <div class="sp-group">
     <div class="sp-label">表示サイズ <span id="sizeVal" class="size-val">100%</span></div>
+    <div id="sizeDbg" style="font-size:9px;color:var(--k-muted);margin:-2px 0 4px;"></div>
     <input type="range" class="sp-range" id="sizeRange" min="70" max="180" step="5" value="100"
+           autocomplete="off"
            oninput="kioskUI.setScale(this.value/100)">
     <div class="size-presets">
       <button onclick="kioskUI.setAutoFit()">自動</button>
@@ -10019,19 +10021,23 @@ window.kioskUI = (function(){
   // 自動フィット：ヘッダー＋中身の合計が枠に収まる縮小率を計算して適用
   function _computeFit(){
     const sg = document.getElementById('signage');
-    const head = document.querySelector('#modeKioskScreen .k-head');
     const body = document.querySelector('#modeKioskScreen .k-body');
     if(!sg || !body) return;
-    // 等倍に戻して本来の高さを測る（transformはレイアウト高に影響しないが念のため）
+    // 等倍に戻して本来の高さを測る
     sg.style.setProperty('--k-scale', 1);
-    const availH = sg.clientHeight;                 // 枠の高さ（固定）
-    const headH  = head ? head.offsetHeight : 0;     // ヘッダーの高さ
-    const needH  = headH + body.scrollHeight;        // ヘッダー＋中身全部
+    void sg.offsetHeight; // 強制リフロー
+    // signage は overflow:hidden の固定枠。中身がはみ出していれば
+    // scrollHeight が「中身全体の本当の高さ」を返す（k-rotate等も含む）。
+    const availH = sg.clientHeight;     // 枠の高さ（固定）
+    const needH  = sg.scrollHeight;     // 中身全体の高さ（はみ出し含む）
     let s = 1;
-    if(needH > availH + 1 && needH > 0){
-      s = (availH / needH) * 0.985;                  // わずかに余裕を持たせる
+    if(needH > availH + 1 && availH > 0){
+      s = (availH / needH) * 0.96;      // 余裕を持たせて確実に収める
+      if(s < 0.4) s = 0.4;
     }
     applyScale(s);
+    const dbg = document.getElementById('sizeDbg');
+    if(dbg) dbg.textContent = '枠'+Math.round(availH)+' / 必要'+Math.round(needH)+' → '+Math.round(s*100)+'%';
   }
   function autoFit(){
     if(!_autoFit) return;
