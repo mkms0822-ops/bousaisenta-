@@ -1288,6 +1288,13 @@ html.light .icon-opt.selected { border-color:var(--blue); background:rgba(0,100,
 .reorder-pair { grid-column:1/-1; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:22px; align-items:stretch; }
 .reorder-pair > .reorder-block { grid-column:auto; min-width:0; max-width:100%; display:flex; flex-direction:column; }
 .reorder-pair > .reorder-block > * { flex:1 1 auto; min-width:0; }
+/* スマホなど狭い画面（520px以下）では、横並びペアを縦並びに戻す。
+   特に宇宙天気カードは3列アイコンがあり、2カラムだと隣のカード（危険警報など）に
+   はみ出して重なるため、狭幅では1カラムにして重なりを根本的に防ぐ。 */
+@media (max-width:520px){
+  .reorder-pair { grid-template-columns:1fr !important; gap:14px; }
+  .reorder-pair > .reorder-block { max-width:100% !important; }
+}
 /* スマホなど狭い画面でも、横並び設定したペアは常に2カラムを維持する（間隔を詰めて収める）。
    1カラムあたりの幅が狭くなるため、ペア内のテキストは字間や折り返しを調整して
    「1文字ずつ縦積み」になるのを防ぎ、狭幅でも文として読めるようにする。 */
