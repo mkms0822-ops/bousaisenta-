@@ -3334,18 +3334,20 @@ button.dwa-plate{ padding:0; }
   #modeKioskScreen .signage[data-klayout="landscape"] .k-main {
     display:grid;
     grid-template-columns:1fr 1fr;
-    grid-template-rows:auto auto 1fr;
+    grid-template-rows:auto 1fr;
     grid-template-areas:
       "weather quake"
-      "warn    quake"
-      ".       quake";
+      "warn    quake";
     align-items:start;
     gap:14px;
     padding:14px;
   }
   #modeKioskScreen .signage[data-klayout="landscape"] .k-main > .wx-card        { grid-area:weather; }
-  #modeKioskScreen .signage[data-klayout="landscape"] .k-main > #kJmaWarn        { grid-area:warn; align-self:start; }
+  #modeKioskScreen .signage[data-klayout="landscape"] .k-main > #kJmaWarn        { grid-area:warn; align-self:stretch; }
   #modeKioskScreen .signage[data-klayout="landscape"] .k-main > .k-quake-pair    { grid-area:quake; align-self:start; }
+  /* 警報スタックを縦いっぱいに広げ、各バナーを均等な高さに伸ばして余白を埋める */
+  #modeKioskScreen .signage[data-klayout="landscape"] #kJmaWarn .k-jmawarn-stack{ height:100%; }
+  #modeKioskScreen .signage[data-klayout="landscape"] #kJmaWarn .k-jmawarn{ flex:1 1 0; align-items:center; }
   /* 横画面では地震カードを縦積み（2枚を上下）にして右カラムを埋める */
   #modeKioskScreen .signage[data-klayout="landscape"] .k-quake-pair { grid-template-columns:1fr; }
   /* 狭い画面では横2カラムをやめて通常の縦積みに戻す（破綻防止） */
@@ -3374,8 +3376,8 @@ button.dwa-plate{ padding:0; }
     #modeKioskScreen .signage[data-klayout="landscape"] .wx-d .d-ic{ font-size:42px; }
     #modeKioskScreen .signage[data-klayout="landscape"] .wx-d .d-temp{ font-size:22px; }
     /* 気象警報 */
-    #modeKioskScreen .signage[data-klayout="landscape"] .k-jmawarn-stack{ gap:6px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .k-jmawarn{ padding:10px 18px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .k-jmawarn-stack{ gap:8px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .k-jmawarn{ padding:14px 18px; }
     #modeKioskScreen .signage[data-klayout="landscape"] .k-jmawarn .kjw-title{ font-size:25px; }
     #modeKioskScreen .signage[data-klayout="landscape"] .k-jmawarn .kjw-area{ font-size:20px; }
     #modeKioskScreen .signage[data-klayout="landscape"] .k-jmawarn .kjw-badge{ font-size:18px; }
