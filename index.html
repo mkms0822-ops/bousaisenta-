@@ -3239,20 +3239,20 @@ button.dwa-plate{ padding:0; }
 
   /* スクロールバナー（速報ティッカー） */
 #modeKioskScreen .k-ticker {
-    margin-top:7px; height:24px; border-radius:8px; overflow:hidden;
+    margin-top:8px; height:48px; border-radius:10px; overflow:hidden;
     background:linear-gradient(90deg, rgba(200,30,30,0.55), rgba(180,30,30,0.35));
     border:1px solid rgba(255,80,80,0.4);
     display:flex; align-items:center;
   }
 #modeKioskScreen .k-ticker .tk-tag {
     flex:0 0 auto; align-self:stretch; display:flex; align-items:center;
-    padding:0 11px; font-size:10px; font-weight:800; letter-spacing:.1em;
+    padding:0 16px; font-size:14px; font-weight:800; letter-spacing:.1em;
     background:rgba(255,70,70,0.9); color:#1a0606;
   }
 #modeKioskScreen .k-ticker .tk-track { flex:1; overflow:hidden; white-space:nowrap; }
 #modeKioskScreen .k-ticker .tk-track span {
     display:inline-block; padding-left:100%;
-    font-size:12.5px; color:#ffffff; font-weight:700; letter-spacing:.02em;
+    font-size:19px; color:#ffffff; font-weight:700; letter-spacing:.02em;
     text-shadow:0 1px 3px rgba(0,0,0,0.6), 0 0 2px rgba(0,0,0,0.5);
     animation:k-tkScroll 22s linear infinite;
   }
@@ -3508,6 +3508,9 @@ button.dwa-plate{ padding:0; }
 
   /* ===== 狭い画面（スマホ縦）では横並びを縦積みにして窮屈さを解消 ===== */
   @media (max-width:560px){
+    /* 縮小しない代わりに、はみ出す分は縦スクロールで見る */
+    #modeKioskScreen .ksg-body{ overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; }
+    #modeKioskScreen .signage{ max-width:100%; }
     #modeKioskScreen .k-main{ padding:12px; gap:11px; }
     /* 地震カード2枚は縦に積む */
     #modeKioskScreen .k-quake-pair{ grid-template-columns:1fr; gap:11px; }
@@ -10424,6 +10427,13 @@ window.kioskUI = (function(){
     const sg = document.getElementById('signage');
     const stage = document.querySelector('#modeKioskScreen .ksg-body'); // 画面領域
     if(!sg || !stage) return;
+    // スマホなど狭い画面では縮小せず、幅いっぱいに表示して縦スクロールで見る。
+    // （縮小すると横幅も縮んで左右に余白ができてしまうため）
+    if(window.innerWidth <= 560){
+      sg.style.marginBottom = '0px';
+      applyScale(1);
+      return;
+    }
     // 等倍に戻して中身の本来の高さを測る
     sg.style.setProperty('--k-scale', 1);
     sg.style.marginBottom = '0px';
