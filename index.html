@@ -3377,21 +3377,21 @@ button.dwa-plate{ padding:0; }
   /* ===== 3. 下部ローテーションゾーン ===== */
 #modeKioskScreen .k-rotate {
     flex:0 0 auto;
-    margin:0 16px 14px; border-radius:14px;
+    margin:0 16px 16px; border-radius:14px;
     background:var(--k-panel); border:1px solid var(--k-line);
-    height:150px; position:relative; overflow:hidden;
+    height:250px; position:relative; overflow:hidden;
   }
 #modeKioskScreen .rot-slide {
-    position:absolute; inset:0; padding:15px 16px;
+    position:absolute; inset:0; padding:20px 22px;
     opacity:0; transform:translateY(8px);
     transition:opacity .5s, transform .5s; pointer-events:none;
-    display:flex; flex-direction:column; gap:10px;
+    display:flex; flex-direction:column; gap:12px;
   }
 #modeKioskScreen .rot-slide.active { opacity:1; transform:none; }
-#modeKioskScreen .rot-head { display:flex; align-items:center; gap:8px; }
-#modeKioskScreen .rot-head .ri { font-size:18px; }
-#modeKioskScreen .rot-head .rt { font-size:13px; font-weight:800; letter-spacing:.04em; }
-#modeKioskScreen .rot-head .rtag { margin-left:auto; font-size:9px; color:var(--k-muted); letter-spacing:.14em; }
+#modeKioskScreen .rot-head { display:flex; align-items:center; gap:9px; }
+#modeKioskScreen .rot-head .ri { font-size:22px; }
+#modeKioskScreen .rot-head .rt { font-size:16px; font-weight:800; letter-spacing:.04em; }
+#modeKioskScreen .rot-head .rtag { margin-left:auto; font-size:10px; color:var(--k-muted); letter-spacing:.14em; }
 
   /* 熱中症スライド */
   /* 熱中症：設定県の観測点リスト */
@@ -3409,22 +3409,22 @@ button.dwa-plate{ padding:0; }
   }
 #modeKioskScreen .hl-row {
     display:flex; align-items:center; gap:8px;
-    padding:6px 2px; border-bottom:1px solid var(--k-line);
+    padding:8px 2px; border-bottom:1px solid var(--k-line);
     flex:0 0 auto;
   }
-#modeKioskScreen .hl-row .hl-name { font-size:12.5px; font-weight:700; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-#modeKioskScreen .hl-row .hl-badge { flex:0 0 auto; font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px; color:#1a0a00; }
-#modeKioskScreen .hl-row .hl-temp { flex:0 0 auto; font-family:var(--k-num); font-size:13px; font-weight:700; min-width:52px; text-align:right; }
+#modeKioskScreen .hl-row .hl-name { font-size:15px; font-weight:700; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#modeKioskScreen .hl-row .hl-badge { flex:0 0 auto; font-size:12px; font-weight:800; padding:4px 10px; border-radius:6px; color:#1a0a00; }
+#modeKioskScreen .hl-row .hl-temp { flex:0 0 auto; font-family:var(--k-num); font-size:16px; font-weight:700; min-width:58px; text-align:right; }
 
   /* コラム見出しスライド */
-#modeKioskScreen .col-title { font-size:14px; font-weight:800; line-height:1.4; }
-  #modeKioskScreen .col-body{ font-size:11px; color:var(--k-muted); line-height:1.6;
-    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+#modeKioskScreen .col-title { font-size:18px; font-weight:800; line-height:1.4; }
+  #modeKioskScreen .col-body{ font-size:14px; color:var(--k-muted); line-height:1.7;
+    display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical; overflow:hidden; }
 
   /* 備えヒントスライド */
-#modeKioskScreen .tip-row { display:flex; gap:9px; align-items:flex-start; }
-#modeKioskScreen .tip-row .tn { font-family:var(--k-num); color:var(--k-cyan); font-size:13px; font-weight:800; flex:0 0 auto; padding-top:1px; }
-#modeKioskScreen .tip-row .tx { font-size:12px; line-height:1.5; }
+#modeKioskScreen .tip-row { display:flex; gap:11px; align-items:flex-start; }
+#modeKioskScreen .tip-row .tn { font-family:var(--k-num); color:var(--k-cyan); font-size:16px; font-weight:800; flex:0 0 auto; padding-top:1px; }
+#modeKioskScreen .tip-row .tx { font-size:15px; line-height:1.6; }
 
   /* ローテーション・インジケータ */
 #modeKioskScreen .rot-dots { position:absolute; bottom:10px; right:14px; display:flex; gap:5px; }
@@ -10163,8 +10163,11 @@ window.kioskUI = (function(){
       if(_realWx.lo != null && _realWx.lo !== '') set('kWxLo', _realWx.lo);
       set('kWxDesc', _realWx.desc || '');
       const wk = document.getElementById('kWxWeek');
-      if(wk && Array.isArray(_realWx.week) && _realWx.week.length){
-        wk.innerHTML = _realWx.week.slice(0,3).map(d=>
+      // 週間データ：onWeatherData由来(_realWx.week)を優先し、無ければホームが保存した実データを使う
+      let weekArr = (Array.isArray(_realWx.week) && _realWx.week.length) ? _realWx.week
+                  : (Array.isArray(window.__kioskWeekWx) && window.__kioskWeekWx.length ? window.__kioskWeekWx : null);
+      if(wk && weekArr){
+        wk.innerHTML = weekArr.slice(0,3).map(d=>
           '<div class="wx-d"><span class="d-day">'+d[0]+'</span>'
           +'<span class="d-ic">'+d[1]+'</span>'
           +'<span class="d-temp"><span class="h">'+d[2]+'</span>/<span class="l">'+d[3]+'</span></span></div>'
