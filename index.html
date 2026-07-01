@@ -3505,6 +3505,24 @@ button.dwa-plate{ padding:0; }
   #modeKioskScreen .wx-d .d-temp{ font-family:var(--k-num); font-size:13px; font-weight:700; }
   #modeKioskScreen .wx-d .d-temp .h{ color:#ff7a5a; }
   #modeKioskScreen .wx-d .d-temp .l{ color:var(--k-muted); }
+
+  /* ===== 狭い画面（スマホ縦）では横並びを縦積みにして窮屈さを解消 ===== */
+  @media (max-width:560px){
+    #modeKioskScreen .k-main{ padding:12px; gap:11px; }
+    /* 地震カード2枚は縦に積む */
+    #modeKioskScreen .k-quake-pair{ grid-template-columns:1fr; gap:11px; }
+    #modeKioskScreen .k-quake-pair .qc-name{ min-height:0; font-size:16px; }
+    #modeKioskScreen .k-quake-pair .qc-grid{ grid-template-columns:auto 1fr; justify-items:start; align-items:center; }
+    #modeKioskScreen .k-quake-pair .qc-meta{ width:auto; }
+    /* 天気：今日と3日予報を縦に積む */
+    #modeKioskScreen .wx-main{ flex-direction:column; gap:12px; }
+    #modeKioskScreen .wx-today{ flex-direction:row; align-items:center; flex-wrap:wrap; gap:10px; min-width:0; padding-right:0; border-right:none; padding-bottom:12px; border-bottom:1px solid var(--k-line); }
+    #modeKioskScreen .wx-today .wx-desc{ margin-left:auto; text-align:right; }
+    #modeKioskScreen .wx-week{ grid-template-columns:repeat(3,1fr); }
+    /* ヘッダーのロゴ文字は折り返しを抑える */
+    #modeKioskScreen .k-brand .bt b{ font-size:15px; }
+    #modeKioskScreen .k-brand .bt span{ font-size:8px; letter-spacing:.03em; }
+  }
   #modeKioskScreen[data-ktheme="daylight"] .gear-btn,
   #modeKioskScreen[data-ktheme="sepia"] .gear-btn{ background:rgba(255,255,255,0.55); }
 
