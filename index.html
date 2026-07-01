@@ -10147,6 +10147,8 @@ window.kioskUI = (function(){
     try { if(typeof autoFit === 'function') autoFit(); } catch(e){}
   }
 
+  // ホーム画面が気象庁から取得した実天気を保持（あればサンプルより優先）
+  let _realWx = null;
   function onWeatherData(wx){
     if(wx && typeof wx === 'object'){ _realWx = wx; renderWeather(_curPref); }
   }
