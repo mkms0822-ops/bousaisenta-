@@ -3330,7 +3330,7 @@ button.dwa-plate{ padding:0; }
      設定で「横画面」を選ぶと signage に data-klayout="landscape" が付く。
      横長の掲示画面向けに、幅を広げて主要ブロックを左右2カラムに振り分ける。
      縦画面（portrait）は既定のまま縦積み。 */
-  #modeKioskScreen .signage[data-klayout="landscape"] { max-width:none; width:100%; }
+  #modeKioskScreen .signage[data-klayout="landscape"] { max-width:none; width:100%; transform-origin:top left; margin-left:0; margin-right:0; }
   /* 横画面は左右いっぱいに使う（外周の余白を詰める） */
   #modeKioskScreen .ksg-body:has(.signage[data-klayout="landscape"]){ padding-left:0; padding-right:0; overflow-y:auto; }
   #modeKioskScreen .ksg-body[data-klayout="landscape"]{ padding-left:0; padding-right:0; overflow-y:auto; }
@@ -10724,8 +10724,8 @@ window.kioskUI = (function(){
     if(sg) sg.setAttribute('data-klayout', mode);
     // :has() 非対応環境でも外周余白を切り替えられるよう、親にも印を付ける
     try{ var body = sg && sg.closest('.ksg-body'); if(body) body.setAttribute('data-klayout', mode); }catch(e){}
-    // 縦画面に戻すときは、横画面用の横幅補正（インラインwidth）を消す
-    try{ if(sg && mode !== 'landscape') sg.style.width = ''; }catch(e){}
+    // 縦画面に戻すときは、横画面用の補正（インラインwidth・zoom）を消す
+    try{ if(sg && mode !== 'landscape'){ sg.style.width = ''; sg.style.zoom = ''; } }catch(e){}
     // ボタンの選択状態を更新
     var pb = document.getElementById('layoutPortraitBtn');
     var lb = document.getElementById('layoutLandscapeBtn');
@@ -10752,23 +10752,20 @@ window.kioskUI = (function(){
     s = Math.max(0.5, Math.min(1.8, s));
     const sg = document.getElementById('signage');
     if(sg){
+      var isLand = false;
+      try{ isLand = (sg.getAttribute('data-klayout') === 'landscape'); }catch(e){}
+      sg.style.zoom = '';
       sg.style.setProperty('--k-scale', s);
-      // transform:scale は見た目だけ縮め、占有スペースは元のままなので、
-      // 縮小すると下に余白ができて中身が画面外へ押し出される。
-      // 縮んだ高さの分だけ margin-bottom を負にして占有スペースを詰める。
-      // （transform-origin:top center なので縦は上基準で縮む）
       const baseH = sg.offsetHeight; // 等倍時の高さ（offsetHeightはscale非依存）
       const gap = baseH * (1 - s);
       sg.style.marginBottom = (s < 1 ? (-gap) : 0) + 'px';
-      // 横画面レイアウトのときは、scaleで縮んだぶん横幅を広げて左右の余白を相殺する。
-      // （transform-origin:top center なので、幅を 100/s % にすると見かけ幅が画面いっぱいに戻る）
-      try{
-        if(sg.getAttribute('data-klayout') === 'landscape' && s < 1){
-          sg.style.width = (100 / s) + '%';
-        }else{
-          sg.style.width = '';
-        }
-      }catch(e){ sg.style.width = ''; }
+      if(isLand && s < 1){
+        // 横画面：左上を原点に縮小し、縮んだぶん横幅を広げて画面左右いっぱいに合わせる。
+        // （原点を top left にすることで右へはみ出さず、左端から詰めて表示される）
+        sg.style.width = (100 / s) + '%';
+      }else{
+        sg.style.width = '';
+      }
     }
     const lab = document.getElementById('sizeVal');
     if(lab) lab.textContent = _autoFit ? '自動 ('+Math.round(s*100)+'%)' : Math.round(s*100)+'%';
@@ -10792,6 +10789,7 @@ window.kioskUI = (function(){
     sg.style.setProperty('--k-scale', 1);
     sg.style.marginBottom = '0px';
     sg.style.width = '';   // 横幅補正を一旦解除して素の状態で測る
+    sg.style.zoom = '';    // zoom(横画面縮小)も解除して等倍で測る
     void sg.offsetHeight; // 強制リフロー
     const stageH = stage.clientHeight;     // 画面で使える高さ
     const contentH = sg.scrollHeight;      // 各項目を縦並びした中身全体の高さ
