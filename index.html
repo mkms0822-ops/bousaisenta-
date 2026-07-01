@@ -1408,7 +1408,6 @@ html.light .icon-opt.selected { border-color:var(--blue); background:rgba(0,100,
      ヘッダー（ラベル・タイトル・バッジ）までを見せ、長い説明文・発表中リスト・
      行動文・発表時刻は折りたたむ。公式リンクボタンだけはバナー最下部に残す。 */
   .reorder-pair #jmawDesc,
-  .reorder-pair .jmaw-list,
   .reorder-pair .jmaw-action,
   .reorder-pair .jmaw-meta,
   .reorder-pair #tsunamiDesc,
@@ -14805,7 +14804,7 @@ document.addEventListener('keydown', function(e){
       document.querySelectorAll('.reorder-pair').forEach(function(pair){
         // 週間天気は横並び時もグリッドで表示する（空白を埋めるため隠さない）
         // 警報・津波バナーの本文（説明/リスト/行動文/発表時刻）は非表示。リンクは残す。
-        pair.querySelectorAll('#jmawDesc,.jmaw-list,.jmaw-action,.jmaw-meta').forEach(function(el){ hideForPair(el); });
+        pair.querySelectorAll('#jmawDesc,.jmaw-action,.jmaw-meta').forEach(function(el){ hideForPair(el); });
         pair.querySelectorAll('#tsunamiDesc,.tsunami-action').forEach(function(el){ hideForPair(el); });
       });
     } catch(e){}
