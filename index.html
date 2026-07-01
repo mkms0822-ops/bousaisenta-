@@ -10154,6 +10154,27 @@ window.kioskUI = (function(){
   }
   let _curPref = '';
 
+  // ホーム画面に表示済みの週間予報(#weatherWeek)から曜日・アイコン・最高最低を読み取る
+  function _extractWeekFromDom(){
+    try{
+      const days = document.querySelectorAll('#weatherWeek .weather-day');
+      if(!days || !days.length) return null;
+      const out = [];
+      days.forEach(function(el){
+        const dateTxt = (el.querySelector('.wd-date')||{}).textContent || '';
+        const m = dateTxt.match(/\(([^)]+)\)/); // "7/2(木)" → 木
+        const dow = m ? m[1] : dateTxt.trim();
+        const icon = ((el.querySelector('.wd-icon')||{}).textContent || '☀️').trim();
+        const hTxt = (el.querySelector('.wd-temp .h')||{}).textContent || '';
+        const lTxt = (el.querySelector('.wd-temp .l')||{}).textContent || '';
+        const hi = (hTxt.match(/-?\d+/)||['--'])[0];
+        const lo = (lTxt.match(/-?\d+/)||['--'])[0];
+        out.push([ dow, icon, hi, lo ]);
+      });
+      return out.length ? out : null;
+    }catch(e){ return null; }
+  }
+
   function renderWeather(prefName){
     _curPref = prefName || _curPref;
     const set = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
@@ -10165,10 +10186,11 @@ window.kioskUI = (function(){
       if(_realWx.lo != null && _realWx.lo !== '') set('kWxLo', _realWx.lo);
       set('kWxDesc', _realWx.desc || '');
       const wk = document.getElementById('kWxWeek');
-      // 週間データ：onWeatherData由来(_realWx.week)を優先し、無ければホームが保存した実データを使う
+      // 週間データ：(1)onWeatherData由来 (2)ホーム保存の実データ (3)ホーム画面の週間予報DOMから抽出、の順で取得
       let weekArr = (Array.isArray(_realWx.week) && _realWx.week.length) ? _realWx.week
-                  : (Array.isArray(window.__kioskWeekWx) && window.__kioskWeekWx.length ? window.__kioskWeekWx : null);
-      if(wk && weekArr){
+                  : (Array.isArray(window.__kioskWeekWx) && window.__kioskWeekWx.length ? window.__kioskWeekWx
+                  : _extractWeekFromDom());
+      if(wk && weekArr && weekArr.length){
         wk.innerHTML = weekArr.slice(0,3).map(d=>
           '<div class="wx-d"><span class="d-day">'+d[0]+'</span>'
           +'<span class="d-ic">'+d[1]+'</span>'
