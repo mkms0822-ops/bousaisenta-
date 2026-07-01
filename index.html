@@ -3286,20 +3286,20 @@ button.dwa-plate{ padding:0; }
 
   /* スクロールバナー（速報ティッカー） */
 #modeKioskScreen .k-ticker {
-    margin-top:8px; height:48px; border-radius:10px; overflow:hidden;
+    margin-top:8px; height:72px; border-radius:12px; overflow:hidden;
     background:linear-gradient(90deg, rgba(200,30,30,0.55), rgba(180,30,30,0.35));
     border:1px solid rgba(255,80,80,0.4);
     display:flex; align-items:center;
   }
 #modeKioskScreen .k-ticker .tk-tag {
     flex:0 0 auto; align-self:stretch; display:flex; align-items:center;
-    padding:0 16px; font-size:14px; font-weight:800; letter-spacing:.1em;
+    padding:0 22px; font-size:18px; font-weight:800; letter-spacing:.1em;
     background:rgba(255,70,70,0.9); color:#1a0606;
   }
 #modeKioskScreen .k-ticker .tk-track { flex:1; overflow:hidden; white-space:nowrap; }
 #modeKioskScreen .k-ticker .tk-track span {
     display:inline-block; padding-left:100%;
-    font-size:19px; color:#ffffff; font-weight:700; letter-spacing:.02em;
+    font-size:26px; color:#ffffff; font-weight:700; letter-spacing:.02em;
     text-shadow:0 1px 3px rgba(0,0,0,0.6), 0 0 2px rgba(0,0,0,0.5);
     animation:k-tkScroll 22s linear infinite;
   }
@@ -3334,6 +3334,16 @@ button.dwa-plate{ padding:0; }
   /* 横画面は左右いっぱいに使う（外周の余白を詰める） */
   #modeKioskScreen .ksg-body:has(.signage[data-klayout="landscape"]){ padding-left:0; padding-right:0; }
   #modeKioskScreen .ksg-body[data-klayout="landscape"]{ padding-left:0; padding-right:0; }
+  /* 横画面：k-body を [ メイン | ローテーション ] の2枠に分け、
+     メイン内をさらに [ 天気+警報 | 地震 ] の2カラムにする＝画面全体で3カラム。
+     右端のローテーション（コラム／備えヒント／熱中症）は上から下まで縦長に置く。 */
+  #modeKioskScreen .signage[data-klayout="landscape"] .k-body{
+    display:grid; grid-template-columns:1fr 360px; gap:14px;
+    align-items:stretch; padding-right:6px;
+  }
+  #modeKioskScreen .signage[data-klayout="landscape"] .k-rotate{
+    margin:6px 0 14px; height:auto; align-self:stretch; min-height:520px;
+  }
   #modeKioskScreen .signage[data-klayout="landscape"] .k-main {
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -3355,6 +3365,8 @@ button.dwa-plate{ padding:0; }
   #modeKioskScreen .signage[data-klayout="landscape"] .k-quake-pair { grid-template-columns:1fr; }
   /* 狭い画面では横2カラムをやめて通常の縦積みに戻す（破綻防止） */
   @media (max-width:900px){
+    #modeKioskScreen .signage[data-klayout="landscape"] .k-body{ display:block; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .k-rotate{ margin:0 16px 16px; height:250px; min-height:0; }
     #modeKioskScreen .signage[data-klayout="landscape"] .k-main {
       display:flex; flex-direction:column;
     }
