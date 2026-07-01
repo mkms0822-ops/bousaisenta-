@@ -10231,15 +10231,19 @@ window.kioskUI = (function(){
     set('kJmaTitle', title);
     const badge = (document.getElementById('jmawBadge')||{}).textContent || '警報';
     set('kJmaBadge', badge.trim());
-    // 発表地域（jmawList または jmawDesc から要約）
+    // 発表地域（都道府県）を優先表示。jmawList「…／対象地域：○○・○○」から都道府県部分を抽出
     let area = '';
     const listEl = document.getElementById('jmawList');
-    if(listEl && listEl.textContent.trim()){
-      area = listEl.textContent.replace(/\s+/g,' ').trim();
+    const listTxt = listEl ? listEl.textContent.replace(/\s+/g,' ').trim() : '';
+    const m = listTxt.match(/対象地域：(.+)$/);
+    if(m){
+      area = m[1].trim();
+    } else if(listTxt){
+      area = listTxt;
     } else {
       area = (document.getElementById('jmawDesc')||{}).textContent || '';
     }
-    if(area.length > 90) area = area.slice(0,88) + '…';
+    if(area.length > 120) area = area.slice(0,118) + '…';
     set('kJmaArea', area);
   }
 
@@ -14031,6 +14035,21 @@ function sendSiteInquiry(){
   // 新形式（2026年5月29日〜）の全国版警報JSON。1ファイルで全国の発表状況を含む。
   //   構造: [ { warning:{ class20Items:[ {areaCode, kinds:[{code,status},...]} ] }, ... }, ... ]
   var R8_MAP_URL = 'https://www.jma.go.jp/bosai/warning/data/r8/map.json';
+  // 都道府県コード(JIS,先頭2桁)→都道府県名。areaCodeの先頭2桁から発表中の都道府県を特定する。
+  var PREF_CODE_NAME = {
+    '01':'北海道','02':'青森県','03':'岩手県','04':'宮城県','05':'秋田県','06':'山形県','07':'福島県',
+    '08':'茨城県','09':'栃木県','10':'群馬県','11':'埼玉県','12':'千葉県','13':'東京都','14':'神奈川県',
+    '15':'新潟県','16':'富山県','17':'石川県','18':'福井県','19':'山梨県','20':'長野県','21':'岐阜県',
+    '22':'静岡県','23':'愛知県','24':'三重県','25':'滋賀県','26':'京都府','27':'大阪府','28':'兵庫県',
+    '29':'奈良県','30':'和歌山県','31':'鳥取県','32':'島根県','33':'岡山県','34':'広島県','35':'山口県',
+    '36':'徳島県','37':'香川県','38':'愛媛県','39':'高知県','40':'福岡県','41':'佐賀県','42':'長崎県',
+    '43':'熊本県','44':'大分県','45':'宮崎県','46':'鹿児島県','47':'沖縄県'
+  };
+  function prefOfArea(areaCode){
+    var s = String(areaCode||'').trim();
+    if(s.length < 2) return '';
+    return PREF_CODE_NAME[s.slice(0,2)] || '';
+  }
   // 旧形式の全国版（フォールバック用）。新形式が取得失敗した場合のみ使用。
   var OLD_MAP_URL = 'https://www.jma.go.jp/bosai/warning/data/warning/map.json';
   var POLL_MS = 5 * 60 * 1000; // 5分ごとに更新
@@ -14047,7 +14066,7 @@ function sendSiteInquiry(){
   // 旧形式: [ {areaTypes:[{areas:[{code,warnings:[{code,status}]}]}]}, ... ]
   // どちらも「{code,status} の配列」を地域ごとに持つ点は共通なので、両構造に対応する。
   function scan(json){
-    var acc = { names:{}, special:false, danger:false, report:null };
+    var acc = { names:{}, prefs:{}, special:false, danger:false, report:null };
     if(!Array.isArray(json)) return finalize(acc);
 
     json.forEach(function(report){
@@ -14062,7 +14081,8 @@ function sendSiteInquiry(){
           if(!Array.isArray(items)) return;
           items.forEach(function(item){
             if(!item || !Array.isArray(item.kinds)) return;
-            item.kinds.forEach(function(kind){ consumeKind(kind, acc); });
+            var area = item.areaCode;
+            item.kinds.forEach(function(kind){ consumeKind(kind, acc, area); });
           });
         });
       }
@@ -14072,7 +14092,7 @@ function sendSiteInquiry(){
           if(!at || !Array.isArray(at.areas)) return;
           at.areas.forEach(function(a){
             if(!a || !Array.isArray(a.warnings)) return;
-            a.warnings.forEach(function(w){ consumeKind(w, acc); });
+            a.warnings.forEach(function(w){ consumeKind(w, acc, a.code); });
           });
         });
       }
@@ -14081,7 +14101,7 @@ function sendSiteInquiry(){
   }
 
   // 1件の {code,status} を判定して集計に加える
-  function consumeKind(kind, acc){
+  function consumeKind(kind, acc, areaCode){
     if(!kind || typeof kind !== 'object') return;
     var code = kind.code;
     if(code === undefined || code === null) return;     // status のみ（発表なし等）は対象外
@@ -14090,13 +14110,17 @@ function sendSiteInquiry(){
     if(!isWarningCode(code)) return;                    // 注意報(lv2以下)・未知コードは対象外
     var nm = nameOf(code);
     acc.names[nm] = (acc.names[nm]||0) + 1;
+    // 発表中の都道府県を集計（areaCode 先頭2桁 → 都道府県名）
+    var pref = prefOfArea(areaCode);
+    if(pref) acc.prefs[pref] = (acc.prefs[pref]||0) + 1;
     if(isSpecial(code)) acc.special = true;
     else if(isDanger(code)) acc.danger = true;
   }
 
   function finalize(acc){
     var list = Object.keys(acc.names);
-    return { active: list.length > 0, special: acc.special, danger: acc.danger, names: list, report: acc.report };
+    var prefList = Object.keys(acc.prefs);
+    return { active: list.length > 0, special: acc.special, danger: acc.danger, names: list, prefs: prefList, report: acc.report };
   }
 
   function show(info){
@@ -14121,7 +14145,12 @@ function sendSiteInquiry(){
     // 警報の種類を列挙（最大6種まで）
     var names = info.names.slice(0, 6);
     var more = info.names.length > 6 ? ' ほか' : '';
-    el('jmawList').textContent = names.length ? ('発表中：' + names.join('・') + more) : '';
+    var kindsLine = names.length ? ('発表中の警報：' + names.join('・') + more) : '';
+    // 発表中の都道府県を列挙（最大12件まで）
+    var prefs = (info.prefs || []).slice(0, 12);
+    var prefMore = (info.prefs || []).length > 12 ? (' ほか' + ((info.prefs.length) - 12) + '都道府県') : '';
+    var prefLine = prefs.length ? ('対象地域：' + prefs.join('・') + prefMore) : '';
+    el('jmawList').textContent = [kindsLine, prefLine].filter(Boolean).join(' ／ ');
     el('jmawAction').textContent = (special || danger)
       ? '▶ ただちに命を守る行動を。お住まいの地域の最新情報を確認し、危険な場所からは避難してください。'
       : '▶ お住まいの地域の最新情報を確認し、危険な場所からは早めに避難してください。';
