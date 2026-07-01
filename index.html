@@ -3200,7 +3200,7 @@ button.dwa-plate{ padding:0; }
        サイズ調整は中身全体を transform:scale で拡大縮小（枠の二重構造がないので
        占有スペースのズレが起きない）。 */
     width:100%;
-    max-width:560px;        /* 横に広がりすぎないよう上限 */
+    max-width:820px;        /* 横に広げて左右の空白を抑える */
     margin:0 auto;
     background:transparent;
     display:flex; flex-direction:column;
@@ -3329,6 +3329,9 @@ button.dwa-plate{ padding:0; }
 #modeKioskScreen .qk-prow { display:flex; align-items:flex-start; gap:8px; }
 #modeKioskScreen .qk-pbadge { flex:0 0 auto; font-family:var(--k-num); font-size:13px; font-weight:900; min-width:38px; text-align:center; padding:2px 6px; border-radius:5px; color:#0a0a0a; }
 #modeKioskScreen .qk-pareas { font-size:12px; line-height:1.5; color:var(--k-text); }
+#modeKioskScreen .qk-toggle { margin-top:7px; width:100%; padding:6px 8px; border-radius:7px; background:transparent; border:1px dashed var(--k-line); color:var(--k-muted); font-family:var(--k-disp); font-size:11px; font-weight:700; cursor:pointer; transition:.15s; }
+#modeKioskScreen .qk-toggle:hover { border-color:var(--k-cyan); color:var(--k-cyan); }
+#modeKioskScreen .qk-all { margin-top:6px; display:flex; flex-direction:column; gap:6px; }
 
   /* キオスク チュートリアル */
 .ktut-overlay { display:none; position:fixed; inset:0; z-index:100000; background:rgba(4,8,15,0.82); -webkit-backdrop-filter:blur(5px); backdrop-filter:blur(5px); align-items:center; justify-content:center; padding:24px; }
@@ -3352,6 +3355,9 @@ button.dwa-plate{ padding:0; }
 .ktut-skip:hover { color:var(--k-text,#eaf2ff); }
 .sp-guide-btn { width:100%; padding:11px 14px; border-radius:10px; background:transparent; border:1px solid var(--k-line,rgba(255,255,255,0.2)); color:var(--k-text,#eaf2ff); font-size:14px; font-weight:700; cursor:pointer; transition:border-color 0.2s, background 0.2s; }
 .sp-guide-btn:hover { border-color:var(--k-accent,#4db8ff); background:rgba(77,184,255,0.08); }
+.sp-note { font-size:11.5px; line-height:1.6; color:var(--k-muted,#8595ad); margin-bottom:10px; }
+.sp-reset-btn { width:100%; padding:10px 14px; border-radius:10px; background:transparent; border:1px solid var(--k-line,rgba(255,255,255,0.2)); color:var(--k-muted,#a8b6cc); font-size:13px; font-weight:700; cursor:pointer; transition:border-color 0.2s, color 0.2s, background 0.2s; }
+.sp-reset-btn:hover { border-color:#ff7a7a; color:#ff9a9a; background:rgba(255,90,90,0.06); }
 
   /* 警報ステータス2連 */
 #modeKioskScreen .k-status { display:grid; grid-template-columns:1fr 1fr; gap:11px; }
@@ -3475,24 +3481,28 @@ button.dwa-plate{ padding:0; }
   }
 #modeKioskScreen .gear-btn:hover { transform:rotate(40deg); border-color:var(--k-cyan); color:var(--k-cyan); }
   /* ===== 天気予報カード ===== */
-  #modeKioskScreen .k-section-label .wx-pref{ margin-left:auto; font-size:13px; font-weight:800; color:var(--k-cyan); }
   #modeKioskScreen .wx-card{
     background:var(--k-panel); border:1px solid var(--k-line); border-radius:14px;
     padding:13px 15px; display:flex; flex-direction:column; gap:11px;
   }
-  #modeKioskScreen .wx-today{ display:flex; align-items:center; gap:13px; }
-  #modeKioskScreen .wx-today .wx-ic{ font-size:38px; line-height:1; }
+  #modeKioskScreen .wx-card-head{ display:flex; align-items:center; gap:8px; }
+  #modeKioskScreen .wx-card-head .wx-card-title{ font-size:13px; font-weight:800; letter-spacing:.06em; color:var(--k-text); display:flex; align-items:center; }
+  #modeKioskScreen .wx-card-head .wx-card-title::before{ content:''; width:5px; height:5px; border-radius:50%; background:var(--k-lv1); box-shadow:0 0 8px var(--k-lv1); margin-right:7px; }
+  #modeKioskScreen .wx-card-head .wx-pref{ margin-left:auto; font-size:13px; font-weight:800; color:var(--k-cyan); }
+  #modeKioskScreen .wx-main{ display:flex; align-items:stretch; gap:15px; }
+  #modeKioskScreen .wx-today{ display:flex; flex-direction:column; align-items:flex-start; gap:6px; flex:0 0 auto; min-width:150px; padding-right:15px; border-right:1px solid var(--k-line); }
+  #modeKioskScreen .wx-today .wx-ic{ font-size:44px; line-height:1; }
   #modeKioskScreen .wx-today .wx-temp{ display:flex; align-items:baseline; gap:2px; font-family:var(--k-num); }
-  #modeKioskScreen .wx-today .wx-hi{ font-size:30px; font-weight:900; color:#ff7a5a; }
+  #modeKioskScreen .wx-today .wx-hi{ font-size:32px; font-weight:900; color:#ff7a5a; }
   #modeKioskScreen .wx-today .wx-sep{ font-size:18px; color:var(--k-muted); margin:0 2px; }
-  #modeKioskScreen .wx-today .wx-lo{ font-size:22px; font-weight:800; color:var(--k-blue); }
+  #modeKioskScreen .wx-today .wx-lo{ font-size:24px; font-weight:800; color:var(--k-blue); }
   #modeKioskScreen .wx-today .wx-unit{ font-size:13px; color:var(--k-muted); margin-left:2px; }
-  #modeKioskScreen .wx-today .wx-desc{ margin-left:auto; font-size:13px; font-weight:700; text-align:right; line-height:1.4; }
-  #modeKioskScreen .wx-week{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; border-top:1px solid var(--k-line); padding-top:10px; }
-  #modeKioskScreen .wx-d{ display:flex; flex-direction:column; align-items:center; gap:3px; }
-  #modeKioskScreen .wx-d .d-day{ font-size:10px; color:var(--k-muted); font-weight:700; }
-  #modeKioskScreen .wx-d .d-ic{ font-size:18px; line-height:1; }
-  #modeKioskScreen .wx-d .d-temp{ font-family:var(--k-num); font-size:11px; font-weight:700; }
+  #modeKioskScreen .wx-today .wx-desc{ font-size:13px; font-weight:700; line-height:1.4; }
+  #modeKioskScreen .wx-week{ flex:1; display:grid; grid-template-columns:repeat(3,1fr); gap:8px; align-content:center; }
+  #modeKioskScreen .wx-d{ display:flex; flex-direction:column; align-items:center; gap:4px; background:var(--k-panel2); border:1px solid var(--k-line); border-radius:10px; padding:9px 4px; }
+  #modeKioskScreen .wx-d .d-day{ font-size:11px; color:var(--k-muted); font-weight:700; }
+  #modeKioskScreen .wx-d .d-ic{ font-size:24px; line-height:1; }
+  #modeKioskScreen .wx-d .d-temp{ font-family:var(--k-num); font-size:13px; font-weight:700; }
   #modeKioskScreen .wx-d .d-temp .h{ color:#ff7a5a; }
   #modeKioskScreen .wx-d .d-temp .l{ color:var(--k-muted); }
   #modeKioskScreen[data-ktheme="daylight"] .gear-btn,
@@ -3647,25 +3657,22 @@ button.dwa-plate{ padding:0; }
   <div class="k-body">
   <!-- 2. メイン：固定の防災速報 -->
   <div class="k-main">
-    <!-- 天気予報（最上部・設定県と同じ地域） -->
-    <div class="k-section-label">
-      天気予報
-      <span class="wx-pref" id="kWxPref">愛知県</span>
-    </div>
+    <!-- 天気予報（最上部・設定県と同じ地域）／見出しは枠内左上に表示 -->
     <div class="wx-card" id="kWxCard">
-      <div class="wx-today">
-        <div class="wx-ic" id="kWxIcon">☀️</div>
-        <div class="wx-temp"><span class="wx-hi" id="kWxHi">33</span><span class="wx-sep">/</span><span class="wx-lo" id="kWxLo">26</span><span class="wx-unit">℃</span></div>
-        <div class="wx-desc" id="kWxDesc">晴れ時々くもり</div>
+      <div class="wx-card-head">
+        <span class="wx-card-title">天気予報</span>
+        <span class="wx-pref" id="kWxPref">愛知県</span>
       </div>
-      <div class="wx-week" id="kWxWeek">
-        <!-- JSで週間を流し込む -->
+      <div class="wx-main">
+        <div class="wx-today">
+          <div class="wx-ic" id="kWxIcon">☀️</div>
+          <div class="wx-temp"><span class="wx-hi" id="kWxHi">33</span><span class="wx-sep">/</span><span class="wx-lo" id="kWxLo">26</span><span class="wx-unit">℃</span></div>
+          <div class="wx-desc" id="kWxDesc">晴れ時々くもり</div>
+        </div>
+        <div class="wx-week" id="kWxWeek">
+          <!-- JSで3日分を流し込む -->
+        </div>
       </div>
-    </div>
-
-    <div class="k-section-label" style="margin-top:2px;">
-      最新の地震情報
-      <span class="live"><i></i>LIVE</span>
     </div>
 
     <div class="k-quake-pair">
@@ -3700,20 +3707,6 @@ button.dwa-plate{ padding:0; }
           </div>
         </div>
         <div class="qk-points" id="qPoints"></div>
-      </div>
-    </div>
-
-    <div class="k-section-label" style="margin-top:2px;">発令中の警報・情報</div>
-    <div class="k-status">
-      <div class="st-card warn">
-        <div class="st-top"><span class="st-ic">🌡️</span><span class="st-name">熱中症警戒</span></div>
-        <div class="st-val">厳重警戒</div>
-        <div class="st-sub">京都府・近畿で発表中</div>
-      </div>
-      <div class="st-card ok">
-        <div class="st-top"><span class="st-ic">🌊</span><span class="st-name">津波情報</span></div>
-        <div class="st-val">心配なし</div>
-        <div class="st-sub">現在、警報・注意報なし</div>
       </div>
     </div>
   </div>
@@ -3828,6 +3821,12 @@ button.dwa-plate{ padding:0; }
 
   <div class="sp-group">
     <button class="sp-guide-btn" onclick="kioskUI.toggleSettings(false);kioskUI.showTutorial()">📖 使い方ガイドを見る</button>
+  </div>
+
+  <div class="sp-group">
+    <div class="sp-label">設定の保存</div>
+    <div class="sp-note">配色テーマ・対象地域・表示サイズは自動的に保存され、次回もこの端末で維持されます。</div>
+    <button class="sp-reset-btn" onclick="kioskUI.resetSettings()">↺ 設定を初期状態に戻す</button>
   </div>
 </div>
 
@@ -6067,7 +6066,9 @@ function submitSponsor(){
 <script>
 // ===================== CLOCK =====================
 function tick() {
-  document.getElementById('clock').textContent =
+  const el = document.getElementById('clock');
+  if(!el) return;
+  el.textContent =
     new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 }
 tick(); setInterval(tick,1000);
@@ -7175,12 +7176,13 @@ function renderStats(qs){
     return !isNaN(d) && d.toDateString() === now.toDateString();
   });
   const base = td; // 本日分（有感）のみ
-  document.getElementById('statToday').textContent = td.length;
+  const setStat = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+  setStat('statToday', td.length);
   const mxM = base.reduce((m,q)=>(q.magnitude||0)>m?(q.magnitude||0):m, 0);
-  document.getElementById('statMaxM').textContent = mxM>0 ? mxM.toFixed(1) : '--';
+  setStat('statMaxM', mxM>0 ? mxM.toFixed(1) : '--');
   const mxS = base.reduce((m,q)=>(q.shindo_num||0)>m?(q.shindo_num||0):m, 0);
-  document.getElementById('statMaxS').textContent = (base.length>0 && mxS>0) ? (scaleToText(mxS) || '--') : '--';
-  document.getElementById('statUpdated').textContent = now.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+  setStat('statMaxS', (base.length>0 && mxS>0) ? (scaleToText(mxS) || '--') : '--');
+  setStat('statUpdated', now.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}));
 
   // キオスク用：本日の有感地震のうち最大震度の1件（同震度ならMが大きい方）を保存
   try{
@@ -7222,37 +7224,38 @@ function fillTodayBigCard(q){
 }
 
 function fillBigCard(suffix, q, isOverseas){
+  const set = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
   const card = document.getElementById(suffix === 'jp' ? 'bigCardJp' : 'bigCardOv');
   if(!q){
-    card.classList.add('empty');
+    if(card) card.classList.add('empty');
     if(suffix === 'jp'){
-      document.getElementById('bigMag').textContent   = '--';
-      document.getElementById('bigName').textContent  = '震度5弱以上の地震はありません';
-      document.getElementById('bigTime').textContent  = '';
-      document.getElementById('bigDepth').textContent = '';
-      document.getElementById('bigShindo').textContent = '--';
+      set('bigMag', '--');
+      set('bigName', '震度5弱以上の地震はありません');
+      set('bigTime', '');
+      set('bigDepth', '');
+      set('bigShindo', '--');
     } else {
-      document.getElementById('bigMagOv').textContent    = '--';
-      document.getElementById('bigNameOv').textContent   = '直近の強い地震はありません';
-      document.getElementById('bigTimeOv').textContent   = '';
-      document.getElementById('bigDepthOv').textContent  = '';
-      document.getElementById('bigMagBigOv').textContent = '--';
+      set('bigMagOv', '--');
+      set('bigNameOv', '直近の強い地震はありません');
+      set('bigTimeOv', '');
+      set('bigDepthOv', '');
+      set('bigMagBigOv', '--');
     }
     return;
   }
-  card.classList.remove('empty');
+  if(card) card.classList.remove('empty');
   if(suffix === 'jp'){
-    document.getElementById('bigMag').textContent   = 'M'+q.magnitude.toFixed(1);
-    document.getElementById('bigName').textContent  = q.name || '震源不明';
-    document.getElementById('bigTime').textContent  = '🕐 '+(q.time_str||'--');
-    document.getElementById('bigDepth').textContent = q.depth!=null ? '深さ '+q.depth+'km' : '';
-    document.getElementById('bigShindo').textContent = scaleToText(q.shindo_num) || '--';
+    set('bigMag', q.magnitude!=null ? 'M'+q.magnitude.toFixed(1) : 'M--');
+    set('bigName', q.name || '震源不明');
+    set('bigTime', '🕐 '+(q.time_str||'--'));
+    set('bigDepth', q.depth!=null ? '深さ '+q.depth+'km' : '');
+    set('bigShindo', scaleToText(q.shindo_num) || '--');
   } else {
-    document.getElementById('bigMagOv').textContent    = 'M'+q.magnitude.toFixed(1);
-    document.getElementById('bigNameOv').textContent   = q.name || '震源地不明';
-    document.getElementById('bigTimeOv').textContent   = '🕐 '+(q.time_str||'--');
-    document.getElementById('bigDepthOv').textContent  = q.depth!=null ? '深さ '+q.depth+'km' : '';
-    document.getElementById('bigMagBigOv').textContent = 'M'+q.magnitude.toFixed(1);
+    set('bigMagOv', q.magnitude!=null ? 'M'+q.magnitude.toFixed(1) : 'M--');
+    set('bigNameOv', q.name || '震源地不明');
+    set('bigTimeOv', '🕐 '+(q.time_str||'--'));
+    set('bigDepthOv', q.depth!=null ? '深さ '+q.depth+'km' : '');
+    set('bigMagBigOv', q.magnitude!=null ? 'M'+q.magnitude.toFixed(1) : 'M--');
   }
 }
 
@@ -10075,25 +10078,46 @@ window.kioskUI = (function(){
       set(ids.date, parts[0] || '--');
       set(ids.time2, parts[1] || '');
     }
-    // 各地の震度（震度1以上を、大きい順に上位3グループまで）
+    // 各地の震度：通常は最大震度の地点のみ表示。タップで残りの震度・全地点を展開
     if(ptEl){
       const pts = Array.isArray(q.points) ? q.points.filter(p=>p && (p.scale||0)>=10) : [];
       if(pts.length === 0){ ptEl.innerHTML = ''; }
       else {
         const groups = {};
         pts.forEach(p=>{ (groups[p.scale]=groups[p.scale]||[]).push(p); });
-        const scales = Object.keys(groups).map(Number).sort((a,b)=>b-a).slice(0,3);
-        ptEl.innerHTML = scales.map(s=>{
-          const areas = groups[s].slice(0,6).map(p=>{
+        const scales = Object.keys(groups).map(Number).sort((a,b)=>b-a);
+        const rowHtml = (s)=>{
+          const areas = groups[s].map(p=>{
             const addr = String(p.addr||'').trim() || String(p.pref||'').trim();
             return addr;
           }).join('・');
-          const more = groups[s].length > 6 ? (' 他'+(groups[s].length-6)) : '';
           return '<div class="qk-prow"><span class="qk-pbadge" style="background:'+_shindoColor(s)+';">'
-            + (_shindoText(s)||'--') + '</span><span class="qk-pareas">'+areas+more+'</span></div>';
-        }).join('');
+            + (_shindoText(s)||'--') + '</span><span class="qk-pareas">'+areas+'</span></div>';
+        };
+        // 先頭＝最大震度グループのみ常時表示
+        let html = rowHtml(scales[0]);
+        // 2番目以降の震度グループはタップで展開
+        if(scales.length > 1){
+          const restCount = scales.slice(1).reduce((n,s)=>n+groups[s].length, 0);
+          html += '<button class="qk-toggle" onclick="kioskUI.togglePoints(this)">▼ 他の震度も表示（'+restCount+'地点）</button>';
+          html += '<div class="qk-all" style="display:none;">'
+            + scales.slice(1).map(rowHtml).join('')
+            + '</div>';
+        }
+        ptEl.innerHTML = html;
       }
     }
+  }
+  // 各地の震度の「他の震度も表示／閉じる」トグル
+  function togglePoints(btn){
+    if(!btn) return;
+    const box = btn.nextElementSibling;
+    if(!box) return;
+    const open = box.style.display !== 'none';
+    box.style.display = open ? 'none' : 'block';
+    btn.innerHTML = open ? btn.innerHTML.replace('▲','▼').replace('閉じる','他の震度も表示')
+                         : btn.innerHTML.replace('▼','▲').replace('他の震度も表示','閉じる');
+    try { if(typeof autoFit === 'function') autoFit(); } catch(e){}
   }
   function onQuakeData(data){
     data = data || {};
@@ -10119,7 +10143,7 @@ window.kioskUI = (function(){
       set('kWxDesc', _realWx.desc || '');
       const wk = document.getElementById('kWxWeek');
       if(wk && Array.isArray(_realWx.week) && _realWx.week.length){
-        wk.innerHTML = _realWx.week.map(d=>
+        wk.innerHTML = _realWx.week.slice(0,3).map(d=>
           '<div class="wx-d"><span class="d-day">'+d[0]+'</span>'
           +'<span class="d-ic">'+d[1]+'</span>'
           +'<span class="d-temp"><span class="h">'+d[2]+'</span>/<span class="l">'+d[3]+'</span></span></div>'
@@ -10136,7 +10160,7 @@ window.kioskUI = (function(){
     set('kWxDesc', w.desc);
     const wk = document.getElementById('kWxWeek');
     if(wk){
-      wk.innerHTML = w.week.map(d=>
+      wk.innerHTML = w.week.slice(0,3).map(d=>
         '<div class="wx-d"><span class="d-day">'+d[0]+'</span>'
         +'<span class="d-ic">'+d[1]+'</span>'
         +'<span class="d-temp"><span class="h">'+d[2]+'</span>/<span class="l">'+d[3]+'</span></span></div>'
@@ -10423,12 +10447,21 @@ window.kioskUI = (function(){
     autoFit();
   }
 
-  // 起動時：常に自動フィットから開始する（全画面に収めることを最優先）。
-  // 手動でサイズを変えたい場合は歯車パネルのボタンでその場で変更できる。
-  // （以前の手動設定が localStorage に残っていても、起動時は自動で収める）
+  // 起動時：前回の設定を復元する。
+  // localStorage に手動サイズ（数値）が保存されていればそれを適用し、
+  // 'auto' または未保存なら自動フィット（全画面に収める）で開始する。
   function restoreScale(){
-    _autoFit = true;
-    autoFit();
+    let saved = 'auto';
+    try { saved = localStorage.getItem(SCALE_KEY) || 'auto'; } catch(e){}
+    const num = parseFloat(saved);
+    if(saved !== 'auto' && !isNaN(num)){
+      _autoFit = false;
+      _manualScale = Math.max(0.7, Math.min(1.8, num));
+      applyScale(_manualScale);
+    } else {
+      _autoFit = true;
+      autoFit();
+    }
   }
 
   // 平常時 / 緊急時 の切替
@@ -10461,6 +10494,25 @@ window.kioskUI = (function(){
       startRotation();
       bE.classList.remove('active'); bN.classList.add('active');
     }
+  }
+
+  // ===== 設定を初期状態に戻す =====
+  function resetSettings(){
+    var ok = true;
+    try { ok = window.confirm('キオスクの設定（配色テーマ・対象地域・表示サイズ）を初期状態に戻します。よろしいですか？'); } catch(e){ ok = true; }
+    if(!ok) return;
+    // 保存済みの設定キーを削除
+    try { localStorage.removeItem(THEME_KEY); } catch(e){}
+    try { localStorage.removeItem(HEATPREF_KEY); } catch(e){}
+    try { localStorage.removeItem(SCALE_KEY); } catch(e){}
+    try { localStorage.removeItem(KTUT_KEY); } catch(e){}
+    // 初期状態を即時適用
+    try { restoreTheme(); } catch(e){}
+    try { restoreHeatPref(); } catch(e){}
+    try { _autoFit = true; autoFit(); } catch(e){}
+    // 表示モードは平常時に戻す
+    try { setMode('normal'); } catch(e){}
+    try { toggleSettings(false); } catch(e){}
   }
 
 
@@ -10562,7 +10614,7 @@ window.kioskUI = (function(){
     stopRotation();
   }
 
-  return { setMode:setMode, setTheme:setTheme, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setTickerColor:setTickerColor, setHeatPref:setHeatPref, onHeatData:onHeatData, onWeatherData:onWeatherData, onQuakeData:onQuakeData, showTutorial:showTutorial, closeTutorial:closeTutorial, tutNext:tutNext, tutPrev:tutPrev, start:start, stop:stop };
+  return { setMode:setMode, setTheme:setTheme, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setTickerColor:setTickerColor, setHeatPref:setHeatPref, onHeatData:onHeatData, onWeatherData:onWeatherData, onQuakeData:onQuakeData, showTutorial:showTutorial, closeTutorial:closeTutorial, tutNext:tutNext, tutPrev:tutPrev, resetSettings:resetSettings, togglePoints:togglePoints, start:start, stop:stop };
 })();
 
 
