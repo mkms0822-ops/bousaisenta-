@@ -3332,8 +3332,8 @@ button.dwa-plate{ padding:0; }
      縦画面（portrait）は既定のまま縦積み。 */
   #modeKioskScreen .signage[data-klayout="landscape"] { max-width:none; width:100%; }
   /* 横画面は左右いっぱいに使う（外周の余白を詰める） */
-  #modeKioskScreen .ksg-body:has(.signage[data-klayout="landscape"]){ padding-left:0; padding-right:0; }
-  #modeKioskScreen .ksg-body[data-klayout="landscape"]{ padding-left:0; padding-right:0; }
+  #modeKioskScreen .ksg-body:has(.signage[data-klayout="landscape"]){ padding-left:0; padding-right:0; overflow-y:auto; }
+  #modeKioskScreen .ksg-body[data-klayout="landscape"]{ padding-left:0; padding-right:0; overflow-y:auto; }
   /* 横画面：k-body を [ メイン | ローテーション ] の2枠に分け、
      メイン内をさらに [ 天気+警報 | 地震 ] の2カラムにする＝画面全体で3カラム。
      右端のローテーション（コラム／備えヒント／熱中症）は上から下まで縦長に置く。 */
@@ -3344,6 +3344,7 @@ button.dwa-plate{ padding:0; }
   #modeKioskScreen .signage[data-klayout="landscape"] .k-rotate{
     margin:6px 0 14px; height:auto; align-self:stretch; min-height:520px;
   }
+  #modeKioskScreen .signage[data-klayout="landscape"] .k-head{ padding-left:8px; padding-right:8px; }
   #modeKioskScreen .signage[data-klayout="landscape"] .k-main {
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -3384,6 +3385,14 @@ button.dwa-plate{ padding:0; }
     #modeKioskScreen .signage[data-klayout="landscape"] .wx-today .wx-unit{ font-size:24px; }
     #modeKioskScreen .signage[data-klayout="landscape"] .wx-today .wx-desc{ font-size:26px; }
     #modeKioskScreen .signage[data-klayout="landscape"] .wx-today .wx-pop{ font-size:22px; }
+    /* 横画面：天気カード内を縦積みにして、週間予報(金土日)を横幅いっぱいに並べる */
+    #modeKioskScreen .signage[data-klayout="landscape"] .wx-main{ flex-direction:column; align-items:stretch; gap:14px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .wx-today{
+      flex:0 0 auto; min-width:0; padding-right:0; padding-bottom:14px;
+      border-right:none; border-bottom:1px solid var(--k-line);
+    }
+    #modeKioskScreen .signage[data-klayout="landscape"] .wx-week{ flex:0 0 auto; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .wx-week .wx-d{ padding:12px 4px; }
     #modeKioskScreen .signage[data-klayout="landscape"] .wx-card-head .wx-card-title{ font-size:23px; }
     #modeKioskScreen .signage[data-klayout="landscape"] .wx-card-head .wx-pref{ font-size:24px; }
     /* 週間予報 */
@@ -10768,6 +10777,15 @@ window.kioskUI = (function(){
       applyScale(1);
       return;
     }
+    // 横画面レイアウトのときは、縦に合わせて縮小しない（縮小すると横も縮んで左右が余るため）。
+    // 横幅いっぱいに表示し、収まらない縦ぶんは画面スクロールで見せる。
+    try{
+      if(sg.getAttribute('data-klayout') === 'landscape'){
+        sg.style.marginBottom = '0px';
+        applyScale(1);
+        return;
+      }
+    }catch(e){}
     // 等倍に戻して中身の本来の高さを測る
     sg.style.setProperty('--k-scale', 1);
     sg.style.marginBottom = '0px';
