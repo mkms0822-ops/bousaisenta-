@@ -3362,6 +3362,17 @@ button.dwa-plate{ padding:0; }
   /* 警報スタックを縦いっぱいに広げ、各バナーを均等な高さに伸ばして余白を埋める */
   #modeKioskScreen .signage[data-klayout="landscape"] #kJmaWarn .k-jmawarn-stack{ height:100%; }
   #modeKioskScreen .signage[data-klayout="landscape"] #kJmaWarn .k-jmawarn{ flex:1 1 0; align-items:center; }
+  /* 警報・注意報が「ありません」（緑バナー1枚）のときは、
+     天気予報カードを縦に伸ばして左カラムの余白を埋め、警報エリアは自然な高さにする。 */
+  #modeKioskScreen .signage[data-klayout="landscape"][data-warnstate="clear"] .k-main{
+    grid-template-rows:1fr auto;
+  }
+  #modeKioskScreen .signage[data-klayout="landscape"][data-warnstate="clear"] .k-main > .wx-card{ align-self:stretch; }
+  #modeKioskScreen .signage[data-klayout="landscape"][data-warnstate="clear"] .wx-card{ display:flex; flex-direction:column; }
+  #modeKioskScreen .signage[data-klayout="landscape"][data-warnstate="clear"] .wx-card .wx-main{ flex:1; justify-content:space-between; }
+  #modeKioskScreen .signage[data-klayout="landscape"][data-warnstate="clear"] #kJmaWarn{ align-self:start; }
+  #modeKioskScreen .signage[data-klayout="landscape"][data-warnstate="clear"] #kJmaWarn .k-jmawarn-stack{ height:auto; }
+  #modeKioskScreen .signage[data-klayout="landscape"][data-warnstate="clear"] #kJmaWarn .k-jmawarn{ flex:0 0 auto; }
   /* 横画面では地震カードを縦積み（2枚を上下）にして右カラムを埋める */
   #modeKioskScreen .signage[data-klayout="landscape"] .k-quake-pair { grid-template-columns:1fr; }
   /* 狭い画面では横2カラムをやめて通常の縦積みに戻す（破綻防止） */
@@ -10419,11 +10430,12 @@ window.kioskUI = (function(){
   function _updateJmaWarn(){
     const box = document.getElementById('kJmaWarn');
     if(!box) return;
+    const _setWarnState = function(st){ try{ const sg=document.getElementById('signage'); if(sg) sg.setAttribute('data-warnstate', st); }catch(e){} };
     const src = document.getElementById('jmaWarningBanner');
-    if(!src || !src.classList.contains('active')){ box.style.display='none'; box.innerHTML=''; return; }
+    if(!src || !src.classList.contains('active')){ box.style.display='none'; box.innerHTML=''; _setWarnState('clear'); return; }
     box.style.display = 'flex';
     const lvs = src.querySelectorAll('.jmaw-lv');
-    if(!lvs.length){ box.style.display='none'; box.innerHTML=''; return; }
+    if(!lvs.length){ box.style.display='none'; box.innerHTML=''; _setWarnState('clear'); return; }
     let html = '';
     lvs.forEach(function(el){
       let cls = 'lv3';
@@ -10453,6 +10465,16 @@ window.kioskUI = (function(){
         + '</div>';
     });
     box.innerHTML = html;
+    // 警報の状態を signage に記録する。
+    //   warnstate="clear"  … 警報・注意報なし（緑バナー1枚）→ 天気カードを広げて余白を埋める
+    //   warnstate="active" … 何らかの警報・注意報あり → 警報エリアを広げる
+    try{
+      const sg = document.getElementById('signage');
+      if(sg){
+        const allClear = lvs.length > 0 && Array.prototype.every.call(lvs, function(el){ return el.classList.contains('jmaw-clear'); });
+        sg.setAttribute('data-warnstate', allClear ? 'clear' : 'active');
+      }
+    }catch(e){}
     try { if(typeof autoFit === 'function') autoFit(); } catch(e){}
   }
 
