@@ -1197,6 +1197,22 @@ footer { position:relative; z-index:1; border-top:1px solid var(--border); paddi
 .qdetail-mag.lv-min  { color:var(--muted); }
 .qdetail-name { font-size:20px; font-weight:900; margin-bottom:6px; }
 .qdetail-time { font-family:'Share Tech Mono',monospace; font-size:12px; color:var(--muted); }
+.qd-points { display:flex; flex-direction:column; gap:12px; }
+.qd-pgroup { }
+.qd-pgroup-head { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.qd-pbadge { font-family:'Orbitron',monospace; font-size:13px; font-weight:900; min-width:44px; text-align:center; padding:3px 8px; border-radius:6px; color:#fff; }
+.qd-pbadge.s7  { background:#a000a0; }
+.qd-pbadge.s6p { background:#e60000; }
+.qd-pbadge.s6m { background:#ff4d4d; }
+.qd-pbadge.s5p { background:#ff6b00; }
+.qd-pbadge.s5m { background:#ff9f00; color:#1a1a1a; }
+.qd-pbadge.s4  { background:#e6c200; color:#1a1a1a; }
+.qd-pbadge.s3  { background:#00a0d8; }
+.qd-pbadge.s2  { background:#3399cc; }
+.qd-pbadge.s1  { background:#5a7a8a; }
+.qd-pgroup-label { font-size:12px; font-weight:700; color:var(--muted); }
+.qd-pareas { font-size:13px; line-height:1.9; color:var(--text); padding-left:2px; }
+.qd-parea { display:inline-block; margin-right:12px; white-space:nowrap; }
 .qdetail-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
 .qdetail-item { background:var(--surface3); border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
 .qdetail-item-label { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:0.15em; color:var(--muted); margin-bottom:6px; }
@@ -3296,6 +3312,12 @@ button.dwa-plate{ padding:0; }
 #modeKioskScreen .k-quake-pair .qc-meta { width:100%; gap:7px; }
 #modeKioskScreen .k-quake-pair .qc-row .l { width:auto; flex:1; }
 #modeKioskScreen .k-quake-pair .qc-row .v { font-size:18px; }
+  /* 観測地点（各地の震度） */
+#modeKioskScreen .qk-points { margin-top:11px; border-top:1px solid var(--k-line); padding-top:9px; display:flex; flex-direction:column; gap:6px; }
+#modeKioskScreen .qk-points:empty { display:none; }
+#modeKioskScreen .qk-prow { display:flex; align-items:flex-start; gap:8px; }
+#modeKioskScreen .qk-pbadge { flex:0 0 auto; font-family:var(--k-num); font-size:13px; font-weight:900; min-width:38px; text-align:center; padding:2px 6px; border-radius:5px; color:#0a0a0a; }
+#modeKioskScreen .qk-pareas { font-size:12px; line-height:1.5; color:var(--k-text); }
 
   /* 警報ステータス2連 */
 #modeKioskScreen .k-status { display:grid; grid-template-columns:1fr 1fr; gap:11px; }
@@ -3627,6 +3649,7 @@ button.dwa-plate{ padding:0; }
             <div class="qc-row"><span class="l">発生時刻</span><span class="v" id="qtTime" style="font-size:14px;">--</span></div>
           </div>
         </div>
+        <div class="qk-points" id="qtPoints"></div>
       </div>
       <div class="quake-card qk-card">
         <div class="qc-region">⚠️ 注目地震（震度5弱以上）</div>
@@ -3642,6 +3665,7 @@ button.dwa-plate{ padding:0; }
             <div class="qc-row"><span class="l">発生日時</span><span class="v" id="qDateTime" style="font-size:14px;"><span id="qDate">--</span> <span id="qTime"></span></span></div>
           </div>
         </div>
+        <div class="qk-points" id="qPoints"></div>
       </div>
     </div>
 
@@ -5292,6 +5316,10 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     <div id="qdMapWrap" style="display:none; margin-top:14px; border-radius:10px; overflow:hidden; border:1px solid var(--border);">
       <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.12em;color:var(--muted);padding:6px 12px;background:var(--surface3);">// 震源地マップ</div>
       <iframe id="qdMap" width="100%" height="240" frameborder="0" scrolling="no" style="display:block;"></iframe>
+    </div>
+    <div id="qdPointsWrap" style="display:none; margin-top:14px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.12em;color:var(--muted);margin-bottom:8px;">// 各地の震度（震度1以上）</div>
+      <div id="qdPoints" class="qd-points"></div>
     </div>
   </div>
 </div>
@@ -7090,7 +7118,8 @@ function renderStats(qs){
     }, null);
     window.__kioskTodayQuake = todayBest ? {
       name: todayBest.name, shindo_num: todayBest.shindo_num,
-      magnitude: todayBest.magnitude, depth: todayBest.depth, timeStr: todayBest.time_str
+      magnitude: todayBest.magnitude, depth: todayBest.depth, timeStr: todayBest.time_str,
+      points: todayBest.points || []
     } : null;
   }catch(e){ window.__kioskTodayQuake = null; }
 }
@@ -7172,7 +7201,7 @@ function renderBig(qs){
     if(window.kioskUI && typeof window.kioskUI.onQuakeData === 'function'){
       window.kioskUI.onQuakeData({
         today: (window.__kioskTodayQuake || null),
-        big: (_bigJp ? { name:_bigJp.name, shindo_num:_bigJp.shindo_num, magnitude:_bigJp.magnitude, depth:_bigJp.depth, timeStr:_bigJp.time_str } : null)
+        big: (_bigJp ? { name:_bigJp.name, shindo_num:_bigJp.shindo_num, magnitude:_bigJp.magnitude, depth:_bigJp.depth, timeStr:_bigJp.time_str, points:(_bigJp.points||[]) } : null)
       });
     }
   }catch(e){}
@@ -7488,6 +7517,45 @@ function openQuakeDetail(i){
     mapFrame.src = '';
     mapWrap.style.display = 'none';
   }
+  // 各地の震度（市町村別）— 震度1以上を震度の大きい順にグループ表示
+  try {
+    const pWrap = document.getElementById('qdPointsWrap');
+    const pBox  = document.getElementById('qdPoints');
+    const pts = Array.isArray(q.points) ? q.points : [];
+    // 震度1以上（scale>=10）のみ
+    const valid = pts.filter(p => p && (p.scale||0) >= 10);
+    if(!q.isForeign && valid.length > 0 && pBox){
+      const badgeClass = s => (s>=70?'s7':s>=60?'s6p':s>=55?'s6m':s>=50?'s5p':s>=45?'s5m':s>=40?'s4':s>=30?'s3':s>=20?'s2':'s1');
+      // 震度番号ごとにグループ化
+      const groups = {};
+      valid.forEach(p => {
+        const s = p.scale;
+        (groups[s] = groups[s] || []).push(p);
+      });
+      // 大きい震度順
+      const scales = Object.keys(groups).map(Number).sort((a,b)=>b-a);
+      let html = '';
+      scales.forEach(s => {
+        const areas = groups[s].map(p => {
+          const pref = String(p.pref||'').trim();
+          const addr = String(p.addr||'').trim();
+          const nm = (pref && addr && addr.indexOf(pref)<0) ? (pref+' '+addr) : (addr || pref);
+          return '<span class="qd-parea">'+escapeHtmlDmg(nm)+'</span>';
+        }).join('');
+        html += '<div class="qd-pgroup">'
+          + '<div class="qd-pgroup-head"><span class="qd-pbadge '+badgeClass(s)+'">'+(scaleToText(s)||'--')+'</span>'
+          + '<span class="qd-pgroup-label">震度'+(scaleToText(s)||'--')+' — '+groups[s].length+'地点</span></div>'
+          + '<div class="qd-pareas">'+areas+'</div></div>';
+      });
+      pBox.innerHTML = html;
+      if(pWrap) pWrap.style.display = 'block';
+    } else {
+      if(pWrap) pWrap.style.display = 'none';
+    }
+  } catch(e){
+    try { document.getElementById('qdPointsWrap').style.display = 'none'; } catch(_e){}
+  }
+
   document.getElementById('quakeDetailModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -9887,6 +9955,7 @@ window.kioskUI = (function(){
     const set = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
     const shEl = document.getElementById(ids.shindo);
     const svEl = document.getElementById(ids.shindoVal);
+    const ptEl = ids.points ? document.getElementById(ids.points) : null;
     if(!q){
       set(ids.name, '該当なし');
       if(svEl) svEl.innerHTML = '<b>--</b>';
@@ -9894,6 +9963,7 @@ window.kioskUI = (function(){
       set(ids.mag, '--'); set(ids.depth, '--');
       if(ids.time) set(ids.time, '--');
       if(ids.date){ set(ids.date, '--'); set(ids.time2, ''); }
+      if(ptEl) ptEl.innerHTML = '';
       return;
     }
     set(ids.name, q.name || '震源不明');
@@ -9909,11 +9979,30 @@ window.kioskUI = (function(){
       set(ids.date, parts[0] || '--');
       set(ids.time2, parts[1] || '');
     }
+    // 各地の震度（震度1以上を、大きい順に上位3グループまで）
+    if(ptEl){
+      const pts = Array.isArray(q.points) ? q.points.filter(p=>p && (p.scale||0)>=10) : [];
+      if(pts.length === 0){ ptEl.innerHTML = ''; }
+      else {
+        const groups = {};
+        pts.forEach(p=>{ (groups[p.scale]=groups[p.scale]||[]).push(p); });
+        const scales = Object.keys(groups).map(Number).sort((a,b)=>b-a).slice(0,3);
+        ptEl.innerHTML = scales.map(s=>{
+          const areas = groups[s].slice(0,6).map(p=>{
+            const addr = String(p.addr||'').trim() || String(p.pref||'').trim();
+            return addr;
+          }).join('・');
+          const more = groups[s].length > 6 ? (' 他'+(groups[s].length-6)) : '';
+          return '<div class="qk-prow"><span class="qk-pbadge" style="background:'+_shindoColor(s)+';">'
+            + (_shindoText(s)||'--') + '</span><span class="qk-pareas">'+areas+more+'</span></div>';
+        }).join('');
+      }
+    }
   }
   function onQuakeData(data){
     data = data || {};
-    _fillQuakeCard({ name:'qtName', shindo:'qtShindo', shindoVal:'qtShindoVal', mag:'qtMag', depth:'qtDepth', time:'qtTime' }, data.today);
-    _fillQuakeCard({ name:'qName', shindo:'qShindo', shindoVal:'qShindoVal', mag:'qMag', depth:'qDepth', date:'qDate', time2:'qTime' }, data.big);
+    _fillQuakeCard({ name:'qtName', shindo:'qtShindo', shindoVal:'qtShindoVal', mag:'qtMag', depth:'qtDepth', time:'qtTime', points:'qtPoints' }, data.today);
+    _fillQuakeCard({ name:'qName', shindo:'qShindo', shindoVal:'qShindoVal', mag:'qMag', depth:'qDepth', date:'qDate', time2:'qTime', points:'qPoints' }, data.big);
     try { if(typeof autoFit === 'function') autoFit(); } catch(e){}
   }
 
