@@ -3527,6 +3527,10 @@ button.dwa-plate{ padding:0; }
     transition:.18s; padding:0;
   }
 #modeKioskScreen .gear-btn:hover { transform:rotate(40deg); border-color:var(--k-cyan); color:var(--k-cyan); }
+#modeKioskScreen .k-refresh-btn:hover { transform:none; border-color:var(--k-cyan); color:var(--k-cyan); }
+#modeKioskScreen .k-refresh-btn.spinning { color:var(--k-cyan); border-color:var(--k-cyan); }
+#modeKioskScreen .k-refresh-btn.spinning { animation:kRefreshSpin 0.8s linear infinite; }
+@keyframes kRefreshSpin { to { transform:rotate(360deg); } }
   /* ===== 天気予報カード ===== */
   #modeKioskScreen .wx-card{
     background:var(--k-panel); border:1px solid var(--k-line); border-radius:14px;
@@ -3545,6 +3549,8 @@ button.dwa-plate{ padding:0; }
   #modeKioskScreen .wx-today .wx-lo{ font-size:24px; font-weight:800; color:var(--k-blue); }
   #modeKioskScreen .wx-today .wx-unit{ font-size:13px; color:var(--k-muted); margin-left:2px; }
   #modeKioskScreen .wx-today .wx-desc{ font-size:13px; font-weight:700; line-height:1.4; }
+  #modeKioskScreen .wx-today .wx-pop{ font-size:12.5px; font-weight:700; color:var(--k-blue); margin-top:2px; }
+  #modeKioskScreen .wx-today .wx-pop:empty{ display:none; }
   #modeKioskScreen .wx-week{ flex:1; display:grid; grid-template-columns:repeat(3,1fr); gap:8px; align-content:center; }
   #modeKioskScreen .wx-d{ display:flex; flex-direction:column; align-items:center; gap:4px; background:var(--k-panel2); border:1px solid var(--k-line); border-radius:10px; padding:9px 4px; }
   #modeKioskScreen .wx-d .d-day{ font-size:11px; color:var(--k-muted); font-weight:700; }
@@ -3746,6 +3752,7 @@ button.dwa-plate{ padding:0; }
         <span id="kClock">15:08:23</span>
         <span class="date" id="kDate">2026.06.30 火</span>
       </div>
+      <button class="gear-btn k-refresh-btn" id="kRefreshBtn" onclick="kioskUI.refreshData()" aria-label="最新情報に更新" title="最新情報に更新">↻</button>
       <button class="gear-btn" id="gearBtn" onclick="kioskUI.toggleSettings()" aria-label="設定">⚙</button>
     </div>
     <div class="k-ticker">
@@ -3769,6 +3776,7 @@ button.dwa-plate{ padding:0; }
           <div class="wx-ic" id="kWxIcon">☀️</div>
           <div class="wx-temp"><span class="wx-hi" id="kWxHi">33</span><span class="wx-sep">/</span><span class="wx-lo" id="kWxLo">26</span><span class="wx-unit">℃</span></div>
           <div class="wx-desc" id="kWxDesc">晴れ時々くもり</div>
+          <div class="wx-pop" id="kWxPop"></div>
         </div>
         <div class="wx-week" id="kWxWeek">
           <!-- JSで3日分を流し込む -->
@@ -8179,6 +8187,7 @@ function renderWeather(data){
         desc: desc,
         hi: (tHigh != null ? tHigh : ''),
         lo: (tLow != null ? tLow : ''),
+        pop: (todayPops && todayPops.length ? todayPops.slice() : null),
         week: (window.__kioskWeekWx || null)
       });
     }
@@ -9671,9 +9680,9 @@ function startSettingsTour(){
 }
 
 function maybeStartTourOnFirstVisit(){
-  let seen = false;
-  try { seen = isTutorialSeen(); } catch(e){}
-  if(seen) return;
+  // ここでは seen（前回視聴済み）でも即 return しない。
+  // 「チュートリアル_毎回表示」がONなら視聴済みでも出す必要があり、その判定には
+  // 機能設定(config)の到着を待つ必要があるため、最終判定は下の待機ループ内で行う。
   // 全画面の地震警報（EEWオーバーレイ）が表示中の間は待ち、閉じられてから開始する。
   // また、機能設定(config)が届く前に判定すると「初回スキップ」が効かないため、
   // config の到着（_configApplied）も待つ。最大 _maxWaitMs まで待ってフォールバック。
@@ -9703,8 +9712,16 @@ function maybeStartTourOnFirstVisit(){
       if((!ov || !ov.classList.contains('active')) && !openingShown && !splashShown
          && !noticeShown && !noticePending && noticesReady && (configReady || timedOut)){
         clearInterval(waiter);
-        // 管理画面の「チュートリアル_初回スキップ」がONなら自動再生しない（即画面を開く）
-        try{ if(SITE_CONFIG && SITE_CONFIG.tutorial && SITE_CONFIG.tutorial.skipFirst){ return; } }catch(e){}
+        // ここで機能設定(config)を踏まえて最終判定する。
+        //   ・チュートリアル_表示=OFF（skipFirst）なら出さない
+        //   ・毎回表示OFF かつ 既に視聴済みなら出さない（初回のみ）
+        //   ・毎回表示ON なら視聴済みでも毎回出す
+        var _tut = (SITE_CONFIG && SITE_CONFIG.tutorial) ? SITE_CONFIG.tutorial : {};
+        try{ if(_tut.skipFirst || _tut.show === false){ return; } }catch(e){}
+        var _seenNow = false;
+        try{ _seenNow = isTutorialSeen(); }catch(e){}
+        var _everyVisit = !!_tut.everyVisit;
+        if(_seenNow && !_everyVisit){ return; }
         // 緊急モードが発動中（または発動した）ときはチュートリアルを始めない
         try{ if(typeof _emgActive !== 'undefined' && _emgActive){ return; } }catch(e){}
         setTimeout(function(){
@@ -10327,6 +10344,15 @@ window.kioskUI = (function(){
       if(_realWx.hi != null && _realWx.hi !== '') set('kWxHi', _realWx.hi);
       if(_realWx.lo != null && _realWx.lo !== '') set('kWxLo', _realWx.lo);
       set('kWxDesc', _realWx.desc || '');
+      // 降水確率（時間帯ごと）
+      const popEl = document.getElementById('kWxPop');
+      if(popEl){
+        if(Array.isArray(_realWx.pop) && _realWx.pop.length){
+          popEl.textContent = '降水確率 ' + _realWx.pop.join('% / ') + '%';
+        } else {
+          popEl.textContent = '';
+        }
+      }
       const wk = document.getElementById('kWxWeek');
       // 週間データ：(1)onWeatherData由来 (2)ホーム保存の実データ (3)ホーム画面の週間予報DOMから抽出、の順で取得
       let weekArr = (Array.isArray(_realWx.week) && _realWx.week.length) ? _realWx.week
@@ -10694,6 +10720,19 @@ window.kioskUI = (function(){
     }
   }
 
+  // ===== 最新情報に更新（ホームの更新ボタンと同じ処理を呼ぶ） =====
+  function refreshData(){
+    const btn = document.getElementById('kRefreshBtn');
+    if(btn){ btn.classList.add('spinning'); btn.disabled = true; }
+    try{
+      if(typeof window.refreshAllData === 'function'){ window.refreshAllData(); }
+    }catch(e){}
+    // 視認できるよう最低1秒は回す（refreshAllData自身は非同期のため）
+    setTimeout(function(){
+      if(btn){ btn.classList.remove('spinning'); btn.disabled = false; }
+    }, 1200);
+  }
+
   // ===== 設定を初期状態に戻す =====
   function resetSettings(){
     var ok = true;
@@ -10817,7 +10856,7 @@ window.kioskUI = (function(){
     stopRotation();
   }
 
-  return { setMode:setMode, setTheme:setTheme, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setTickerColor:setTickerColor, setHeatPref:setHeatPref, onHeatData:onHeatData, onWeatherData:onWeatherData, onQuakeData:onQuakeData, showTutorial:showTutorial, closeTutorial:closeTutorial, tutNext:tutNext, tutPrev:tutPrev, resetSettings:resetSettings, togglePoints:togglePoints, start:start, stop:stop };
+  return { setMode:setMode, setTheme:setTheme, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setTickerColor:setTickerColor, setHeatPref:setHeatPref, onHeatData:onHeatData, onWeatherData:onWeatherData, onQuakeData:onQuakeData, showTutorial:showTutorial, closeTutorial:closeTutorial, tutNext:tutNext, tutPrev:tutPrev, resetSettings:resetSettings, togglePoints:togglePoints, refreshData:refreshData, start:start, stop:stop };
 })();
 
 
@@ -10985,7 +11024,7 @@ function resetMode(){ exitMode(); }
 var SITE_CONFIG = {
   opening:{ enabled:true, kind:'radar', everyVisit:false, title:'防災情報センター', subtitle:'DISASTER WARNING ACCOUNT', seconds:2.6 },
   emergency:{ mode:'auto', manualButton:true, auto:true, autoShindo:5, heading:'緊急情報モード', message:'身の安全を最優先に行動してください。' },
-  tutorial:{ skipFirst:false },
+  tutorial:{ show:true, everyVisit:false, skipFirst:false },
   kiosk:{ ticker:'', tickerColor:'赤' }
 };
 var _configApplied = false;
@@ -11044,11 +11083,14 @@ function applySiteConfig(cfg){
   _configApplied = true;
   // 設定到着後に、自動発動の判定をやり直す（既にデータがあれば即反映）
   try{ if(typeof _lastQs !== 'undefined' && _lastQs) maybeAutoEmergency(_lastQs); }catch(e){}
-  // オープニング（アンテナ）の判定がまだなら、正しい種類で判定する。
-  // boot側が既定で先に判定済みのときは二重に出さない。
+  // オープニング（アンテナ）の判定。boot側が既定/キャッシュで先に判定済みでも、
+  // まだ画面に出していなければ、GASの最新設定（種類=アンテナ等）で判定し直す。
+  // 既に表示中／表示済みのときは二重に出さない。
   try{
-    if(typeof _openingDecided !== 'undefined' && !_openingDecided){
-      _openingDecided = true;
+    var _opScr = document.getElementById('openingScreen');
+    var _openingShownNow = _opScr && (_opScr.classList.contains('show') || _opScr.classList.contains('hide'));
+    if(!_openingShownNow){
+      if(typeof _openingDecided !== 'undefined'){ _openingDecided = true; }
       if(shouldShowOpening()) runOpening();
     }
   }catch(e){}
