@@ -3319,6 +3319,29 @@ button.dwa-plate{ padding:0; }
 #modeKioskScreen .qk-pbadge { flex:0 0 auto; font-family:var(--k-num); font-size:13px; font-weight:900; min-width:38px; text-align:center; padding:2px 6px; border-radius:5px; color:#0a0a0a; }
 #modeKioskScreen .qk-pareas { font-size:12px; line-height:1.5; color:var(--k-text); }
 
+  /* キオスク チュートリアル */
+.ktut-overlay { display:none; position:fixed; inset:0; z-index:100000; background:rgba(4,8,15,0.82); -webkit-backdrop-filter:blur(5px); backdrop-filter:blur(5px); align-items:center; justify-content:center; padding:24px; }
+.ktut-overlay.open { display:flex; }
+.ktut-card { background:var(--k-panel,#141b2a); border:1px solid var(--k-line,rgba(255,255,255,0.12)); border-radius:20px; width:100%; max-width:440px; padding:30px 28px 22px; text-align:center; box-shadow:0 24px 70px rgba(0,0,0,0.6); animation:ktutIn 0.3s ease; }
+@keyframes ktutIn { from{opacity:0; transform:translateY(16px) scale(0.98);} to{opacity:1; transform:none;} }
+.ktut-step-no { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:0.18em; color:var(--k-accent,#4db8ff); margin-bottom:14px; }
+.ktut-icon { font-size:52px; line-height:1; margin-bottom:14px; }
+.ktut-title { font-size:21px; font-weight:800; color:var(--k-text,#eaf2ff); margin-bottom:12px; line-height:1.35; }
+.ktut-text { font-size:15px; line-height:1.8; color:var(--k-muted,#a8b6cc); margin-bottom:20px; }
+.ktut-dots { display:flex; gap:6px; justify-content:center; margin-bottom:20px; }
+.ktut-dots span { width:8px; height:8px; border-radius:50%; background:var(--k-line,rgba(255,255,255,0.2)); transition:background 0.2s, width 0.2s; }
+.ktut-dots span.on { background:var(--k-accent,#4db8ff); width:22px; border-radius:4px; }
+.ktut-btns { display:flex; align-items:center; gap:9px; }
+.ktut-spacer { flex:1; }
+.ktut-btn { padding:10px 18px; border-radius:9px; font-size:14px; font-weight:700; background:transparent; border:1px solid var(--k-line,rgba(255,255,255,0.2)); color:var(--k-text,#eaf2ff); cursor:pointer; transition:border-color 0.2s, background 0.2s; }
+.ktut-btn:hover { border-color:var(--k-accent,#4db8ff); }
+.ktut-btn.primary { background:var(--k-accent,#4db8ff); border-color:var(--k-accent,#4db8ff); color:#04121f; }
+.ktut-btn:disabled { opacity:0.35; cursor:default; }
+.ktut-skip { background:none; border:none; color:var(--k-muted,#8595ad); font-size:13px; cursor:pointer; padding:6px; }
+.ktut-skip:hover { color:var(--k-text,#eaf2ff); }
+.sp-guide-btn { width:100%; padding:11px 14px; border-radius:10px; background:transparent; border:1px solid var(--k-line,rgba(255,255,255,0.2)); color:var(--k-text,#eaf2ff); font-size:14px; font-weight:700; cursor:pointer; transition:border-color 0.2s, background 0.2s; }
+.sp-guide-btn:hover { border-color:var(--k-accent,#4db8ff); background:rgba(77,184,255,0.08); }
+
   /* 警報ステータス2連 */
 #modeKioskScreen .k-status { display:grid; grid-template-columns:1fr 1fr; gap:11px; }
 #modeKioskScreen .st-card {
@@ -3789,6 +3812,27 @@ button.dwa-plate{ padding:0; }
       <button class="sw" data-ktheme="slate"    style="--c:#2e3744" title="スレートグレー" onclick="kioskUI.setTheme('slate')"></button>
       <button class="sw" data-ktheme="daylight" style="--c:#f6f9fd" title="デイライト" onclick="kioskUI.setTheme('daylight')"></button>
       <button class="sw" data-ktheme="sepia"    style="--c:#f6f0e3" title="セピア" onclick="kioskUI.setTheme('sepia')"></button>
+    </div>
+  </div>
+
+  <div class="sp-group">
+    <button class="sp-guide-btn" onclick="kioskUI.toggleSettings(false);kioskUI.showTutorial()">📖 使い方ガイドを見る</button>
+  </div>
+</div>
+
+<!-- キオスクモード チュートリアル -->
+<div class="ktut-overlay" id="ktutOverlay" onclick="if(event.target===this)kioskUI.closeTutorial()">
+  <div class="ktut-card">
+    <div class="ktut-step-no" id="ktutStepNo">STEP 1 / 5</div>
+    <div class="ktut-icon" id="ktutIcon">🖥️</div>
+    <div class="ktut-title" id="ktutTitle">キオスクモードへようこそ</div>
+    <div class="ktut-text" id="ktutText">この画面は、防災情報を大きく見やすく表示する掲示モードです。天気・地震・警報を自動で更新し続けます。</div>
+    <div class="ktut-dots" id="ktutDots"></div>
+    <div class="ktut-btns">
+      <button class="ktut-btn" id="ktutPrev" onclick="kioskUI.tutPrev()">← 前へ</button>
+      <button class="ktut-skip" onclick="kioskUI.closeTutorial()">スキップ</button>
+      <div class="ktut-spacer"></div>
+      <button class="ktut-btn primary" id="ktutNext" onclick="kioskUI.tutNext()">次へ →</button>
     </div>
   </div>
 </div>
@@ -10368,6 +10412,55 @@ window.kioskUI = (function(){
   }
 
 
+  // ===== キオスクモード チュートリアル =====
+  const KTUT_KEY = 'kiosk_tutorial_done';
+  const KTUT_STEPS = [
+    { icon:'🖥️', title:'キオスクモードへようこそ', text:'この画面は、防災情報を大きく見やすく表示する掲示モードです。天気・地震・警報を自動で更新し続けます。待合室や受付などでの常時表示に向いています。' },
+    { icon:'🌤️', title:'今日の天気と週間予報', text:'画面の上部に、選んだ地域の今日の天気と気温、週間予報を表示します。データは気象庁の情報をもとに自動更新されます。' },
+    { icon:'🗾', title:'地震情報（2種類）', text:'「今日の最大震度」と「注目地震（震度5弱以上）」を並べて表示します。各地の震度（市町村ごと）も確認できます。' },
+    { icon:'🔄', title:'自動で切り替わる情報', text:'画面の下部では、熱中症リスク・避難所マップ・備えのヒント・防災コラムなどが、数秒ごとに自動で切り替わって表示されます。' },
+    { icon:'⚙️', title:'設定（右上の歯車）', text:'右上の歯車ボタンから、対象地域・配色テーマ・文字サイズを変更できます。設置場所に合わせて調整してください。このガイドは設定からいつでも見直せます。' }
+  ];
+  let _ktutIndex = 0;
+  function renderTutStep(){
+    const s = KTUT_STEPS[_ktutIndex];
+    if(!s) return;
+    const set = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+    set('ktutStepNo', 'STEP ' + (_ktutIndex+1) + ' / ' + KTUT_STEPS.length);
+    set('ktutIcon', s.icon);
+    set('ktutTitle', s.title);
+    set('ktutText', s.text);
+    const dots = document.getElementById('ktutDots');
+    if(dots){
+      dots.innerHTML = KTUT_STEPS.map((_,i)=>'<span class="'+(i===_ktutIndex?'on':'')+'"></span>').join('');
+    }
+    const prev = document.getElementById('ktutPrev');
+    if(prev) prev.disabled = (_ktutIndex === 0);
+    const next = document.getElementById('ktutNext');
+    if(next) next.textContent = (_ktutIndex === KTUT_STEPS.length-1) ? '始める ✓' : '次へ →';
+  }
+  function showTutorial(fromStart){
+    _ktutIndex = 0;
+    renderTutStep();
+    const ov = document.getElementById('ktutOverlay');
+    if(ov) ov.classList.add('open');
+  }
+  function closeTutorial(){
+    const ov = document.getElementById('ktutOverlay');
+    if(ov) ov.classList.remove('open');
+    try{ localStorage.setItem(KTUT_KEY, '1'); }catch(e){}
+  }
+  function tutNext(){
+    if(_ktutIndex >= KTUT_STEPS.length-1){ closeTutorial(); return; }
+    _ktutIndex++;
+    renderTutStep();
+  }
+  function tutPrev(){
+    if(_ktutIndex <= 0) return;
+    _ktutIndex--;
+    renderTutStep();
+  }
+
   // 起動・停止のフック
   function start(){
     // 時計・ローテーションを開始
@@ -10375,6 +10468,12 @@ window.kioskUI = (function(){
     if(!_kioskInited){
       _kioskInited = true;
     }
+    // 初回のみキオスクの見方チュートリアルを自動表示
+    try{
+      if(!localStorage.getItem(KTUT_KEY)){
+        setTimeout(function(){ showTutorial(true); }, 600);
+      }
+    }catch(e){}
     startRotation();
     // 本体が既に type=heat を取得済みなら、その実データを取り込む
     try{
@@ -10411,7 +10510,7 @@ window.kioskUI = (function(){
     stopRotation();
   }
 
-  return { setMode:setMode, setTheme:setTheme, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setTickerColor:setTickerColor, setHeatPref:setHeatPref, onHeatData:onHeatData, onWeatherData:onWeatherData, onQuakeData:onQuakeData, start:start, stop:stop };
+  return { setMode:setMode, setTheme:setTheme, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setTickerColor:setTickerColor, setHeatPref:setHeatPref, onHeatData:onHeatData, onWeatherData:onWeatherData, onQuakeData:onQuakeData, showTutorial:showTutorial, closeTutorial:closeTutorial, tutNext:tutNext, tutPrev:tutPrev, start:start, stop:stop };
 })();
 
 
