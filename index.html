@@ -3330,7 +3330,10 @@ button.dwa-plate{ padding:0; }
      設定で「横画面」を選ぶと signage に data-klayout="landscape" が付く。
      横長の掲示画面向けに、幅を広げて主要ブロックを左右2カラムに振り分ける。
      縦画面（portrait）は既定のまま縦積み。 */
-  #modeKioskScreen .signage[data-klayout="landscape"] { max-width:none; width:99.5%; }
+  #modeKioskScreen .signage[data-klayout="landscape"] { max-width:none; width:100%; }
+  /* 横画面は左右いっぱいに使う（外周の余白を詰める） */
+  #modeKioskScreen .ksg-body:has(.signage[data-klayout="landscape"]){ padding-left:0; padding-right:0; }
+  #modeKioskScreen .ksg-body[data-klayout="landscape"]{ padding-left:0; padding-right:0; }
   #modeKioskScreen .signage[data-klayout="landscape"] .k-main {
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -3340,7 +3343,7 @@ button.dwa-plate{ padding:0; }
       "warn    quake";
     align-items:start;
     gap:14px;
-    padding:14px;
+    padding:6px 6px 14px;
   }
   #modeKioskScreen .signage[data-klayout="landscape"] .k-main > .wx-card        { grid-area:weather; }
   #modeKioskScreen .signage[data-klayout="landscape"] .k-main > #kJmaWarn        { grid-area:warn; align-self:stretch; }
@@ -3363,46 +3366,46 @@ button.dwa-plate{ padding:0; }
      縦画面には影響しない（landscape 限定）。 */
   @media (min-width:901px){
     /* 天気カード */
-    #modeKioskScreen .signage[data-klayout="landscape"] .wx-today .wx-hi{ font-size:58px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .wx-today .wx-lo{ font-size:42px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .wx-today .wx-sep{ font-size:32px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .wx-today .wx-unit{ font-size:22px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .wx-today .wx-desc{ font-size:24px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .wx-today .wx-pop{ font-size:20px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .wx-card-head .wx-card-title{ font-size:21px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .wx-card-head .wx-pref{ font-size:22px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .wx-today .wx-hi{ font-size:60px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .wx-today .wx-lo{ font-size:44px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .wx-today .wx-sep{ font-size:34px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .wx-today .wx-unit{ font-size:24px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .wx-today .wx-desc{ font-size:26px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .wx-today .wx-pop{ font-size:22px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .wx-card-head .wx-card-title{ font-size:23px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .wx-card-head .wx-pref{ font-size:24px; }
     /* 週間予報 */
-    #modeKioskScreen .signage[data-klayout="landscape"] .wx-d .d-day{ font-size:18px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .wx-d .d-ic{ font-size:42px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .wx-d .d-temp{ font-size:22px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .wx-d .d-day{ font-size:20px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .wx-d .d-ic{ font-size:44px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .wx-d .d-temp{ font-size:24px; }
     /* 気象警報 */
     #modeKioskScreen .signage[data-klayout="landscape"] .k-jmawarn-stack{ gap:8px; }
     #modeKioskScreen .signage[data-klayout="landscape"] .k-jmawarn{ padding:14px 18px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .k-jmawarn .kjw-title{ font-size:25px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .k-jmawarn .kjw-area{ font-size:20px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .k-jmawarn .kjw-badge{ font-size:18px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .k-jmawarn .kjw-title{ font-size:27px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .k-jmawarn .kjw-area{ font-size:22px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .k-jmawarn .kjw-badge{ font-size:20px; }
     /* 地震カード */
-    #modeKioskScreen .signage[data-klayout="landscape"] .k-quake-pair .qc-name{ font-size:26px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .k-quake-pair .qc-shindo{ width:140px; height:140px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .k-quake-pair .qc-shindo .sv{ font-size:60px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .k-quake-pair .qc-shindo .sv b{ font-size:70px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .k-quake-pair .qc-shindo .sv em{ font-size:32px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .k-quake-pair .qc-row .l{ font-size:18px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .k-quake-pair .qc-row .v{ font-size:30px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .quake-card .qc-region{ font-size:18px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .quake-card .qc-name{ font-size:30px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .k-quake-pair .qc-name{ font-size:28px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .k-quake-pair .qc-shindo{ width:150px; height:150px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .k-quake-pair .qc-shindo .sv{ font-size:62px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .k-quake-pair .qc-shindo .sv b{ font-size:72px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .k-quake-pair .qc-shindo .sv em{ font-size:34px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .k-quake-pair .qc-row .l{ font-size:20px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .k-quake-pair .qc-row .v{ font-size:32px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .quake-card .qc-region{ font-size:20px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .quake-card .qc-name{ font-size:32px; }
     /* 下部ローテーション（防災コラム／備えヒント／熱中症） */
-    #modeKioskScreen .signage[data-klayout="landscape"] .col-title{ font-size:28px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .col-body{ font-size:21px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .tip-row .tn{ font-size:23px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .tip-row .tx{ font-size:22px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .hl-row .hl-name{ font-size:22px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .hl-row .hl-temp{ font-size:23px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .hl-row .hl-badge{ font-size:17px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .col-title{ font-size:30px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .col-body{ font-size:23px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .tip-row .tn{ font-size:25px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .tip-row .tx{ font-size:24px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .hl-row .hl-name{ font-size:24px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .hl-row .hl-temp{ font-size:25px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .hl-row .hl-badge{ font-size:19px; }
     /* セクション見出し・ヘッダーの時計/日付・テロップも少し大きく */
-    #modeKioskScreen .signage[data-klayout="landscape"] .k-section-label{ font-size:13px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] #kClock{ font-size:22px; }
-    #modeKioskScreen .signage[data-klayout="landscape"] .k-clock .date{ font-size:13px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .k-section-label{ font-size:15px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] #kClock{ font-size:24px; }
+    #modeKioskScreen .signage[data-klayout="landscape"] .k-clock .date{ font-size:15px; }
   }
 #modeKioskScreen .k-section-label {
     display:flex; align-items:center; gap:8px;
@@ -10698,6 +10701,8 @@ window.kioskUI = (function(){
     if(mode !== 'landscape') mode = 'portrait';
     var sg = document.getElementById('signage');
     if(sg) sg.setAttribute('data-klayout', mode);
+    // :has() 非対応環境でも外周余白を切り替えられるよう、親にも印を付ける
+    try{ var body = sg && sg.closest('.ksg-body'); if(body) body.setAttribute('data-klayout', mode); }catch(e){}
     // ボタンの選択状態を更新
     var pb = document.getElementById('layoutPortraitBtn');
     var lb = document.getElementById('layoutLandscapeBtn');
