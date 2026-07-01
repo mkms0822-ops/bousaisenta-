@@ -3325,6 +3325,33 @@ button.dwa-plate{ padding:0; }
   }
   /* 各カードは本来の高さを保つ（縮小で中身が切れるのを防ぐ） */
   #modeKioskScreen .k-main > * { flex:0 0 auto; }
+
+  /* ===== 横画面（landscape）レイアウト =====
+     設定で「横画面」を選ぶと signage に data-klayout="landscape" が付く。
+     横長の掲示画面向けに、幅を広げて主要ブロックを左右2カラムに振り分ける。
+     縦画面（portrait）は既定のまま縦積み。 */
+  #modeKioskScreen .signage[data-klayout="landscape"] { max-width:1400px; }
+  #modeKioskScreen .signage[data-klayout="landscape"] .k-main {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    grid-template-areas:
+      "weather quake"
+      "warn    quake";
+    align-items:start;
+    gap:16px;
+  }
+  #modeKioskScreen .signage[data-klayout="landscape"] .k-main > .wx-card        { grid-area:weather; }
+  #modeKioskScreen .signage[data-klayout="landscape"] .k-main > #kJmaWarn        { grid-area:warn; }
+  #modeKioskScreen .signage[data-klayout="landscape"] .k-main > .k-quake-pair    { grid-area:quake; align-self:stretch; }
+  /* 横画面では地震カードを縦積み（2枚を上下）にして右カラムを埋める */
+  #modeKioskScreen .signage[data-klayout="landscape"] .k-quake-pair { grid-template-columns:1fr; }
+  /* 狭い画面では横2カラムをやめて通常の縦積みに戻す（破綻防止） */
+  @media (max-width:900px){
+    #modeKioskScreen .signage[data-klayout="landscape"] .k-main {
+      display:flex; flex-direction:column;
+    }
+    #modeKioskScreen .signage[data-klayout="landscape"] .k-quake-pair { grid-template-columns:1fr 1fr; }
+  }
 #modeKioskScreen .k-section-label {
     display:flex; align-items:center; gap:8px;
     font-size:10px; letter-spacing:.2em; color:var(--k-muted);
@@ -3677,6 +3704,17 @@ button.dwa-plate{ padding:0; }
     border-radius:8px; padding:8px 0; cursor:pointer;
   }
 #modeKioskScreen .size-presets button:hover { border-color:var(--k-cyan); }
+#modeKioskScreen .layout-presets { display:flex; gap:8px; margin-bottom:6px; }
+#modeKioskScreen .layout-presets button {
+    flex:1; font-family:var(--k-disp); font-size:13px; font-weight:700;
+    background:var(--k-panel2); color:var(--k-text); border:1px solid var(--k-line);
+    border-radius:8px; padding:11px 0; cursor:pointer; transition:.15s;
+  }
+#modeKioskScreen .layout-presets button:hover { border-color:var(--k-cyan); }
+#modeKioskScreen .layout-presets button.active {
+    border-color:var(--k-cyan); color:var(--k-cyan);
+    box-shadow:0 0 0 2px rgba(95,227,255,0.25);
+  }
 #modeKioskScreen .theme-swatches { display:flex; gap:9px; align-items:center; flex-wrap:wrap; }
 #modeKioskScreen .theme-swatches .sw {
     width:26px; height:26px; padding:0; border-radius:50%;
@@ -3906,6 +3944,15 @@ button.dwa-plate{ padding:0; }
   </div>
 
   <div class="sp-group">
+    <div class="sp-label">画面の向き</div>
+    <div class="layout-presets">
+      <button id="layoutPortraitBtn" onclick="kioskUI.setLayout('portrait')">📱 縦画面</button>
+      <button id="layoutLandscapeBtn" onclick="kioskUI.setLayout('landscape')">🖥️ 横画面</button>
+    </div>
+    <div class="sp-note">横長のモニターやテレビに映すときは「横画面」を選ぶと、情報が左右に広がって見やすくなります。</div>
+  </div>
+
+  <div class="sp-group">
     <div class="sp-label">表示サイズ <span id="sizeVal" class="size-val">100%</span></div>
     <div id="sizeDbg" style="font-size:9px;color:var(--k-muted);margin:-2px 0 4px;"></div>
     <input type="range" class="sp-range" id="sizeRange" min="70" max="180" step="5" value="100"
@@ -3937,7 +3984,7 @@ button.dwa-plate{ padding:0; }
 
   <div class="sp-group">
     <div class="sp-label">設定の保存</div>
-    <div class="sp-note">配色テーマ・対象地域・表示サイズは自動的に保存され、次回もこの端末で維持されます。</div>
+    <div class="sp-note">配色テーマ・画面の向き・対象地域・表示サイズは自動的に保存され、次回もこの端末で維持されます。</div>
     <button class="sp-reset-btn" onclick="kioskUI.resetSettings()">↺ 設定を初期状態に戻す</button>
   </div>
 </div>
@@ -10593,6 +10640,28 @@ window.kioskUI = (function(){
     setTheme(saved);
   }
 
+  // ===== 画面の向き（縦画面 / 横画面）レイアウト =====
+  const LAYOUT_KEY = 'kiosk_layout';
+  function setLayout(mode){
+    if(mode !== 'landscape') mode = 'portrait';
+    var sg = document.getElementById('signage');
+    if(sg) sg.setAttribute('data-klayout', mode);
+    // ボタンの選択状態を更新
+    var pb = document.getElementById('layoutPortraitBtn');
+    var lb = document.getElementById('layoutLandscapeBtn');
+    if(pb) pb.classList.toggle('active', mode === 'portrait');
+    if(lb) lb.classList.toggle('active', mode === 'landscape');
+    try { localStorage.setItem(LAYOUT_KEY, mode); } catch(e){}
+    // 向きが変わると全体の高さが変わるため、自動フィット中なら再計算する
+    try { if(_autoFit) setAutoFit(); } catch(e){}
+  }
+  // 起動時：保存済みの向きを復元（無ければ縦画面）
+  function restoreLayout(){
+    let saved = 'portrait';
+    try { saved = localStorage.getItem(LAYOUT_KEY) || 'portrait'; } catch(e){}
+    setLayout(saved);
+  }
+
   // ===== 表示サイズ（枠ごとスケール）=====
   const SCALE_KEY = 'kiosk_scale';
   let _autoFit = true;        // 自動フィットが有効か
@@ -10743,8 +10812,10 @@ window.kioskUI = (function(){
     try { localStorage.removeItem(HEATPREF_KEY); } catch(e){}
     try { localStorage.removeItem(SCALE_KEY); } catch(e){}
     try { localStorage.removeItem(KTUT_KEY); } catch(e){}
+    try { localStorage.removeItem(LAYOUT_KEY); } catch(e){}
     // 初期状態を即時適用
     try { restoreTheme(); } catch(e){}
+    try { setLayout('portrait'); } catch(e){}
     try { restoreHeatPref(); } catch(e){}
     try { _autoFit = true; autoFit(); } catch(e){}
     // 表示モードは平常時に戻す
@@ -10825,6 +10896,7 @@ window.kioskUI = (function(){
     }catch(e){}
     // 保存済みテーマ・対象県を反映（対象県の設定で天気も連動描画される）
     try{ restoreTheme(); }catch(e){}
+    try{ restoreLayout(); }catch(e){}
     try{ restoreHeatPref(); }catch(e){}
     // 気象警報（ホームのバナーと連動）を反映し、以後は定期的に読み直す
     try{ _updateJmaWarn(); }catch(e){}
@@ -10856,7 +10928,7 @@ window.kioskUI = (function(){
     stopRotation();
   }
 
-  return { setMode:setMode, setTheme:setTheme, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setTickerColor:setTickerColor, setHeatPref:setHeatPref, onHeatData:onHeatData, onWeatherData:onWeatherData, onQuakeData:onQuakeData, showTutorial:showTutorial, closeTutorial:closeTutorial, tutNext:tutNext, tutPrev:tutPrev, resetSettings:resetSettings, togglePoints:togglePoints, refreshData:refreshData, start:start, stop:stop };
+  return { setMode:setMode, setTheme:setTheme, setLayout:setLayout, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setTickerColor:setTickerColor, setHeatPref:setHeatPref, onHeatData:onHeatData, onWeatherData:onWeatherData, onQuakeData:onQuakeData, showTutorial:showTutorial, closeTutorial:closeTutorial, tutNext:tutNext, tutPrev:tutPrev, resetSettings:resetSettings, togglePoints:togglePoints, refreshData:refreshData, start:start, stop:stop };
 })();
 
 
