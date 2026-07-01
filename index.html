@@ -14593,8 +14593,7 @@ document.addEventListener('keydown', function(e){
       });
       // 現在ペア内にある要素だけ折りたたむ
       document.querySelectorAll('.reorder-pair').forEach(function(pair){
-        // 週間天気は非表示
-        pair.querySelectorAll('.weather-week').forEach(function(el){ hideForPair(el); });
+        // 週間天気は横並び時もグリッドで表示する（空白を埋めるため隠さない）
         // 警報・津波バナーの本文（説明/リスト/行動文/発表時刻）は非表示。リンクは残す。
         pair.querySelectorAll('#jmawDesc,.jmaw-list,.jmaw-action,.jmaw-meta').forEach(function(el){ hideForPair(el); });
         pair.querySelectorAll('#tsunamiDesc,.tsunami-action').forEach(function(el){ hideForPair(el); });
