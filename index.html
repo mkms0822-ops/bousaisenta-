@@ -11265,14 +11265,12 @@ function applySiteConfig(cfg){
   _configApplied = true;
   // 設定到着後に、自動発動の判定をやり直す（既にデータがあれば即反映）
   try{ if(typeof _lastQs !== 'undefined' && _lastQs) maybeAutoEmergency(_lastQs); }catch(e){}
-  // オープニング（アンテナ）の判定。boot側が既定/キャッシュで先に判定済みでも、
-  // まだ画面に出していなければ、GASの最新設定（種類=アンテナ等）で判定し直す。
-  // 既に表示中／表示済みのときは二重に出さない。
+  // オープニング（アンテナ）の判定。
+  // 一度でも判定済み（_openingDecided=true）なら二度と判定しない。
+  // これにより、自動更新で applySiteConfig が繰り返し呼ばれても再表示されない。
   try{
-    var _opScr = document.getElementById('openingScreen');
-    var _openingShownNow = _opScr && (_opScr.classList.contains('show') || _opScr.classList.contains('hide'));
-    if(!_openingShownNow){
-      if(typeof _openingDecided !== 'undefined'){ _openingDecided = true; }
+    if(typeof _openingDecided !== 'undefined' && !_openingDecided){
+      _openingDecided = true;
       if(shouldShowOpening()) runOpening();
     }
   }catch(e){}
