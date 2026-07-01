@@ -761,7 +761,9 @@ main { position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:28
 #latestBig.active { display:block; animation:fadeInUp 0.4s ease; }
 .big-label { font-family:'Orbitron',monospace; font-size:11px; letter-spacing:0.2em; color:var(--accent); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
 /* 注目地震（日本） */
-.big-dual { display:grid; grid-template-columns:1fr; gap:16px; position:relative; }
+.big-dual { display:grid; grid-template-columns:1fr 1fr; gap:16px; position:relative; }
+.big-card-today { border-color:rgba(0,180,255,0.35); }
+.big-card-today .big-card-region { color:#00b4ff; }
 .big-card { background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:16px 18px; cursor:pointer; transition:transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease; display:flex; flex-direction:column; }
 .big-card:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,0.25); }
 .big-card.empty { opacity:0.55; cursor:default; }
@@ -1385,6 +1387,8 @@ html.light .icon-opt.selected { border-color:var(--blue); background:rgba(0,100,
   .reorder-pair .big-shindo { margin-left:0; align-self:flex-start; text-align:left; }
   .reorder-pair .shindo-val { font-size:30px; }
   .reorder-pair #latestBig { padding:16px 14px; }
+  /* 横並びペア内では2枚が狭くなりすぎるため縦積みに戻す */
+  .reorder-pair .big-dual { grid-template-columns:1fr; }
   .reorder-pair .big-meta { font-size:11px; }
   /* 字間が広いと狭幅で縦1文字になりやすいので、ペア内では字間を詰める */
   .reorder-pair .big-card-region,
@@ -3621,8 +3625,8 @@ button.dwa-plate{ padding:0; }
         <span>DISASTER PREVENTION CENTER</span>
       </div>
       <div class="k-clock">
-        <span id="clock">15:08:23</span>
-        <span class="date" id="date">2026.06.30 火</span>
+        <span id="kClock">15:08:23</span>
+        <span class="date" id="kDate">2026.06.30 火</span>
       </div>
       <button class="gear-btn" id="gearBtn" onclick="kioskUI.toggleSettings()" aria-label="設定">⚙</button>
     </div>
@@ -4973,17 +4977,17 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
 
   <div class="reorder-block reorder-fullwidth" data-block="latest" data-zone="top">
     <div class="reorder-bar">
-      <span class="reorder-handle" title="ドラッグで移動">⠿ 並び替え（注目地震）</span>
+      <span class="reorder-handle" title="ドラッグで移動">⠿ 並び替え（注目地震・今日の最大震度）</span>
       <span class="reorder-arrows">
         <button type="button" class="reorder-up" onclick="moveBlock(this,-1)" aria-label="上へ">▲</button>
         <button type="button" class="reorder-down" onclick="moveBlock(this,1)" aria-label="下へ">▼</button>
       </span>
     </div>
     <div id="latestBig">
-      <div class="big-label"><span class="live-dot"></span>&nbsp; 最新の注目地震</div>
+      <div class="big-label"><span class="live-dot"></span>&nbsp; 注目の地震・今日の最大震度</div>
       <div class="big-dual">
         <div class="big-card big-card-jp" id="bigCardJp" onclick="openBigDetail('jp')" role="button" tabindex="0">
-          <div class="big-card-region">🗾 日本</div>
+          <div class="big-card-region">⚠️ 注目の地震（震度5弱以上）</div>
           <div class="big-content">
             <div class="big-mag" id="bigMag">--</div>
             <div class="big-info">
@@ -4996,6 +5000,24 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
             <div class="big-shindo">
               <div class="shindo-label">最大震度</div>
               <div class="shindo-val" id="bigShindo">--</div>
+            </div>
+          </div>
+          <div class="big-card-tap">▶ タップで詳細</div>
+        </div>
+        <div class="big-card big-card-today" id="bigCardToday" onclick="openBigDetail('today')" role="button" tabindex="0">
+          <div class="big-card-region">🗾 今日の最大震度</div>
+          <div class="big-content">
+            <div class="big-mag" id="bigTMag">--</div>
+            <div class="big-info">
+              <h2 id="bigTName">--</h2>
+              <div class="big-meta">
+                <span id="bigTTime">--</span>
+                <span id="bigTDepth">--</span>
+              </div>
+            </div>
+            <div class="big-shindo">
+              <div class="shindo-label">最大震度</div>
+              <div class="shindo-val" id="bigTShindo">--</div>
             </div>
           </div>
           <div class="big-card-tap">▶ タップで詳細</div>
@@ -7165,7 +7187,31 @@ function renderStats(qs){
       magnitude: todayBest.magnitude, depth: todayBest.depth, timeStr: todayBest.time_str,
       points: todayBest.points || []
     } : null;
+    // ホームの「今日の最大震度」カード＆詳細表示用に完全な地震オブジェクトを保持
+    window.__todayBestQuake = todayBest || null;
   }catch(e){ window.__kioskTodayQuake = null; }
+}
+
+function fillTodayBigCard(q){
+  _bigToday = q || null;
+  const card = document.getElementById('bigCardToday');
+  if(!card) return;
+  const set = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+  if(!q){
+    card.classList.add('empty');
+    set('bigTMag', '--');
+    set('bigTName', '本日の有感地震はありません');
+    set('bigTTime', '');
+    set('bigTDepth', '');
+    set('bigTShindo', '--');
+    return;
+  }
+  card.classList.remove('empty');
+  set('bigTMag', q.magnitude!=null ? 'M'+Number(q.magnitude).toFixed(1) : 'M--');
+  set('bigTName', q.name || '震源不明');
+  set('bigTTime', '🕐 '+(q.time_str || q.timeStr || '--'));
+  set('bigTDepth', q.depth!=null ? '深さ '+q.depth+'km' : '');
+  set('bigTShindo', scaleToText(q.shindo_num) || '--');
 }
 
 function fillBigCard(suffix, q, isOverseas){
@@ -7233,12 +7279,11 @@ function renderBig(qs){
   _bigOv = null;           // 海外は「海外地震履歴」(メニュー内)へ集約したため注目カードでは扱わない
 
   const box = document.getElementById('latestBig');
-  if(!_bigJp){
-    box.classList.remove('active');
-  } else {
-    box.classList.add('active');
-    fillBigCard('jp', _bigJp, false);
-  }
+  // 該当地震が無くても注目地震ブロックは常に表示し、カード内で「該当なし」を示す
+  box.classList.add('active');
+  fillBigCard('jp', _bigJp || null, false);
+  // 今日の最大震度カードも横並びで表示
+  try{ fillTodayBigCard(window.__todayBestQuake || null); }catch(e){}
 
   // キオスクモードの地震カード2枚（今日の最大震度／注目地震）にデータを渡す
   try{
@@ -9903,8 +9948,8 @@ window.kioskUI = (function(){
     const n = new Date();
     const p = x => String(x).padStart(2,'0');
     const wd = ['日','月','火','水','木','金','土'][n.getDay()];
-    const c = document.getElementById('clock');
-    const d = document.getElementById('date');
+    const c = document.getElementById('kClock');
+    const d = document.getElementById('kDate');
     if(c) c.textContent = p(n.getHours())+':'+p(n.getMinutes())+':'+p(n.getSeconds());
     if(d) d.textContent = n.getFullYear()+'.'+p(n.getMonth()+1)+'.'+p(n.getDate())+' '+wd;
   }
@@ -11054,6 +11099,7 @@ function notifyTsunami(grade, areas){
 let _flashQuake = null;
 let _bigJp = null;
 let _bigOv = null;
+let _bigToday = null;
 
 function escapeHtmlDmg(s){
   return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -11124,6 +11170,20 @@ function openBigDetail(region){
     if(!_bigJp){ return; }
     _flashQuake = _bigJp;
     openDamagePanel();
+    return;
+  }
+  if(region === 'today'){
+    if(!_bigToday){ return; }
+    // 今日の最大震度の地震を、地震リストと同じ詳細モーダルで表示（各地の震度つき）
+    const qs = window._quakeData || [];
+    let idx = qs.findIndex(q => q && q.name === _bigToday.name && q.time_str === _bigToday.time_str && q.magnitude === _bigToday.magnitude);
+    if(idx < 0){
+      // リストに無ければ一時的に先頭へ追加して表示
+      qs.unshift(_bigToday);
+      window._quakeData = qs;
+      idx = 0;
+    }
+    if(typeof openQuakeDetail === 'function') openQuakeDetail(idx);
     return;
   }
   // 海外（注目カード廃止に伴い通常は呼ばれない。互換のため残置）
