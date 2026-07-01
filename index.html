@@ -3506,6 +3506,26 @@ button.dwa-plate{ padding:0; }
   #modeKioskScreen .wx-d .d-temp .h{ color:#ff7a5a; }
   #modeKioskScreen .wx-d .d-temp .l{ color:var(--k-muted); }
 
+  /* ===== 気象警報（天気と地震の間） ===== */
+  #modeKioskScreen .k-jmawarn{
+    display:flex; align-items:center; gap:13px;
+    border-radius:14px; padding:13px 16px;
+    background:linear-gradient(90deg, rgba(255,120,40,0.18), rgba(255,80,40,0.10));
+    border:1px solid rgba(255,140,60,0.45);
+  }
+  #modeKioskScreen .k-jmawarn.warn-clear{
+    background:linear-gradient(90deg, rgba(61,220,151,0.14), rgba(61,220,151,0.06));
+    border-color:rgba(61,220,151,0.4);
+  }
+  #modeKioskScreen .k-jmawarn .kjw-ic{ font-size:30px; line-height:1; flex:0 0 auto; }
+  #modeKioskScreen .k-jmawarn .kjw-body{ flex:1; min-width:0; }
+  #modeKioskScreen .k-jmawarn .kjw-title{ font-size:16px; font-weight:800; color:var(--k-text); line-height:1.35; }
+  #modeKioskScreen .k-jmawarn.warn-clear .kjw-title{ color:#2fbf85; }
+  #modeKioskScreen .k-jmawarn .kjw-area{ font-size:12.5px; color:var(--k-muted); margin-top:3px; line-height:1.5; }
+  #modeKioskScreen .k-jmawarn .kjw-badge{ flex:0 0 auto; font-size:13px; font-weight:800; letter-spacing:.06em; padding:5px 12px; border-radius:8px; background:rgba(255,90,40,0.85); color:#1a0704; }
+  #modeKioskScreen .k-jmawarn.warn-clear .kjw-badge{ background:rgba(61,220,151,0.2); color:#2fbf85; }
+  #modeKioskScreen .k-jmawarn .kjw-badge:empty{ display:none; }
+
   /* ===== 狭い画面（スマホ縦）では横並びを縦積みにして窮屈さを解消 ===== */
   @media (max-width:560px){
     /* 縮小しない代わりに、はみ出す分は縦スクロールで見る */
@@ -3694,6 +3714,16 @@ button.dwa-plate{ padding:0; }
           <!-- JSで3日分を流し込む -->
         </div>
       </div>
+    </div>
+
+    <!-- 気象警報（天気と地震の間）／ホームの気象警報バナーと連動 -->
+    <div class="k-jmawarn" id="kJmaWarn">
+      <div class="kjw-ic" id="kJmaIcon">⚠️</div>
+      <div class="kjw-body">
+        <div class="kjw-title" id="kJmaTitle">気象警報の情報を取得中…</div>
+        <div class="kjw-area" id="kJmaArea"></div>
+      </div>
+      <div class="kjw-badge" id="kJmaBadge"></div>
     </div>
 
     <div class="k-quake-pair">
@@ -10175,9 +10205,48 @@ window.kioskUI = (function(){
     }catch(e){ return null; }
   }
 
+  // ホームの気象警報バナー(#jmaWarningBanner)の状態を読み取り、キオスクの警報エリアに反映
+  function _updateJmaWarn(){
+    const box = document.getElementById('kJmaWarn');
+    if(!box) return;
+    const set = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+    const src = document.getElementById('jmaWarningBanner');
+    if(!src){ box.style.display='none'; return; }
+    box.style.display = 'flex';
+    const isClear = src.classList.contains('warn-clear');
+    const isActive = src.classList.contains('active');
+    if(isClear || !isActive){
+      // 警報なし（平常）
+      box.classList.add('warn-clear');
+      set('kJmaIcon', '✅');
+      set('kJmaTitle', '気象警報は発表されていません');
+      set('kJmaArea', '現在、警戒レベル3相当以上の気象警報はありません。');
+      set('kJmaBadge', '');
+      return;
+    }
+    // 警報あり
+    box.classList.remove('warn-clear');
+    set('kJmaIcon', '⚠️');
+    const title = (document.getElementById('jmawTitle')||{}).textContent || '気象警報が発表されています';
+    set('kJmaTitle', title);
+    const badge = (document.getElementById('jmawBadge')||{}).textContent || '警報';
+    set('kJmaBadge', badge.trim());
+    // 発表地域（jmawList または jmawDesc から要約）
+    let area = '';
+    const listEl = document.getElementById('jmawList');
+    if(listEl && listEl.textContent.trim()){
+      area = listEl.textContent.replace(/\s+/g,' ').trim();
+    } else {
+      area = (document.getElementById('jmawDesc')||{}).textContent || '';
+    }
+    if(area.length > 90) area = area.slice(0,88) + '…';
+    set('kJmaArea', area);
+  }
+
   function renderWeather(prefName){
     _curPref = prefName || _curPref;
     const set = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+    try { _updateJmaWarn(); } catch(e){}
     // 実データ（ホームと同じ気象庁の値）があれば最優先で使う
     if(_realWx){
       set('kWxPref', _realWx.pref || prefName || '--');
@@ -10644,6 +10713,11 @@ window.kioskUI = (function(){
     // 保存済みテーマ・対象県を反映（対象県の設定で天気も連動描画される）
     try{ restoreTheme(); }catch(e){}
     try{ restoreHeatPref(); }catch(e){}
+    // 気象警報（ホームのバナーと連動）を反映し、以後は定期的に読み直す
+    try{ _updateJmaWarn(); }catch(e){}
+    if(!window.__kioskJmaTimer){
+      window.__kioskJmaTimer = setInterval(function(){ try{ _updateJmaWarn(); }catch(e){} }, 30000);
+    }
     // サイズ（自動フィット/手動）は中身を描画し終えた後に計算する
     try{ restoreScale(); }catch(e){}
     // 画面リサイズ・回転時に自動フィットを再計算（多重登録を防ぐ）
