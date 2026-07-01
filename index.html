@@ -7845,6 +7845,20 @@ function renderWeather(data){
   document.getElementById('weatherUpdated').textContent = fetchStr + ' 取得';
 
   renderWeatherWeek(week7, today3);
+
+  // キオスクモードにも同じ実天気を渡して整合させる（今日の天気）
+  try{
+    if(window.kioskUI && typeof window.kioskUI.onWeatherData === 'function'){
+      window.kioskUI.onWeatherData({
+        pref: _weatherCityName || (areaW?.area?.name) || '',
+        icon: icon,
+        desc: desc,
+        hi: (tHigh != null ? tHigh : ''),
+        lo: (tLow != null ? tLow : ''),
+        week: (window.__kioskWeekWx || null)
+      });
+    }
+  }catch(e){}
 }
 
 function renderWeatherWeek(week7, today3){
@@ -7950,6 +7964,7 @@ function renderWeatherWeek(week7, today3){
     return jst.toISOString().slice(0,10);
   })();
   let html = '';
+  const _kioskWeek = [];
   wDates.forEach((dt, i) => {
     const key = toKey(dt);
     // 今日はすでにウィジェット上部に表示済みなのでスキップ
@@ -7959,6 +7974,8 @@ function renderWeatherWeek(week7, today3){
     const {icon, desc} = weatherCodeToEmoji(codes[i]);
     const t   = tempMap[key] || {};
     const pop = popMap[key];
+    // キオスク週間用（曜日1文字・絵文字・最高・最低）
+    _kioskWeek.push([ dow, icon, (t.high ?? '--'), (t.low ?? '--') ]);
     html += `
     <div class="weather-day">
       <div class="wd-date">${mm}/${dd}(${dow})</div>
@@ -7971,6 +7988,8 @@ function renderWeatherWeek(week7, today3){
       <div class="wd-pop">💧${pop ?? '--'}%</div>
     </div>`;
   });
+  // キオスクモードの週間天気にも同じ実データを渡せるよう保存
+  try{ window.__kioskWeekWx = _kioskWeek.slice(0, 6); }catch(e){}
   container.innerHTML = html;
   container.classList.toggle('show', _weatherWeekEnabled);
   // 週間天気を再描画したので、横並び（ペア内）なら折りたたみを当て直す
@@ -9798,9 +9817,35 @@ window.kioskUI = (function(){
     return base;
   }
 
+  // ホーム画面が気象庁から取得した実天気を保持（あればサンプルより優先）
+  let _realWx = null;
+  function onWeatherData(wx){
+    if(wx && typeof wx === 'object'){ _realWx = wx; renderWeather(_curPref); }
+  }
+  let _curPref = '';
+
   function renderWeather(prefName){
-    const w = getWeather(prefName);
+    _curPref = prefName || _curPref;
     const set = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+    // 実データ（ホームと同じ気象庁の値）があれば最優先で使う
+    if(_realWx){
+      set('kWxPref', _realWx.pref || prefName || '--');
+      set('kWxIcon', _realWx.icon || '☀️');
+      if(_realWx.hi != null && _realWx.hi !== '') set('kWxHi', _realWx.hi);
+      if(_realWx.lo != null && _realWx.lo !== '') set('kWxLo', _realWx.lo);
+      set('kWxDesc', _realWx.desc || '');
+      const wk = document.getElementById('kWxWeek');
+      if(wk && Array.isArray(_realWx.week) && _realWx.week.length){
+        wk.innerHTML = _realWx.week.map(d=>
+          '<div class="wx-d"><span class="d-day">'+d[0]+'</span>'
+          +'<span class="d-ic">'+d[1]+'</span>'
+          +'<span class="d-temp"><span class="h">'+d[2]+'</span>/<span class="l">'+d[3]+'</span></span></div>'
+        ).join('');
+      }
+      return;
+    }
+    // 実データ未取得のあいだはサンプルで表示
+    const w = getWeather(prefName);
     set('kWxPref', prefName || '--');
     set('kWxIcon', w.icon);
     set('kWxHi', w.hi);
@@ -10179,7 +10224,7 @@ window.kioskUI = (function(){
     stopRotation();
   }
 
-  return { setMode:setMode, setTheme:setTheme, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setTickerColor:setTickerColor, setHeatPref:setHeatPref, onHeatData:onHeatData, start:start, stop:stop };
+  return { setMode:setMode, setTheme:setTheme, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setTickerColor:setTickerColor, setHeatPref:setHeatPref, onHeatData:onHeatData, onWeatherData:onWeatherData, start:start, stop:stop };
 })();
 
 
