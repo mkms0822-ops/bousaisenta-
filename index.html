@@ -1358,7 +1358,14 @@ html.light .icon-opt.selected { border-color:var(--blue); background:rgba(0,100,
   .reorder-pair .weather-today-icon { font-size:40px; flex:none; }
   .reorder-pair .weather-today-desc { word-break:break-word; overflow-wrap:anywhere; letter-spacing:0; white-space:normal; }
   /* 横並びだと週間天気の7列グリッドが収まらずはみ出すため、ペア内では折りたたむ（非表示） */
-  .reorder-pair .weather-week { display:none !important; }
+  /* 横並び時は今日の下の空白を、週間予報グリッドで埋める（4列×2段） */
+  .reorder-pair .weather-week { display:grid !important; grid-template-columns:repeat(4,1fr) !important; gap:5px; margin-top:10px; }
+  .reorder-pair .weather-day { padding:7px 3px; }
+  .reorder-pair .wd-date { font-size:9px; margin-bottom:4px; }
+  .reorder-pair .wd-icon { font-size:18px; margin-bottom:2px; }
+  .reorder-pair .wd-desc { display:none; }
+  .reorder-pair .wd-temp { font-size:9px; }
+  .reorder-pair .wd-pop { font-size:8px; margin-top:2px; }
 
   /* ── 地震サマリー：横並びでは4列だと潰れるので、2×2のコンパクト表示を強制 ── */
   .reorder-pair .stats-row {
