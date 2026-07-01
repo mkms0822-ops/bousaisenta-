@@ -3722,9 +3722,16 @@ button.dwa-plate{ padding:0; }
     #modeKioskScreen .wx-today{ flex-direction:row; align-items:center; flex-wrap:wrap; gap:10px; min-width:0; padding-right:0; border-right:none; padding-bottom:12px; border-bottom:1px solid var(--k-line); }
     #modeKioskScreen .wx-today .wx-desc{ margin-left:auto; text-align:right; }
     #modeKioskScreen .wx-week{ grid-template-columns:repeat(3,1fr); }
-    /* ヘッダーのロゴ文字は折り返しを抑える */
-    #modeKioskScreen .k-brand .bt b{ font-size:15px; }
-    #modeKioskScreen .k-brand .bt span{ font-size:8px; letter-spacing:.03em; }
+    /* ヘッダーのロゴ文字は折り返さず1行に固定する（狭い画面での縦積み崩れ防止） */
+    #modeKioskScreen .k-head{ padding:8px 10px 6px; }
+    #modeKioskScreen .k-brand{ flex-wrap:nowrap; gap:7px; }
+    #modeKioskScreen .k-brand .k-logo{ flex:0 0 auto; }
+    #modeKioskScreen .k-brand .bt{ flex:1 1 auto; min-width:0; overflow:hidden; }
+    #modeKioskScreen .k-brand .bt b{ font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    #modeKioskScreen .k-brand .bt span{ font-size:8px; letter-spacing:.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
+    #modeKioskScreen .k-clock{ flex:0 0 auto; font-size:13px; }
+    #modeKioskScreen .k-clock .date{ font-size:9px; }
+    #modeKioskScreen .k-head .gear-btn{ flex:0 0 auto; }
   }
   #modeKioskScreen[data-ktheme="daylight"] .gear-btn,
   #modeKioskScreen[data-ktheme="sepia"] .gear-btn{ background:rgba(255,255,255,0.55); }
