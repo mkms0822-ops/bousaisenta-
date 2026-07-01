@@ -3284,6 +3284,19 @@ button.dwa-plate{ padding:0; }
 #modeKioskScreen .qc-row .v { font-family:var(--k-num); font-size:21px; font-weight:700; color:var(--k-text); }
 #modeKioskScreen .qc-row .u { font-size:11px; color:var(--k-muted); }
 
+  /* 地震カード2枚横並び（今日の最大震度／注目地震） */
+#modeKioskScreen .k-quake-pair { display:grid; grid-template-columns:1fr 1fr; gap:11px; }
+#modeKioskScreen .k-quake-pair .qk-card { padding:13px; }
+#modeKioskScreen .k-quake-pair .qc-name { font-size:15px; margin-bottom:9px; min-height:2.6em; }
+#modeKioskScreen .k-quake-pair .qc-grid { grid-template-columns:1fr; gap:10px; justify-items:center; }
+#modeKioskScreen .k-quake-pair .qc-shindo { width:88px; height:88px; }
+#modeKioskScreen .k-quake-pair .qc-shindo .sv { font-size:34px; }
+#modeKioskScreen .k-quake-pair .qc-shindo .sv b { font-size:40px; }
+#modeKioskScreen .k-quake-pair .qc-shindo .sv em { font-size:18px; }
+#modeKioskScreen .k-quake-pair .qc-meta { width:100%; gap:7px; }
+#modeKioskScreen .k-quake-pair .qc-row .l { width:auto; flex:1; }
+#modeKioskScreen .k-quake-pair .qc-row .v { font-size:18px; }
+
   /* 警報ステータス2連 */
 #modeKioskScreen .k-status { display:grid; grid-template-columns:1fr 1fr; gap:11px; }
 #modeKioskScreen .st-card {
@@ -3599,18 +3612,35 @@ button.dwa-plate{ padding:0; }
       <span class="live"><i></i>LIVE</span>
     </div>
 
-    <div class="quake-card">
-      <div class="qc-region">🗾 日本・国内</div>
-      <div class="qc-name" id="qName">山梨県東部・富士五湖</div>
-      <div class="qc-grid">
-        <div class="qc-shindo" id="qShindo" style="background:var(--k-lv4);">
-          <span class="sl">最大震度</span>
-          <span class="sv" id="qShindoVal"><b>6</b><em>弱</em></span>
+    <div class="k-quake-pair">
+      <div class="quake-card qk-card">
+        <div class="qc-region">🗾 今日の最大震度</div>
+        <div class="qc-name" id="qtName">--</div>
+        <div class="qc-grid">
+          <div class="qc-shindo" id="qtShindo" style="background:var(--k-lv1);">
+            <span class="sl">最大震度</span>
+            <span class="sv" id="qtShindoVal"><b>--</b></span>
+          </div>
+          <div class="qc-meta">
+            <div class="qc-row"><span class="l">マグニチュード</span><span class="v" id="qtMag">--</span></div>
+            <div class="qc-row"><span class="l">深さ</span><span class="v" id="qtDepth">--</span><span class="u">km</span></div>
+            <div class="qc-row"><span class="l">発生時刻</span><span class="v" id="qtTime" style="font-size:14px;">--</span></div>
+          </div>
         </div>
-        <div class="qc-meta">
-          <div class="qc-row"><span class="l">マグニチュード</span><span class="v" id="qMag">5.6</span></div>
-          <div class="qc-row"><span class="l">深さ</span><span class="v" id="qDepth">20</span><span class="u">km</span></div>
-          <div class="qc-row"><span class="l">発生日時</span><span class="v" id="qDateTime" style="font-size:14px;"><span id="qDate">2026/6/26</span> <span id="qTime">22:29</span></span></div>
+      </div>
+      <div class="quake-card qk-card">
+        <div class="qc-region">⚠️ 注目地震（震度5弱以上）</div>
+        <div class="qc-name" id="qName">--</div>
+        <div class="qc-grid">
+          <div class="qc-shindo" id="qShindo" style="background:var(--k-lv4);">
+            <span class="sl">最大震度</span>
+            <span class="sv" id="qShindoVal"><b>--</b></span>
+          </div>
+          <div class="qc-meta">
+            <div class="qc-row"><span class="l">マグニチュード</span><span class="v" id="qMag">--</span></div>
+            <div class="qc-row"><span class="l">深さ</span><span class="v" id="qDepth">--</span><span class="u">km</span></div>
+            <div class="qc-row"><span class="l">発生日時</span><span class="v" id="qDateTime" style="font-size:14px;"><span id="qDate">--</span> <span id="qTime"></span></span></div>
+          </div>
         </div>
       </div>
     </div>
@@ -7050,6 +7080,19 @@ function renderStats(qs){
   const mxS = base.reduce((m,q)=>(q.shindo_num||0)>m?(q.shindo_num||0):m, 0);
   document.getElementById('statMaxS').textContent = (base.length>0 && mxS>0) ? (scaleToText(mxS) || '--') : '--';
   document.getElementById('statUpdated').textContent = now.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+
+  // キオスク用：本日の有感地震のうち最大震度の1件（同震度ならMが大きい方）を保存
+  try{
+    const todayBest = base.reduce((b,q)=>{
+      if(!b) return q;
+      if((q.shindo_num||0) !== (b.shindo_num||0)) return (q.shindo_num||0) > (b.shindo_num||0) ? q : b;
+      return (q.magnitude||0) > (b.magnitude||0) ? q : b;
+    }, null);
+    window.__kioskTodayQuake = todayBest ? {
+      name: todayBest.name, shindo_num: todayBest.shindo_num,
+      magnitude: todayBest.magnitude, depth: todayBest.depth, timeStr: todayBest.time_str
+    } : null;
+  }catch(e){ window.__kioskTodayQuake = null; }
 }
 
 function fillBigCard(suffix, q, isOverseas){
@@ -7123,6 +7166,16 @@ function renderBig(qs){
     box.classList.add('active');
     fillBigCard('jp', _bigJp, false);
   }
+
+  // キオスクモードの地震カード2枚（今日の最大震度／注目地震）にデータを渡す
+  try{
+    if(window.kioskUI && typeof window.kioskUI.onQuakeData === 'function'){
+      window.kioskUI.onQuakeData({
+        today: (window.__kioskTodayQuake || null),
+        big: (_bigJp ? { name:_bigJp.name, shindo_num:_bigJp.shindo_num, magnitude:_bigJp.magnitude, depth:_bigJp.depth, timeStr:_bigJp.time_str } : null)
+      });
+    }
+  }catch(e){}
 
   // ── 地震警戒バナー（日本/海外の2つ。両方あれば横並び）──
   const flash    = document.getElementById('alertFlash');
@@ -9817,8 +9870,53 @@ window.kioskUI = (function(){
     return base;
   }
 
-  // ホーム画面が気象庁から取得した実天気を保持（あればサンプルより優先）
-  let _realWx = null;
+  // ホーム側が集計した地震データ（今日の最大震度／注目地震）を受け取って2枚のカードに反映
+  function _shindoColor(s){
+    s = s || 0;
+    if(s >= 55) return 'var(--k-lv5)';
+    if(s >= 45) return 'var(--k-lv4)';
+    if(s >= 40) return 'var(--k-lv3)';
+    if(s >= 20) return 'var(--k-lv2)';
+    return 'var(--k-lv1)';
+  }
+  function _shindoText(s){
+    const m = {10:'1',20:'2',30:'3',40:'4',45:'5弱',50:'5強',55:'6弱',60:'6強',70:'7'};
+    return m[s] || (s>0 ? String(Math.floor(s/10)) : '--');
+  }
+  function _fillQuakeCard(ids, q){
+    const set = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+    const shEl = document.getElementById(ids.shindo);
+    const svEl = document.getElementById(ids.shindoVal);
+    if(!q){
+      set(ids.name, '該当なし');
+      if(svEl) svEl.innerHTML = '<b>--</b>';
+      if(shEl) shEl.style.background = 'var(--k-lv1)';
+      set(ids.mag, '--'); set(ids.depth, '--');
+      if(ids.time) set(ids.time, '--');
+      if(ids.date){ set(ids.date, '--'); set(ids.time2, ''); }
+      return;
+    }
+    set(ids.name, q.name || '震源不明');
+    const txt = _shindoText(q.shindo_num || 0);
+    const mm = txt.match(/^(\d)(弱|強)$/);
+    if(svEl) svEl.innerHTML = mm ? ('<b>'+mm[1]+'</b><em>'+mm[2]+'</em>') : ('<b>'+txt+'</b>');
+    if(shEl) shEl.style.background = _shindoColor(q.shindo_num || 0);
+    set(ids.mag, (q.magnitude != null) ? ('M'+Number(q.magnitude).toFixed(1)) : '--');
+    set(ids.depth, (q.depth != null) ? q.depth : '--');
+    if(ids.time) set(ids.time, q.timeStr || '--');
+    if(ids.date){
+      const parts = String(q.timeStr || '').trim().split(' ');
+      set(ids.date, parts[0] || '--');
+      set(ids.time2, parts[1] || '');
+    }
+  }
+  function onQuakeData(data){
+    data = data || {};
+    _fillQuakeCard({ name:'qtName', shindo:'qtShindo', shindoVal:'qtShindoVal', mag:'qtMag', depth:'qtDepth', time:'qtTime' }, data.today);
+    _fillQuakeCard({ name:'qName', shindo:'qShindo', shindoVal:'qShindoVal', mag:'qMag', depth:'qDepth', date:'qDate', time2:'qTime' }, data.big);
+    try { if(typeof autoFit === 'function') autoFit(); } catch(e){}
+  }
+
   function onWeatherData(wx){
     if(wx && typeof wx === 'object'){ _realWx = wx; renderWeather(_curPref); }
   }
@@ -10224,7 +10322,7 @@ window.kioskUI = (function(){
     stopRotation();
   }
 
-  return { setMode:setMode, setTheme:setTheme, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setTickerColor:setTickerColor, setHeatPref:setHeatPref, onHeatData:onHeatData, onWeatherData:onWeatherData, start:start, stop:stop };
+  return { setMode:setMode, setTheme:setTheme, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setTickerColor:setTickerColor, setHeatPref:setHeatPref, onHeatData:onHeatData, onWeatherData:onWeatherData, onQuakeData:onQuakeData, start:start, stop:stop };
 })();
 
 
