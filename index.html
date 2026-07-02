@@ -1062,26 +1062,26 @@ footer { position:relative; z-index:1; border-top:1px solid var(--border); paddi
 .col-overlay.open .col-overlay-panel { transform:translateY(0) scale(1); }
 .col-overlay-head {
   flex:0 0 auto;
-  padding:10px 20px 8px;
+  padding:6px 18px 5px;
   border-bottom:1px solid var(--border);
   background:var(--surface2);
 }
 .col-overlay-head .col-ov-tag {
-  display:inline-block; font-size:12px; letter-spacing:0.08em;
-  padding:2px 12px; border-radius:20px; font-weight:700; margin-bottom:4px;
+  display:inline-block; font-size:11px; letter-spacing:0.08em;
+  padding:1px 11px; border-radius:20px; font-weight:700; margin-bottom:2px;
   background:rgba(0,232,122,0.12); color:var(--safe);
 }
 .col-overlay-head .col-ov-tag.info-tag { background:rgba(255,140,0,0.12); color:var(--accent2); }
 .col-overlay-head .col-ov-tag.tips-tag { background:rgba(0,180,255,0.12); color:var(--blue); }
-.col-overlay-head .col-ov-emoji { font-size:22px; line-height:1; margin-bottom:2px; }
+.col-overlay-head .col-ov-emoji { font-size:18px; line-height:1; margin-bottom:0; }
 .col-overlay-head h2 {
-  font-size:21px; font-weight:700; line-height:1.3; margin:1px 0 2px; color:var(--text);
+  font-size:19px; font-weight:700; line-height:1.25; margin:0 0 2px; color:var(--text);
 }
-.col-overlay-head .col-ov-subtitle { font-size:15px; color:var(--blue); line-height:1.4; margin-bottom:2px; }
-.col-overlay-head .col-ov-date { font-family:'Share Tech Mono',monospace; font-size:12px; color:var(--muted); }
+.col-overlay-head .col-ov-subtitle { font-size:14px; color:var(--blue); line-height:1.35; margin-bottom:1px; }
+.col-overlay-head .col-ov-date { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted); }
 .col-overlay-close {
-  position:absolute; top:10px; right:12px; z-index:2;
-  width:40px; height:40px; border-radius:50%;
+  position:absolute; top:8px; right:10px; z-index:2;
+  width:38px; height:38px; border-radius:50%;
   background:var(--surface3); border:1px solid var(--border);
   color:var(--text); font-size:24px; line-height:1; cursor:pointer;
   display:flex; align-items:center; justify-content:center;
@@ -6494,26 +6494,28 @@ function openColOverlay(i){
   const dateEl = document.getElementById('colOvDate');
   if(dateEl) dateEl.textContent = c.updated ? ('🕐 ' + c.updated) : '';
 
-  // 本文＋写真
+  // 本文＋写真＋PR広告（広告は本文の一番下に置き、フッターは薄くする）
   const bodyEl = document.getElementById('colOvBody');
   if(bodyEl){
-    bodyEl.innerHTML = `<p>${body}</p>` + renderBlogPhotos(c.images);
+    const adHtml =
+      `<div class="a8-ad" style="width:100%;margin:18px 0 4px;text-align:center;">` +
+        `<div style="font:700 10px 'Orbitron',monospace;letter-spacing:.12em;color:var(--muted);margin-bottom:4px;">PR</div>` +
+        `<a class="a8-pc" href="https://px.a8.net/svt/ejp?a8mat=4B63GJ+F5YIIA+4VA0+5Z6WX" rel="nofollow noopener sponsored" target="_blank"><img src="https://www29.a8.net/svt/bgt?aid=260624899917&wid=001&eno=01&mid=s00000022716001004000&mc=1" width="468" height="60" alt=""></a>` +
+        `<a class="a8-sp" href="https://px.a8.net/svt/ejp?a8mat=4B63GJ+F5YIIA+4VA0+5ZEMP" rel="nofollow noopener sponsored" target="_blank"><img src="https://www29.a8.net/svt/bgt?aid=260624899917&wid=001&eno=01&mid=s00000022716001005000&mc=1" width="320" height="50" alt=""></a>` +
+        `<img src="https://www11.a8.net/0.gif?a8mat=4B63GJ+F5YIIA+4VA0+5Z6WX" width="1" height="1" alt="" style="position:absolute;left:-9999px;">` +
+      `</div>`;
+    bodyEl.innerHTML = `<p>${body}</p>` + renderBlogPhotos(c.images) + adHtml;
     bodyEl.scrollTop = 0;
   }
 
-  // フッター（いいね・リンク）
+  // フッター（いいね・リンクのみ／薄い帯）
   const footEl = document.getElementById('colOvFoot');
   if(footEl){
     const liked = isLiked(bid);
     const lcount = likeCountOf(bid);
     footEl.innerHTML =
-      `<div class="a8-ad" style="width:100%;margin:0 0 6px;">` +
-        `<div style="font:700 10px 'Orbitron',monospace;letter-spacing:.12em;color:var(--muted);margin-bottom:3px;">PR</div>` +
-        `<a class="a8-pc" href="https://px.a8.net/svt/ejp?a8mat=4B63GJ+F5YIIA+4VA0+5Z6WX" rel="nofollow noopener sponsored" target="_blank"><img src="https://www29.a8.net/svt/bgt?aid=260624899917&wid=001&eno=01&mid=s00000022716001004000&mc=1" width="468" height="60" alt=""></a>` +
-        `<a class="a8-sp" href="https://px.a8.net/svt/ejp?a8mat=4B63GJ+F5YIIA+4VA0+5ZEMP" rel="nofollow noopener sponsored" target="_blank"><img src="https://www29.a8.net/svt/bgt?aid=260624899917&wid=001&eno=01&mid=s00000022716001005000&mc=1" width="320" height="50" alt=""></a>` +
-        `<img src="https://www11.a8.net/0.gif?a8mat=4B63GJ+F5YIIA+4VA0+5Z6WX" width="1" height="1" alt="" style="position:absolute;left:-9999px;">` +
-      `</div>` +
       `<button type="button" class="like-btn ${liked?'on':''}" id="ovlike" aria-pressed="${liked?'true':'false'}" title="いいね" onclick="toggleLikeCard(${i})"><span class="like-heart">❤️</span><span class="like-count">${lcount}</span></button>` +
+      `<button type="button" class="share-btn" title="この記事を共有" onclick="shareArticleCard(${i})">🔗 共有</button>` +
       (c.link ? `<a class="blog-card-link" href="${c.link}" target="_blank">リンクを開く →</a>` : '');
   }
 
