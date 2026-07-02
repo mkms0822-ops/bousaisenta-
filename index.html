@@ -16031,6 +16031,20 @@ document.addEventListener('keydown', function(e){
   }
 
   // 気象警報バナーが active になった瞬間を監視して記録（関数名に依存しない確実な方法）
+  // ★振り分け修正：warn-special クラスは「危険警報(レベル4)」でも付くため、
+  //   これを特別警報として数えると誤集計になる。実際のバナー内容
+  //   （.jmaw-lv5 / lv4 / lv3 / lv2 要素の有無）で最高レベルを判定して分類する。
+  function jmaLabelByLevel_() {
+    var el = document.getElementById("jmaWarningBanner");
+    if (!el) return "";
+    // 平常（クリア）表示は記録しない
+    if (el.querySelector(".jmaw-clear")) return "";
+    if (el.querySelector(".jmaw-lv5")) return "気象特別警報表示";
+    if (el.querySelector(".jmaw-lv4")) return "気象危険警報表示";
+    if (el.querySelector(".jmaw-lv3")) return "気象警報表示";
+    if (el.querySelector(".jmaw-lv2")) return "気象注意報表示";
+    return ""; // 中身が判定できないものは記録しない（誤集計防止）
+  }
   function watchJmaWarning() {
     try {
       var el = document.getElementById("jmaWarningBanner");
@@ -16039,10 +16053,11 @@ document.addEventListener('keydown', function(e){
       var ob = new MutationObserver(function () {
         var nowActive = el.classList.contains("active");
         if (nowActive && !wasActive) {
-          var label = "気象警報表示";
-          if (el.classList.contains("warn-special")) label = "気象特別警報表示";
-          else if (el.classList.contains("warn-clear")) label = "";  // 平常表示は記録しない
-          if (label) track("event", label);
+          // バナーの中身（レベル別要素）が入り終わってから判定する
+          setTimeout(function () {
+            var label = jmaLabelByLevel_();
+            if (label) track("event", label);
+          }, 60);
         }
         wasActive = nowActive;
       });
