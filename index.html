@@ -3972,8 +3972,8 @@ button.dwa-plate{ padding:0; }
     <!-- スライド2：防災コラム -->
     <div class="rot-slide">
       <div class="rot-head"><span class="ri">📰</span><span class="rt">防災コラム</span><span class="rtag">最新記事</span></div>
-      <div class="col-title">岩手県沖と富士五湖の地震は「別もの」です</div>
-      <div class="col-body">短期間に強い地震が続くと不安になりますが、2つの震源は500km以上離れ、しくみも異なります。大切なのは、根拠のないうわさに振り回されず、家具の固定や備蓄など現実的な備えを進めることです。</div>
+      <div class="col-title" id="kColTitle">岩手県沖と富士五湖の地震は「別もの」です</div>
+      <div class="col-body" id="kColBody">短期間に強い地震が続くと不安になりますが、2つの震源は500km以上離れ、しくみも異なります。大切なのは、根拠のないうわさに振り回されず、家具の固定や備蓄など現実的な備えを進めることです。</div>
     </div>
     <!-- スライド3：備えのヒント -->
     <div class="rot-slide">
@@ -10247,6 +10247,37 @@ window.kioskUI = (function(){
   function stopRotation(){ if(rotTimer){ clearInterval(rotTimer); rotTimer=null; } }
   // startRotation(); （start()で開始）
 
+  // ===== 防災コラム：記事シートで「キオスク表示」ONの記事を表示 =====
+  // 複数ある場合は一定間隔でタイトル・本文を切り替える。
+  // 記事が無ければ、HTMLに書かれた既定の文言をそのまま残す。
+  var _kColArticles = [];
+  var _kColIdx = 0;
+  var _kColTimer = null;
+  function _renderColArticle(){
+    var t = document.getElementById('kColTitle');
+    var b = document.getElementById('kColBody');
+    if(!t || !b) return;
+    if(!_kColArticles.length) return;
+    if(_kColIdx >= _kColArticles.length) _kColIdx = 0;
+    var a = _kColArticles[_kColIdx];
+    t.textContent = a.title || '';
+    b.textContent = a.body || '';
+  }
+  function onColumnArticles(list){
+    _kColArticles = Array.isArray(list) ? list.slice() : [];
+    _kColIdx = 0;
+    if(_kColTimer){ clearInterval(_kColTimer); _kColTimer = null; }
+    if(!_kColArticles.length) return; // 記事が無ければ既定文言のまま
+    _renderColArticle();
+    if(_kColArticles.length > 1){
+      // 複数記事は12秒ごとに切り替える（スライド全体の切替とは別サイクル）
+      _kColTimer = setInterval(function(){
+        _kColIdx = (_kColIdx + 1) % _kColArticles.length;
+        _renderColArticle();
+      }, 12000);
+    }
+  }
+
   // ===== 熱中症：都道府県別の観測点データ =====
   // 実機では既存GAS(type=heat)から取得して同じ形({name,level,temp})に整形して流し込めます。
   // level: 1=ほぼ安全 2=注意 3=警戒 4=厳重警戒 5=危険
@@ -11046,7 +11077,7 @@ window.kioskUI = (function(){
     stopRotation();
   }
 
-  return { setMode:setMode, setTheme:setTheme, setLayout:setLayout, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setTickerColor:setTickerColor, setHeatPref:setHeatPref, onHeatData:onHeatData, onWeatherData:onWeatherData, onQuakeData:onQuakeData, showTutorial:showTutorial, closeTutorial:closeTutorial, tutNext:tutNext, tutPrev:tutPrev, resetSettings:resetSettings, togglePoints:togglePoints, refreshData:refreshData, start:start, stop:stop };
+  return { setMode:setMode, setTheme:setTheme, setLayout:setLayout, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setTickerColor:setTickerColor, setHeatPref:setHeatPref, onHeatData:onHeatData, onWeatherData:onWeatherData, onQuakeData:onQuakeData, onColumnArticles:onColumnArticles, showTutorial:showTutorial, closeTutorial:closeTutorial, tutNext:tutNext, tutPrev:tutPrev, resetSettings:resetSettings, togglePoints:togglePoints, refreshData:refreshData, start:start, stop:stop };
 })();
 
 
@@ -12052,6 +12083,21 @@ async function loadArticles(){
     renderArchiveBadge();
     refreshVersionUI();
     try { loadLikes(); } catch(e){}
+
+    // ── キオスクモードの防災コラムに出す記事（記事シートで「キオスク表示」ONのもの）──
+    try {
+      if (window.kioskUI && typeof window.kioskUI.onColumnArticles === 'function') {
+        const kioskArts = list
+          .filter(function(a){ return a && a.kiosk; })
+          .map(function(a){
+            // 本文はHTMLタグを除いたプレーンテキストにする（キオスクは textContent で表示）
+            var plain = String(a.body || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+            return { title: String(a.title || '').trim(), body: plain };
+          })
+          .filter(function(a){ return a.title; });
+        window.kioskUI.onColumnArticles(kioskArts);
+      }
+    } catch(e){ console.warn('[kiosk column]', e); }
 
     // ── プライバシーポリシー ──
     if (data && data.privacy && data.privacy.length) {
