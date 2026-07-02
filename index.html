@@ -3617,7 +3617,13 @@ button.dwa-plate{ padding:0; }
 }
 #modeKioskScreen .k-imgpage.show { display:flex; }
 #modeKioskScreen .k-imgpage img {
-  width:100%; height:100%; object-fit:contain; display:block;
+  width:100%; height:100%; object-fit:cover; display:block;
+}
+/* 画像ページの実寸（この比率で画像を作れば切れず余白も出ない）を隅に小さく表示 */
+#modeKioskScreen .k-imgsize {
+  position:absolute; left:8px; bottom:8px; z-index:61;
+  background:rgba(0,0,0,0.55); color:#fff; font-size:11px;
+  padding:3px 8px; border-radius:6px; font-family:monospace; pointer-events:none;
 }
 /* ページ位置ドット（画面下中央） */
 #modeKioskScreen .k-pagedots {
@@ -4047,6 +4053,8 @@ button.dwa-plate{ padding:0; }
 
   <!-- ページ位置ドット（画面下・自動めくり用） -->
   <div class="k-pagedots" id="kPageDots"></div>
+  <!-- 画像ページの実寸表示（この比率で画像を作れば切れず余白なし） -->
+  <div class="k-imgsize" id="kImgSize" style="display:none;"></div>
 
   <!-- 緊急時オーバーレイ（全画面切替） -->
   <div class="k-emergency" id="emergency">
@@ -10745,6 +10753,21 @@ window.kioskUI = (function(){
     var p3 = document.getElementById('kImgPage3');
     if(p2) p2.classList.toggle('show', pageNum === 2);
     if(p3) p3.classList.toggle('show', pageNum === 3);
+    // 画像ページのときだけ、その表示領域の実寸と縦横比を隅に表示する
+    // （この比率で画像を作れば、切れず余白も出ない）
+    var sizeEl = document.getElementById('kImgSize');
+    if(sizeEl){
+      var activePage = (pageNum === 2) ? p2 : (pageNum === 3 ? p3 : null);
+      if(activePage){
+        var w = activePage.clientWidth, h = activePage.clientHeight;
+        var g = function(a,b){ return b ? g(b, a % b) : a; };
+        var dv = g(w, h) || 1;
+        sizeEl.textContent = w + '×' + h + ' px（比率 ' + (w/dv) + ':' + (h/dv) + '）';
+        sizeEl.style.display = 'block';
+      } else {
+        sizeEl.style.display = 'none';
+      }
+    }
     // ページドットの現在位置を更新
     var dots = document.querySelectorAll('#kPageDots i');
     for(var d=0; d<dots.length; d++){
@@ -11019,11 +11042,14 @@ window.kioskUI = (function(){
       sg.style.zoom = '';
       sg.style.setProperty('--k-scale', s);
       const baseH = sg.offsetHeight; // 等倍時の高さ（offsetHeightはscale非依存）
-      const gap = baseH * (1 - s);
-      sg.style.marginBottom = (s < 1 ? (-gap) : 0) + 'px';
+      // 拡大縮小で見た目の高さが baseH*s になるぶん、後続要素との位置ずれを相殺する。
+      sg.style.marginBottom = (baseH * (s - 1)) + 'px';
       if(isLand && s < 1){
         // 横画面：左上を原点に縮小し、縮んだぶん横幅を広げて画面左右いっぱいに合わせる。
-        // （原点を top left にすることで右へはみ出さず、左端から詰めて表示される）
+        sg.style.width = (100 / s) + '%';
+      }else if(!isLand && s > 1){
+        // 縦画面で拡大するときは、拡大で横がはみ出さないよう横幅を狭めて相殺する
+        // （transform-origin が top center なので左右均等に収まる）。
         sg.style.width = (100 / s) + '%';
       }else{
         sg.style.width = '';
@@ -11056,14 +11082,16 @@ window.kioskUI = (function(){
     const stageH = stage.clientHeight;     // 画面で使える高さ
     const contentH = sg.scrollHeight;      // 各項目を縦並びした中身全体の高さ
     let s = 1;
+    let rawS = 1;
     if(contentH > 0 && stageH > 0){
-      s = (stageH / contentH) * 0.985;     // 画面にちょうど収める（わずかに余裕）
+      rawS = (stageH / contentH);           // 画面と中身の比（拡大縮小の素の値）
+      s = rawS * 0.985;                      // わずかに余裕を持たせる
     }
-    if(s > 1) s = 1;          // 画面より小さい中身は拡大しない
+    if(s > 1.15) s = 1.15;   // 画面より小さい中身は少しだけ拡大して余白を埋める（拡大しすぎ防止）
     if(s < 0.35) s = 0.35;
     applyScale(s);
     const dbg = document.getElementById('sizeDbg');
-    if(dbg) dbg.textContent = '画面'+Math.round(stageH)+' / 中身'+Math.round(contentH)+' → '+Math.round(s*100)+'%';
+    if(dbg) dbg.textContent = '画面'+Math.round(stageH)+' / 中身'+Math.round(contentH)+' → '+Math.round(s*100)+'%（素'+Math.round(rawS*100)+'%）';
   }
   function autoFit(){
     if(!_autoFit) return;
