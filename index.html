@@ -3977,16 +3977,16 @@ button.dwa-plate{ padding:0; }
     </div>
     <!-- スライド3：備えのヒント -->
     <div class="rot-slide">
-      <div class="rot-head"><span class="ri">💡</span><span class="rt">今日の備えヒント</span><span class="rtag">TIP</span></div>
-      <div class="tip-row"><span class="tn">01</span><span class="tx">寝る場所の近くに、倒れてくる家具がないか確認しましょう。</span></div>
-      <div class="tip-row"><span class="tn">02</span><span class="tx">水・モバイルバッテリー・懐中電灯を、すぐ持ち出せる場所に。</span></div>
-      <div class="tip-row"><span class="tn">03</span><span class="tx">信頼できる情報源（気象庁・自治体）を事前に決めておく。</span></div>
+      <div class="rot-head"><span class="ri">💡</span><span class="rt">今日の備えヒント</span><span class="rtag" id="kTipTag">TIP</span></div>
+      <div class="tip-row"><span class="tn">01</span><span class="tx" id="kTip1">寝る場所の近くに、倒れてくる家具がないか確認しましょう。</span></div>
+      <div class="tip-row"><span class="tn">02</span><span class="tx" id="kTip2">水・モバイルバッテリー・懐中電灯を、すぐ持ち出せる場所に。</span></div>
+      <div class="tip-row"><span class="tn">03</span><span class="tx" id="kTip3">信頼できる情報源（気象庁・自治体）を事前に決めておく。</span></div>
     </div>
-    <!-- スライド4：避難所案内 -->
+    <!-- スライド4：情報スライド（管理画面で自由編集） -->
     <div class="rot-slide">
-      <div class="rot-head"><span class="ri">🗺️</span><span class="rt">避難所マップ</span><span class="rtag">GUIDE</span></div>
-      <div class="col-title">お住まいの地域の避難所を確認</div>
-      <div class="col-body">国土交通省ハザードマップポータルサイトで、最寄りの避難所・避難場所と、浸水・土砂災害の危険区域を確認できます。いざという時の経路を、平常時に確認しておきましょう。</div>
+      <div class="rot-head"><span class="ri">🗺️</span><span class="rt" id="kInfoLabel">避難所マップ</span><span class="rtag" id="kInfoTag">GUIDE</span></div>
+      <div class="col-title" id="kInfoTitle">お住まいの地域の避難所を確認</div>
+      <div class="col-body" id="kInfoBody">国土交通省ハザードマップポータルサイトで、最寄りの避難所・避難場所と、浸水・土砂災害の危険区域を確認できます。いざという時の経路を、平常時に確認しておきましょう。</div>
     </div>
 
     <div class="rot-dots" id="rotDots">
@@ -10600,6 +10600,36 @@ window.kioskUI = (function(){
     if(tag){ tag.style.color = (name==='白') ? '#1a1a1a' : (name==='黒' ? '#f0f0f0' : '#1a0606'); }
   }
 
+  // GAS設定（config.kiosk）から「備えヒント」枠・「情報スライド」枠の内容を反映する。
+  // 空欄の項目はHTMLの既定文言をそのまま残す（上書きしない）。
+  function applyKioskContent(k){
+    if(!k) return;
+    var setText = function(id, val){
+      if(val == null) return;
+      var s = String(val).trim();
+      if(!s) return; // 空欄は既定のまま
+      var el = document.getElementById(id);
+      if(el) el.textContent = s;
+    };
+    // 備えヒント枠
+    setText('kTipTag', k.tipTag);
+    if(Array.isArray(k.tips)){
+      setText('kTip1', k.tips[0]);
+      setText('kTip2', k.tips[1]);
+      setText('kTip3', k.tips[2]);
+    }
+    // 情報スライド枠（旧・避難所マップ）
+    setText('kInfoTag', k.infoTag);
+    setText('kInfoTitle', k.infoTitle);
+    setText('kInfoBody', k.infoBody);
+    // タイトルが指定されていれば、左の見出しラベルも同じ文言に寄せる
+    // （「避難所マップ」固定をやめ、内容に合わせる）
+    if(k.infoTitle && String(k.infoTitle).trim()){
+      var label = document.getElementById('kInfoLabel');
+      if(label) label.textContent = String(k.infoTitle).trim();
+    }
+  }
+
   const HEATPREF_KEY = 'kiosk_heatpref';
 
   // 実データ（本体が type=heat から取得して window.__heatPrefs に公開）を優先。
@@ -11071,13 +11101,16 @@ window.kioskUI = (function(){
       if(typeof SITE_CONFIG !== 'undefined' && SITE_CONFIG.kiosk && SITE_CONFIG.kiosk.tickerColor){
         setTickerColor(SITE_CONFIG.kiosk.tickerColor);
       }
+      if(typeof SITE_CONFIG !== 'undefined' && SITE_CONFIG.kiosk){
+        applyKioskContent(SITE_CONFIG.kiosk);
+      }
     }catch(e){}
   }
   function stop(){
     stopRotation();
   }
 
-  return { setMode:setMode, setTheme:setTheme, setLayout:setLayout, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setTickerColor:setTickerColor, setHeatPref:setHeatPref, onHeatData:onHeatData, onWeatherData:onWeatherData, onQuakeData:onQuakeData, onColumnArticles:onColumnArticles, showTutorial:showTutorial, closeTutorial:closeTutorial, tutNext:tutNext, tutPrev:tutPrev, resetSettings:resetSettings, togglePoints:togglePoints, refreshData:refreshData, start:start, stop:stop };
+  return { setMode:setMode, setTheme:setTheme, setLayout:setLayout, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setTickerColor:setTickerColor, applyKioskContent:applyKioskContent, setHeatPref:setHeatPref, onHeatData:onHeatData, onWeatherData:onWeatherData, onQuakeData:onQuakeData, onColumnArticles:onColumnArticles, showTutorial:showTutorial, closeTutorial:closeTutorial, tutNext:tutNext, tutPrev:tutPrev, resetSettings:resetSettings, togglePoints:togglePoints, refreshData:refreshData, start:start, stop:stop };
 })();
 
 
@@ -11261,6 +11294,7 @@ function applySiteConfig(cfg){
     // キオスクのテロップに即反映（キオスク表示中なら見た目も更新）
     try{ if(window.kioskUI && typeof window.kioskUI.setTicker === 'function'){ window.kioskUI.setTicker(SITE_CONFIG.kiosk.ticker); } }catch(e){}
     try{ if(window.kioskUI && typeof window.kioskUI.setTickerColor === 'function'){ window.kioskUI.setTickerColor(SITE_CONFIG.kiosk.tickerColor); } }catch(e){}
+    try{ if(window.kioskUI && typeof window.kioskUI.applyKioskContent === 'function'){ window.kioskUI.applyKioskContent(SITE_CONFIG.kiosk); } }catch(e){}
   }
 
   // 扉演出(splash)は config 到着前に即実行されるため、「扉を出すべきか」を
