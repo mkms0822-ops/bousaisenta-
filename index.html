@@ -3748,10 +3748,14 @@ button.dwa-plate{ padding:0; }
   #modeKioskScreen .k-jmawarn .kjw-area{ font-size:12.5px; color:var(--k-muted); margin-top:3px; line-height:1.5; }
   #modeKioskScreen .k-jmawarn .kjw-badge{ flex:0 0 auto; font-size:13px; font-weight:800; letter-spacing:.06em; padding:5px 12px; border-radius:8px; }
 
+  /* ごく狭い実スマホ（430px以下）だけは、縮小せず縦スクロールで見る。
+     これより広い画面は _computeFit が縮小して全画面に収めるため、スクロールさせない。 */
+  @media (max-width:430px){
+    #modeKioskScreen .ksg-body{ overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; }
+  }
+
   /* ===== 狭い画面（スマホ縦）では横並びを縦積みにして窮屈さを解消 ===== */
   @media (max-width:560px){
-    /* 縮小しない代わりに、はみ出す分は縦スクロールで見る */
-    #modeKioskScreen .ksg-body{ overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; }
     #modeKioskScreen .signage{ max-width:100%; }
     #modeKioskScreen .k-main{ padding:12px; gap:11px; }
     /* 地震カード2枚は縦に積む */
@@ -11036,9 +11040,9 @@ window.kioskUI = (function(){
     const sg = document.getElementById('signage');
     const stage = document.querySelector('#modeKioskScreen .ksg-body'); // 画面領域
     if(!sg || !stage) return;
-    // スマホなど狭い画面では縮小せず、幅いっぱいに表示して縦スクロールで見る。
-    // （縮小すると横幅も縮んで左右に余白ができてしまうため）
-    if(window.innerWidth <= 560){
+    // ごく狭い実スマホ（幅430px以下）のみ、縮小せず幅いっぱい＋縦スクロールで見る。
+    // それ以上の幅（小型タブレット縦など）は縮小して全画面に収める（下部が切れないように）。
+    if(window.innerWidth <= 430){
       sg.style.marginBottom = '0px';
       applyScale(1);
       return;
