@@ -839,6 +839,9 @@ main { position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:28
 .blog-card-footer { padding:10px 18px; display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
 .blog-card-date { font-family:'Share Tech Mono',monospace; font-size:20px; color:var(--muted); }
 .blog-card-link { font-size:22px; color:var(--cyan); font-weight:700; text-decoration:none; white-space:nowrap; }
+.share-btn { font-size:13px; color:var(--muted); font-weight:600; background:transparent; border:1px solid var(--line); border-radius:8px; padding:5px 10px; cursor:pointer; white-space:nowrap; }
+.share-btn:hover { color:var(--cyan); border-color:var(--cyan); }
+.share-btn:active { transform:scale(0.95); }
 .blog-card-link:hover { text-decoration:underline; }
 /* いいねボタン */
 .like-btn { display:inline-flex; align-items:center; gap:6px; background:rgba(255,45,45,0.08); border:1px solid var(--border-red); border-radius:20px; padding:4px 13px; font-size:20px; font-weight:700; color:var(--muted); cursor:pointer; line-height:1; transition:all 0.15s; white-space:nowrap; font-family:inherit; }
@@ -6399,6 +6402,7 @@ function renderBlog() {
       <div class="blog-card-footer">
         <span class="blog-card-date">🕐 ${c.updated}</span>
         <button type="button" class="like-btn ${liked?'on':''}" id="like${i}" aria-pressed="${liked?'true':'false'}" title="いいね" onclick="toggleLikeCard(${i})"><span class="like-heart">❤️</span><span class="like-count">${lcount}</span></button>
+        <button type="button" class="share-btn" title="この記事を共有" onclick="shareArticleCard(${i})">🔗 共有</button>
         ${c.link ? `<a class="blog-card-link" href="${c.link}" target="_blank">リンクを開く →</a>` : ''}
         ${isLong ? `<button class="read-more-btn" id="rbtn${i}" onclick="toggleReadMore(${i})">続きを読む →</button>` : ''}
       </div>
@@ -6563,6 +6567,56 @@ function bookmarkId(c){
   for(let i=0;i<base.length;i++){ h = (h*31 + base.charCodeAt(i)) | 0; }
   return 'bm_' + (h >>> 0).toString(36);
 }
+
+// 記事の共有URLを組み立てる（このURLを開くと該当記事が自動で開く）。
+function articleShareUrl(c){
+  var id = bookmarkId(c);
+  var base = 'https://bousai0111.info/';
+  return base + '#a=' + id;
+}
+
+// 記事カードの「共有」ボタン：URLをコピー（対応端末では共有シート）。
+function shareArticleCard(i){
+  try {
+    var c = blogCards[i];
+    if(!c) return;
+    var url = articleShareUrl(c);
+    var title = String(c.title || '防災情報センター');
+    // スマホなどネイティブ共有が使えるならそれを優先
+    if(navigator.share){
+      navigator.share({ title: title, text: title, url: url }).catch(function(){});
+      return;
+    }
+    // それ以外はクリップボードへコピー
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(function(){
+        _toastShare('記事のURLをコピーしました');
+      }).catch(function(){ _fallbackCopy(url); });
+    } else {
+      _fallbackCopy(url);
+    }
+  } catch(e){}
+}
+function _fallbackCopy(text){
+  try {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    _toastShare('記事のURLをコピーしました');
+  } catch(e){ _toastShare('コピーに失敗しました'); }
+}
+function _toastShare(msg){
+  try {
+    var t = document.createElement('div');
+    t.textContent = msg;
+    t.style.cssText = 'position:fixed;left:50%;bottom:32px;transform:translateX(-50%);background:rgba(20,28,40,0.95);color:#fff;padding:11px 18px;border-radius:22px;font-size:14px;z-index:100000;box-shadow:0 4px 18px rgba(0,0,0,0.35);';
+    document.body.appendChild(t);
+    setTimeout(function(){ try{ document.body.removeChild(t); }catch(e){} }, 2200);
+  } catch(e){}
+}
+
 
 // 旧形式（タイトル＋日付）のキーで保存されたブックマークを、
 // 新しいID（タイトルのみ）へ一度だけ移行する。これで過去に保存した
@@ -12118,6 +12172,13 @@ async function loadArticles(){
     refreshVersionUI();
     try { loadLikes(); } catch(e){}
 
+    // 記事の共有リンク(#a=記事ID)で来ていて、まだ開けていなければ今開く
+    try {
+      if (typeof _pendingArticleId !== 'undefined' && _pendingArticleId) {
+        openArticleById(_pendingArticleId);
+      }
+    } catch(e){}
+
     // ── キオスクモードの防災コラムに出す記事（記事シートで「キオスク表示」ONのもの）──
     try {
       if (window.kioskUI && typeof window.kioskUI.onColumnArticles === 'function') {
@@ -12674,10 +12735,52 @@ document.addEventListener('keydown', function(e){
 // URL末尾のハッシュ（#open-stamp など）を見て、対応するモーダルを開く。
 // 例: https://bousai0111.info/#open-stamp → スタンプカードを開く
 // ★一度開いたらハッシュを消すので、更新ボタンや再読み込みで再表示されません。
+// 記事ID（bookmarkId）から該当する防災コラム記事を探して開く。
+// 記事一覧がまだ読み込まれていない場合は、少し待って数回リトライする。
+var _pendingArticleId = '';
+function openArticleById(wantId, _tries){
+  wantId = String(wantId || '').trim().toLowerCase();
+  if(!wantId) return;
+  _tries = _tries || 0;
+  try {
+    if(Array.isArray(blogCards) && blogCards.length){
+      for(var i=0;i<blogCards.length;i++){
+        var id = String(bookmarkId(blogCards[i]) || '').toLowerCase();
+        if(id === wantId){
+          // 防災コラムのセクションへスクロールしてから本文オーバーレイを開く
+          try{ var sec = document.getElementById('section-column'); if(sec) sec.scrollIntoView({behavior:'smooth', block:'start'}); }catch(e){}
+          setTimeout(function(){ try{ openColOverlay(i); }catch(e){} }, 300);
+          _pendingArticleId = '';
+          // 開いたらハッシュを消す（再読み込み時の再発防止）
+          try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
+          return true;
+        }
+      }
+    }
+  } catch(e){}
+  // まだ見つからない（記事未読込）なら、記事到着後に開けるよう記憶しつつリトライ
+  _pendingArticleId = wantId;
+  if(_tries < 20){
+    setTimeout(function(){ openArticleById(wantId, _tries+1); }, 400);
+  }
+  return false;
+}
+
+
 function openModalFromHash(){
   try {
-    var hash = String(location.hash || '').replace(/^#/, '').toLowerCase();
+    var rawHash = String(location.hash || '').replace(/^#/, '');
+    var hash = rawHash.toLowerCase();
     if(!hash) return;
+
+    // 記事へのディープリンク：#a=<記事ID> なら該当記事を開く
+    // （Xなどで共有したURLから、特定の防災コラム記事を直接開けるようにする）
+    var am = rawHash.match(/^a=(.+)$/i);
+    if(am){
+      var wantId = String(am[1] || '').trim().toLowerCase();
+      openArticleById(wantId);
+      return;
+    }
     // ハッシュ → 開く処理 の対応表（必要に応じて増やせます）
     var map = {
       'open-stamp':   function(){ if(typeof openStampCard==='function') openStampCard(); },
