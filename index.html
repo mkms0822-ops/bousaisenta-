@@ -1898,6 +1898,20 @@ html.light #tsunamiBanner.warn-major .tsunami-link:hover { background:rgba(200,2
 #jmaWarningBanner .jmaw-lv4 .jmaw-title{ color:#d99bff; text-shadow:0 0 16px rgba(190,90,230,0.5); }
 #jmaWarningBanner .jmaw-lv4 .jmaw-label{ color:rgba(220,170,245,0.9); }
 #jmaWarningBanner .jmaw-lv4 .jmaw-badge{ background:rgba(170,70,220,0.9); color:#fff; border:none; }
+/* ライト系テーマ（ライトモード・パステル各種）では紫文字が薄くて読みづらいので黒にする。
+   ダーク系（navy/midnight等）は上の明るい紫のまま。 */
+html.light #jmaWarningBanner .jmaw-lv4 .jmaw-title,
+html.pastel-pink #jmaWarningBanner .jmaw-lv4 .jmaw-title,
+html.pastel-sky #jmaWarningBanner .jmaw-lv4 .jmaw-title,
+html.pastel-yellow #jmaWarningBanner .jmaw-lv4 .jmaw-title,
+html.pastel-green #jmaWarningBanner .jmaw-lv4 .jmaw-title,
+html.pastel-purple #jmaWarningBanner .jmaw-lv4 .jmaw-title{ color:#1a1a1a; text-shadow:none; }
+html.light #jmaWarningBanner .jmaw-lv4 .jmaw-label,
+html.pastel-pink #jmaWarningBanner .jmaw-lv4 .jmaw-label,
+html.pastel-sky #jmaWarningBanner .jmaw-lv4 .jmaw-label,
+html.pastel-yellow #jmaWarningBanner .jmaw-lv4 .jmaw-label,
+html.pastel-green #jmaWarningBanner .jmaw-lv4 .jmaw-label,
+html.pastel-purple #jmaWarningBanner .jmaw-lv4 .jmaw-label{ color:#333; }
 /* 特別警報 レベル5：黒ベース・文字は明るく読みやすく */
 #jmaWarningBanner .jmaw-lv5{
   background:linear-gradient(135deg,rgba(20,20,24,0.95),rgba(8,8,10,0.98));
@@ -3716,6 +3730,10 @@ button.dwa-plate{ padding:0; }
   #modeKioskScreen .k-jmawarn.lv4{ background:linear-gradient(90deg,rgba(160,60,210,0.22),rgba(90,20,140,0.12)); border-color:rgba(190,90,230,0.6); }
   #modeKioskScreen .k-jmawarn.lv4 .kjw-title{ color:#d99bff; }
   #modeKioskScreen .k-jmawarn.lv4 .kjw-badge{ background:rgba(170,70,220,0.9); color:#fff; }
+  /* ライト系テーマ（デイライト・セピア）では紫が薄くて読みづらいので黒にする。
+     スレートグレーなどダーク系は明るい紫のまま。 */
+  #modeKioskScreen[data-ktheme="daylight"] .k-jmawarn.lv4 .kjw-title,
+  #modeKioskScreen[data-ktheme="sepia"] .k-jmawarn.lv4 .kjw-title{ color:#1a1a1a; }
   /* 特別警報 lv5：黒ベース・文字明るく */
   #modeKioskScreen .k-jmawarn.lv5{ background:linear-gradient(90deg,rgba(18,18,22,0.96),rgba(8,8,10,0.98)); border-color:rgba(255,70,70,0.8); }
   #modeKioskScreen .k-jmawarn.lv5 .kjw-title{ color:#ff6b6b; }
@@ -3892,8 +3910,8 @@ button.dwa-plate{ padding:0; }
 </div>
 
 <!-- キオスクモード -->
-<div class="mode-screen" id="modeKioskScreen" data-ktheme="navy">
-<div class="ksg-body" data-ktheme="navy">
+<div class="mode-screen" id="modeKioskScreen" data-ktheme="slate">
+<div class="ksg-body" data-ktheme="slate">
 <div class="signage" id="signage">
 
   <!-- 1. ヘッダー＋スクロールバナー -->
@@ -4096,8 +4114,6 @@ button.dwa-plate{ padding:0; }
   <div class="sp-group">
     <div class="sp-label">背景テーマ</div>
     <div class="theme-swatches" id="themeSwatches">
-      <button class="sw" data-ktheme="navy"     style="--c:#0f1830" title="ナイトネイビー" onclick="kioskUI.setTheme('navy')"></button>
-      <button class="sw" data-ktheme="midnight" style="--c:#0c0e12" title="ミッドナイト" onclick="kioskUI.setTheme('midnight')"></button>
       <button class="sw" data-ktheme="slate"    style="--c:#2e3744" title="スレートグレー" onclick="kioskUI.setTheme('slate')"></button>
       <button class="sw" data-ktheme="daylight" style="--c:#f6f9fd" title="デイライト" onclick="kioskUI.setTheme('daylight')"></button>
       <button class="sw" data-ktheme="sepia"    style="--c:#f6f0e3" title="セピア" onclick="kioskUI.setTheme('sepia')"></button>
@@ -10945,12 +10961,12 @@ window.kioskUI = (function(){
     }
   });
 
-  // ===== 背景テーマ（5色）の切替と保存 =====
+  // ===== 背景テーマ（3色）の切替と保存 =====
   const THEME_KEY = 'kiosk_theme';
-  const THEMES = ['navy','midnight','slate','daylight','sepia'];
+  const THEMES = ['slate','daylight','sepia'];
 
   function setTheme(name){
-    if(THEMES.indexOf(name) < 0) name = 'navy';
+    if(THEMES.indexOf(name) < 0) name = 'slate';
     // 本体ではなくキオスク画面に適用（本体テーマと干渉しないため）
     var ks = document.getElementById('modeKioskScreen');
     if(ks) ks.setAttribute('data-ktheme', name);
@@ -10961,10 +10977,11 @@ window.kioskUI = (function(){
     try { localStorage.setItem(THEME_KEY, name); } catch(e){}
   }
 
-  // 起動時：保存済みテーマを復元（無ければ navy）
+  // 起動時：保存済みテーマを復元（無ければ・旧テーマ保存時は slate）
   function restoreTheme(){
-    let saved = 'navy';
-    try { saved = localStorage.getItem(THEME_KEY) || 'navy'; } catch(e){}
+    let saved = 'slate';
+    try { saved = localStorage.getItem(THEME_KEY) || 'slate'; } catch(e){}
+    if(THEMES.indexOf(saved) < 0) saved = 'slate';
     setTheme(saved);
   }
 
