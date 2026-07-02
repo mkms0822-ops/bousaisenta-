@@ -4040,10 +4040,11 @@ button.dwa-plate{ padding:0; }
   <div class="sp-group">
     <div class="sp-label">画面の向き</div>
     <div class="layout-presets">
+      <button id="layoutAutoBtn" onclick="kioskUI.setLayout('auto')">🔄 自動</button>
       <button id="layoutPortraitBtn" onclick="kioskUI.setLayout('portrait')">📱 縦画面</button>
       <button id="layoutLandscapeBtn" onclick="kioskUI.setLayout('landscape')">🖥️ 横画面</button>
     </div>
-    <div class="sp-note">横長のモニターやテレビに映すときは「横画面」を選ぶと、情報が左右に広がって見やすくなります。</div>
+    <div class="sp-note">「自動」は端末を横に倒すと自動で横画面に切り替わります。常に固定したいときは「縦画面」「横画面」を選んでください。</div>
   </div>
 
   <div class="sp-group">
@@ -11281,7 +11282,30 @@ function applySiteConfig(cfg){
       if(shouldShowOpening()) runOpening();
     }
   }catch(e){}
+
+  // 【防災訓練用】緊急テスト警報：管理画面で「緊急テスト警報_表示」をONにすると、
+  // サイトを開いている全端末が自動更新のたびにこれを受け取り、大画面警報を1回表示する。
+  // OFFに戻すと待機状態に戻り、次にONにしたとき再び表示する。
+  try{
+    var et = cfg && cfg.emergencyTest;
+    if(et && et.active){
+      // 震度文字列（例 "7" "5弱"）を内部の震度コードへ変換
+      var shindoMap = { '1':10,'2':20,'3':30,'4':40,'5弱':45,'5強':50,'6弱':55,'6強':60,'7':70 };
+      var sNum = shindoMap[String(et.shindo||'').trim()] || 70;
+      var testKey = 'ET_' + (et.name||'') + '_' + (et.magnitude||'') + '_' + (et.shindo||'');
+      if(_emgTestShownKey !== testKey){
+        _emgTestShownKey = testKey;   // このテストは表示済みにして重複表示を防ぐ
+        if(typeof forceShowEEW === 'function'){
+          forceShowEEW({ name: (et.name||'訓練用テスト'), magnitude: Number(et.magnitude)||7.0, shindo_num: sNum });
+        }
+      }
+    }else{
+      // OFFに戻ったら待機状態へ（次のONで再表示できるようにする）
+      _emgTestShownKey = '';
+    }
+  }catch(e){}
 }
+var _emgTestShownKey = '';
 
 /* ===== 緊急モード ===== */
 var _emgActive = false;
