@@ -3596,8 +3596,29 @@ button.dwa-plate{ padding:0; }
 #modeKioskScreen .rot-dots i.on { background:var(--k-cyan); width:16px; border-radius:3px; }
 
   /* ===== 緊急時オーバーレイ（全画面切替） ===== */
-#modeKioskScreen .k-emergency {
-    position:absolute; inset:0; z-index:50; display:none;
+/* ===== キオスク 画像ページ（2・3ページ目）＝全画面画像 ===== */
+#modeKioskScreen .k-imgpage {
+  position:absolute; inset:0; z-index:40; display:none;
+  background:#04080f; align-items:center; justify-content:center;
+}
+#modeKioskScreen .k-imgpage.show { display:flex; }
+#modeKioskScreen .k-imgpage img {
+  width:100%; height:100%; object-fit:cover; display:block;
+}
+/* ページ位置ドット（画面下中央） */
+#modeKioskScreen .k-pagedots {
+  position:absolute; left:0; right:0; bottom:14px; z-index:60;
+  display:none; align-items:center; justify-content:center; gap:10px;
+  pointer-events:none;
+}
+#modeKioskScreen .k-pagedots.show { display:flex; }
+#modeKioskScreen .k-pagedots i {
+  width:10px; height:10px; border-radius:50%;
+  background:rgba(255,255,255,0.35); transition:background 0.3s, transform 0.3s;
+}
+#modeKioskScreen .k-pagedots i.on { background:var(--k-cyan,#39d3ff); transform:scale(1.25); }
+
+#modeKioskScreen .k-emergency {    position:absolute; inset:0; z-index:50; display:none;
     flex-direction:column; align-items:center; justify-content:center;
     padding:28px; text-align:center;
     background:
@@ -3997,6 +4018,13 @@ button.dwa-plate{ padding:0; }
     </div>
   </div>
   </div><!-- /k-body -->
+
+  <!-- 画像ページ（2ページ目・3ページ目）：全画面画像。管理画面のURLで差し替え -->
+  <div class="k-imgpage" id="kImgPage2"><img id="kImg2" alt=""></div>
+  <div class="k-imgpage" id="kImgPage3"><img id="kImg3" alt=""></div>
+
+  <!-- ページ位置ドット（画面下・自動めくり用） -->
+  <div class="k-pagedots" id="kPageDots"></div>
 
   <!-- 緊急時オーバーレイ（全画面切替） -->
   <div class="k-emergency" id="emergency">
@@ -10656,8 +10684,7 @@ window.kioskUI = (function(){
     if(tag){ tag.style.color = (name==='白') ? '#1a1a1a' : (name==='黒' ? '#f0f0f0' : '#1a0606'); }
   }
 
-  // GAS設定（config.kiosk）から「備えヒント」枠・「情報スライド」枠の内容を反映する。
-  // 空欄の項目はHTMLの既定文言をそのまま残す（上書きしない）。
+  // GAS設定（config.kiosk）から「備えヒント」枠・「情報スライド」枠の内容を反映する。  // 空欄の項目はHTMLの既定文言をそのまま残す（上書きしない）。
   function applyKioskContent(k){
     if(!k) return;
     var setText = function(id, val){
@@ -10684,6 +10711,84 @@ window.kioskUI = (function(){
       var label = document.getElementById('kInfoLabel');
       if(label) label.textContent = String(k.infoTitle).trim();
     }
+    // 画像ページ（2・3ページ目）と自動めくりの設定を反映
+    applyKioskPages(k);
+  }
+
+  // ===== キオスクのページめくり（1ページ目＝通常画面／2・3ページ目＝全画面画像）=====
+  var _kPages = [1];         // 巡回するページ番号の配列（画像URLがあるページだけ含む）
+  var _kPageIdx = 0;         // 現在の _kPages 上の位置
+  var _kPageTimer = null;    // 自動めくりタイマー
+  var _kPageSeconds = 20;    // 切替間隔（秒）。0で自動めくりOFF
+
+  function _kSetImg(imgId, url){
+    var img = document.getElementById(imgId);
+    if(!img) return false;
+    var u = String(url || '').trim();
+    if(u){ if(img.getAttribute('src') !== u) img.src = u; return true; }
+    img.removeAttribute('src');
+    return false;
+  }
+
+  // 指定ページを表示（1＝通常画面、2/3＝画像ページ）
+  function showKPage(pageNum){
+    var p2 = document.getElementById('kImgPage2');
+    var p3 = document.getElementById('kImgPage3');
+    if(p2) p2.classList.toggle('show', pageNum === 2);
+    if(p3) p3.classList.toggle('show', pageNum === 3);
+    // ページドットの現在位置を更新
+    var dots = document.querySelectorAll('#kPageDots i');
+    for(var d=0; d<dots.length; d++){
+      dots[d].classList.toggle('on', _kPages[_kPageIdx] === parseInt(dots[d].getAttribute('data-p'),10));
+    }
+  }
+
+  // ページ構成（存在するページ）とドットを組み直す
+  function _kRebuildPages(hasP2, hasP3){
+    _kPages = [1];
+    if(hasP2) _kPages.push(2);
+    if(hasP3) _kPages.push(3);
+    // ドットを作り直す（2ページ以上のときだけ表示）
+    var dotBox = document.getElementById('kPageDots');
+    if(dotBox){
+      if(_kPages.length > 1){
+        var html = '';
+        for(var i=0;i<_kPages.length;i++){ html += '<i data-p="'+_kPages[i]+'"></i>'; }
+        dotBox.innerHTML = html;
+        dotBox.classList.add('show');
+      } else {
+        dotBox.innerHTML = '';
+        dotBox.classList.remove('show');
+      }
+    }
+    // 現在位置が範囲外なら先頭へ
+    if(_kPageIdx >= _kPages.length) _kPageIdx = 0;
+    showKPage(_kPages[_kPageIdx]);
+  }
+
+  function _kNextPage(){
+    if(_kPages.length <= 1){ return; }
+    _kPageIdx = (_kPageIdx + 1) % _kPages.length;
+    showKPage(_kPages[_kPageIdx]);
+  }
+
+  function stopKPaging(){ if(_kPageTimer){ clearInterval(_kPageTimer); _kPageTimer = null; } }
+  function startKPaging(){
+    stopKPaging();
+    if(_kPageSeconds > 0 && _kPages.length > 1){
+      _kPageTimer = setInterval(function(){ try{ _kNextPage(); }catch(e){} }, _kPageSeconds * 1000);
+    }
+  }
+
+  // GAS設定から画像ページと切替秒数を反映
+  function applyKioskPages(k){
+    if(!k) return;
+    var hasP2 = _kSetImg('kImg2', k.page2Image);
+    var hasP3 = _kSetImg('kImg3', k.page3Image);
+    var sec = Number(k.pageSeconds);
+    if(!isNaN(sec)) _kPageSeconds = sec;
+    _kRebuildPages(hasP2, hasP3);
+    startKPaging();
   }
 
   const HEATPREF_KEY = 'kiosk_heatpref';
@@ -11164,9 +11269,10 @@ window.kioskUI = (function(){
   }
   function stop(){
     stopRotation();
+    stopKPaging();
   }
 
-  return { setMode:setMode, setTheme:setTheme, setLayout:setLayout, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setTickerColor:setTickerColor, applyKioskContent:applyKioskContent, setHeatPref:setHeatPref, onHeatData:onHeatData, onWeatherData:onWeatherData, onQuakeData:onQuakeData, onColumnArticles:onColumnArticles, showTutorial:showTutorial, closeTutorial:closeTutorial, tutNext:tutNext, tutPrev:tutPrev, resetSettings:resetSettings, togglePoints:togglePoints, refreshData:refreshData, start:start, stop:stop };
+  return { setMode:setMode, setTheme:setTheme, setLayout:setLayout, setScale:setScale, setAutoFit:setAutoFit, toggleSettings:toggleSettings, setTicker:setTicker, setTickerColor:setTickerColor, applyKioskContent:applyKioskContent, startKPaging:startKPaging, stopKPaging:stopKPaging, setHeatPref:setHeatPref, onHeatData:onHeatData, onWeatherData:onWeatherData, onQuakeData:onQuakeData, onColumnArticles:onColumnArticles, showTutorial:showTutorial, closeTutorial:closeTutorial, tutNext:tutNext, tutPrev:tutPrev, resetSettings:resetSettings, togglePoints:togglePoints, refreshData:refreshData, start:start, stop:stop };
 })();
 
 
