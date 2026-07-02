@@ -10753,21 +10753,9 @@ window.kioskUI = (function(){
     var p3 = document.getElementById('kImgPage3');
     if(p2) p2.classList.toggle('show', pageNum === 2);
     if(p3) p3.classList.toggle('show', pageNum === 3);
-    // 画像ページのときだけ、その表示領域の実寸と縦横比を隅に表示する
-    // （この比率で画像を作れば、切れず余白も出ない）
+    // （開発用の実寸表示は運用では非表示。サイズ確認が必要になったら下を有効化する）
     var sizeEl = document.getElementById('kImgSize');
-    if(sizeEl){
-      var activePage = (pageNum === 2) ? p2 : (pageNum === 3 ? p3 : null);
-      if(activePage){
-        var w = activePage.clientWidth, h = activePage.clientHeight;
-        var g = function(a,b){ return b ? g(b, a % b) : a; };
-        var dv = g(w, h) || 1;
-        sizeEl.textContent = w + '×' + h + ' px（比率 ' + (w/dv) + ':' + (h/dv) + '）';
-        sizeEl.style.display = 'block';
-      } else {
-        sizeEl.style.display = 'none';
-      }
-    }
+    if(sizeEl){ sizeEl.style.display = 'none'; }
     // ページドットの現在位置を更新
     var dots = document.querySelectorAll('#kPageDots i');
     for(var d=0; d<dots.length; d++){
