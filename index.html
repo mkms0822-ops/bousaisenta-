@@ -14099,6 +14099,8 @@ function openStampCard(){
 }
 function closeStampCard(opts){
   document.getElementById('stampOverlay').classList.remove('open');
+  // デモ表示を終了して、本物のカード表示に戻す
+  if (window._stampDemoStage) { try { window._stampDemoStage = 0; renderStampCard(); } catch(e){} }
   // 「とじる」や背景タップで閉じたときはページ最上部（TOP）へ戻す。
   // ただし、お問い合わせ／チャットへ遷移するために閉じる場合は戻さない。
   if(!(opts && opts.noScroll)){
@@ -14127,6 +14129,7 @@ function openChatFromStamp(){
   }, 80);
 }
 function renderStampCard(holdLast){
+  if (window._stampDemoStage) return; // デモ表示中は通常描画で上書きしない
   const s = getStampData();
   const count = s.count || 0;
   const shown = holdLast ? count - 1 : count; // 演出前は今日の分を空けておく
@@ -14182,16 +14185,65 @@ function sendPresentForm(stage){
       }).catch(function(){});
     }
   } catch(e){}
-  try { fetch(ARTICLES_URL + '?type=stamp&action=claim&stage=' + stage + '&code=' + encodeURIComponent(getStampCode())).catch(function(){}); } catch(e){}
+  const isStampDemo = !!window._stampDemoStage;
+  // デモ中は「応募済み」の記録（サーバー・ブラウザとも）を付けない
+  if (!isStampDemo) {
+    try { fetch(ARTICLES_URL + '?type=stamp&action=claim&stage=' + stage + '&code=' + encodeURIComponent(getStampCode())).catch(function(){}); } catch(e){}
+  }
   setTimeout(function(){
+    const box = document.getElementById('stampMessage');
+    if (isStampDemo) {
+      box.insertAdjacentHTML('afterbegin', '<div class="stamp-congrats" style="border-color:#bfe6c8;"><p style="margin:0;color:#4f9d6b;font-weight:700;">✅ テスト応募を送信しました！<br>①「プレゼント応募」シートに行が増えているか、②入力したアドレスに受付メールが届くか（迷惑メールも確認）をチェックしてください。<br><span style="font-weight:400;color:#7a8a7f;">テストで増えた行は削除して大丈夫です。スタンプ記録・応募済み扱いにはなっていません。</span></p></div>');
+      return;
+    }
     const s = getStampData();
     if (stage === 10) s.claimed10 = true; else s.claimed20 = true;
     saveStampData(s);
     renderStampCard();
-    const box = document.getElementById('stampMessage');
     box.insertAdjacentHTML('afterbegin', '<div class="stamp-congrats" style="border-color:#bfe6c8;"><p style="margin:0;color:#4f9d6b;font-weight:700;">✅ ご応募ありがとうございました！<br>ご入力のメールアドレス宛に、受付完了のメールを自動でお送りしています。<br>プレゼントのご案内まで今しばらくお待ちください。</p></div>');
   }, 700);
 }
+// ==================== スタンプデモ（?stampdemo=10 / ?stampdemo=20） ====================
+// 動作テスト用。実際のスタンプ記録（サーバー台帳・ブラウザ保存）には一切触れない。
+// おめでとう画面と応募フォームだけを表示し、応募テストでは
+// 「プレゼント応募シートへの記録＋受付メール送信」だけが本番と同じ経路で動く。
+(function(){
+  var stage = 0;
+  try {
+    var p = new URLSearchParams(location.search).get('stampdemo');
+    if (p === '10') stage = 10; else if (p === '20') stage = 20;
+  } catch(e){}
+  if (!stage) return;
+  window._stampDemoStage = stage;
+  // 再読み込みで繰り返さないよう、URLからパラメータを消す
+  try { history.replaceState(null, '', location.pathname + location.hash); } catch(e){}
+  function openStampDemo(){
+    try {
+      var overlay = document.getElementById('stampOverlay');
+      var grid = document.getElementById('stampGrid');
+      var box = document.getElementById('stampMessage');
+      if (!overlay || !grid || !box) return;
+      var cells = '';
+      for (var i = 1; i <= 20; i++) {
+        var gift = (i === 10 || i === 20) ? ' gift' : '';
+        var filled = i <= stage ? ' filled' : '';
+        var inner = filled ? '<div class="stamp-mark"></div>' : (gift ? '🎁' : i);
+        cells += '<div class="stamp-cell' + gift + filled + '">' + inner + '</div>';
+      }
+      grid.innerHTML = cells;
+      box.innerHTML =
+        '<div class="stamp-congrats" style="border-color:#bcd7f0;background:#f4f9ff;"><p style="margin:0;font-size:12px;color:#4a7ab0;font-weight:700;">🧪 デモ表示中（動作テスト）<br>実際のスタンプ記録・応募済み扱いには影響しません。<br>下のフォームから応募テストをすると、シート記録と受付メールだけが本番と同じように動きます。</p></div>'
+        + stampCongratsHtml(stage);
+      overlay.classList.add('open');
+    } catch(e){ console.warn('stamp demo error', e); }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(openStampDemo, 900); });
+  } else {
+    setTimeout(openStampDemo, 900);
+  }
+})();
+
 // 木製の印鑑(イラスト)が右上から現れてスタンプを押す演出
 const HANKO_IMG_SRC = 'dwa-hanko-v2.webp';
 function playStampAnimation(n){
