@@ -16179,6 +16179,19 @@ document.addEventListener('keydown', function(e){
   #sosHeaderBtn:active{ transform:scale(.94); }
   @keyframes sosBtnPulse{ 0%,100%{ box-shadow:0 0 6px rgba(255,40,40,.45);} 50%{ box-shadow:0 0 16px rgba(255,70,70,.95);} }
 
+  /* スマホ幅：ヘッダーが1行に収まるようSOSボタンをコンパクト化し、
+     右の機器パネル(.hp-header)の幅も少しだけ詰める（見切れ防止） */
+  @media (max-width: 768px){
+    #sosHeaderBtn{ min-width:0; width:44px; height:44px; margin-left:6px; padding:0; border-width:2px; border-radius:10px; }
+    #sosHeaderBtn .sos-btn-main{ font-size:12px; letter-spacing:.5px; }
+    #sosHeaderBtn .sos-btn-sub{ font-size:7px; letter-spacing:0; }
+    .hp-header{ width:clamp(150px,47vw,255px); }
+  }
+  @media (max-width: 400px){
+    #sosHeaderBtn{ width:40px; height:40px; }
+    .hp-header{ width:clamp(140px,44vw,255px); }
+  }
+
   /* ===== SOSパネル ===== */
   #sosPanel{ display:none; position:fixed; inset:0; z-index:99991;
     background:rgba(10,12,16,.96); color:#eceff1; overflow-y:auto;
