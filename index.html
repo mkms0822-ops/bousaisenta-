@@ -15967,7 +15967,10 @@ document.addEventListener('keydown', function(e){
       // 全て伏せた "Script error." だけを渡してくる。発生場所が分からず
       // 対処しようがないため、通知ノイズとして送信しない。
       // ファイル名・行番号が取れている＝自分のコード由来のエラーは通常通り報告する。
-      if (/^Script error\.?$/i.test(msg) && !ev.filename && !ev.lineno) {
+      // 発生元ファイル・行番号が両方とも取れないエラーは、
+      // アプリ内ブラウザ（X/LINE等）や拡張機能の注入スクリプト由来で
+      // 対処不能のため通知しない。自サイトのエラーは必ずファイル名が付く。
+      if (!ev.filename && !ev.lineno) {
         return;
       }
 
