@@ -16278,11 +16278,14 @@ document.addEventListener('keydown', function(e){
         瓦礫の下や暗所で居場所を知らせる用途です。<b>電波が無くても動きます。</b><br>
         ※開始前に <b>音量（メディア音量）と画面の明るさを最大</b> にしてください。<br>
         ※iPhoneは本体横の消音スイッチがONだと音が鳴りません。スイッチを解除してください。<br>
-        ※光の点滅が体質に合わない方は「光」をオフにしてください。
+        ※光の点滅が体質に合わない方は「光」をオフにしてください。<br>
+        <b>サイレン</b>は2種類の高音を交互に鳴らし続ける連続警報音です（光なし・通信不要）。
+        同じ音量でも救急車のサイレンと同じ原理で、人の耳に格段に気づかれやすい方式です。
       </div>
       <label class="sos-toggle"><input type="checkbox" id="sosOptSound" checked> 音（高音アラーム）</label>
       <label class="sos-toggle"><input type="checkbox" id="sosOptLight" checked> 光（画面点滅）</label>
       <button class="sos-btn red" type="button" onclick="sosBeaconStart()">▶ ビーコン開始</button>
+      <button class="sos-btn orange" type="button" onclick="sosSirenStart()">🚨 サイレン開始（連続2トーン）</button>
       <button class="sos-btn gray" type="button" onclick="sosSoundTest()">🔊 音のテスト（1秒だけ鳴らす）</button>
       <div class="sos-status" id="sosSoundTestStatus"></div>
     </div>
@@ -16335,7 +16338,7 @@ document.addEventListener('keydown', function(e){
 </div>
 
 <div id="sosFlash" aria-hidden="true"></div>
-<button id="sosFlashStop" type="button" onclick="sosBeaconStop()">■ ビーコン停止</button>
+<button id="sosFlashStop" type="button" onclick="sosAlarmStopAll()">■ 停止</button>
 
 <script>
 (function () {
@@ -16389,7 +16392,7 @@ document.addEventListener('keydown', function(e){
     function ws(o, s) { for (var i = 0; i < s.length; i++) data[o + i] = s.charCodeAt(i); }
     ws(0, 'RIFF'); w32(4, 36 + n); ws(8, 'WAVE'); ws(12, 'fmt '); w32(16, 16); w16(20, 1); w16(22, 1);
     w32(24, rate); w32(28, rate); w16(32, 1); w16(34, 8); ws(36, 'data'); w32(40, n);
-    for (var i = 0; i < n; i++) { data[44 + i] = (Math.sin(2 * Math.PI * freq * i / rate) >= 0) ? 235 : 21; }
+    for (var i = 0; i < n; i++) { data[44 + i] = (Math.sin(2 * Math.PI * freq * i / rate) >= 0) ? 255 : 0; }
     var b = '';
     for (var j = 0; j < data.length; j++) b += String.fromCharCode(data[j]);
     return 'data:audio/wav;base64,' + btoa(b);
@@ -16413,9 +16416,9 @@ document.addEventListener('keydown', function(e){
       var t = audioCtx.currentTime;
       try {
         gainNode.gain.cancelScheduledValues(t);
-        gainNode.gain.setTargetAtTime(on ? 0.6 : 0.0001, t, 0.005);
+        gainNode.gain.setTargetAtTime(on ? 1.0 : 0.0001, t, 0.005);   // 1.0=デジタル最大出力
       } catch (e) {
-        gainNode.gain.value = on ? 0.6 : 0.0001;   // 古いWebView向け
+        gainNode.gain.value = on ? 1.0 : 0.0001;   // 古いWebView向け
       }
     }
     if (_sosFallbackAudio) {
@@ -16441,14 +16444,17 @@ document.addEventListener('keydown', function(e){
     } catch (e) {}
   }
   document.addEventListener('visibilitychange', function () {
-    if (beaconOn && document.visibilityState === 'visible') {
+    if (document.visibilityState !== 'visible') return;
+    if (beaconOn || sirenOn) {
       requestWakeLock();
       try { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); } catch (e) {}
+      try { if (sirenCtx && sirenCtx.state === 'suspended') sirenCtx.resume(); } catch (e) {}
     }
   });
 
   window.sosBeaconStart = function () {
     if (beaconOn) return;
+    try { window.sosSirenStop(); } catch (e) {}   // サイレンと同時には鳴らさない
     var useSound = document.getElementById('sosOptSound').checked;
     var useLight = document.getElementById('sosOptLight').checked;
     if (!useSound && !useLight) { alert('「音」か「光」のどちらかをオンにしてください。'); return; }
@@ -16516,7 +16522,8 @@ document.addEventListener('keydown', function(e){
           out.innerHTML = '✅ 音声エンジンは正常に動いています。<b>それでも聞こえなかった場合は端末側の設定です：</b><br>'
             + '① メディア音量…このまま本体の音量アップボタンを押し、表示されるバーが「メディア」で0でないか確認<br>'
             + '② マナーモード／ミュートを解除<br>'
-            + '③ Bluetooth…イヤホン・時計・車などに接続中だと音はそちらに流れます。Bluetoothを一時OFFにして再テスト';
+            + '③ Bluetooth…イヤホン・時計・車などに接続中だと音はそちらに流れます。Bluetoothを一時OFFにして再テスト<br>'
+            + '④ HDMI・外部ディスプレイ接続中は音がそちらに出力され、本体からは鳴りません';
         } else {
           out.textContent = '⚠️ 音声エンジンが「' + st + '」状態のままです。もう一度このボタンを押すか、ページを再読み込みしてお試しください。';
         }
@@ -16524,6 +16531,66 @@ document.addEventListener('keydown', function(e){
     } catch (e) {
       out.textContent = '⚠️ 音声エンジンを起動できませんでした（' + e + '）。ブラウザを最新版に更新してお試しください。';
     }
+  };
+
+  // ---------- サイレン（ビーコンとは別の連続2トーン警報音・2800Hz⇄2200Hz） ----------
+  var sirenOn = false, sirenCtx = null, sirenOsc = null, sirenGain = null;
+  var sirenTimer = null, sirenHigh = true, sirenFallbackTimer = null;
+
+  window.sosSirenStart = function () {
+    if (sirenOn) return;
+    try { window.sosBeaconStop(); } catch (e) {}   // ビーコンと同時には鳴らさない
+    sirenOn = true;
+    try {
+      sirenCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (sirenCtx.state === 'suspended') { try { sirenCtx.resume(); } catch (e2) {} }
+      // 音声アンロック（無音バッファ）
+      try {
+        var ub = sirenCtx.createBuffer(1, 1, 22050);
+        var us = sirenCtx.createBufferSource();
+        us.buffer = ub; us.connect(sirenCtx.destination); us.start(0);
+      } catch (e3) {}
+      sirenOsc = sirenCtx.createOscillator();
+      sirenGain = sirenCtx.createGain();
+      sirenOsc.type = 'square';
+      sirenOsc.frequency.value = 2800;
+      sirenGain.gain.value = 1.0;   // デジタル最大出力
+      sirenOsc.connect(sirenGain).connect(sirenCtx.destination);
+      sirenOsc.start();
+      sirenHigh = true;
+      // 350msごとに高音⇄低音を切り替える（救急車式の交互2トーン）
+      sirenTimer = setInterval(function () {
+        sirenHigh = !sirenHigh;
+        var f = sirenHigh ? 2800 : 2200;
+        try { sirenOsc.frequency.setValueAtTime(f, sirenCtx.currentTime); }
+        catch (e4) { try { sirenOsc.frequency.value = f; } catch (e5) {} }
+        // 予備ブザー使用時は音量の強弱で疑似サイレン化
+        if (_sosFallbackAudio) { _sosFallbackAudio.volume = sirenHigh ? 1 : 0.15; }
+      }, 350);
+    } catch (e) { sirenCtx = null; sirenOsc = null; sirenGain = null; }
+    // WebAudioが動かない端末は予備ブザーへ自動フォールバック
+    sirenFallbackTimer = setTimeout(function () {
+      if (sirenOn && (!sirenCtx || sirenCtx.state !== 'running')) sosStartFallbackBeep();
+    }, 1800);
+    stopBtn.classList.add('show');
+    panel.classList.remove('open');
+    requestWakeLock();
+    try { if (window.dwaTrack) window.dwaTrack('button', 'SOSサイレン開始'); } catch (e) {}
+  };
+
+  window.sosSirenStop = function () {
+    sirenOn = false;
+    if (sirenTimer) { clearInterval(sirenTimer); sirenTimer = null; }
+    if (sirenFallbackTimer) { clearTimeout(sirenFallbackTimer); sirenFallbackTimer = null; }
+    if (sirenOsc) { try { sirenOsc.stop(); } catch (e) {} sirenOsc = null; }
+    if (sirenCtx) { try { sirenCtx.close(); } catch (e) {} sirenCtx = null; sirenGain = null; }
+    if (_sosFallbackAudio) { try { _sosFallbackAudio.pause(); } catch (e) {} _sosFallbackAudio = null; }
+  };
+
+  // 停止ボタン共通処理：ビーコン・サイレンのどちらが鳴っていても止める
+  window.sosAlarmStopAll = function () {
+    try { window.sosBeaconStop(); } catch (e) {}
+    try { window.sosSirenStop(); } catch (e) {}
   };
 
   window.sosBeaconStop = function () {
