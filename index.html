@@ -16228,6 +16228,15 @@ document.addEventListener('keydown', function(e){
   #dwaGuideCard p{ margin:0 0 12px; font-size:13px; line-height:1.7; color:#cfd8dc; white-space:pre-line; }
   #dwaGuideCard button{ display:block; width:100%; padding:10px; border:none; border-radius:9px;
     background:#ffd54f; color:#1a1a1a; font-size:14px; font-weight:800; cursor:pointer; }
+
+  /* スマホ表示サイズ（小/大）のzoom使用時のズレ防止。
+     サイト既存のオーバーレイ（.hamburger-overlay等）と同じ打ち消し方式。
+     bodyのzoomをここで相殺しないと、JSで計算した座標が0.75/1.25倍ズレて
+     ハイライト枠やカードが画面からはみ出す。 */
+  html.scale-sm #dwaGuideHl, html.scale-sm #dwaGuideCard, html.scale-sm #sosPanel,
+  html.scale-sm #sosFlash, html.scale-sm #sosFlashStop{ zoom: calc(1 / 0.75); }
+  html.scale-lg #dwaGuideHl, html.scale-lg #dwaGuideCard, html.scale-lg #sosPanel,
+  html.scale-lg #sosFlash, html.scale-lg #sosFlashStop{ zoom: calc(1 / 1.25); }
 </style>
 
 <div id="sosPanel" role="dialog" aria-label="緊急SOSビーコン">
