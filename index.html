@@ -16263,11 +16263,25 @@ document.addEventListener('keydown', function(e){
       <h3>② SOS位置発信</h3>
       <div class="sos-note">
         現在地を取得してサーバーに記録し、家族へ送れる共有文を作ります。
-        <b>通信が生きている場合のみ届きます。</b>位置情報の許可を求められたら「許可」を選んでください。
+        <b>通信が生きている場合のみ届きます。</b>位置情報の許可を求められたら「許可」を選んでください。<br>
+        <b>※下のボタンは消防・警察への通報ではありません。</b>通報できる状況の方は、必ず一番下の
+        📞ボタンから119・110へ直接通報してください。<br>
+        <b>【使いどころ】</b>110番・119番が繋がらないとき、または繋がって要請したものの、
+        通信指令室の司令員に正確に伝わったか不安なとき などの補助手段としてご利用ください。<br>
+        送信できなかった場合は、<b>成功するまで約2分おきに自動で再送し続けます</b>。
       </div>
       <button class="sos-btn orange" type="button" onclick="sosSendLocation('救助が必要')">🚨 救助が必要（位置を発信）</button>
+      <button class="sos-btn red" type="button" onclick="sosSendLocation('火災')">🔥 火災（位置を発信）</button>
+      <div class="sos-row">
+        <button class="sos-btn green" type="button" onclick="sosSendLocation('救急要請')">🚑 救急要請</button>
+        <button class="sos-btn blue" type="button" onclick="sosSendLocation('事件・事故')">🚓 事件・事故</button>
+      </div>
       <button class="sos-btn blue" type="button" onclick="sosSendLocation('避難中')">🏃 避難中（位置を発信）</button>
       <button class="sos-btn gray" type="button" onclick="sosShareLast()">📤 家族に共有（LINE等）</button>
+      <div class="sos-row">
+        <a class="sos-btn red" style="text-align:center;text-decoration:none;box-sizing:border-box;line-height:1.3" href="tel:119">📞 119へ電話<br><span style="font-size:11px;font-weight:400">火事・救急・救助</span></a>
+        <a class="sos-btn blue" style="text-align:center;text-decoration:none;box-sizing:border-box;line-height:1.3" href="tel:110">📞 110へ電話<br><span style="font-size:11px;font-weight:400">事件・事故</span></a>
+      </div>
       <div class="sos-status" id="sosLocStatus"></div>
     </div>
 
@@ -16418,23 +16432,76 @@ document.addEventListener('keydown', function(e){
   function sosUid() {
     try { return localStorage.getItem('dwa_visit_uid') || ''; } catch (e) { return ''; }
   }
-  function sendToGas(params, cb) {
-    var qs = Object.keys(params).map(function (k) {
-      return k + '=' + encodeURIComponent(params[k]);
+  // ---------- 送信キュー：失敗したら成功するまで約2分おきに自動再送 ----------
+  // 送信内容は端末(localStorage)に保存するため、ページを開き直しても再送が続く。
+  var SOS_QUEUE_KEY = 'dwa_sos_queue';
+  var SOS_RETRY_MS = 2 * 60 * 1000;   // 再送間隔（約2分）
+  var _sosFlushTimer = null;
+  var _sosFlushing = false;
+
+  function sosLoadQueue() {
+    try { var q = JSON.parse(localStorage.getItem(SOS_QUEUE_KEY) || '[]'); return Array.isArray(q) ? q : []; }
+    catch (e) { return []; }
+  }
+  function sosSaveQueue(q) {
+    try { localStorage.setItem(SOS_QUEUE_KEY, JSON.stringify(q.slice(0, 20))); } catch (e) {}
+  }
+  function sosBuildUrl(item) {
+    var qs = Object.keys(item.p).map(function (k) {
+      return k + '=' + encodeURIComponent(item.p[k]);
     }).join('&');
-    var url = SOS_GAS_URL + '?type=sos&' + qs + '&uid=' + encodeURIComponent(sosUid()) + '&_=' + Date.now();
-    try {
-      fetch(url, { method: 'GET', mode: 'no-cors', cache: 'no-store' })
-        .then(function () { cb(true); })
-        .catch(function () {
-          var img = new Image(); img.src = url;
-          cb(false);
-        });
-    } catch (e) {
-      var img = new Image(); img.src = url;
-      cb(false);
+    return SOS_GAS_URL + '?type=sos&' + qs + '&uid=' + encodeURIComponent(sosUid()) + '&_=' + Date.now();
+  }
+  function sosUpdateStatusEl(item, ok) {
+    var el = document.getElementById(item.el || 'sosLocStatus');
+    if (!el) return;
+    if (ok) {
+      el.innerHTML = '✅ サーバーへ送信しました：' + (item.p.st || '') + '（' + nowStr() + '）'
+        + (item.map ? '<br><a href="' + item.map + '" target="_blank" rel="noopener" style="color:#80d8ff">地図で確認 →</a>'
+          + '<br>「📤 家族に共有」でこの位置をLINE等に送れます。' : '');
+    } else {
+      el.textContent = '⏳ 通信できませんでした：' + (item.p.st || '')
+        + '。成功するまで約2分おきに自動で再送します。画面はこのまま開いておいてください。';
     }
   }
+  function sosScheduleFlush(delayMs) {
+    clearTimeout(_sosFlushTimer);
+    _sosFlushTimer = setTimeout(sosFlushQueue, delayMs);
+  }
+  function sosFlushQueue() {
+    if (_sosFlushing) return;
+    var q = sosLoadQueue();
+    if (!q.length) return;
+    _sosFlushing = true;
+    var remain = [];
+    var chain = Promise.resolve();
+    q.forEach(function (item) {
+      chain = chain.then(function () {
+        return fetch(sosBuildUrl(item), { method: 'GET', mode: 'no-cors', cache: 'no-store' })
+          .then(function () { sosUpdateStatusEl(item, true); })
+          .catch(function () { remain.push(item); sosUpdateStatusEl(item, false); });
+      });
+    });
+    chain.then(function () {
+      sosSaveQueue(remain);
+      _sosFlushing = false;
+      if (remain.length) sosScheduleFlush(SOS_RETRY_MS);   // 残りがある限り再送を続ける
+    }).catch(function () {
+      sosSaveQueue(remain);
+      _sosFlushing = false;
+      sosScheduleFlush(SOS_RETRY_MS);
+    });
+  }
+  // 発信をキューに積んで即送信を試みる
+  function sendToGas(params, elId, map) {
+    var q = sosLoadQueue();
+    q.push({ p: params, el: elId || 'sosLocStatus', map: map || '', t: Date.now() });
+    sosSaveQueue(q);
+    sosFlushQueue();
+  }
+  // 通信が復活した瞬間・ページを開き直したときに未送信分を自動再送
+  window.addEventListener('online', function () { sosScheduleFlush(1500); });
+  if (sosLoadQueue().length) sosScheduleFlush(4000);
 
   var lastLoc = null;
   try { lastLoc = JSON.parse(localStorage.getItem('dwa_sos_last') || 'null'); } catch (e) {}
@@ -16450,13 +16517,8 @@ document.addEventListener('keydown', function(e){
       var map = 'https://maps.google.com/?q=' + lat + ',' + lng;
       lastLoc = { st: status, lat: lat, lng: lng, acc: acc, map: map, time: nowStr() };
       try { localStorage.setItem('dwa_sos_last', JSON.stringify(lastLoc)); } catch (e) {}
-      out.textContent = '📡 位置を取得しました。送信中…';
-      sendToGas({ st: status, lat: lat, lng: lng, acc: acc }, function (ok) {
-        out.innerHTML = (ok ? '✅ サーバーへ送信しました' : '⚠️ 送信を試みました（通信状況により届かない場合があります）') +
-          '<br>状態：' + status + '／精度：約' + acc + 'm<br>' +
-          '<a href="' + map + '" target="_blank" rel="noopener" style="color:#80d8ff">地図で確認 →</a>' +
-          '<br>続けて「📤 家族に共有」を押すと、この位置をLINE等で送れます。';
-      });
+      out.textContent = '📡 位置を取得しました（精度約' + acc + 'm）。送信中…';
+      sendToGas({ st: status, lat: lat, lng: lng, acc: acc }, 'sosLocStatus', map);
       try { if (window.dwaTrack) window.dwaTrack('event', 'SOS位置発信:' + status); } catch (e) {}
     }, function (err) {
       out.textContent = '⚠️ 位置を取得できませんでした（' +
@@ -16483,9 +16545,7 @@ document.addEventListener('keydown', function(e){
   window.sosSendStatus = function (status) {
     var out = document.getElementById('sosStStatus');
     out.textContent = '送信中…';
-    sendToGas({ st: status }, function (ok) {
-      out.textContent = (ok ? '✅ 記録しました：' : '⚠️ 送信を試みました：') + status + '（' + nowStr() + '）';
-    });
+    sendToGas({ st: status }, 'sosStStatus');
     try { if (window.dwaTrack) window.dwaTrack('event', 'SOS安否登録:' + status); } catch (e) {}
   };
 })();
