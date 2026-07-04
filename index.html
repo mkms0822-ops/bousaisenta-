@@ -16319,6 +16319,10 @@ document.addEventListener('keydown', function(e){
       通報は119（消防）・110（警察）へ。災害用伝言ダイヤルは171。<br>
       この機能は公的な救助要請システムとは連動していません。
     </div>
+
+    <!-- 送信完了後（1時間ロック中）だけ表示される取り消しボタン。ロック解除と同時に自動で消える -->
+    <button id="sosCancelBtn" class="sos-btn" type="button" style="display:none;background:#546e7a" onclick="sosSendCancel()">↩️ 直前の発信を取り消す（誤送信のとき）</button>
+    <div class="sos-status" id="sosCancelStatus" style="text-align:center"></div>
   </div>
 </div>
 
@@ -16486,7 +16490,9 @@ document.addEventListener('keydown', function(e){
       el.innerHTML = '✅ サーバーへ送信しました：' + (item.p.st || '') + '（' + nowStr() + '）'
         + (item.map ? '<br><a href="' + item.map + '" target="_blank" rel="noopener" style="color:#80d8ff">地図で確認 →</a>'
           + '<br>「📤 家族に共有」でこの位置をLINE等に送れます。' : '');
-      sosSetLock(Date.now() + SOS_LOCK_MS);   // 送信完了 → ここから1時間ロック
+      if ((item.p.st || '') !== '発信取り消し') {
+        sosSetLock(Date.now() + SOS_LOCK_MS);   // 送信完了 → ここから1時間ロック
+      }
     } else {
       el.textContent = '⏳ 通信できませんでした：' + (item.p.st || '')
         + '。成功するまで約2分おきに自動で再送します。画面はこのまま開いておいてください。';
@@ -16569,6 +16575,26 @@ document.addEventListener('keydown', function(e){
       else if (pending) { msg.style.display = 'block'; msg.textContent = '⏳ 送信処理中です（未達の場合は約2分おきに自動再送します）。完了までお待ちください。'; }
       else { msg.style.display = 'none'; }
     }
+    // 取り消しボタン：ロック中（＝送信完了後）だけ最下部に表示し、復旧と同時に自動で消す
+    var cbtn = document.getElementById('sosCancelBtn');
+    var cst = document.getElementById('sosCancelStatus');
+    if (cbtn) {
+      if (locked) {
+        cbtn.style.display = 'block';
+        var sent = '';
+        try { sent = localStorage.getItem('dwa_sos_cancel_sent') || ''; } catch (e) {}
+        if (sent === String(sosLockUntil())) {
+          cbtn.classList.add('sos-locked');
+          cbtn.textContent = '↩️ 取り消しを送信済みです';
+        } else {
+          cbtn.classList.remove('sos-locked');
+          cbtn.textContent = '↩️ 直前の発信を取り消す（誤送信のとき）';
+        }
+      } else {
+        cbtn.style.display = 'none';
+        if (cst) cst.textContent = '';
+      }
+    }
     // 1分ごとに残り時間を更新し、期限が来たら自動で復旧（グレー解除）
     clearTimeout(_sosLockTimer);
     if (locked) {
@@ -16576,6 +16602,20 @@ document.addEventListener('keydown', function(e){
     }
   }
   sosApplyLockUI();
+
+  // 直前の発信の取り消し（送信完了後のロック中のみ・1回だけ）
+  window.sosSendCancel = function () {
+    if (!sosIsLocked()) { sosApplyLockUI(); return; }
+    var sent = '';
+    try { sent = localStorage.getItem('dwa_sos_cancel_sent') || ''; } catch (e) {}
+    if (sent === String(sosLockUntil())) return;   // 二重送信防止
+    try { localStorage.setItem('dwa_sos_cancel_sent', String(sosLockUntil())); } catch (e) {}
+    var cst = document.getElementById('sosCancelStatus');
+    if (cst) cst.textContent = '送信中…';
+    sendToGas({ st: '発信取り消し' }, 'sosCancelStatus');
+    sosApplyLockUI();
+    try { if (window.dwaTrack) window.dwaTrack('event', 'SOS発信取り消し'); } catch (e) {}
+  };
 
   var lastLoc = null;
   try { lastLoc = JSON.parse(localStorage.getItem('dwa_sos_last') || 'null'); } catch (e) {}
