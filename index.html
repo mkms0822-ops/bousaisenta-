@@ -16216,6 +16216,10 @@ document.addEventListener('keydown', function(e){
   .sos-status{ font-size:13px; color:#ffe082; min-height:1.4em; margin-top:6px; line-height:1.6; word-break:break-all; }
   .sos-toggle{ display:flex; align-items:center; gap:8px; font-size:14px; color:#cfd8dc; margin:6px 0; }
   .sos-toggle input{ width:20px; height:20px; }
+  .sos-lock-msg{ background:rgba(255,213,79,.12); border:1px solid rgba(255,213,79,.5);
+    color:#ffe082; border-radius:10px; padding:10px 12px; font-size:13px; line-height:1.6; margin-bottom:14px; }
+  .sos-btn.sos-locked{ background:#37474f !important; color:#90a4ae !important;
+    opacity:.55; pointer-events:none; }
 
   /* ===== 点滅オーバーレイ ===== */
   #sosFlash{ display:none; position:fixed; inset:0; z-index:99998; background:#000; }
@@ -16259,6 +16263,8 @@ document.addEventListener('keydown', function(e){
       <button class="sos-close" type="button" onclick="sosClosePanel()">閉じる ✕</button>
     </div>
 
+    <div id="sosLockMsg" class="sos-lock-msg" style="display:none"></div>
+
     <div class="sos-sec">
       <h3>① 音・光ビーコン（通信不要）</h3>
       <div class="sos-note">
@@ -16283,13 +16289,13 @@ document.addEventListener('keydown', function(e){
         通信指令室の司令員に正確に伝わったか不安なとき などの補助手段としてご利用ください。<br>
         送信できなかった場合は、<b>成功するまで約2分おきに自動で再送し続けます</b>。
       </div>
-      <button class="sos-btn orange" type="button" onclick="sosSendLocation('救助が必要')">🚨 救助が必要（位置を発信）</button>
-      <button class="sos-btn red" type="button" onclick="sosSendLocation('火災')">🔥 火災（位置を発信）</button>
+      <button class="sos-btn orange sos-send" type="button" onclick="sosSendLocation('救助が必要')">🚨 救助が必要（位置を発信）</button>
+      <button class="sos-btn red sos-send" type="button" onclick="sosSendLocation('火災')">🔥 火災（位置を発信）</button>
       <div class="sos-row">
-        <button class="sos-btn green" type="button" onclick="sosSendLocation('救急要請')">🚑 救急要請</button>
-        <button class="sos-btn blue" type="button" onclick="sosSendLocation('事件・事故')">🚓 事件・事故</button>
+        <button class="sos-btn green sos-send" type="button" onclick="sosSendLocation('救急要請')">🚑 救急要請</button>
+        <button class="sos-btn blue sos-send" type="button" onclick="sosSendLocation('事件・事故')">🚓 事件・事故</button>
       </div>
-      <button class="sos-btn blue" type="button" onclick="sosSendLocation('避難中')">🏃 避難中（位置を発信）</button>
+      <button class="sos-btn blue sos-send" type="button" onclick="sosSendLocation('避難中')">🏃 避難中（位置を発信）</button>
       <button class="sos-btn gray" type="button" onclick="sosShareLast()">📤 家族に共有（LINE等）</button>
       <div class="sos-row">
         <a class="sos-btn red" style="text-align:center;text-decoration:none;box-sizing:border-box;line-height:1.3" href="tel:119">📞 119へ電話<br><span style="font-size:11px;font-weight:400">火事・救急・救助</span></a>
@@ -16302,8 +16308,8 @@ document.addEventListener('keydown', function(e){
       <h3>③ 安否登録（位置なし）</h3>
       <div class="sos-note">位置情報を使わず、状態だけをワンタップで記録します。</div>
       <div class="sos-row">
-        <button class="sos-btn green" type="button" onclick="sosSendStatus('無事です')">✅ 無事です</button>
-        <button class="sos-btn orange" type="button" onclick="sosSendStatus('救助が必要')">🆘 救助が必要</button>
+        <button class="sos-btn green sos-send" type="button" onclick="sosSendStatus('無事です')">✅ 無事です</button>
+        <button class="sos-btn orange sos-send" type="button" onclick="sosSendStatus('救助が必要')">🆘 救助が必要</button>
       </div>
       <div class="sos-status" id="sosStStatus"></div>
     </div>
@@ -16328,6 +16334,7 @@ document.addEventListener('keydown', function(e){
   var panel = document.getElementById('sosPanel');
   window.sosOpenPanel = function () {
     panel.classList.add('open');
+    try { sosApplyLockUI(); } catch (e) {}
     try { if (window.dwaTrack) window.dwaTrack('button', 'SOSビーコンを開く'); } catch (e) {}
   };
   window.sosClosePanel = function () { panel.classList.remove('open'); };
@@ -16472,6 +16479,7 @@ document.addEventListener('keydown', function(e){
       el.innerHTML = '✅ サーバーへ送信しました：' + (item.p.st || '') + '（' + nowStr() + '）'
         + (item.map ? '<br><a href="' + item.map + '" target="_blank" rel="noopener" style="color:#80d8ff">地図で確認 →</a>'
           + '<br>「📤 家族に共有」でこの位置をLINE等に送れます。' : '');
+      sosSetLock(Date.now() + SOS_LOCK_MS);   // 送信完了 → ここから1時間ロック
     } else {
       el.textContent = '⏳ 通信できませんでした：' + (item.p.st || '')
         + '。成功するまで約2分おきに自動で再送します。画面はこのまま開いておいてください。';
@@ -16498,10 +16506,12 @@ document.addEventListener('keydown', function(e){
     chain.then(function () {
       sosSaveQueue(remain);
       _sosFlushing = false;
+      sosApplyLockUI();
       if (remain.length) sosScheduleFlush(SOS_RETRY_MS);   // 残りがある限り再送を続ける
     }).catch(function () {
       sosSaveQueue(remain);
       _sosFlushing = false;
+      sosApplyLockUI();
       sosScheduleFlush(SOS_RETRY_MS);
     });
   }
@@ -16510,20 +16520,68 @@ document.addEventListener('keydown', function(e){
     var q = sosLoadQueue();
     q.push({ p: params, el: elId || 'sosLocStatus', map: map || '', t: Date.now() });
     sosSaveQueue(q);
+    sosApplyLockUI();
     sosFlushQueue();
   }
   // 通信が復活した瞬間・ページを開き直したときに未送信分を自動再送
   window.addEventListener('online', function () { sosScheduleFlush(1500); });
   if (sosLoadQueue().length) sosScheduleFlush(4000);
 
+  // ---------- 連続送信防止ロック：送信完了後は全送信ボタンを1時間グレーアウト ----------
+  var SOS_LOCK_KEY = 'dwa_sos_lock_until';
+  var SOS_LOCK_MS = 60 * 60 * 1000;   // 1時間
+  var _sosLockTimer = null;
+  var _sosGeoBusy = false;            // 位置取得中の二度押し防止
+
+  function sosLockUntil() { try { return Number(localStorage.getItem(SOS_LOCK_KEY)) || 0; } catch (e) { return 0; } }
+  function sosIsLocked() { return sosLockUntil() > Date.now(); }
+  function sosSetLock(until) {
+    try { localStorage.setItem(SOS_LOCK_KEY, String(until)); } catch (e) {}
+    sosApplyLockUI();
+  }
+  function sosLockMsgText() {
+    var until = sosLockUntil();
+    var d = new Date(until);
+    function z(n) { return (n < 10 ? '0' : '') + n; }
+    var remainMin = Math.max(1, Math.ceil((until - Date.now()) / 60000));
+    return '✅ 送信は完了しています。連続送信防止のため、次の送信は '
+      + z(d.getHours()) + ':' + z(d.getMinutes()) + ' 以降（あと約' + remainMin + '分）に可能になります。'
+      + '「📤 家族に共有」と📞119・110への電話はいつでも使えます。';
+  }
+  function sosApplyLockUI() {
+    var btns = document.querySelectorAll('#sosPanel .sos-send');
+    var msg = document.getElementById('sosLockMsg');
+    var locked = sosIsLocked();
+    var pending = sosLoadQueue().length > 0;
+    for (var i = 0; i < btns.length; i++) {
+      if (locked || pending) { btns[i].classList.add('sos-locked'); btns[i].setAttribute('disabled', 'disabled'); }
+      else { btns[i].classList.remove('sos-locked'); btns[i].removeAttribute('disabled'); }
+    }
+    if (msg) {
+      if (locked) { msg.style.display = 'block'; msg.textContent = sosLockMsgText(); }
+      else if (pending) { msg.style.display = 'block'; msg.textContent = '⏳ 送信処理中です（未達の場合は約2分おきに自動再送します）。完了までお待ちください。'; }
+      else { msg.style.display = 'none'; }
+    }
+    // 1分ごとに残り時間を更新し、期限が来たら自動で復旧（グレー解除）
+    clearTimeout(_sosLockTimer);
+    if (locked) {
+      _sosLockTimer = setTimeout(sosApplyLockUI, Math.min(60000, Math.max(1000, sosLockUntil() - Date.now())));
+    }
+  }
+  sosApplyLockUI();
+
   var lastLoc = null;
   try { lastLoc = JSON.parse(localStorage.getItem('dwa_sos_last') || 'null'); } catch (e) {}
 
   window.sosSendLocation = function (status) {
     var out = document.getElementById('sosLocStatus');
+    if (sosIsLocked()) { sosApplyLockUI(); return; }
+    if (_sosGeoBusy) { return; }
     if (!navigator.geolocation) { out.textContent = 'この端末では位置情報を取得できません。'; return; }
+    _sosGeoBusy = true;
     out.textContent = '📡 現在地を取得中…（最大20秒）';
     navigator.geolocation.getCurrentPosition(function (pos) {
+      _sosGeoBusy = false;
       var lat = pos.coords.latitude.toFixed(6);
       var lng = pos.coords.longitude.toFixed(6);
       var acc = Math.round(pos.coords.accuracy || 0);
@@ -16534,6 +16592,7 @@ document.addEventListener('keydown', function(e){
       sendToGas({ st: status, lat: lat, lng: lng, acc: acc }, 'sosLocStatus', map);
       try { if (window.dwaTrack) window.dwaTrack('event', 'SOS位置発信:' + status); } catch (e) {}
     }, function (err) {
+      _sosGeoBusy = false;
       out.textContent = '⚠️ 位置を取得できませんでした（' +
         (err.code === 1 ? '位置情報が許可されていません。ブラウザ設定をご確認ください' : '電波・GPSの状態をご確認ください') + '）。';
     }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 60000 });
@@ -16557,6 +16616,7 @@ document.addEventListener('keydown', function(e){
 
   window.sosSendStatus = function (status) {
     var out = document.getElementById('sosStStatus');
+    if (sosIsLocked()) { sosApplyLockUI(); return; }
     out.textContent = '送信中…';
     sendToGas({ st: status }, 'sosStStatus');
     try { if (window.dwaTrack) window.dwaTrack('event', 'SOS安否登録:' + status); } catch (e) {}
