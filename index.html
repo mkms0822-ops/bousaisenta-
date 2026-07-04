@@ -16270,7 +16270,8 @@ document.addEventListener('keydown', function(e){
       <div class="sos-note">
         画面をSOSモールス信号（・・・－－－・・・）で点滅させ、高音アラームを鳴らします。
         瓦礫の下や暗所で居場所を知らせる用途です。<b>電波が無くても動きます。</b><br>
-        ※開始前に <b>音量と画面の明るさを最大</b> にしてください。<br>
+        ※開始前に <b>音量（メディア音量）と画面の明るさを最大</b> にしてください。<br>
+        ※iPhoneは本体横の消音スイッチがONだと音が鳴りません。スイッチを解除してください。<br>
         ※光の点滅が体質に合わない方は「光」をオフにしてください。
       </div>
       <label class="sos-toggle"><input type="checkbox" id="sosOptSound" checked> 音（高音アラーム）</label>
@@ -16394,7 +16395,10 @@ document.addEventListener('keydown', function(e){
     } catch (e) {}
   }
   document.addEventListener('visibilitychange', function () {
-    if (beaconOn && document.visibilityState === 'visible') requestWakeLock();
+    if (beaconOn && document.visibilityState === 'visible') {
+      requestWakeLock();
+      try { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); } catch (e) {}
+    }
   });
 
   window.sosBeaconStart = function () {
@@ -16407,6 +16411,9 @@ document.addEventListener('keydown', function(e){
     if (useSound) {
       try {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // 一部ブラウザ(Android Chrome/iOS Safari)は生成直後が「一時停止(suspended)」
+        // 状態のため、明示的に再開しないと音が出ない
+        if (audioCtx.state === 'suspended') { try { audioCtx.resume(); } catch (e2) {} }
         osc = audioCtx.createOscillator();
         gainNode = audioCtx.createGain();
         osc.type = 'square';
