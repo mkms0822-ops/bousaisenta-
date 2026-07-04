@@ -16187,8 +16187,12 @@ document.addEventListener('keydown', function(e){
     #sosHeaderBtn .sos-btn-main{ font-size:12px; letter-spacing:.5px; }
     #sosHeaderBtn .sos-btn-sub{ font-size:7px; letter-spacing:0; }
     .plate-nav{ flex:0 0 auto; }
-    .header-status.hp-wrap{ flex:1 1 auto; min-width:0; }
-    .hp-header{ width:min(47vw, 100%); min-width:90px; }
+    .header-status.hp-wrap{ flex:1 1 auto; min-width:90px; }
+    .hp-header{ width:min(47vw, 100%); min-width:0; }
+    /* 旧来の「全体を左へ18pxずらす」補正は自動フィット化に伴い廃止。
+       文字サイズ「大」の端末（実質ページズーム）でヘッダーに余白が無くなると、
+       この18pxのずれがパネルとSOSボタンの重なりとして現れるため無効化する */
+    .plate-nav, .hp-wrap{ transform:none; }
   }
   @media (max-width: 400px){
     #sosHeaderBtn{ width:40px; height:40px; }
@@ -16279,6 +16283,8 @@ document.addEventListener('keydown', function(e){
       <label class="sos-toggle"><input type="checkbox" id="sosOptSound" checked> 音（高音アラーム）</label>
       <label class="sos-toggle"><input type="checkbox" id="sosOptLight" checked> 光（画面点滅）</label>
       <button class="sos-btn red" type="button" onclick="sosBeaconStart()">▶ ビーコン開始</button>
+      <button class="sos-btn gray" type="button" onclick="sosSoundTest()">🔊 音のテスト（1秒だけ鳴らす）</button>
+      <div class="sos-status" id="sosSoundTestStatus"></div>
     </div>
 
     <div class="sos-sec">
@@ -16489,6 +16495,35 @@ document.addEventListener('keydown', function(e){
     requestWakeLock();
     runPattern(0);
     try { if (window.dwaTrack) window.dwaTrack('button', 'SOS音光ビーコン開始'); } catch (e) {}
+  };
+
+  // 音のテスト：1秒鳴らして音声エンジンの状態を表示（コード起因か端末起因かの切り分け用）
+  window.sosSoundTest = function () {
+    var out = document.getElementById('sosSoundTestStatus');
+    try {
+      var c = new (window.AudioContext || window.webkitAudioContext)();
+      if (c.state === 'suspended') { try { c.resume(); } catch (e) {} }
+      var o = c.createOscillator(), g = c.createGain();
+      o.type = 'square'; o.frequency.value = 2000; g.gain.value = 0.5;
+      o.connect(g).connect(c.destination);
+      o.start();
+      out.textContent = '🔊 テスト音を再生中…（1秒）';
+      setTimeout(function () {
+        var st = c.state;
+        try { o.stop(); } catch (e) {}
+        try { c.close(); } catch (e) {}
+        if (st === 'running') {
+          out.innerHTML = '✅ 音声エンジンは正常に動いています。<b>それでも聞こえなかった場合は端末側の設定です：</b><br>'
+            + '① メディア音量…このまま本体の音量アップボタンを押し、表示されるバーが「メディア」で0でないか確認<br>'
+            + '② マナーモード／ミュートを解除<br>'
+            + '③ Bluetooth…イヤホン・時計・車などに接続中だと音はそちらに流れます。Bluetoothを一時OFFにして再テスト';
+        } else {
+          out.textContent = '⚠️ 音声エンジンが「' + st + '」状態のままです。もう一度このボタンを押すか、ページを再読み込みしてお試しください。';
+        }
+      }, 1000);
+    } catch (e) {
+      out.textContent = '⚠️ 音声エンジンを起動できませんでした（' + e + '）。ブラウザを最新版に更新してお試しください。';
+    }
   };
 
   window.sosBeaconStop = function () {
