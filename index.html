@@ -16355,6 +16355,16 @@ document.addEventListener('keydown', function(e){
   };
   window.sosClosePanel = function () { panel.classList.remove('open'); };
 
+  // ---------- 共有URL対応：?sos=1 または #sos 付きで開かれたらSOSパネルを自動表示 ----------
+  try {
+    var _sosParams = new URLSearchParams(location.search);
+    if (_sosParams.get('sos') === '1' || location.hash === '#sos') {
+      setTimeout(function () {
+        try { window.sosOpenPanel(); } catch (e) {}
+      }, 1200);
+    }
+  } catch (e) {}
+
   // ============================================================
   // ① 音・光ビーコン（オフライン動作）
   //    SOSモールス信号: ・・・ －－－ ・・・（単位200ms）
