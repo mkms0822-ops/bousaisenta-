@@ -687,6 +687,7 @@ body { padding-top: var(--topbar-h, 0px); }
 .topad-slide.bg-tiger{   background:linear-gradient(110deg,#3a1410 0%,#6e2a1d 55%,#9c4a2a 100%); }
 .topad-slide.bg-sture{   background:linear-gradient(110deg,#10243a 0%,#1c3c5e 55%,#2b6f7a 100%); }
 .topad-slide.bg-hinata{  background:linear-gradient(110deg,#16301a 0%,#27512a 55%,#4a7a3a 100%); }
+.topad-slide.bg-jackery{ background:linear-gradient(110deg,#3a2205 0%,#6e440e 55%,#c2761a 100%); }
 /* 背景の上のうっすら光沢 */
 .topad-slide::before{
   content:""; position:absolute; inset:0;
@@ -4494,7 +4495,7 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     </div>
     <nav class="hamburger-nav">
       <div class="hamburger-section-label">// ガイド</div>
-      <button class="hamburger-link" onclick="openUsageGuide();closeHamburger();" style="color:#ffd54f;border-color:rgba(255,213,79,0.35);background:rgba(255,213,79,0.07);width:100%;text-align:left;cursor:pointer;">
+      <button class="hamburger-link" data-tour="usage-guide" onclick="openUsageGuide();closeHamburger();" style="color:#ffd54f;border-color:rgba(255,213,79,0.35);background:rgba(255,213,79,0.07);width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">📖</span>取扱説明書（ご利用ガイド）
       </button>
 
@@ -5128,6 +5129,7 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <div class="topad-slide bg-tiger"><span class="topad-msg">🍚 電気が止まってもごはんを</span><a href="https://px.a8.net/svt/ejp?a8mat=4B648K+8CNX9U+4OAC+HXKQP" rel="nofollow noopener sponsored" target="_blank"><img src="https://www20.a8.net/svt/bgt?aid=260625908505&wid=001&eno=01&mid=s00000021810003012000&mc=1" alt="魔法のかまどごはん"></a></div>
       <div class="topad-slide bg-sture"><span class="topad-msg">🛡️ 普段使いできる防災ブランド</span><a href="https://px.a8.net/svt/ejp?a8mat=4B648K+70FT9U+5VK4+5YZ75" rel="nofollow noopener sponsored" target="_blank"><img src="https://www23.a8.net/svt/bgt?aid=260625908424&wid=001&eno=01&mid=s00000027418001003000&mc=1" alt="防災ブランド スツーレ"></a></div>
       <div class="topad-slide bg-hinata"><span class="topad-msg">🏕️ アウトドア・備えのギア選びに</span><a href="https://px.a8.net/svt/ejp?a8mat=4B648K+CBJYGI+4U5Q+BXIYP" rel="nofollow noopener sponsored" target="_blank"><img src="https://www25.a8.net/svt/bgt?aid=260625908745&wid=001&eno=01&mid=s00000022571002004000&mc=1" alt="hinataストア キャンプ用品"></a></div>
+      <div class="topad-slide bg-jackery"><span class="topad-msg">🔋 太陽光でも充電できる防災電源</span><a href="https://px.a8.net/svt/ejp?a8mat=4B7U0Y+57JKC2+4NJ4+6A4FL" rel="nofollow noopener sponsored" target="_blank"><img src="https://www20.a8.net/svt/bgt?aid=260705986315&wid=001&eno=01&mid=s00000021712001055000&mc=1" alt="Jackery ポータブル電源"></a><img border="0" width="1" height="1" src="https://www17.a8.net/0.gif?a8mat=4B7U0Y+57JKC2+4NJ4+6A4FL" alt="" style="position:absolute;left:-9999px;"></div>
     </div>
   </div>
   <div class="topad-dots" id="topAdDots"></div>
@@ -5543,6 +5545,14 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <div class="a8-ad">
         <a href="https://px.a8.net/svt/ejp?a8mat=4B648K+70FT9U+5VK4+5YZ75" rel="nofollow noopener sponsored" target="_blank"><img src="https://www23.a8.net/svt/bgt?aid=260625908424&wid=001&eno=01&mid=s00000027418001003000&mc=1" width="300" height="250" alt=""></a>
         <img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=4B648K+70FT9U+5VK4+5YZ75" alt="" style="position:absolute;left:-9999px;">
+      </div>
+    </div>
+
+    <div class="swidget">
+      <div class="sw-title">// Jackery ポータブル電源<span class="pr-badge">PR</span></div>
+      <div class="a8-ad">
+        <a href="https://px.a8.net/svt/ejp?a8mat=4B7U0Y+57JKC2+4NJ4+6EER5" rel="nofollow noopener sponsored" target="_blank"><img src="https://www22.a8.net/svt/bgt?aid=260705986315&wid=001&eno=01&mid=s00000021712001075000&mc=1" width="300" height="250" alt="Jackery ポータブル電源"></a>
+        <img border="0" width="1" height="1" src="https://www17.a8.net/0.gif?a8mat=4B7U0Y+57JKC2+4NJ4+6EER5" alt="" style="position:absolute;left:-9999px;">
       </div>
     </div>
 
@@ -9744,13 +9754,14 @@ function markTutorialSeen(){
 }
 const tourSteps = [
   { sel:'.hp-header', title:'防災情報センターへようこそ', text:'地震速報をリアルタイムで表示する防災情報サイトです。ヘッダー右のこの機器パネルに、LIVE表示・現在時刻・更新ボタン・メニューがまとまっています。主な使い方を簡単にご案内します。' },
-  { sel:'[data-tour="emg-plate"]', title:'🚨 緊急対応マニュアル', text:'ヘッダーの「緊急対応マニュアル」ボタンです。地震・火災・救急・台風・防犯など、いざという時の対応手順をタップで確認できます。迷ったらここを開き、状況を選ぶだけでやるべきことが表示されます。', fallbackToTop:true },
+  { sel:'[data-tour="emg-plate"]', title:'🚨 緊急対応マニュアル', text:'ヘッダーの「緊急対応」プレートです。タップすると、サイトを離れずにその場で緊急対応マニュアルが全画面表示されます。地震・火災・救急・台風・防犯など、いざという時の対応手順を状況を選ぶだけで確認でき、「✕ 閉じる」で元の画面にそのまま戻れます。', fallbackToTop:true },
   { sel:'[data-tour="diag-plate"]', title:'🗾 被害想定診断ツール', text:'「被害想定診断ツール」ボタンです。都道府県を選ぶだけで、活断層マップ・地震の発生確率・想定される死者数や経済損失などを即座に確認できます。お住まいの地域のリスクをチェックしてみましょう。', fallbackToTop:true },
   { sel:'#sosHeaderBtn', title:'🆘 緊急SOSビーコン', text:'ヘッダーの赤い「SOS」ボタンです。通信が無くても使える「音・光ビーコン」（画面をSOS信号で点滅させ、大音量アラームで居場所を知らせる）と、救急車式の連続サイレンが使えます。119・110へのワンタップ発信も可能。GPSでの位置発信・安否登録はプレミアム会員限定機能として10月に提供予定です。', fallbackToTop:true },
   { sel:'[data-tour="live"]', title:'🟢 LIVE・現在時刻', text:'ヘッダー右の機器パネルです。赤いランプが点滅していれば「LIVE（リアルタイム配信中）」を表し、その下の窓に現在時刻が表示されます。地震データは自動で更新され続けます。' },
   { sel:'#siteRefreshBtn', title:'🔄 最新情報に更新', text:'パネル内の丸い矢印ボタンです。自動更新を待たずに、いますぐ最新の地震・気象情報を取り込みたいときにタップします。表示が古いと感じたらここを押してください。', fallbackToTop:true },
   { sel:'[data-tour="menu"]', title:'☰ メニュー（設定）', text:'パネル右側の三本線アイコンがメニューボタンです。タップで開くメニューの中に、設定・お問い合わせ・プライバシーポリシーがあります。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。' },
   { sel:'[data-tour="menu"]', title:'☰ メニュー（リンク集）', text:'同じ三本線メニューの中には、防災クイズや気象庁の各種情報ページへのリンクもまとめてあります。', fallbackToTop:true },
+  { sel:'[data-tour="usage-guide"]', title:'📖 取扱説明書（ご利用ガイド）', text:'メニューの一番上にある「取扱説明書」です。このサイトの全機能の使い方を、ひとつずつ丁寧に解説したガイドブックがサイト内でそのまま開きます。SOSビーコンの使い方、引き継ぎコードの説明、よくある質問まで揃っているので、使い方に迷ったらまずここを開いてください。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="bousai-shindan"]', title:'🧭 あなたの防災意識診断', text:'メニューの「防災情報」最上段にある「あなたの防災意識診断」ボタンです。いくつかの質問に答えるだけで、あなたの防災意識のレベルや弱点を診断できます。日頃の備えを見直すきっかけとして、ぜひ一度チェックしてみましょう。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="lang"]', title:'🌐 English / 多言語表示', text:'メニューの中の「English / 言語」ボタンです。お使いのブラウザの翻訳機能を使うと、このサイトを英語など多言語で読めます。ボタンを押すと、スマホ・パソコン別の翻訳手順を日本語と英語で案内します。海外の方や、英語で読みたい方はこちらをご利用ください。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="line-stamp"]', title:'🎟️ LINEスタンプ', text:'メニューの「公式アカウント」にある「LINEスタンプ」ボタンです。タップするとQRコードが表示され、スマホのカメラで読み取るとLINE公式アカウントのショップカードが開きます。スタンプを貯めると特典がもらえるので、ぜひ友だち追加して貯めてみてください。', onShow:openHamburgerForTour, fallbackToTop:true },
