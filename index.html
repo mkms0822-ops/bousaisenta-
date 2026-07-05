@@ -4318,7 +4318,7 @@ button.dwa-plate{ padding:0; }
   <button type="button" class="header-close-btn" onclick="closeHeaderBar()" title="ヘッダーを閉じる" aria-label="ヘッダーを閉じる">✕</button>
   <div class="plate-nav" data-tour="logo">
     <div class="plate-item">
-    <a class="dwa-plate dwa-plate-emg" data-tour="emg-plate" href="https://mkms0822-ops.github.io/kinkyuutaioumanyuaru/" target="_blank" rel="noopener" title="緊急対応マニュアル">
+    <a class="dwa-plate dwa-plate-emg" data-tour="emg-plate" href="manual.html" onclick="return openEmgManual(event)" title="緊急対応マニュアル">
       <img class="dwa-plate-img" src="dwa-plate-manual-v2.webp" alt="緊急対応" />
       <span class="dwa-light dwa-light-red"></span>
       <span class="dwa-light dwa-light-amber"></span>
@@ -17022,6 +17022,64 @@ document.addEventListener('keydown', function(e){
       if (finished || (Date.now() - started) > 60000) clearInterval(iv);
     }, 700);
   }, 3000);
+})();
+</script>
+
+
+<!-- ============================================================
+     ★緊急対応マニュアル（サイト内オーバーレイ表示）
+     ・ヘッダーの「緊急対応」プレートから、サイトを離れずに全画面で開く
+     ・実体は同じリポジトリに置く manual.html（iframe読み込み）。
+       マニュアル側のCSS/JSは本体と完全に分離されるため衝突しない
+     ・初回に開いたときだけ読み込み、以後は再表示が一瞬で済む
+     ============================================================ -->
+<style>
+  #emgManualOverlay{ display:none; position:fixed; inset:0; z-index:99960; background:#0d1117; }
+  #emgManualOverlay.open{ display:flex; flex-direction:column; }
+  .emo-bar{ flex:0 0 auto; display:flex; align-items:center; justify-content:space-between;
+    padding:10px 14px; background:#161b22; border-bottom:2px solid #c62828; }
+  .emo-title{ font-size:15px; font-weight:800; color:#ff8a80; letter-spacing:1px; }
+  .emo-actions{ display:flex; align-items:center; gap:10px; }
+  .emo-actions a{ font-size:12px; color:#80cbc4; text-decoration:underline; }
+  .emo-close{ background:#c62828; color:#fff; border:none; border-radius:9px;
+    padding:9px 16px; font-size:14px; font-weight:700; cursor:pointer; }
+  #emgManualFrame{ flex:1 1 auto; width:100%; border:0; background:#fff; }
+  /* スマホ表示サイズ（小/大）のzoom打ち消し（他のオーバーレイと同方式） */
+  html.scale-sm #emgManualOverlay{ zoom: calc(1 / 0.75); }
+  html.scale-lg #emgManualOverlay{ zoom: calc(1 / 1.25); }
+</style>
+
+<div id="emgManualOverlay" role="dialog" aria-label="緊急対応マニュアル">
+  <div class="emo-bar">
+    <span class="emo-title">🚨 緊急対応マニュアル</span>
+    <span class="emo-actions">
+      <a href="manual.html" target="_blank" rel="noopener">別タブで開く</a>
+      <button class="emo-close" type="button" onclick="closeEmgManual()">✕ 閉じる</button>
+    </span>
+  </div>
+  <iframe id="emgManualFrame" title="緊急対応マニュアル本文" loading="lazy"></iframe>
+</div>
+
+<script>
+(function () {
+  var ov = document.getElementById('emgManualOverlay');
+  var frame = document.getElementById('emgManualFrame');
+
+  window.openEmgManual = function (e) {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!frame.getAttribute('src')) frame.setAttribute('src', 'manual.html');  // 初回のみ読み込み
+    ov.classList.add('open');
+    try { document.body.style.overflow = 'hidden'; } catch (err) {}
+    try { if (window.dwaTrack) window.dwaTrack('button', '緊急対応マニュアルを開く'); } catch (err) {}
+    return false;
+  };
+  window.closeEmgManual = function () {
+    ov.classList.remove('open');
+    try { document.body.style.overflow = ''; } catch (err) {}
+  };
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && ov.classList.contains('open')) window.closeEmgManual();
+  });
 })();
 </script>
 
