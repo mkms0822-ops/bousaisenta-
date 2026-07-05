@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ご利用ガイド｜防災情報センター</title>
+<meta name="description" content="防災情報センターの使い方ガイド。地震速報、被害想定診断、防災コラム、スタンプカード、災害用伝言板、緊急対応マニュアルまで全機能をやさしく解説します。">
+<style>
+  :root{
+    --bg:#04080f; --surface:#080f1e; --surface2:#0c1628; --surface3:#101d30;
+    --accent:#ff2d2d; --accent2:#ff8c00; --blue:#00b4ff; --blue-deep:#0066d6;
+    --text:#d8eaf8; --muted:#5d7b98; --muted2:#42617e;
+    --border:rgba(0,180,255,0.13); --border-red:rgba(255,45,45,0.22);
+    --ok:#2fd07a;
+    --glow-blue:0 0 30px rgba(0,180,255,0.07);
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#eef3f8; --surface:#ffffff; --surface2:#e9eff6; --surface3:#dde6f0;
+      --accent:#cc1111; --accent2:#d46000; --blue:#0070cc; --blue-deep:#0058a8;
+      --text:#10202e; --muted:#52677a; --muted2:#7088a0;
+      --border:rgba(0,112,204,0.18); --border-red:rgba(204,17,17,0.2); --ok:#1f9d5b;
+      --glow-blue:0 2px 18px rgba(0,112,204,0.07);
+    }
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html{scroll-behavior:smooth;scroll-padding-top:70px;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1100px 460px at 50% -8%, rgba(0,180,255,0.07), transparent 62%),
+      var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP","Segoe UI",sans-serif;
+    line-height:1.85; min-height:100vh; letter-spacing:.01em;
+  }
+
+  /* ===== ヘッダー ===== */
+  header.top{
+    position:sticky;top:0;z-index:30;
+    background:linear-gradient(180deg, rgba(4,8,15,0.97), rgba(4,8,15,0.88));
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  @media (prefers-color-scheme: light){
+    header.top{background:linear-gradient(180deg,rgba(255,255,255,0.97),rgba(255,255,255,0.9));}
+  }
+  .top-inner{max-width:760px;margin:0 auto;padding:12px 18px;display:flex;align-items:center;gap:12px;}
+  .top-badge{
+    flex-shrink:0;width:38px;height:38px;border-radius:11px;
+    display:flex;align-items:center;justify-content:center;font-size:20px;
+    background:linear-gradient(135deg,var(--blue),var(--blue-deep));
+    box-shadow:0 4px 14px rgba(0,120,220,0.35);
+  }
+  .top-titles h1{margin:0;font-size:16px;font-weight:800;letter-spacing:.02em;}
+  .top-titles .sub{font-size:10.5px;color:var(--muted);letter-spacing:0.16em;font-weight:600;}
+  .top-home{margin-left:auto;font-size:12px;color:var(--blue);text-decoration:none;font-weight:700;white-space:nowrap;}
+  .top-home:hover{text-decoration:underline;}
+
+  .wrap{max-width:760px;margin:0 auto;padding:0 18px 64px;}
+
+  /* ===== ヒーロー ===== */
+  .hero{padding:40px 0 8px;}
+  .hero .eyebrow{
+    font-size:11px;font-weight:700;letter-spacing:.22em;color:var(--blue);
+    text-transform:uppercase;margin-bottom:14px;
+  }
+  .hero h2{
+    font-size:30px;line-height:1.35;font-weight:800;margin:0 0 14px;letter-spacing:.01em;
+  }
+  .hero h2 .hl{color:var(--blue);}
+  .hero p{font-size:14px;color:var(--text);line-height:1.9;margin:0;}
+  .hero .meta{margin-top:16px;font-size:11.5px;color:var(--muted);}
+
+  /* ===== もくじ ===== */
+  .toc{
+    margin:26px 0 8px;background:var(--surface);border:1px solid var(--border);
+    border-radius:14px;padding:18px 20px;box-shadow:var(--glow-blue);
+  }
+  .toc .toc-label{
+    font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--blue);
+    text-transform:uppercase;margin-bottom:12px;
+  }
+  .toc ol{margin:0;padding:0;list-style:none;counter-reset:toc;}
+  .toc li{counter-increment:toc;margin:0;}
+  .toc a{
+    display:flex;align-items:baseline;gap:12px;padding:8px 4px;
+    color:var(--text);text-decoration:none;font-size:13.5px;border-radius:8px;
+    border-bottom:1px solid transparent;transition:color .12s;
+  }
+  .toc a:hover{color:var(--blue);}
+  .toc a::before{
+    content:counter(toc,decimal-leading-zero);
+    flex-shrink:0;font-size:11px;font-weight:700;color:var(--muted2);
+    font-variant-numeric:tabular-nums;letter-spacing:.05em;min-width:22px;
+  }
+  .toc a .ti{font-size:15px;}
+
+  /* ===== セクション ===== */
+  section.guide{padding:34px 0 6px;border-top:1px solid var(--border);margin-top:30px;}
+  section.guide:first-of-type{border-top:none;margin-top:8px;}
+  .sec-num{
+    font-size:11px;font-weight:700;letter-spacing:.2em;color:var(--blue);
+    font-variant-numeric:tabular-nums;margin-bottom:8px;
+  }
+  .sec-title{font-size:21px;font-weight:800;margin:0 0 6px;display:flex;align-items:center;gap:11px;letter-spacing:.01em;}
+  .sec-title .emoji{
+    flex-shrink:0;width:38px;height:38px;border-radius:11px;font-size:19px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--surface2);border:1px solid var(--border);
+  }
+  .sec-lead{font-size:13.5px;color:var(--text);line-height:1.9;margin:14px 0 18px;}
+
+  p{font-size:13.5px;line-height:1.9;}
+  b,strong{color:var(--text);font-weight:700;}
+  .blue{color:var(--blue);font-weight:700;}
+  .red{color:var(--accent);font-weight:700;}
+
+  /* 手順 */
+  .steps{margin:16px 0;padding:0;list-style:none;counter-reset:step;}
+  .steps li{
+    counter-increment:step;position:relative;
+    padding:0 0 16px 42px;font-size:13.5px;line-height:1.85;
+  }
+  .steps li::before{
+    content:counter(step);position:absolute;left:0;top:-1px;
+    width:27px;height:27px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:800;color:#fff;
+    background:linear-gradient(135deg,var(--blue),var(--blue-deep));
+  }
+  .steps li::after{
+    content:"";position:absolute;left:13px;top:30px;bottom:2px;width:2px;
+    background:var(--border);
+  }
+  .steps li:last-child{padding-bottom:0;}
+  .steps li:last-child::after{display:none;}
+  .steps li b{color:var(--text);}
+
+  /* カード（機能の小見出し） */
+  .card{
+    background:var(--surface);border:1px solid var(--border);border-radius:12px;
+    padding:15px 17px;margin:14px 0;
+  }
+  .card .card-h{font-size:14px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+  .card p{margin:6px 0 0;font-size:13px;color:var(--text);}
+  .card p:first-of-type{margin-top:0;}
+
+  /* 補足ボックス */
+  .note{
+    margin:16px 0;padding:13px 15px;border-radius:11px;font-size:12.5px;line-height:1.8;
+    background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  }
+  .note .nt{font-weight:800;color:var(--blue);display:block;margin-bottom:3px;font-size:12px;letter-spacing:.04em;}
+  .note.warn{background:rgba(255,45,45,0.07);border-color:var(--border-red);}
+  .note.warn .nt{color:var(--accent);}
+  @media (prefers-color-scheme: light){ .note.warn{background:rgba(204,17,17,0.06);} }
+
+  ul.plain{margin:10px 0;padding-left:0;list-style:none;}
+  ul.plain li{position:relative;padding:4px 0 4px 20px;font-size:13px;line-height:1.8;}
+  ul.plain li::before{content:"▸";position:absolute;left:2px;top:4px;color:var(--blue);font-size:12px;}
+
+  .kbd{
+    display:inline-block;padding:1px 8px;border-radius:6px;font-size:12px;font-weight:700;
+    background:var(--surface3);border:1px solid var(--border);color:var(--blue);
+    white-space:nowrap;
+  }
+
+  /* CTA（伝言板・マニュアル） */
+  .cta-grid{display:flex;flex-direction:column;gap:11px;margin:18px 0;}
+  .cta{
+    display:flex;align-items:center;gap:13px;padding:15px 16px;border-radius:12px;
+    text-decoration:none;color:var(--text);
+    background:linear-gradient(135deg, rgba(0,180,255,0.10), rgba(0,102,214,0.06));
+    border:1px solid var(--border);transition:transform .12s,box-shadow .12s;
+  }
+  .cta.red{background:linear-gradient(135deg, rgba(255,45,45,0.12), rgba(255,140,0,0.08));border-color:var(--border-red);}
+  .cta:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(0,120,220,0.16);}
+  .cta .ci{flex-shrink:0;width:38px;height:38px;border-radius:10px;font-size:19px;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,var(--blue),var(--blue-deep));}
+  .cta.red .ci{background:linear-gradient(135deg,var(--accent),var(--accent2));}
+  .cta .cx .ct{font-size:14px;font-weight:800;}
+  .cta .cx .cd{font-size:11.5px;color:var(--muted);line-height:1.6;margin-top:1px;}
+  .cta .carw{margin-left:auto;color:var(--blue);font-size:18px;font-weight:700;}
+  .cta.red .carw{color:var(--accent);}
+
+  /* 緊急番号 */
+  .tel-row{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0;}
+  .tel{
+    flex:1;min-width:120px;display:flex;flex-direction:column;align-items:center;
+    padding:13px 10px;border-radius:12px;text-decoration:none;
+    background:var(--surface);border:1px solid var(--border-red);color:var(--text);
+  }
+  .tel .num{font-size:22px;font-weight:800;color:var(--accent);letter-spacing:.02em;}
+  .tel .lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+
+  /* FAQ */
+  details.faq{
+    background:var(--surface);border:1px solid var(--border);border-radius:11px;
+    margin:9px 0;overflow:hidden;
+  }
+  details.faq summary{
+    cursor:pointer;padding:14px 16px;font-size:13.5px;font-weight:700;
+    list-style:none;display:flex;align-items:center;gap:10px;
+  }
+  details.faq summary::-webkit-details-marker{display:none;}
+  details.faq summary::before{content:"Q";flex-shrink:0;width:22px;height:22px;border-radius:6px;
+    font-size:12px;display:flex;align-items:center;justify-content:center;
+    background:var(--surface3);color:var(--blue);font-weight:800;}
+  details.faq summary .chev{margin-left:auto;color:var(--muted);transition:transform .2s;font-size:13px;}
+  details.faq[open] summary .chev{transform:rotate(180deg);}
+  details.faq .ans{padding:0 16px 15px 48px;font-size:13px;color:var(--text);line-height:1.85;}
+
+  /* トップへ戻る */
+  .totop{
+    position:fixed;right:16px;bottom:16px;z-index:40;
+    width:44px;height:44px;border-radius:50%;border:1px solid var(--border);
+    background:var(--surface);color:var(--blue);font-size:18px;cursor:pointer;
+    display:none;align-items:center;justify-content:center;
+    box-shadow:0 4px 16px rgba(0,0,0,0.3);
+  }
+  .totop.show{display:flex;}
+
+  footer.foot{
+    margin-top:44px;padding-top:20px;border-top:1px solid var(--border);
+    font-size:11.5px;color:var(--muted);line-height:1.9;text-align:center;
+  }
+  footer.foot a{color:var(--blue);text-decoration:none;}
+  footer.foot a:hover{text-decoration:underline;}
+
+  @media (max-width:520px){
+    .hero h2{font-size:24px;}
+    .sec-title{font-size:18px;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="top-badge">📖</div>
+    <div class="top-titles">
+      <h1>ご利用ガイド</h1>
+      <div class="sub">防災情報センター 使い方マニュアル</div>
+    </div>
+    <a class="top-home" href="https://bousai0111.info/" target="_blank" rel="noopener">サイトを開く ›</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ヒーロー -->
+  <div class="hero">
+    <div class="eyebrow">ご利用者様向けマニュアル</div>
+    <h2>防災情報センターを、<span class="hl">いざという時の味方</span>に。</h2>
+    <p>
+      このガイドでは、防災情報センターの使い方をひとつずつご案内します。
+      毎日の備えに役立つ機能から、災害が起きたときに頼れる機能まで、順番に読めば全体がわかります。
+      気になるところだけ、下のもくじから選んでお読みいただいてもかまいません。
+    </p>
+    <div class="meta">所要時間：通読で約10分／困ったときは「よくある質問」へ</div>
+  </div>
+
+  <!-- もくじ -->
+  <nav class="toc" aria-label="もくじ">
+    <div class="toc-label">もくじ</div>
+    <ol>
+      <li><a href="#s1"><span class="ti">🏠</span>はじめに ― このサイトでできること</a></li>
+      <li><a href="#s2"><span class="ti">📈</span>地震速報・気象情報を見る</a></li>
+      <li><a href="#s3"><span class="ti">🚨</span>緊急対応マニュアル</a></li>
+      <li><a href="#s4"><span class="ti">🆘</span>緊急SOSビーコン（音と光の救助信号）</a></li>
+      <li><a href="#s5"><span class="ti">🗾</span>被害想定診断ツール</a></li>
+      <li><a href="#s6"><span class="ti">🧭</span>防災意識診断・防災クイズ</a></li>
+      <li><a href="#s7"><span class="ti">📰</span>防災コラムとブックマーク</a></li>
+      <li><a href="#s8"><span class="ti">🎁</span>スタンプカードと特典</a></li>
+      <li><a href="#s9"><span class="ti">🔑</span>引き継ぎコードとデータの引き継ぎ</a></li>
+      <li><a href="#s10"><span class="ti">📨</span>災害用伝言板と@通知メール</a></li>
+      <li><a href="#s11"><span class="ti">📤</span>友達紹介・口コミ</a></li>
+      <li><a href="#s12"><span class="ti">⚙️</span>設定（テーマ・文字・通知）</a></li>
+      <li><a href="#s13"><span class="ti">🌐</span>多言語で読む</a></li>
+      <li><a href="#s14"><span class="ti">❓</span>よくある質問</a></li>
+    </ol>
+  </nav>
+
+  <!-- 1 はじめに -->
+  <section class="guide" id="s1">
+    <div class="sec-num">SECTION 01</div>
+    <h3 class="sec-title"><span class="emoji">🏠</span>はじめに ― このサイトでできること</h3>
+    <p class="sec-lead">
+      防災情報センターは、ふだんの備えと、いざというときの行動を、ひとつの画面でまとめてサポートするサイトです。
+      アプリのインストールは不要で、スマートフォンでもパソコンでもブラウザからそのまま使えます。
+    </p>
+    <ul class="plain">
+      <li><b>毎日つかう：</b>地震速報のチェック、防災コラムを読む、スタンプを押す</li>
+      <li><b>備えるために：</b>被害想定診断、防災意識診断、防災クイズで弱点を知る</li>
+      <li><b>いざという時に：</b>緊急対応マニュアル、SOSビーコン（音と光の救助信号）、災害用伝言板、緊急電話への発信</li>
+    </ul>
+    <div class="note">
+      <span class="nt">はじめての方へ</span>
+      初回に表示される簡単なチュートリアル（案内）を見ると、画面の各ボタンの役割がひと通りわかります。
+      あとからでも、メニュー（画面右上の <span class="kbd">☰</span>）→「設定」→「ヘルプ」からいつでも見直せます。
+    </div>
+  </section>
+
+  <!-- 2 地震速報 -->
+  <section class="guide" id="s2">
+    <div class="sec-num">SECTION 02</div>
+    <h3 class="sec-title"><span class="emoji">📈</span>地震速報・気象情報を見る</h3>
+    <p class="sec-lead">
+      トップページでは、最近の地震情報がリアルタイムで自動更新されています。
+      強い地震や気象警報が出たときは、画面上部に速報バナーが流れます。
+    </p>
+
+    <div class="card">
+      <div class="card-h">🟢 LIVE・現在時刻</div>
+      <p>ヘッダー右の機器パネルで、赤いランプが点滅していれば<b>リアルタイム配信中（LIVE）</b>を表します。その下の窓に現在時刻が表示され、地震データは自動で更新され続けます。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-h">🔄 最新情報に更新</div>
+      <p>パネル内の丸い矢印ボタンをタップすると、自動更新を待たずに<b>いますぐ最新の地震・気象情報</b>を取り込めます。表示が古いと感じたらここを押してください。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-h">📊 本日の地震サマリー / 地震リスト</div>
+      <p>本日の有感地震の回数、最大マグニチュード・最大震度、最終更新時刻をひと目で確認できます。その下の地震リストでカードをタップすると、各地震の詳細が表示されます。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-h">🌧 気象情報タブ（収納式）</div>
+      <p>台風・雨雲レーダー・警報・注意報など、気象・災害情報へのリンク集です。ふだんは「災害情報タブ」ボタンに収納されていて、タップすると開きます。目的の情報にすぐアクセスできます。</p>
+    </div>
+
+    <div class="note warn">
+      <span class="nt">ご注意</span>
+      サイトに表示される地震・気象・防災情報は参考値です。緊急時の判断は、必ず気象庁や各自治体の公式情報もあわせてご確認ください。
+    </div>
+  </section>
+
+  <!-- 3 緊急対応マニュアル -->
+  <section class="guide" id="s3">
+    <div class="sec-num">SECTION 03</div>
+    <h3 class="sec-title"><span class="emoji">🚨</span>緊急対応マニュアル</h3>
+    <p class="sec-lead">
+      ヘッダー左上の「緊急対応」プレートをタップすると、<b>サイトを離れずにその場で全画面表示</b>されます。
+      地震・火災・救急・台風・防犯など、いざという時の対応手順をタップで確認できます。
+      迷ったらここを開き、<b>状況を選ぶだけでやるべきことが表示されます。</b>読み終えたら「✕ 閉じる」で元の画面にそのまま戻れます。
+    </p>
+
+    <div class="cta-grid">
+      <a class="cta red" href="https://bousai0111.info/manual.html" target="_blank" rel="noopener">
+        <span class="ci">🚨</span>
+        <span class="cx"><span class="ct">緊急対応マニュアルを開く</span><span class="cd">地震・火災・救急・台風・防犯などの行動手順</span></span>
+        <span class="carw">›</span>
+      </a>
+    </div>
+
+    <p>命に関わる緊急事態のときは、迷わず下の番号へ電話してください。スマホでは番号をタップするとそのまま発信できます。</p>
+    <div class="tel-row">
+      <a class="tel" href="tel:119"><span class="num">119</span><span class="lbl">火事・救急</span></a>
+      <a class="tel" href="tel:110"><span class="num">110</span><span class="lbl">事件・事故</span></a>
+      <a class="tel" href="tel:118"><span class="num">118</span><span class="lbl">海の事故</span></a>
+    </div>
+  </section>
+
+  <!-- 4 SOSビーコン -->
+  <section class="guide" id="s4">
+    <div class="sec-num">SECTION 04</div>
+    <h3 class="sec-title"><span class="emoji">🆘</span>緊急SOSビーコン（音と光の救助信号）</h3>
+    <p class="sec-lead">
+      ヘッダーの<b>赤く光る「SOS」ボタン</b>から開ける、緊急時専用の機能です。
+      瓦礫の下や暗い場所に閉じ込められたとき、<b>電波が無くても</b>音と光で居場所を知らせることができます。
+    </p>
+    <ul class="plain">
+      <li><b>音・光ビーコン：</b>画面全体を国際救難信号「SOS」のパターン（・・・－－－・・・）で点滅させながら、大音量の高音アラームを鳴らします。<b>通信圏外でも動きます。</b></li>
+      <li><b>サイレン：</b>救急車のように2種類の高音を交互に鳴らし続ける連続警報音です。同じ音量でも人の耳に格段に気づかれやすく、近くの人に異変を知らせるのに向いています。</li>
+      <li><b>音のテスト：</b>いざという時に確実に鳴るか、1秒だけ試せるボタンです。<b>平常時に一度お試しください。</b></li>
+      <li><b>📞119・110へ発信：</b>パネル内のボタンをタップすると、そのまま電話アプリで発信できます。</li>
+    </ul>
+
+    <div class="card">
+      <div class="card-h">🔊 使う前のチェック（重要）</div>
+      <p>ビーコンの音は端末の<b>メディア音量</b>から出ます。①メディア音量を最大に、②マナーモード・消音スイッチを解除、③Bluetoothイヤホンや車・HDMIモニターに接続中は音がそちらに流れるため接続を切る——この3点で確実に鳴ります。開始前には<b>画面の明るさも最大</b>にしてください。</p>
+    </div>
+
+    <div class="note warn">
+      <span class="nt">光の点滅について</span>
+      光の点滅が体質に合わない方は、開始前に「光」のチェックを外して音だけでご利用ください。
+    </div>
+
+    <div class="card">
+      <div class="card-h">📡 GPS位置発信・安否登録（10月1日 提供開始予定）</div>
+      <p>現在地をワンタップで発信して、ご家族や運営と共有できる「GPS位置発信」「安否登録」は、<b>プレミアム会員限定機能として10月1日に提供開始予定</b>です（無料会員登録は8月開始予定）。詳細はサイト内のお知らせで順次ご案内します。</p>
+    </div>
+
+    <div class="note warn">
+      <span class="nt">通報に代わるものではありません</span>
+      SOSビーコンは公的な救助要請システムとは連動していません。通報できる状況のときは、必ず <span class="red">119番／110番</span> への電話を最優先してください。
+    </div>
+  </section>
+
+  <!-- 5 被害想定診断 -->
+  <section class="guide" id="s5">
+    <div class="sec-num">SECTION 05</div>
+    <h3 class="sec-title"><span class="emoji">🗾</span>被害想定診断ツール</h3>
+    <p class="sec-lead">
+      「被害想定診断ツール」ボタンから開けます。<b>都道府県を選ぶだけ</b>で、活断層マップ・地震の発生確率・想定される死者数や経済損失などを即座に確認できます。
+    </p>
+    <ol class="steps">
+      <li>「被害想定診断ツール」ボタンをタップします。</li>
+      <li>お住まいの（または気になる）<b>都道府県を選びます。</b></li>
+      <li>その地域のリスク情報が表示されます。数字を見て、日頃の備えを見直すきっかけにしてください。</li>
+    </ol>
+  </section>
+
+  <!-- 6 防災意識診断・クイズ -->
+  <section class="guide" id="s6">
+    <div class="sec-num">SECTION 06</div>
+    <h3 class="sec-title"><span class="emoji">🧭</span>防災意識診断・防災クイズ</h3>
+    <p class="sec-lead">
+      自分の備えがどのくらいできているか、ゲーム感覚で確認できます。
+    </p>
+
+    <div class="card">
+      <div class="card-h">🧭 あなたの防災意識診断</div>
+      <p>メニュー（<span class="kbd">☰</span>）の「防災情報」最上段にある「あなたの防災意識診断」から始められます。いくつかの質問に答えるだけで、<b>あなたの防災意識のレベルや弱点</b>を診断できます。日頃の備えを見直すきっかけにどうぞ。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-h">📝 防災クイズ</div>
+      <p>メニューの中にある防災クイズで、防災の知識をレベル別に試せます。楽しみながら、知っておきたい知識が身につきます。</p>
+    </div>
+  </section>
+
+  <!-- 7 コラム・ブックマーク -->
+  <section class="guide" id="s7">
+    <div class="sec-num">SECTION 07</div>
+    <h3 class="sec-title"><span class="emoji">📰</span>防災コラムとブックマーク</h3>
+    <p class="sec-lead">
+      防災コラムでは、「備え」「ヒント」「お知らせ」などの記事を読めます。役立つ記事は保存して、あとから読み返せます。
+    </p>
+
+    <div class="card">
+      <div class="card-h">🔖 ブックマーク（お気に入り保存）</div>
+      <p>記事カードの右上にあるブックマークのマークをタップすると、その記事を<b>お気に入り保存</b>できます。あとで読み返したい「備え」や「ヒント」を保存しておくと、必要なときにすぐ見返せます。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-h">❤️ いいね</div>
+      <p>記事に「いいね」を押せます。みんなのいいねが多い人気記事もわかります。</p>
+    </div>
+  </section>
+
+  <!-- 8 スタンプカード -->
+  <section class="guide" id="s8">
+    <div class="sec-num">SECTION 08</div>
+    <h3 class="sec-title"><span class="emoji">🎁</span>スタンプカードと特典</h3>
+    <p class="sec-lead">
+      毎日サイトを開いてスタンプを押すと、防災を習慣にできます。貯まると特典に応募できます。
+    </p>
+    <ol class="steps">
+      <li>画面右下のスタンプボタンをタップします。<b>1日1個</b>スタンプを押せます。</li>
+      <li>こつこつ続けて、スタンプを貯めます。</li>
+      <li><b>10個・20個</b>貯まると、防災グッズのプレゼントに応募できます。</li>
+    </ol>
+    <div class="note">
+      <span class="nt">通知でうっかり防止</span>
+      設定で通知をオンにしておくと、その日まだスタンプを押していないときにお知らせが届きます（端末・ブラウザの対応が必要です）。
+    </div>
+  </section>
+
+  <!-- 9 引き継ぎコード -->
+  <section class="guide" id="s9">
+    <div class="sec-num">SECTION 09</div>
+    <h3 class="sec-title"><span class="emoji">🔑</span>引き継ぎコードとデータの引き継ぎ</h3>
+    <p class="sec-lead">
+      <b>引き継ぎコード</b>（<span class="kbd">DWA-AB12-CD34</span> のような形）は、あなたのスタンプ記録や設定を識別する大切なコードです。
+      機種変更や別の端末への引き継ぎ、そして災害用伝言板への参加にも使います。
+    </p>
+    <ul class="plain">
+      <li>引き継ぎコードは、スタンプカードの画面で確認できます。</li>
+      <li>機種変更のときは、新しい端末でこのコードを入力すると、スタンプ記録を引き継げます。</li>
+      <li>このコードは、災害用伝言板に参加するときの「合言葉」にもなります。</li>
+    </ul>
+
+    <div class="card">
+      <div class="card-h">🔒 復元用パスワード（任意）</div>
+      <p>スタンプカードの中で「復元用パスワード」を設定できます。決めておくと、別の端末にデータを引き継ぐとき、引き継ぎコードに加えてこのパスワードが必要になります。<b>他人にコードを知られても、大切なスタンプ記録を守れます。</b>設定は任意です。忘れた場合は運営でリセットできます。</p>
+    </div>
+
+    <div class="note warn">
+      <span class="nt">大切に保管してください</span>
+      引き継ぎコードを忘れると、別の端末でこれまでの記録を引き継げなくなることがあります。スクリーンショットやメモで控えておくことをおすすめします。
+    </div>
+  </section>
+
+  <!-- 10 災害用伝言板 -->
+  <section class="guide" id="s10">
+    <div class="sec-num">SECTION 10</div>
+    <h3 class="sec-title"><span class="emoji">📨</span>災害用伝言板と@通知メール</h3>
+    <p class="sec-lead">
+      災害時の安否や連絡を書き残せる、専用ページです。閲覧は誰でもできます。
+      書き込みには引き継ぎコードでの参加が必要です。
+    </p>
+
+    <div class="cta-grid">
+      <a class="cta" href="https://mkms0822-ops.github.io/saigaidengonban/" target="_blank" rel="noopener">
+        <span class="ci">📨</span>
+        <span class="cx"><span class="ct">災害用伝言板を開く</span><span class="cd">安否・連絡を書き残す／みんなの伝言を読む</span></span>
+        <span class="carw">›</span>
+      </a>
+    </div>
+
+    <p><b>参加して書き込むには：</b></p>
+    <ol class="steps">
+      <li>伝言板を開き、「参加する」に<b>引き継ぎコード</b>を入力します。</li>
+      <li><b>表示名</b>を決めます（最初に決めると、以後固定されます。なりすまし防止のためです）。</li>
+      <li>伝言を入力して送信します。例：「○○、無事です。△△の避難所にいます」</li>
+    </ol>
+
+    <div class="card">
+      <div class="card-h">📧 @通知メール（緊急連絡）</div>
+      <p>伝言板でメールアドレスを登録しておくと、<b>「@あなたの表示名」宛ての伝言</b>が書き込まれたときに、メールでお知らせが届きます。災害時、伝言板を開いていなくても連絡に気づけます。</p>
+      <p>登録は、伝言板の下にある「@通知メールを登録」から。引き継ぎコードとメールアドレスを入れるだけです。誰かにあなた宛ての連絡をお願いするときは、「<b>@あなたの表示名</b> で書いてね」と伝えておきましょう。</p>
+    </div>
+
+    <div class="note warn">
+      <span class="nt">緊急時は電話を最優先に</span>
+      伝言板は連絡を補助するものです。火事・救急・事件など命に関わる緊急時は、まず <span class="red">119番／110番</span> へ連絡してください。
+    </div>
+  </section>
+
+  <!-- 11 友達紹介・口コミ -->
+  <section class="guide" id="s11">
+    <div class="sec-num">SECTION 11</div>
+    <h3 class="sec-title"><span class="emoji">📤</span>友達紹介・口コミ</h3>
+
+    <div class="card">
+      <div class="card-h">📤 友達に共有・紹介リンク</div>
+      <p>あなた専用の紹介リンクで、このサイトを友達に教えられます。<b>紹介リンクから友達がアクセスすると、あなたと友達の両方にスタンプを1つずつプレゼント。</b>LINEやXでかんたんに共有できます。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-h">⭐ 口コミ・レビュー</div>
+      <p>このサイトの感想や評価を投稿できます。星の数と一言コメントで、使ってみての感想をぜひお聞かせください。みんなの口コミも読めます。</p>
+    </div>
+  </section>
+
+  <!-- 12 設定 -->
+  <section class="guide" id="s12">
+    <div class="sec-num">SECTION 12</div>
+    <h3 class="sec-title"><span class="emoji">⚙️</span>設定（テーマ・文字・通知）</h3>
+    <p class="sec-lead">
+      画面右上のメニュー（<span class="kbd">☰</span>）→「設定」から、見た目や通知を自分好みに調整できます。
+    </p>
+    <ul class="plain">
+      <li><b>テーマ：</b>明るい画面（ライト）／暗い画面（ダーク）を切り替えられます。</li>
+      <li><b>フォント：</b>文字の大きさや種類を変えて、読みやすく調整できます。</li>
+      <li><b>通知・警告音：</b>スタンプのお知らせや、強い地震の警告音などを設定できます。</li>
+      <li><b>ヘルプ：</b>はじめのチュートリアル（案内）をもう一度見られます。</li>
+    </ul>
+    <p>同じメニューの中に、お問い合わせやプライバシーポリシーへの入り口もあります。</p>
+  </section>
+
+  <!-- 13 多言語 -->
+  <section class="guide" id="s13">
+    <div class="sec-num">SECTION 13</div>
+    <h3 class="sec-title"><span class="emoji">🌐</span>多言語で読む</h3>
+    <p class="sec-lead">
+      メニューの中の「English / 言語」ボタンから、多言語での読み方を案内します。
+    </p>
+    <p>ブラウザの翻訳機能を使うと、このサイトを英語などで読めます。ボタンを押すと、スマホ・パソコン別の翻訳手順を日本語と英語でご案内します。海外の方や、英語で読みたい方はこちらをご利用ください。</p>
+  </section>
+
+  <!-- 14 FAQ -->
+  <section class="guide" id="s14">
+    <div class="sec-num">SECTION 14</div>
+    <h3 class="sec-title"><span class="emoji">❓</span>よくある質問</h3>
+
+    <details class="faq">
+      <summary>アプリのインストールは必要ですか？<span class="chev">⌄</span></summary>
+      <div class="ans">不要です。スマートフォンでもパソコンでも、ブラウザからそのままご利用いただけます。ホーム画面に追加しておくと、アプリのように素早く開けて便利です。</div>
+    </details>
+
+    <details class="faq">
+      <summary>引き継ぎコードを忘れてしまいました。<span class="chev">⌄</span></summary>
+      <div class="ans">同じ端末・同じブラウザで使い続けている場合は、スタンプカードの画面でコードを確認できます。別の端末に変えた後でコードがわからなくなった場合は、これまでの記録の引き継ぎが難しくなることがあります。コードは控えておくことをおすすめします。お困りのときはメニューの「お問い合わせ」からご連絡ください。</div>
+    </details>
+
+    <details class="faq">
+      <summary>伝言板に書き込めません。<span class="chev">⌄</span></summary>
+      <div class="ans">書き込みには引き継ぎコードでの「参加」が必要です。まずスタンプを1つ以上獲得してコードを有効にし、伝言板で参加してください。コードにパスワードを設定している場合は、参加時にパスワードの入力を求められます。</div>
+    </details>
+
+    <details class="faq">
+      <summary>@通知メールが届きません。<span class="chev">⌄</span></summary>
+      <div class="ans">まず、迷惑メールフォルダに振り分けられていないかご確認ください。また、通知を受け取るには、先に伝言板で「参加」して表示名を作り、メールアドレスを登録しておく必要があります。あなた宛ての連絡は「@あなたの表示名」付きで書いてもらう必要があります。</div>
+    </details>
+
+    <details class="faq">
+      <summary>表示名が「すでに使われています」と出ます。<span class="chev">⌄</span></summary>
+      <div class="ans">@通知メールの表示名は、1人だけが登録できます（早い者勝ち）。同じ表示名を別の方が先に登録している場合は、伝言板の参加画面で別の表示名に変えてから、もう一度お試しください。</div>
+    </details>
+
+    <details class="faq">
+      <summary>スタンプが消えてしまいました。<span class="chev">⌄</span></summary>
+      <div class="ans">ブラウザの履歴やデータを消去すると、端末内の記録が消えることがあります。引き継ぎコードを控えてあれば、コードを入力して記録を呼び戻せる場合があります。復元用パスワードを設定していた場合は、あわせて入力してください。</div>
+    </details>
+
+    <details class="faq">
+      <summary>SOSビーコンの音が鳴りません。<span class="chev">⌄</span></summary>
+      <div class="ans">ほとんどの場合、端末側の設定が原因です。①メディア音量（音量ボタンで確認できる「メディア」のバー）が0になっていないか、②マナーモード・消音スイッチが有効になっていないか、③Bluetoothイヤホン・スマートウォッチ・車・HDMIモニターなどに接続していないか（接続中は音がそちらに流れます）をご確認ください。SOSパネルの「🔊 音のテスト」ボタンを押すと、その場で診断結果と対処方法が表示されます。</div>
+    </details>
+
+    <details class="faq">
+      <summary>表示される地震・天気の情報はどのくらい正確ですか？<span class="chev">⌄</span></summary>
+      <div class="ans">情報は各種APIや公的データをもとに自動表示していますが、あくまで参考値です。避難の判断など命に関わる場面では、必ず気象庁・自治体の公式発表をご確認ください。</div>
+    </details>
+  </section>
+
+  <footer class="foot">
+    防災情報センター ご利用ガイド<br>
+    <a href="https://bousai0111.info/" target="_blank" rel="noopener">▶ 防災情報センター本体へ</a>　|　
+    <a href="https://mkms0822-ops.github.io/saigaidengonban/" target="_blank" rel="noopener">災害用伝言板</a>　|　
+    <a href="https://bousai0111.info/manual.html" target="_blank" rel="noopener">緊急対応マニュアル</a><br>
+    <span style="color:var(--muted2);">緊急の通報・救助要請は 119番／110番 へ。</span>
+  </footer>
+
+</div>
+
+<button class="totop" id="toTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="ページの先頭へ戻る">↑</button>
+
+<script>
+  (function(){
+    var btn = document.getElementById('toTop');
+    var ticking = false;
+    function onScroll(){
+      if(ticking) return;
+      ticking = true;
+      requestAnimationFrame(function(){
+        if(window.scrollY > 600) btn.classList.add('show');
+        else btn.classList.remove('show');
+        ticking = false;
+      });
+    }
+    window.addEventListener('scroll', onScroll, { passive:true });
+  })();
+</script>
+</body>
+</html>
