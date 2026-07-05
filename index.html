@@ -9741,7 +9741,7 @@ const tourSteps = [
   { sel:'.hp-header', title:'防災情報センターへようこそ', text:'地震速報をリアルタイムで表示する防災情報サイトです。ヘッダー右のこの機器パネルに、LIVE表示・現在時刻・更新ボタン・メニューがまとまっています。主な使い方を簡単にご案内します。' },
   { sel:'[data-tour="emg-plate"]', title:'🚨 緊急対応マニュアル', text:'ヘッダーの「緊急対応マニュアル」ボタンです。地震・火災・救急・台風・防犯など、いざという時の対応手順をタップで確認できます。迷ったらここを開き、状況を選ぶだけでやるべきことが表示されます。', fallbackToTop:true },
   { sel:'[data-tour="diag-plate"]', title:'🗾 被害想定診断ツール', text:'「被害想定診断ツール」ボタンです。都道府県を選ぶだけで、活断層マップ・地震の発生確率・想定される死者数や経済損失などを即座に確認できます。お住まいの地域のリスクをチェックしてみましょう。', fallbackToTop:true },
-  { sel:'#sosHeaderBtn', title:'🆘 緊急SOSビーコン', text:'ヘッダーの赤い「SOS」ボタンです。大地震などの緊急時に、①通信が無くても使える「音・光ビーコン」（画面の点滅と大音量アラームで居場所を知らせる）、②GPSで現在地を記録して家族にLINE等で共有、③「無事です／救助が必要」の安否登録、の3つが使えます。いざという時のために場所を覚えておいてください。', fallbackToTop:true },
+  { sel:'#sosHeaderBtn', title:'🆘 緊急SOSビーコン', text:'ヘッダーの赤い「SOS」ボタンです。通信が無くても使える「音・光ビーコン」（画面をSOS信号で点滅させ、大音量アラームで居場所を知らせる）と、救急車式の連続サイレンが使えます。119・110へのワンタップ発信も可能。GPSでの位置発信・安否登録はプレミアム会員限定機能として10月に提供予定です。', fallbackToTop:true },
   { sel:'[data-tour="live"]', title:'🟢 LIVE・現在時刻', text:'ヘッダー右の機器パネルです。赤いランプが点滅していれば「LIVE（リアルタイム配信中）」を表し、その下の窓に現在時刻が表示されます。地震データは自動で更新され続けます。' },
   { sel:'#siteRefreshBtn', title:'🔄 最新情報に更新', text:'パネル内の丸い矢印ボタンです。自動更新を待たずに、いますぐ最新の地震・気象情報を取り込みたいときにタップします。表示が古いと感じたらここを押してください。', fallbackToTop:true },
   { sel:'[data-tour="menu"]', title:'☰ メニュー（設定）', text:'パネル右側の三本線アイコンがメニューボタンです。タップで開くメニューの中に、設定・お問い合わせ・プライバシーポリシーがあります。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。' },
@@ -16269,8 +16269,6 @@ document.addEventListener('keydown', function(e){
       <button class="sos-close" type="button" onclick="sosClosePanel()">閉じる ✕</button>
     </div>
 
-    <div id="sosLockMsg" class="sos-lock-msg" style="display:none"></div>
-
     <div class="sos-sec">
       <h3>① 音・光ビーコン（通信不要）</h3>
       <div class="sos-note">
@@ -16291,49 +16289,29 @@ document.addEventListener('keydown', function(e){
     </div>
 
     <div class="sos-sec">
-      <h3>② SOS位置発信</h3>
+      <h3>② 電話で通報（推奨）</h3>
       <div class="sos-note">
-        現在地を取得してサーバーに記録し、家族へ送れる共有文を作ります。
-        <b>通信が生きている場合のみ届きます。</b>位置情報の許可を求められたら「許可」を選んでください。<br>
-        <b>※下のボタンは消防・警察への通報ではありません。</b>通報できる状況の方は、必ず一番下の
-        📞ボタンから119・110へ直接通報してください。<br>
-        <b>【使いどころ】</b>110番・119番が繋がらないとき、または繋がって要請したものの、
-        通信指令室の司令員に正確に伝わったか不安なとき などの補助手段としてご利用ください。<br>
-        送信できなかった場合は、<b>成功するまで約2分おきに自動で再送し続けます</b>。
+        通報できる状況の方は、こちらから直接通報してください。災害用伝言ダイヤルは171です。
       </div>
-      <button class="sos-btn orange sos-send" type="button" onclick="sosSendLocation('救助が必要')">🚨 救助が必要（位置を発信）</button>
-      <button class="sos-btn red sos-send" type="button" onclick="sosSendLocation('火災')">🔥 火災（位置を発信）</button>
-      <div class="sos-row">
-        <button class="sos-btn green sos-send" type="button" onclick="sosSendLocation('救急要請')">🚑 救急要請</button>
-        <button class="sos-btn blue sos-send" type="button" onclick="sosSendLocation('事件・事故')">🚓 事件・事故</button>
-      </div>
-      <button class="sos-btn blue sos-send" type="button" onclick="sosSendLocation('避難中')">🏃 避難中（位置を発信）</button>
-      <button class="sos-btn gray" type="button" onclick="sosShareLast()">📤 家族に共有（LINE等）</button>
       <div class="sos-row">
         <a class="sos-btn red" style="text-align:center;text-decoration:none;box-sizing:border-box;line-height:1.3" href="tel:119">📞 119へ電話<br><span style="font-size:11px;font-weight:400">火事・救急・救助</span></a>
         <a class="sos-btn blue" style="text-align:center;text-decoration:none;box-sizing:border-box;line-height:1.3" href="tel:110">📞 110へ電話<br><span style="font-size:11px;font-weight:400">事件・事故</span></a>
       </div>
-      <div class="sos-status" id="sosLocStatus"></div>
     </div>
 
-    <div class="sos-sec">
-      <h3>③ 安否登録（位置なし）</h3>
-      <div class="sos-note">位置情報を使わず、状態だけをワンタップで記録します。</div>
-      <div class="sos-row">
-        <button class="sos-btn green sos-send" type="button" onclick="sosSendStatus('無事です')">✅ 無事です</button>
-        <button class="sos-btn orange sos-send" type="button" onclick="sosSendStatus('救助が必要')">🆘 救助が必要</button>
+    <div class="sos-sec" style="border-style:dashed">
+      <h3>③ GPS位置発信・安否登録 <span style="color:#ffd54f">（10月1日 提供開始予定）</span></h3>
+      <div class="sos-note">
+        現在地をワンタップで発信して、ご家族や運営と共有できる「GPS位置発信」と「安否登録」は、
+        <b style="color:#ffd54f">プレミアム会員限定機能</b>として <b>10月1日</b> に提供を開始する予定です。<br>
+        ※無料会員登録は8月開始予定。詳細は追ってサイト内のお知らせでご案内します。
       </div>
-      <div class="sos-status" id="sosStStatus"></div>
     </div>
 
     <div class="sos-note" style="text-align:center">
-      通報は119（消防）・110（警察）へ。災害用伝言ダイヤルは171。<br>
+      通報は119（消防）・110（警察）へ。<br>
       この機能は公的な救助要請システムとは連動していません。
     </div>
-
-    <!-- 送信完了後（1時間ロック中）だけ表示される取り消しボタン。ロック解除と同時に自動で消える -->
-    <button id="sosCancelBtn" class="sos-btn" type="button" style="display:none;background:#546e7a" onclick="sosSendCancel()">↩️ 直前の発信を取り消す（誤送信のとき）</button>
-    <div class="sos-status" id="sosCancelStatus" style="text-align:center"></div>
   </div>
 </div>
 
