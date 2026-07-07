@@ -12210,7 +12210,21 @@ const ARTICLES_URL = 'https://script.google.com/macros/s/AKfycbyZDX0JlROTMBbBIG_
 function escapeHtmlA(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
+// エスケープ済み本文の [表示文字|リンク先] 記法だけを安全な<a>タグに変換する
+function linkifyA(escapedBody){
+  return String(escapedBody).replace(/\[([^\[\]\|]{1,80})\|([^\[\]\|\s]{1,300})\]/g, function(m, label, url){
+    url = url.trim();
+    // サイト内機能を開く特別キーワード
+    if(url === 'manual') return '<a href="Manual.html" onclick="return openEmgManual(event)">' + label + '</a>';
+    if(url === 'sos')    return '<a href="#" onclick="sosOpenPanel();return false;">' + label + '</a>';
+    if(url === 'guide')  return '<a href="guide.html" onclick="openUsageGuide();return false;">' + label + '</a>';
+    // ページ内セクションへのスクロール（#section-map など）
+    if(/^#[a-zA-Z0-9_-]+$/.test(url)) return '<a href="' + url + '">' + label + '</a>';
+    // 外部URL（http/httpsのみ許可・新規タブ）
+    if(/^https?:\/\/[^\s"'<>]+$/.test(url)) return '<a href="' + url + '" target="_blank" rel="noopener">' + label + '</a>';
+    return m; // 該当しない形式は変換しない
+  });
+}
 // シートのF列「タグ」(備え/情報/ヒント/アーカイブ または自由入力)をカード用に変換
 // ※A列「表示」が「公開」かつF列が「アーカイブ」の行は記事アーカイブに振り分けられます
 function tagFromSheet(rawTag){
@@ -12313,7 +12327,7 @@ async function loadArticles(){
         archTag: parsed.archTag,
         title: escapeHtmlA(p.title),
         subtitle: '',
-        body: escapeHtmlA(a.body || ''),
+        body: linkifyA(escapeHtmlA(a.body || '')),
         link: (a.link && a.link.indexOf('http')===0) ? a.link : '',
         updated: escapeHtmlA(a.date || ''),
         images: Array.isArray(a.images) ? a.images.filter(u => /^https?:\/\//.test(u)) : [],
