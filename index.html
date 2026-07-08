@@ -4801,6 +4801,8 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
         <button class="settings-opt-btn" onclick="window.open('https://quake.bousai0111.info','_blank')">📳 震度3〜4の通知を設定</button>
         <button class="settings-opt-btn" onclick="window.open('https://alert.bousai0111.info','_blank')">🚨 震度5弱以上・緊急地震速報の通知を設定</button>
       </div>
+       <button id="stampReminderBtn" class="settings-opt-btn" onclick="toggleStampReminder()">🔕 熱中症アラート通知をオンにする</button>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;">🌡コーナーで登録した都道府県の暑さ指数が基準を超える日に、朝と昼に通知します。iPhoneは「ホーム画面に追加」してからオンにしてください。</div>
       <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-top:10px;">
         ⚠️ この設定は<strong style="color:var(--text);">スマホ本体の通知設定とは別物</strong>です。通知音の変更（警報音の設定など）や消音は、スマホの「設定 → アプリ → Chrome → 通知」から行ってください。
       </div>
@@ -15103,10 +15105,6 @@ function sendSiteInquiry(){
     <div class="stamp-sub">サイトを開くと1日1回スタンプが押されます<br>10個・20個で防災グッズのプレゼントに応募できます🎁</div>
     <div class="stamp-grid" id="stampGrid"></div>
     <div id="stampMessage"></div>
-    <div class="stamp-reminder">
-      <button id="stampReminderBtn" class="stamp-reminder-btn" onclick="toggleStampReminder()">🔕 熱中症アラート通知をオンにする</button>
-      <div class="stamp-reminder-note">夕方に「まだ押していない日」だけお知らせします。<br>iPhoneは「ホーム画面に追加」してからオンにしてください。</div>
-    </div>
     <div class="stamp-design">
       <div class="sd-label">🎨 カードのデザイン</div>
       <div class="sd-row" id="sdColors"></div>
