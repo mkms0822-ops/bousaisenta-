@@ -13698,7 +13698,7 @@ async function enableStampReminder(){
     const data = await res.json().catch(()=>({}));
     if(data && data.ok){
       localStorage.setItem('dwa_push_on','1');
-      showStampToast('🔔 リマインダー通知をオンにしました');
+      showStampToast('🔔 熱中症アラート通知をオンにしました');
       updateStampReminderUI();
       return true;
     }else{
@@ -13724,7 +13724,7 @@ async function disableStampReminder(){
     }
     localStorage.setItem('dwa_push_on','0');
     updateStampReminderUI();
-    showStampToast('リマインダー通知をオフにしました');
+    showStampToast('熱中症アラート通知をオフにしました');
   }catch(e){
     console.error('[disableStampReminder]', e);
   }
@@ -13739,7 +13739,7 @@ function updateStampReminderUI(){
   const on = isStampReminderOn();
   const btn = document.getElementById('stampReminderBtn');
   if(btn){
-    btn.textContent = on ? '🔔 リマインダー通知：オン' : '🔕 リマインダー通知をオンにする';
+    btn.textContent = on ? '🔔 熱中症アラート通知：オン' : '🔕 熱中症アラート通知をオンにする';
     btn.classList.toggle('on', on);
   }
 }
@@ -15104,7 +15104,7 @@ function sendSiteInquiry(){
     <div class="stamp-grid" id="stampGrid"></div>
     <div id="stampMessage"></div>
     <div class="stamp-reminder">
-      <button id="stampReminderBtn" class="stamp-reminder-btn" onclick="toggleStampReminder()">🔕 リマインダー通知をオンにする</button>
+      <button id="stampReminderBtn" class="stamp-reminder-btn" onclick="toggleStampReminder()">🔕 熱中症アラート通知をオンにする</button>
       <div class="stamp-reminder-note">夕方に「まだ押していない日」だけお知らせします。<br>iPhoneは「ホーム画面に追加」してからオンにしてください。</div>
     </div>
     <div class="stamp-design">
@@ -15147,7 +15147,7 @@ function sendSiteInquiry(){
         <li>応募欄にメールアドレスを入力して「応募する」を押すと、受付完了メールが自動送信されます。</li>
         <li>カードの色・模様は「カードのデザイン」からお好みで変更できます。</li>
         <li>「引き継ぎコード」をメモしておくと、データ削除時や機種変更時に復元できます。</li>
-        <li>夕方のリマインダー通知をオンにすると、まだ押していない日だけお知らせします。</li>
+        <li>通知をオンにして都道府県を登録すると、暑さ指数が基準を超える日の朝と昼に熱中症アラートが届きます。</li>
       </ol>
       <h5>⚠️ 注意事項</h5>
       <ul>
