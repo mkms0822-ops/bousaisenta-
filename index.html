@@ -4792,23 +4792,24 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     </div>
 
     <!-- アプリの通知設定（Web Push） -->
-    <div class="settings-section" data-stour="appnotify">
+   <div class="settings-section" data-stour="appnotify">
       <div class="settings-section-label">// アプリの通知設定</div>
       <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:10px;">
-        アプリやブラウザを<strong style="color:var(--text);">閉じていてもスマホに届く</strong>プッシュ通知です。下のボタンから登録ページを開き、「通知を有効にする」を押してください（端末ごとに登録が必要です）。
+        アプリやブラウザを<strong style="color:var(--text);">閉じていてもスマホに届く</strong>プッシュ通知です。地震の2種類は登録ページを開いて「通知を有効にする」を押してください（端末ごとに登録が必要です）。
       </div>
       <div class="settings-btn-group" style="flex-direction:column;gap:8px;">
         <button class="settings-opt-btn" onclick="window.open('https://quake.bousai0111.info','_blank')">📳 震度3〜4の通知を設定</button>
         <button class="settings-opt-btn" onclick="window.open('https://alert.bousai0111.info','_blank')">🚨 震度5弱以上・緊急地震速報の通知を設定</button>
+        <button id="stampReminderBtn" class="settings-opt-btn" onclick="toggleStampReminder()">🔕 熱中症アラート通知をオンにする</button>
       </div>
-       <button id="stampReminderBtn" class="settings-opt-btn" onclick="toggleStampReminder()">🔕 熱中症アラート通知をオンにする</button>
-       <button id="stampReminderBtn" class="settings-opt-btn" style="margin-top:8px;width:100%;" onclick="toggleStampReminder()">🔕 熱中症アラート通知をオンにする</button>
+      <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-top:8px;">
+        🥵 熱中症アラートは、🌡コーナーで登録した都道府県の暑さ指数が基準を超える日の朝と昼に届きます。iPhoneは「ホーム画面に追加」してからオンにしてください。
+      </div>
       <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-top:10px;">
         ⚠️ この設定は<strong style="color:var(--text);">スマホ本体の通知設定とは別物</strong>です。通知音の変更（警報音の設定など）や消音は、スマホの「設定 → アプリ → Chrome → 通知」から行ってください。
       </div>
       <button class="guide-link-btn" onclick="openNotifyGuide()">📖 詳しい設定方法・注意事項はこちら</button>
     </div>
-
     <!-- 2画面表示 -->
     <div class="settings-section" data-stour="split">
       <div class="settings-section-label">// 2画面表示</div>
