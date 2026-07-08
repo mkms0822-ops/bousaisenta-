@@ -8636,7 +8636,7 @@ function syncWeatherSettingsUI(){
   function heatChip(lv, val){
     if(val==null || !lv){ return '<span class="heat-chip c0">—</span>'; }
     var info = LV[lv] || {c:'c0', t:'—'};
-    return '<span class="heat-chip '+info.c+'">'+info.t+' <small>'+val+'℃</small></span>';
+    return '<span class="heat-chip '+info.c+'">'+info.t+' <small>'+val+'</small></span>';
   }
 
   // 都道府県 → 地方 の対応（GASは都道府県名のみ返すので、フロントで地方にまとめる）
@@ -8722,7 +8722,7 @@ function syncWeatherSettingsUI(){
       html +=   '<div class="heat-region-body"><div class="heat-pref-grid">';
       g.prefs.forEach(function(p){
         var pInfo = LV[p.maxLevel] || {c:'c0', t:'—'};
-        var maxF = (p.maxForecast!=null) ? (p.maxForecast+'℃') : '—';
+        var maxF = (p.maxForecast!=null) ? String(p.maxForecast) : '—';
         var pn = p.pref.replace(/'/g,'\\\'');
         html += '<button class="heat-pref-chip" type="button" onclick="window.__heatOpenPref(\''+hEsc(pn)+'\')">';
         html +=   '<span class="hpc-bar '+pInfo.c+'"></span>';
@@ -8794,7 +8794,7 @@ function syncWeatherSettingsUI(){
     if(badge){ badge.className = 'hm-badge heat-chip '+info.c; badge.textContent = info.t; }
     if(prefEl) prefEl.textContent = p.pref;
     if(subEl){
-      var maxF = (p.maxForecast!=null) ? ('最高予測 '+p.maxForecast+'℃') : '';
+      var maxF = (p.maxForecast!=null) ? ('最高予測 '+p.maxForecast) : '';
       subEl.textContent = (regionOf_(p.pref)) + '　' + (p.points.length) + '地点' + (maxF ? '　'+maxF : '');
     }
     bodyEl.innerHTML = buildModalBody_(p);
@@ -10915,7 +10915,7 @@ window.kioskUI = (function(){
       const val = (p.n != null ? p.n : (p.f != null ? p.f : null));
       const col = HEAT_COLORS[lv] || 'var(--k-lv2)';
       const lab = HEAT_LABELS[lv] || '—';
-      const tempStr = (val != null) ? (Number(val).toFixed(1) + '℃') : '—';
+      const tempStr = (val != null) ? Number(val).toFixed(1) : '—';
       rows += '<div class="hl-row">'
         + '<span class="hl-name">'+p.name+'</span>'
         + '<span class="hl-badge" style="background:'+col+'">'+lab+'</span>'
