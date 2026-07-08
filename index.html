@@ -6542,6 +6542,7 @@ function openColOverlay(i){
   _colOvIndex = i;
   const ov = document.getElementById('colOverlay');
   if(!ov) return;
+  try { if (window.dwaTrack) window.dwaTrack('column', (c.title || '').substring(0, 40)); } catch (e) {}
 
   const tc = c.tag==='prep'?'':c.tag==='info'?'info-tag':'tips-tag';
   const tagLabel = TAG_OPTIONS.find(t=>t.val===c.tag)?.label||c.tag||'';
