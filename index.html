@@ -8728,7 +8728,8 @@ function syncWeatherSettingsUI(){
         html +=   '<span class="hpc-bar '+pInfo.c+'"></span>';
         html +=   '<span class="hpc-name">'+hEsc(p.pref)+'</span>';
         html +=   '<span class="hpc-meta"><span class="hpc-lv heat-chip '+pInfo.c+'">'+pInfo.t+'</span></span>';
-        html +=   '<span class="hpc-max">最高 '+maxF+'</span>';
+        var maxT = (p.t!=null) ? ('気温 '+p.t+'℃　') : '';
+        html +=   '<span class="hpc-max">'+maxT+'指数 '+maxF+'</span>';
         html +=   '<span class="hpc-go">▶</span>';
         html += '</button>';
       });
@@ -8794,8 +8795,9 @@ function syncWeatherSettingsUI(){
     if(badge){ badge.className = 'hm-badge heat-chip '+info.c; badge.textContent = info.t; }
     if(prefEl) prefEl.textContent = p.pref;
     if(subEl){
-      var maxF = (p.maxForecast!=null) ? ('最高予測 '+p.maxForecast) : '';
-      subEl.textContent = (regionOf_(p.pref)) + '　' + (p.points.length) + '地点' + (maxF ? '　'+maxF : '');
+      var maxT = (p.t!=null) ? ('気温予測 '+p.t+'℃') : '';
+      var maxF = (p.maxForecast!=null) ? ('指数予測 '+p.maxForecast) : '';
+      subEl.textContent = (regionOf_(p.pref)) + '　' + (p.points.length) + '地点' + (maxT ? '　'+maxT : '') + (maxF ? '　'+maxF : '');
     }
     bodyEl.innerHTML = buildModalBody_(p);
     ov.classList.add('open');
