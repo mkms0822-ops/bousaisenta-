@@ -13634,7 +13634,33 @@ function dwaUrlB64ToUint8(base64String){
   for (let i=0;i<raw.length;i++) arr[i] = raw.charCodeAt(i);
   return arr;
 }
-
+// 通知対象の都道府県（🌡コーナーで登録した県。カンマ区切り・最大2県）
+function dwaMyHeatPrefs_(){
+  try{
+    const a = JSON.parse(localStorage.getItem('heat_pref_list') || '[]');
+    if(Array.isArray(a) && a.length) return a.filter(x=>x).slice(0,2).join(',');
+  }catch(e){}
+  return '';
+}
+// 通知オン済みの端末は、県の変更を週1回サイレントにサーバーへ同期
+setTimeout(async function dwaSyncPushPref(){
+  try{
+    if(localStorage.getItem('dwa_push_on') !== '1') return;
+    const last = localStorage.getItem('dwa_push_pref_sync') || '';
+    const today = new Date().toISOString().slice(0,10);
+    if(last && (new Date(today) - new Date(last)) < 7*24*60*60*1000) return;
+    const reg = await navigator.serviceWorker.getRegistration();
+    const sub = reg && await reg.pushManager.getSubscription();
+    if(!sub) return;
+    const j = sub.toJSON();
+    await fetch(ARTICLES_URL + '?' + new URLSearchParams({
+      type:'push', action:'subscribe', code:getStampCode(),
+      endpoint:j.endpoint, p256dh:j.keys.p256dh, auth:j.keys.auth,
+      pref: dwaMyHeatPrefs_()
+    }).toString());
+    localStorage.setItem('dwa_push_pref_sync', today);
+  }catch(e){}
+}, 8000);
 async function enableStampReminder(){
   try{
     if(!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)){
@@ -13665,7 +13691,8 @@ async function enableStampReminder(){
     const j = sub.toJSON();
     const params = new URLSearchParams({
       type:'push', action:'subscribe', code:getStampCode(),
-      endpoint:j.endpoint, p256dh:j.keys.p256dh, auth:j.keys.auth
+      endpoint:j.endpoint, p256dh:j.keys.p256dh, auth:j.keys.auth,
+      pref: dwaMyHeatPrefs_()
     });
     const res = await fetch(ARTICLES_URL + '?' + params.toString());
     const data = await res.json().catch(()=>({}));
