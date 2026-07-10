@@ -237,6 +237,35 @@
     html{scroll-behavior:auto;}
     *{transition:none !important;}
   }
+
+  /* ===== 目次 ===== */
+  .toc{background:linear-gradient(135deg,rgba(0,180,255,0.08),rgba(0,102,214,0.04));border:1px solid rgba(0,180,255,0.22);border-radius:14px;padding:16px 18px;margin:24px 0 28px;}
+  .toc-head{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15px;color:var(--text);margin-bottom:10px;letter-spacing:.02em;}
+  .toc-badge{font-size:20px;}
+  .toc-toggle{margin-left:auto;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:inherit;}
+  .toc-toggle:hover{color:var(--text);border-color:rgba(0,180,255,0.4);}
+  .toc-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px;}
+  .toc-list.collapsed{display:none;}
+  .toc-item{display:flex;align-items:center;gap:9px;padding:8px 11px;border-radius:8px;text-decoration:none;color:var(--text);font-size:13px;line-height:1.35;transition:.13s;border:1px solid transparent;}
+  .toc-item:hover{background:rgba(0,180,255,0.08);border-color:rgba(0,180,255,0.25);}
+  .toc-item.active{background:rgba(255,140,40,0.12);border-color:rgba(255,140,40,0.4);}
+  .toc-num{font-family:var(--num-font);font-size:10.5px;color:var(--muted);letter-spacing:.05em;font-weight:700;flex:0 0 auto;}
+  .toc-icon{font-size:15px;flex:0 0 auto;}
+  .toc-txt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  @media(max-width:520px){.toc-list{grid-template-columns:1fr;}.toc-item{font-size:13.5px;padding:9px 11px;}}
+  html{scroll-behavior:smooth;scroll-padding-top:12px;}
+  .sec{scroll-margin-top:12px;}
+
+  /* ===== ページ最下部：リンク集 ===== */
+  .link-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px;}
+  @media(max-width:520px){.link-row{grid-template-columns:1fr;}}
+  .link-card{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--border);border-radius:11px;background:var(--surface2);color:var(--text);text-decoration:none;transition:.13s;}
+  .link-card:hover{border-color:rgba(255,140,40,0.5);background:var(--surface3);}
+  .link-card .lc-icon{font-size:26px;flex:0 0 auto;}
+  .link-card .lc-title{font-weight:800;font-size:14.5px;}
+  .link-card .lc-desc{font-size:11.5px;color:var(--muted);margin-top:2px;}
+  .link-card .lc-chev{margin-left:auto;color:var(--muted);font-size:14px;}
+
 </style>
 </head>
 <body>
@@ -261,15 +290,48 @@
     <p>地震・気象・熱中症をリアルタイムで見守り、緊急対応マニュアルやSOS発信機で「その瞬間」の行動を支えます。<br>このガイドは、初めての方から常連さんまで、すべての機能を「使いこなす」ための一冊です。</p>
   </div>
 
+
+  <!-- 目次 -->
+  <nav class="toc" id="toc" aria-label="目次">
+    <div class="toc-head"><span class="toc-badge">📑</span><span>目次</span><button class="toc-toggle" id="tocToggle" aria-expanded="true" aria-controls="tocList">閉じる</button></div>
+    <div class="toc-list" id="tocList">
+      <a class="toc-item" href="#s01" data-target="s01"><span class="toc-num">01</span><span class="toc-icon">🏠</span><span class="toc-txt">はじめに ― このサイトでできること</span></a>
+      <a class="toc-item" href="#s02" data-target="s02"><span class="toc-num">02</span><span class="toc-icon">📈</span><span class="toc-txt">地震速報・気象情報を見る</span></a>
+      <a class="toc-item" href="#s03" data-target="s03"><span class="toc-num">03</span><span class="toc-icon">🎚️</span><span class="toc-txt">警戒レベルの見方と行動</span></a>
+      <a class="toc-item" href="#s04" data-target="s04"><span class="toc-num">04</span><span class="toc-icon">🌡️</span><span class="toc-txt">熱中症 暑さ指数（WBGT）</span></a>
+      <a class="toc-item" href="#s05" data-target="s05"><span class="toc-num">05</span><span class="toc-icon">🚨</span><span class="toc-txt">緊急対応マニュアル</span></a>
+      <a class="toc-item" href="#s06" data-target="s06"><span class="toc-num">06</span><span class="toc-icon">🆘</span><span class="toc-txt">緊急SOS発信機</span></a>
+      <a class="toc-item" href="#s07" data-target="s07"><span class="toc-num">07</span><span class="toc-icon">☎</span><span class="toc-txt">緊急電話ボタン</span></a>
+      <a class="toc-item" href="#s08" data-target="s08"><span class="toc-num">08</span><span class="toc-icon">🗾</span><span class="toc-txt">地震被害想定診断ツール</span></a>
+      <a class="toc-item" href="#s09" data-target="s09"><span class="toc-num">09</span><span class="toc-icon">🧭</span><span class="toc-txt">防災意識診断・防災クイズ</span></a>
+      <a class="toc-item" href="#s10" data-target="s10"><span class="toc-num">10</span><span class="toc-icon">📰</span><span class="toc-txt">防災コラムとブックマーク</span></a>
+      <a class="toc-item" href="#s11" data-target="s11"><span class="toc-num">11</span><span class="toc-icon">🥵</span><span class="toc-txt">熱中症アラート通知</span></a>
+      <a class="toc-item" href="#s12" data-target="s12"><span class="toc-num">12</span><span class="toc-icon">📳</span><span class="toc-txt">地震通知（震度3〜4／5弱以上）</span></a>
+      <a class="toc-item" href="#s13" data-target="s13"><span class="toc-num">13</span><span class="toc-icon">🎁</span><span class="toc-txt">スタンプカードと特典</span></a>
+      <a class="toc-item" href="#s14" data-target="s14"><span class="toc-num">14</span><span class="toc-icon">🔑</span><span class="toc-txt">引き継ぎコードとデータの引き継ぎ</span></a>
+      <a class="toc-item" href="#s15" data-target="s15"><span class="toc-num">15</span><span class="toc-icon">📨</span><span class="toc-txt">災害用伝言板とチャット</span></a>
+      <a class="toc-item" href="#s16" data-target="s16"><span class="toc-num">16</span><span class="toc-icon">📤</span><span class="toc-txt">友達紹介・口コミ</span></a>
+      <a class="toc-item" href="#s17" data-target="s17"><span class="toc-num">17</span><span class="toc-icon">🌌</span><span class="toc-txt">宇宙天気メール</span></a>
+      <a class="toc-item" href="#s18" data-target="s18"><span class="toc-num">18</span><span class="toc-icon">🖥️</span><span class="toc-txt">キオスクモード</span></a>
+      <a class="toc-item" href="#s19" data-target="s19"><span class="toc-num">19</span><span class="toc-icon">⚙️</span><span class="toc-txt">設定（テーマ・文字・音・通知）</span></a>
+      <a class="toc-item" href="#s20" data-target="s20"><span class="toc-num">20</span><span class="toc-icon">🎬</span><span class="toc-txt">オープニング・チュートリアル</span></a>
+      <a class="toc-item" href="#s21" data-target="s21"><span class="toc-num">21</span><span class="toc-icon">🚨</span><span class="toc-txt">緊急モード・テスト警報</span></a>
+      <a class="toc-item" href="#s22" data-target="s22"><span class="toc-num">22</span><span class="toc-icon">🌐</span><span class="toc-txt">多言語で読む</span></a>
+      <a class="toc-item" href="#s23" data-target="s23"><span class="toc-num">23</span><span class="toc-icon">📴</span><span class="toc-txt">オフラインでの利用</span></a>
+      <a class="toc-item" href="#s24" data-target="s24"><span class="toc-num">24</span><span class="toc-icon">❓</span><span class="toc-txt">よくある質問</span></a>
+      
+    </div>
+  </nav>
+
   <!-- SECTION 01：はじめに -->
-  <section class="sec">
+  <section class="sec" id="s01">
     <div class="sec-head"><span class="sec-num">SECTION 01</span><span class="sec-icon">🏠</span><span class="sec-title">はじめに ― このサイトでできること</span></div>
     <p class="sec-lead">防災情報センターは、地震・気象・熱中症の情報を一画面で監視し、いざという時の行動をサポートする無料の防災サイトです。安全に関わる機能はすべて無料・登録不要でご利用いただけます。</p>
     <p>トップは<strong>玄関ページ</strong>。「監視ルームに入る」をタップするとメイン画面が開きます。緊急時にすぐ入りたい方は、玄関の「次回からこのページを飛ばして監視ルームへ直接入る」にチェックしてください。玄関に戻りたい時は URL の末尾に <code>#gate</code> を付けます。</p>
   </section>
 
   <!-- SECTION 02：地震速報・気象情報 -->
-  <section class="sec">
+  <section class="sec" id="s02">
     <div class="sec-head"><span class="sec-num">SECTION 02</span><span class="sec-icon">📈</span><span class="sec-title">地震速報・気象情報を見る</span></div>
     <p class="sec-lead">監視ルームには、地震速報LIVE、気象警報バナー、津波情報、緊急地震速報（EEW）が集約されています。ページを開いているだけで自動更新され、警戒レベル相当の情報は色分けで即座に判別できます。</p>
     <ul class="ul">
@@ -280,7 +342,7 @@
   </section>
 
   <!-- SECTION 03：警戒レベルの見方 -->
-  <section class="sec">
+  <section class="sec" id="s03">
     <div class="sec-head"><span class="sec-num">SECTION 03</span><span class="sec-icon">🎚️</span><span class="sec-title">警戒レベルの見方と行動</span></div>
     <p class="sec-lead">気象警報・避難情報は5段階の「警戒レベル」で示されます。当サイトのバナーはこのレベルに準拠した色分けです。</p>
     <ul class="ul">
@@ -293,7 +355,7 @@
   </section>
 
   <!-- SECTION 04：熱中症コーナー -->
-  <section class="sec">
+  <section class="sec" id="s04">
     <div class="sec-head"><span class="sec-num">SECTION 04</span><span class="sec-icon">🌡️</span><span class="sec-title">熱中症 暑さ指数（WBGT）</span></div>
     <p class="sec-lead">環境省のデータをもとに、全国841地点の暑さ指数（WBGT）を30分ごとに自動更新。各都道府県には「気温予測」と「暑さ指数（実況・予測）」を並べて表示します。</p>
     <ul class="ul">
@@ -305,14 +367,14 @@
   </section>
 
   <!-- SECTION 05：緊急対応マニュアル -->
-  <section class="sec">
+  <section class="sec" id="s05">
     <div class="sec-head"><span class="sec-num">SECTION 05</span><span class="sec-icon">🚨</span><span class="sec-title">緊急対応マニュアル</span></div>
     <p class="sec-lead">地震・火災・水害・救急・停電など、災害別の初動手順をまとめたマニュアルです。玄関ページの「緊急対応マニュアル」ボタン、または監視ルーム内から開けます。</p>
     <p>災害の種類ごとに「今すぐやること」「その後の行動」「準備しておくもの」を段階的に整理。<strong>いざという時に落ち着いて参照できる</strong>よう、平時のうちに一度目を通しておくのがおすすめです。</p>
   </section>
 
   <!-- SECTION 06：SOS発信機 -->
-  <section class="sec">
+  <section class="sec" id="s06">
     <div class="sec-head"><span class="sec-num">SECTION 06</span><span class="sec-icon">🆘</span><span class="sec-title">緊急SOS発信機（音と光の救助信号）</span></div>
     <p class="sec-lead">災害時に自分の位置を周囲へ知らせるための、音・光・振動を組み合わせた救助信号発信機です。「SOSビーコン」を開いてタップすると、スマホの画面が発光し、SOS音（モールス信号）を発します。</p>
     <ul class="ul">
@@ -324,7 +386,7 @@
   </section>
 
   <!-- SECTION 07：緊急電話ボタン -->
-  <section class="sec">
+  <section class="sec" id="s07">
     <div class="sec-head"><span class="sec-num">SECTION 07</span><span class="sec-icon">☎</span><span class="sec-title">緊急電話ボタン（110・119・#7119ほか）</span></div>
     <p class="sec-lead">災害時・緊急時にすぐ発信できる短縮ボタンを用意しています。ワンタップで発信画面へ移動します。</p>
     <ul class="ul">
@@ -337,20 +399,20 @@
   </section>
 
   <!-- SECTION 08：被害想定診断 -->
-  <section class="sec">
+  <section class="sec" id="s08">
     <div class="sec-head"><span class="sec-num">SECTION 08</span><span class="sec-icon">🗾</span><span class="sec-title">地震被害想定診断ツール</span></div>
     <p class="sec-lead">お住まいの都道府県を選ぶだけで、想定される揺れの強さ・活断層・発生確率・死者数・経済損失などを可視化します。玄関ページや監視ルームから利用できる外部専用ツールです。</p>
     <p>結果を家族と共有し、避難ルートや備蓄の見直しにお役立てください。</p>
   </section>
 
   <!-- SECTION 09：防災意識診断・クイズ -->
-  <section class="sec">
+  <section class="sec" id="s09">
     <div class="sec-head"><span class="sec-num">SECTION 09</span><span class="sec-icon">🧭</span><span class="sec-title">防災意識診断・防災クイズ</span></div>
     <p class="sec-lead">簡単な質問に答えるだけで、あなたの防災意識レベルを判定します。防災クイズで遊びながら知識を深められ、家族みんなで取り組めるコンテンツです。</p>
   </section>
 
   <!-- SECTION 10：防災コラム -->
-  <section class="sec">
+  <section class="sec" id="s10">
     <div class="sec-head"><span class="sec-num">SECTION 10</span><span class="sec-icon">📰</span><span class="sec-title">防災コラムとブックマーク</span></div>
     <p class="sec-lead">季節や災害の傾向に合わせて、防災トピックのコラムを定期的に配信しています。過去の災害の教訓、今すぐできる備え、家族で話し合うヒントなどを掲載。</p>
     <ul class="ul">
@@ -360,7 +422,7 @@
   </section>
 
   <!-- SECTION 11：熱中症アラート通知（新機能） -->
-  <section class="sec">
+  <section class="sec" id="s11">
     <div class="sec-head"><span class="sec-num">SECTION 11</span><span class="sec-icon">🥵</span><span class="sec-title">熱中症アラート通知（新機能）</span></div>
     <p class="sec-lead">登録した都道府県の暑さ指数が基準（33＝環境省の熱中症警戒アラート相当）を超える日に、朝と昼にスマホへプッシュ通知でお知らせします。</p>
     <p><strong>受け取り方</strong></p>
@@ -373,7 +435,7 @@
   </section>
 
   <!-- SECTION 12：地震通知（外部連携） -->
-  <section class="sec">
+  <section class="sec" id="s12">
     <div class="sec-head"><span class="sec-num">SECTION 12</span><span class="sec-icon">📳</span><span class="sec-title">地震通知（震度3〜4／震度5弱以上・緊急地震速報）</span></div>
     <p class="sec-lead">当サイトでは、熱中症アラート通知とは別に、地震の通知を2系統ご用意しています。設定画面の「アプリの通知設定」からそれぞれ登録できます。</p>
     <ul class="ul">
@@ -384,7 +446,7 @@
   </section>
 
   <!-- SECTION 13：スタンプカード -->
-  <section class="sec">
+  <section class="sec" id="s13">
     <div class="sec-head"><span class="sec-num">SECTION 13</span><span class="sec-icon">🎁</span><span class="sec-title">スタンプカードと特典</span></div>
     <p class="sec-lead">サイトに毎日アクセスすると、1日1個スタンプが貯まります。20個で満タン。10個・20個到達で、プレゼントに応募できます。</p>
     <ul class="ul">
@@ -395,7 +457,7 @@
   </section>
 
   <!-- SECTION 14：引き継ぎコード -->
-  <section class="sec">
+  <section class="sec" id="s14">
     <div class="sec-head"><span class="sec-num">SECTION 14</span><span class="sec-icon">🔑</span><span class="sec-title">引き継ぎコードとデータの引き継ぎ</span></div>
     <p class="sec-lead">「DWA-XXXX-XXXX」形式の引き継ぎコードは、当サイトのあなたの識別番号です。パスワードとセットで設定しておくと、機種変更・ブラウザ変更のときにデータをそのまま引き継げます。</p>
     <ul class="ul">
@@ -406,7 +468,7 @@
   </section>
 
   <!-- SECTION 15：災害用伝言板・@通知メール -->
-  <section class="sec">
+  <section class="sec" id="s15">
     <div class="sec-head"><span class="sec-num">SECTION 15</span><span class="sec-icon">📨</span><span class="sec-title">災害用伝言板とチャット・@通知メール</span></div>
     <p class="sec-lead">災害時に家族・友人と安否を伝え合えるチャット機能を用意しています。引き継ぎコードで参加でき、@メンションで特定の相手に呼びかけられます。</p>
     <ul class="ul">
@@ -417,27 +479,27 @@
   </section>
 
   <!-- SECTION 16：友達紹介・口コミ -->
-  <section class="sec">
+  <section class="sec" id="s16">
     <div class="sec-head"><span class="sec-num">SECTION 16</span><span class="sec-icon">📤</span><span class="sec-title">友達紹介・口コミ</span></div>
     <p class="sec-lead">当サイトを気に入ってくださったら、家族・友人にご紹介ください。紹介コードを使った登録があれば、双方にスタンプボーナスが入ります。</p>
     <p>また、★1〜5の<strong>口コミ投稿</strong>で応援メッセージをお寄せいただけます（承認後にサイトに掲載）。運営の励みになります。</p>
   </section>
 
   <!-- SECTION 17：宇宙天気メール -->
-  <section class="sec">
+  <section class="sec" id="s17">
     <div class="sec-head"><span class="sec-num">SECTION 17</span><span class="sec-icon">🌌</span><span class="sec-title">宇宙天気メール</span></div>
     <p class="sec-lead">太陽フレアや磁気嵐など、通信・GPS・電力インフラに影響しうる宇宙天気の情報を、メールでお届けするサービスです。防災意識の高い方に人気のマニアックな機能です。</p>
   </section>
 
   <!-- SECTION 18：キオスクモード -->
-  <section class="sec">
+  <section class="sec" id="s18">
     <div class="sec-head"><span class="sec-num">SECTION 18</span><span class="sec-icon">🖥️</span><span class="sec-title">キオスクモード（受付・待合室向け）</span></div>
     <p class="sec-lead">大画面のディスプレイに常時表示するための特別モードです。テロップ、備えヒント、情報スライド、全画面画像を自動切り替えで流します。</p>
     <p>マンションのエントランス、施設の待合室、店舗のサイネージなどで防災情報を掲示したい方向けの機能です。設定は管理者側で行います。</p>
   </section>
 
   <!-- SECTION 19：設定 -->
-  <section class="sec">
+  <section class="sec" id="s19">
     <div class="sec-head"><span class="sec-num">SECTION 19</span><span class="sec-icon">⚙️</span><span class="sec-title">設定（テーマ・文字・音・通知・地域）</span></div>
     <p class="sec-lead">歯車アイコンから設定画面を開けます。見た目と操作性を細かく調整できます。</p>
     <ul class="ul">
@@ -453,7 +515,7 @@
   </section>
 
   <!-- SECTION 20：オープニング・チュートリアル・注目ガイド -->
-  <section class="sec">
+  <section class="sec" id="s20">
     <div class="sec-head"><span class="sec-num">SECTION 20</span><span class="sec-icon">🎬</span><span class="sec-title">オープニング・チュートリアル・注目ガイド</span></div>
     <p class="sec-lead">サイト起動時の演出やヘルプ機能です。</p>
     <ul class="ul">
@@ -464,7 +526,7 @@
   </section>
 
   <!-- SECTION 21：緊急モード・テスト警報 -->
-  <section class="sec">
+  <section class="sec" id="s21">
     <div class="sec-head"><span class="sec-num">SECTION 21</span><span class="sec-icon">🚨</span><span class="sec-title">緊急モード・テスト警報（防災訓練用）</span></div>
     <p class="sec-lead">運営が管理画面から発動できる特別モードです。実際の災害時や、防災訓練の際に活用されます。</p>
     <ul class="ul">
@@ -474,13 +536,13 @@
   </section>
 
   <!-- SECTION 22：多言語 -->
-  <section class="sec">
+  <section class="sec" id="s22">
     <div class="sec-head"><span class="sec-num">SECTION 22</span><span class="sec-icon">🌐</span><span class="sec-title">多言語で読む</span></div>
     <p class="sec-lead">ブラウザの翻訳機能をご利用ください。Google Chromeなら右上メニューから「翻訳」を選ぶだけで、英語・中国語・韓国語・ベトナム語・ポルトガル語など主要言語に対応します。日本在住の外国の方にもぜひご紹介ください。</p>
   </section>
 
   <!-- SECTION 23：オフライン利用 -->
-  <section class="sec">
+  <section class="sec" id="s23">
     <div class="sec-head"><span class="sec-num">SECTION 23</span><span class="sec-icon">📴</span><span class="sec-title">オフラインでの利用について</span></div>
     <p class="sec-lead">当サイトは基本的にネット接続を前提としていますが、以下の工夫で「圏外になっても最低限の情報が見られる」状態を作れます。</p>
     <ul class="ul">
@@ -491,7 +553,7 @@
   </section>
 
   <!-- SECTION 24：よくある質問 -->
-  <section class="sec">
+  <section class="sec" id="s24">
     <div class="sec-head"><span class="sec-num">SECTION 24</span><span class="sec-icon">❓</span><span class="sec-title">よくある質問</span></div>
     <details class="qa"><summary>Q. 会員登録は必要ですか？</summary><p>安全に関わる機能はすべて登録不要でご利用いただけます。スタンプや引き継ぎを使いたい場合のみ、無料の引き継ぎコードを発行してください。</p></details>
     <details class="qa"><summary>Q. 引き継ぎコードを忘れました。</summary><p>大変申し訳ありませんが、メールアドレスを預かっていないため、コード再発行の仕組みはありません。コードは表示直後にスクリーンショットで保存することを強くおすすめします。</p></details>
@@ -502,6 +564,34 @@
     <details class="qa"><summary>Q. サイトが重い／表示崩れがあります。</summary><p>ブラウザを再起動し、スーパーリロード（Ctrl+Shift+R / iPhoneはSafari設定のキャッシュ削除）をお試しください。それでも改善しない場合は、ブラウザの種類とバージョン、端末を添えてお問い合わせください。</p></details>
     <details class="qa"><summary>Q. 個人情報はどう扱われますか？</summary><p>当サイトが預かるのは、引き継ぎコード・パスワード（暗号化）・スタンプ履歴・（任意で登録された）メールアドレスと都道府県のみです。氏名・住所・電話番号などは一切取得しません。詳しくはサイト下部のプライバシーポリシーをご覧ください。</p></details>
     <details class="qa"><summary>Q. 商用施設で常時表示したい。</summary><p>キオスクモードをご用意しています。設定は運営側で行いますので、お問い合わせフォームからご相談ください。</p></details>
+  </section>
+
+  <!-- サイト内リンク集 -->
+  <section class="sec">
+    <div class="sec-head"><span class="sec-num">LINKS</span><span class="sec-icon">🔗</span><span class="sec-title">関連ページへ</span></div>
+    <p class="sec-lead">よく使うページへのショートカットです。設定の変更やプライバシーポリシーの確認にご利用ください。</p>
+    <div class="link-row">
+      <a class="link-card" href="https://bousai0111.info/#gearBtn">
+        <span class="lc-icon">⚙️</span>
+        <span><span class="lc-title">設定を開く</span><span class="lc-desc">テーマ・文字・音・通知・地域などを変更</span></span>
+        <span class="lc-chev">›</span>
+      </a>
+      <a class="link-card" href="https://bousai0111.info/privacy.html">
+        <span class="lc-icon">🔒</span>
+        <span><span class="lc-title">プライバシーポリシー</span><span class="lc-desc">個人情報の取り扱いについて</span></span>
+        <span class="lc-chev">›</span>
+      </a>
+      <a class="link-card" href="https://bousai0111.info/">
+        <span class="lc-icon">🏡</span>
+        <span><span class="lc-title">監視ルーム（トップ）</span><span class="lc-desc">地震・気象・熱中症をリアルタイム監視</span></span>
+        <span class="lc-chev">›</span>
+      </a>
+      <a class="link-card" href="https://bousai0111.info/Manual.html">
+        <span class="lc-icon">📕</span>
+        <span><span class="lc-title">緊急対応マニュアル</span><span class="lc-desc">災害別の初動手順</span></span>
+        <span class="lc-chev">›</span>
+      </a>
+    </div>
   </section>
 
   <!-- お問い合わせ -->
@@ -517,5 +607,26 @@
   </footer>
 
 </div>
+
+<script>
+(function(){
+  var items = document.querySelectorAll('.toc-item');
+  var sections = Array.from(items).map(function(a){ return document.getElementById(a.dataset.target); }).filter(Boolean);
+  function updateActive(){
+    var y = window.scrollY + 80, cur = sections[0];
+    for(var i=0;i<sections.length;i++){ if(sections[i].offsetTop <= y) cur = sections[i]; else break; }
+    items.forEach(function(a){ a.classList.toggle('active', a.dataset.target === cur.id); });
+  }
+  window.addEventListener('scroll', updateActive, {passive:true});
+  updateActive();
+  var btn = document.getElementById('tocToggle'), list = document.getElementById('tocList');
+  btn.addEventListener('click', function(){
+    var open = !list.classList.contains('collapsed');
+    list.classList.toggle('collapsed', open);
+    btn.textContent = open ? '開く' : '閉じる';
+    btn.setAttribute('aria-expanded', String(!open));
+  });
+})();
+</script>
 </body>
 </html>
