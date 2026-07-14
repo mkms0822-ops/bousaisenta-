@@ -14593,7 +14593,21 @@ if (document.readyState === 'loading') {
 } else {
   bindPageNav();
 }
-
+// ==================== URLハッシュで直接セクションを開く ====================
+// 例: https://bousai0111.info/#section-privacy でプライバシーポリシーを直接表示
+function openSectionFromHash(){
+  const hash = (location.hash || '').replace('#', '');
+  if (hash === 'section-privacy' || hash === 'section-contact') {
+    openPageSection(hash);
+  }
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', openSectionFromHash);
+} else {
+  openSectionFromHash();
+}
+// ページ表示後にハッシュが変わったときにも対応
+window.addEventListener('hashchange', openSectionFromHash);
 // ==================== プライバシーポリシー描画（スプレッドシート） ====================
 // 既定のプライバシーポリシー（スプレッドシート未設定時に表示。ASP・アフィリエイト対応）
 var DEFAULT_PRIVACY = [
