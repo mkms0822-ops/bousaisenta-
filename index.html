@@ -4623,7 +4623,7 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-top:10px;padding:9px 11px;border:1px solid rgba(255,180,60,0.25);background:rgba(255,180,60,0.06);border-radius:6px;">
         <div style="color:#ffc24d;font-weight:700;margin-bottom:5px;">🔄 画面の向きについて（ご注意）</div>
         <div style="margin-bottom:6px;">
-          <b style="color:var(--text);">Android</b>：アプリとしてインストールすると、端末の向きに合わせて画面が回転します。<b style="color:var(--text);">端末側の画面回転がオフ（回転ロック中）の場合は回転しません。</b>
+          <b style="color:var(--text);">Android</b>：アプリとしてインストールすると、<b style="color:var(--text);">画面は縦向きに固定</b>されます。端末を横に倒しても回転しません。（ブラウザのタブで開いた場合は固定されません）
         </div>
         <div style="margin-bottom:6px;">
           <b style="color:var(--text);">iPhone / iPad</b>：Appleの仕様により、アプリ側から画面の向きを制御できません。<b style="color:var(--text);">端末の回転ロック設定がそのまま反映されます。</b>
@@ -9452,8 +9452,8 @@ function A2HS_ROTATE_NOTE(os){
       '<div style="margin-bottom:6px;">向きを固定したいときは、コントロールセンターの<b style="color:var(--text);">画面縦向きのロック</b>をオンにしてください。</div>';
   }else{
     body =
-      '<div style="margin-bottom:6px;">インストール後は、<b style="color:var(--text);">端末の向きに合わせて画面が回転</b>します。端末側の画面回転が<b style="color:var(--text);">オフ（回転ロック中）の場合は回転しません</b>。</div>'+
-      '<div style="margin-bottom:6px;">向きを固定したいときは、クイック設定の<b style="color:var(--text);">自動回転</b>をオフにしてください。</div>';
+      '<div style="margin-bottom:6px;">インストール後は、<b style="color:var(--text);">画面が縦向きに固定</b>されます。端末を横に倒しても回転しません。</div>'+
+      '<div style="margin-bottom:6px;">※ ブラウザのタブで開いた場合は固定されません。<b style="color:var(--text);">ホーム画面のアイコンから起動</b>してください。</div>';
   }
   return '<div style="font-size:11px;color:var(--muted);margin-top:12px;line-height:1.7;padding:9px 11px;border:1px solid rgba(255,180,60,0.25);background:rgba(255,180,60,0.06);border-radius:6px;">'+
            '<div style="color:#ffc24d;font-weight:700;margin-bottom:5px;">🔄 画面の向きについて</div>'+
