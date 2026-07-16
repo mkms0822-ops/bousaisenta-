@@ -6492,6 +6492,7 @@ function openNovel(pi, ei){
   if(!p || !p.episodes || !p.episodes[ei]) return;
   _nrProj = pi; _nrIdx = ei;
   paintNovel();
+  try { trackNovelRead(pi, ei); } catch(e){}
   var ov = document.getElementById('novelReader');
   if(ov){ ov.classList.add('open'); ov.scrollTop = 0; }
   document.body.style.overflow = 'hidden';
@@ -6524,6 +6525,38 @@ function novelStep(d){
   if(n < 0 || n >= p.episodes.length) return;
   _nrIdx = n;
   paintNovel();
+  try { trackNovelRead(_nrProj, _nrIdx); } catch(e){}
+}
+
+// ── 読了カウント ──
+// 同じ端末で同じ話を読み返しても、30分以内は1回として数える（連打・リロード対策）。
+// 時間を空けて読み直したり、別の話を読めばそのぶん加算される。
+var NOVEL_READ_COOLDOWN = 30 * 60 * 1000;   // 30分
+function trackNovelRead(pi, ei){
+  try {
+    var p = novelData[pi]; if(!p) return;
+    var e = p.episodes[ei]; if(!e) return;
+    var no = String(e.no || (ei + 1));
+    var key = 'dwa_nvread_' + p.id + '_' + no;
+    var now = Date.now();
+    var last = 0;
+    try { last = Number(localStorage.getItem(key) || 0); } catch(err){}
+    if (last && (now - last) < NOVEL_READ_COOLDOWN) return;   // クールタイム中は送らない
+    try { localStorage.setItem(key, String(now)); } catch(err){}
+
+    var uid = '';
+    try { uid = localStorage.getItem('dwa_visit_uid') || ''; } catch(err){}
+
+    var params = 'type=novelread'
+      + '&pid=' + encodeURIComponent(p.id)
+      + '&ptitle=' + encodeURIComponent(p.title || '')
+      + '&no=' + encodeURIComponent(no)
+      + '&etitle=' + encodeURIComponent(e.title || '')
+      + '&uid=' + encodeURIComponent(uid);
+    // 画像リクエストで送る（CORS不要・レスポンス不要）
+    var img = new Image();
+    img.src = ARTICLES_URL + '?' + params + '&_=' + now;
+  } catch(e){}
 }
 
 function closeNovelReader(){
