@@ -2912,15 +2912,16 @@ html.light .scale-item.lv1 { background:rgba(0,0,0,0.04); border-color:rgba(0,0,
   .novel-title{ font-size:14.5px; }
 }
 /* 小説リーダー（全画面） */
-#novelReader{ display:none; position:fixed; inset:0; z-index:99992; background:rgba(4,8,15,0.97); overflow-y:auto; }
+#novelReader{ display:none; position:fixed; inset:0; z-index:99992; background:var(--bg); overflow-y:auto; }
+#novelReader, #novelReader *{ color:var(--text); }
 #novelReader.open{ display:block; }
 .nr-panel{ max-width:720px; margin:0 auto; padding:20px 18px 60px; }
 .nr-bar{ position:sticky; top:0; display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:9px 12px; margin-bottom:18px; }
-.nr-close{ background:none; border:none; color:var(--muted); font-size:19px; cursor:pointer; }
-.nr-work{ font-size:11px; color:var(--blue); font-family:'Share Tech Mono',monospace; }
-.nr-title{ font-size:20px; font-weight:700; color:var(--text); line-height:1.5; margin:0 0 6px; }
-.nr-date{ font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace; margin-bottom:18px; }
-.nr-body{ font-size:15px; line-height:2.05; color:var(--text); white-space:pre-wrap; word-break:break-word; }
+.nr-close{ background:none; border:none; color:var(--muted) !important; font-size:19px; cursor:pointer; }
+.nr-work{ font-size:11px; color:var(--blue) !important; font-family:'Share Tech Mono',monospace; }
+.nr-title{ font-size:20px; font-weight:700; color:var(--text) !important; line-height:1.5; margin:0 0 6px; }
+.nr-date{ font-size:11px; color:var(--muted) !important; font-family:'Share Tech Mono',monospace; margin-bottom:18px; }
+.nr-body{ font-size:15px; line-height:2.05; color:var(--text) !important; white-space:pre-wrap; word-break:break-word; }
 .nr-img{ width:100%; border-radius:10px; margin:16px 0; }
 .nr-nav{ display:flex; gap:10px; margin-top:30px; }
 .nr-nav button{ flex:1; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:12px; border-radius:9px; cursor:pointer; font-size:13px; font-family:var(--user-font); }
