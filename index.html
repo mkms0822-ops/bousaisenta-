@@ -6563,6 +6563,13 @@ function closeNovelReader(){
   var ov = document.getElementById('novelReader');
   if(ov) ov.classList.remove('open');
   document.body.style.overflow = '';
+  // URLに #novel=... が残っていると、同じリンクをもう一度押しても
+  // hashchange が起きず開けなくなるため、ハッシュを消しておく。
+  try {
+    if(/novel=/i.test(String(location.hash || '')) && history && history.replaceState){
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+  } catch(e){}
 }
 
 // ── 共有 ──
@@ -6614,8 +6621,28 @@ function openNovelFromHash(){
       }
     }
     openNovel(pi, ei);
+    _nvHashPending = '';        // 開けたので保留を解除
   } catch(e){}
 }
+
+// ハッシュが付いていたのに、まだ小説データを読み込めていない場合の保留。
+// データ到着時（renderNovels の後）に openNovelFromHash が再度呼ばれて開く。
+var _nvHashPending = '';
+function novelHashWatch(){
+  var h = String(location.hash || '');
+  if(!/novel=/i.test(h)) return;
+  if(!novelData || !novelData.length){ _nvHashPending = h; return; }
+  openNovelFromHash();
+}
+// サイト内リンク（<a href="#novel=shiori">）やポップアップからの遷移に追従する。
+// ハッシュだけが変わる移動ではページが再読み込みされないため、これが無いと何も起きない。
+window.addEventListener('hashchange', function(){
+  var h = String(location.hash || '');
+  if(/novel=/i.test(h)){ novelHashWatch(); return; }
+  // 小説以外のハッシュへ移動したらリーダーを閉じる
+  var ov = document.getElementById('novelReader');
+  if(ov && ov.classList.contains('open')) closeNovelReader();
+});
 // Escキーで閉じる
 document.addEventListener('keydown', function(e){
   if(e.key === 'Escape'){
@@ -12611,7 +12638,7 @@ async function loadArticles(){
     renderBlog();
     // ── 防災小説（プロジェクト＋各話）──
     try { novelData = (data && Array.isArray(data.novels)) ? data.novels : []; renderNovels(); } catch(e){}
-    try { openNovelFromHash(); } catch(e){}
+    try { novelHashWatch(); } catch(e){}
     renderArchiveBadge();
     refreshVersionUI();
     try { loadLikes(); } catch(e){}
@@ -12939,7 +12966,8 @@ function noticeLinkClick(ev, url){
     if(sameOrigin && target.hash){
       // 内部リンク（サイト内移動）→ ブラウザの遷移を止めて独自処理
       if(ev){ ev.preventDefault(); }
-      var hash = target.hash.replace(/^#/, '').toLowerCase();
+      var hashRaw = target.hash.replace(/^#/, '');      // 元の大小文字を保持（作品IDに使う）
+      var hash = hashRaw.toLowerCase();
       // まずポップアップ／更新履歴を閉じる（残りのお知らせキューも破棄）
       try { if(typeof closeNotice === 'function') closeNotice(); } catch(e){}
       try { if(typeof closeNoticeHistory === 'function') closeNoticeHistory(); } catch(e){}
@@ -12955,6 +12983,12 @@ function noticeLinkClick(ev, url){
         // 同一ページ内：再読み込みせずその場で処理（オープニングは再生されない）
         setTimeout(function(){
           if(modalMap[hash]){ modalMap[hash](); return; }
+          // 防災小説（#novel=作品ID&ep=話数）→ その場でリーダーを開く
+          if(/^novel=/i.test(hashRaw)){
+            try { location.hash = hashRaw; } catch(e){}   // 共有・戻る操作のためURLも合わせる
+            if(typeof openNovelFromHash === 'function') openNovelFromHash();
+            return;
+          }
           // セクションへスクロール
           var el = document.getElementById(hash);
           if(el && typeof el.scrollIntoView === 'function'){
