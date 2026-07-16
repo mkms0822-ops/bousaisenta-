@@ -2890,6 +2890,43 @@ html.light .scale-item.lv1 { background:rgba(0,0,0,0.04); border-color:rgba(0,0,
   .review-stars{gap:6px;font-size:21px;margin:8px 0 12px;}
   .review-star{width:32px;height:32px;min-width:32px;min-height:32px;border-radius:7px;border-width:1px;}
 }
+/* ===== 防災小説 ===== */
+.novel-grid{ display:grid; gap:14px; }
+.novel-card{ display:flex; gap:14px; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px; align-items:flex-start; }
+.novel-cover{ width:92px; flex:0 0 auto; border-radius:8px; overflow:hidden; background:var(--surface2); aspect-ratio:753/1350; }
+.novel-cover img{ width:100%; height:100%; object-fit:cover; display:block; }
+.novel-meta{ flex:1; min-width:0; }
+.novel-title{ font-size:16px; font-weight:700; color:var(--text); line-height:1.4; }
+.novel-sub{ font-size:12px; color:var(--blue); margin-top:3px; }
+.novel-author{ font-size:11px; color:var(--muted); margin-top:5px; font-family:'Share Tech Mono',monospace; }
+.novel-intro{ font-size:12.5px; color:var(--muted); line-height:1.75; margin-top:8px; }
+.novel-eplist{ margin-top:10px; display:flex; flex-direction:column; gap:6px; }
+.novel-ep{ display:flex; align-items:center; gap:9px; width:100%; text-align:left; background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:9px 11px; cursor:pointer; color:var(--text); font-family:var(--user-font); }
+.novel-ep:hover{ border-color:var(--blue); }
+.novel-ep-no{ flex:0 0 auto; font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--blue); background:rgba(0,180,255,0.1); border-radius:5px; padding:2px 7px; }
+.novel-ep-ti{ flex:1; min-width:0; font-size:13px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.novel-share{ display:inline-flex; align-items:center; gap:6px; margin-top:10px; background:rgba(0,180,255,0.1); border:1px solid rgba(0,180,255,0.4); color:var(--text); font-size:11.5px; padding:6px 12px; border-radius:8px; cursor:pointer; font-family:var(--user-font); }
+.novel-share:hover{ background:rgba(0,180,255,0.2); }
+@media(max-width:520px){
+  .novel-cover{ width:70px; }
+  .novel-title{ font-size:14.5px; }
+}
+/* 小説リーダー（全画面） */
+#novelReader{ display:none; position:fixed; inset:0; z-index:99992; background:rgba(4,8,15,0.97); overflow-y:auto; }
+#novelReader.open{ display:block; }
+.nr-panel{ max-width:720px; margin:0 auto; padding:20px 18px 60px; }
+.nr-bar{ position:sticky; top:0; display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:9px 12px; margin-bottom:18px; }
+.nr-close{ background:none; border:none; color:var(--muted); font-size:19px; cursor:pointer; }
+.nr-work{ font-size:11px; color:var(--blue); font-family:'Share Tech Mono',monospace; }
+.nr-title{ font-size:20px; font-weight:700; color:var(--text); line-height:1.5; margin:0 0 6px; }
+.nr-date{ font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace; margin-bottom:18px; }
+.nr-body{ font-size:15px; line-height:2.05; color:var(--text); white-space:pre-wrap; word-break:break-word; }
+.nr-img{ width:100%; border-radius:10px; margin:16px 0; }
+.nr-nav{ display:flex; gap:10px; margin-top:30px; }
+.nr-nav button{ flex:1; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:12px; border-radius:9px; cursor:pointer; font-size:13px; font-family:var(--user-font); }
+.nr-nav button:hover:not(:disabled){ border-color:var(--blue); }
+.nr-nav button:disabled{ opacity:0.35; cursor:default; }
+
 /* ===== コラム コンパクト表示（表題＋日時の一覧／タップで展開） ===== */
 .col-compact-item{border:1px solid var(--border);border-radius:10px;background:var(--surface);margin-bottom:8px;overflow:hidden;}
 .col-compact-head{width:100%;display:flex;align-items:center;gap:10px;padding:13px 14px;background:none;border:none;cursor:pointer;text-align:left;color:var(--text);font-family:var(--user-font);}
@@ -4921,6 +4958,26 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
 </div>
 
 <!-- ホーム画面に追加ガイド -->
+<!-- 防災小説リーダー（全画面） -->
+<div id="novelReader" onclick="if(event.target===this)closeNovelReader()">
+  <div class="nr-panel">
+    <div class="nr-bar">
+      <span class="nr-work" id="nrWork"></span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button type="button" class="novel-share" style="margin:0;" onclick="shareNovelEpisode()">📤 共有</button>
+        <button type="button" class="nr-close" onclick="closeNovelReader()" aria-label="閉じる">✕</button>
+      </div>
+    </div>
+    <h2 class="nr-title" id="nrTitle"></h2>
+    <div class="nr-date" id="nrDate"></div>
+    <div class="nr-body" id="nrBody"></div>
+    <div class="nr-nav">
+      <button type="button" id="nrPrev" onclick="novelStep(-1)">← 前の話</button>
+      <button type="button" id="nrNext" onclick="novelStep(1)">次の話 →</button>
+    </div>
+  </div>
+</div>
+
 <div class="guide-overlay" id="a2hsOverlay" onclick="if(event.target===this)closeA2HS()">
   <div class="guide-panel">
     <div class="settings-title">📲 &nbsp;ホーム画面に追加</div>
@@ -5411,6 +5468,21 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
           <div style="font-size:11px;margin-top:8px;color:var(--muted);">接続に時間がかかる場合は自動で再試行します</div>
         </div>
       </div>
+    </div>
+
+    <div class="reorder-block" data-block="novel" data-zone="main">
+      <div class="reorder-bar">
+        <span class="reorder-handle" title="ドラッグで移動">⠿ 並び替え</span>
+        <span class="reorder-arrows">
+          <button type="button" class="reorder-up" onclick="moveBlock(this,-1)" aria-label="上へ">▲</button>
+          <button type="button" class="reorder-down" onclick="moveBlock(this,1)" aria-label="下へ">▼</button>
+        </span>
+      </div>
+      <!-- 防災小説 -->
+      <div id="section-novel" class="blog-section-header" data-tour="novel" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+        <div class="section-head anim-ready anim-left">// 防災小説</div>
+      </div>
+      <div class="novel-grid anim-ready anim-up" id="novelGrid"></div>
     </div>
 
     <div class="reorder-block" data-block="column" data-zone="main">
@@ -6356,6 +6428,168 @@ const defaultBlogCards = []; // コラムはスプレッドシートの「記事
 const defaultPosts = []; // 新着記事もスプレッドシートの「記事」シートから自動表示
 
 let blogCards = []; // スプレッドシートから読み込んだ記事だけを表示
+
+// ===================== 防災小説 =====================
+let novelData = [];          // [{id,title,subtitle,author,cover,intro,episodes:[...]}]
+let _nrProj = null, _nrIdx = 0;
+
+// 画像URLの正規化（ファイル名だけならサイト直下、Googleドライブ共有リンクにも対応）
+function novelImg(u){
+  u = String(u || '').trim();
+  if(!u) return '';
+  var m = u.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+  if(m) return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w800';
+  if(/^https?:/i.test(u)) return u;
+  return u.replace(/^\.?\//, '');
+}
+
+function renderNovels(){
+  var grid = document.getElementById('novelGrid');
+  if(!grid) return;
+  var blk = document.querySelector('.reorder-block[data-block="novel"]');
+  if(!novelData.length){
+    grid.innerHTML = '';
+    // 作品が1つも無いときはセクションごと隠す（空の見出しだけ残らないように）
+    if(blk && !blk.getAttribute('data-layout-hidden')) blk.style.display = 'none';
+    return;
+  }
+  if(blk && !blk.getAttribute('data-layout-hidden')) blk.style.removeProperty('display');
+  var h = '';
+  novelData.forEach(function(p, pi){
+    var cov = novelImg(p.cover);
+    h += '<div class="novel-card">';
+    h += '<div class="novel-cover">' + (cov ? '<img src="' + escAttr(cov) + '" alt="' + escAttr(p.title) + '" loading="lazy">' : '') + '</div>';
+    h += '<div class="novel-meta">';
+    h += '<div class="novel-title">' + escHtml(p.title) + '</div>';
+    if(p.subtitle) h += '<div class="novel-sub">' + escHtml(p.subtitle) + '</div>';
+    if(p.author)   h += '<div class="novel-author">著：' + escHtml(p.author) + '</div>';
+    if(p.intro)    h += '<div class="novel-intro">' + escHtml(p.intro) + '</div>';
+    h += '<div class="novel-eplist">';
+    (p.episodes || []).forEach(function(e, ei){
+      h += '<button type="button" class="novel-ep" onclick="openNovel(' + pi + ',' + ei + ')">';
+      h += '<span class="novel-ep-no">第' + escHtml(String(e.no || (ei+1))) + '話</span>';
+      h += '<span class="novel-ep-ti">' + escHtml(e.title) + '</span>';
+      h += '<span style="color:var(--muted);font-size:11px;">›</span>';
+      h += '</button>';
+    });
+    h += '</div>';
+    h += '<button type="button" class="novel-share" onclick="shareNovelWork(' + pi + ')">📤 この作品を共有</button>';
+    h += '</div></div>';
+  });
+  grid.innerHTML = h;
+}
+
+function escHtml(v){
+  return String(v == null ? '' : v).replace(/[&<>"']/g, function(c){
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+  });
+}
+function escAttr(v){ return escHtml(v); }
+
+function openNovel(pi, ei){
+  var p = novelData[pi];
+  if(!p || !p.episodes || !p.episodes[ei]) return;
+  _nrProj = pi; _nrIdx = ei;
+  paintNovel();
+  var ov = document.getElementById('novelReader');
+  if(ov){ ov.classList.add('open'); ov.scrollTop = 0; }
+  document.body.style.overflow = 'hidden';
+}
+
+function paintNovel(){
+  var p = novelData[_nrProj]; if(!p) return;
+  var e = p.episodes[_nrIdx]; if(!e) return;
+  var g = function(id){ return document.getElementById(id); };
+  if(g('nrWork'))  g('nrWork').textContent = p.title;
+  if(g('nrTitle')) g('nrTitle').textContent = '第' + (e.no || (_nrIdx+1)) + '話　' + e.title;
+  if(g('nrDate'))  g('nrDate').textContent = e.date || '';
+  var body = '';
+  (e.images || []).forEach(function(u){
+    var src = novelImg(u);
+    if(src) body += '<img class="nr-img" src="' + escAttr(src) + '" alt="" loading="lazy">';
+  });
+  // 本文は white-space:pre-wrap なので改行はそのまま活きる
+  body += escHtml(e.body || '');
+  if(g('nrBody')) g('nrBody').innerHTML = body;
+  var prev = g('nrPrev'), next = g('nrNext');
+  if(prev) prev.disabled = (_nrIdx <= 0);
+  if(next) next.disabled = (_nrIdx >= p.episodes.length - 1);
+  var ov = g('novelReader'); if(ov) ov.scrollTop = 0;
+}
+
+function novelStep(d){
+  var p = novelData[_nrProj]; if(!p) return;
+  var n = _nrIdx + d;
+  if(n < 0 || n >= p.episodes.length) return;
+  _nrIdx = n;
+  paintNovel();
+}
+
+function closeNovelReader(){
+  var ov = document.getElementById('novelReader');
+  if(ov) ov.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ── 共有 ──
+function novelShareUrl(pi, ei){
+  var p = novelData[pi]; if(!p) return location.href;
+  var base = location.origin + location.pathname;
+  return base + '#novel=' + encodeURIComponent(p.id) + (ei != null ? ('&ep=' + encodeURIComponent(p.episodes[ei].no || (ei+1))) : '');
+}
+function _novelShare(title, text, url){
+  if(navigator.share){
+    navigator.share({ title: title, text: text, url: url }).catch(function(){});
+    return;
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(function(){
+      if(typeof _toastShare === 'function') _toastShare('URLをコピーしました');
+    }).catch(function(){ if(typeof _fallbackCopy === 'function') _fallbackCopy(url); });
+  } else if(typeof _fallbackCopy === 'function'){
+    _fallbackCopy(url);
+  }
+}
+function shareNovelWork(pi){
+  var p = novelData[pi]; if(!p) return;
+  _novelShare(p.title, '防災小説「' + p.title + '」' + (p.subtitle ? '／' + p.subtitle : ''), novelShareUrl(pi, null));
+}
+function shareNovelEpisode(){
+  var p = novelData[_nrProj]; if(!p) return;
+  var e = p.episodes[_nrIdx]; if(!e) return;
+  var t = '「' + p.title + '」第' + (e.no || (_nrIdx+1)) + '話 ' + e.title;
+  _novelShare(t, t, novelShareUrl(_nrProj, _nrIdx));
+}
+
+// 共有リンク(#novel=xx&ep=1)で開かれたとき、その話を自動で開く
+function openNovelFromHash(){
+  try {
+    var h = String(location.hash || '');
+    var m = h.match(/novel=([^&]+)/);
+    if(!m) return;
+    var id = decodeURIComponent(m[1]);
+    var em = h.match(/ep=([^&]+)/);
+    var pi = -1;
+    for(var i=0;i<novelData.length;i++){ if(novelData[i].id === id){ pi = i; break; } }
+    if(pi < 0) return;
+    var ei = 0;
+    if(em){
+      var no = decodeURIComponent(em[1]);
+      for(var j=0;j<novelData[pi].episodes.length;j++){
+        if(String(novelData[pi].episodes[j].no) === String(no)){ ei = j; break; }
+      }
+    }
+    openNovel(pi, ei);
+  } catch(e){}
+}
+// Escキーで閉じる
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    var ov = document.getElementById('novelReader');
+    if(ov && ov.classList.contains('open')) closeNovelReader();
+  }
+});
+
 let postItems = []; // スプレッドシートから読み込んだ記事だけを表示
 let archiveItems = []; // タグが「アーカイブ」の記事
 let versionItems = []; // タグが「バージョンアップ」の記事（更新履歴）
@@ -9709,7 +9943,7 @@ const OPEN_SOUND_SRC = "dwa-open-sound-v2.mp3";
 const TOUR_KEY = 'tutorial_seen';
 // チュートリアルの版数。機能追加でチュートリアルを更新したら、この数字を1つ上げると、
 // すでに見たことのある既存ユーザーにも「その回だけ」自動でチュートリアルを再表示できる。
-const TUTORIAL_VERSION = 2;
+const TUTORIAL_VERSION = 3;   // ★防災小説・防災コラムの説明を追加したため更新
 const TUTORIAL_VER_KEY = 'tutorial_seen_version';
 // 「このユーザーは最新版のチュートリアルを見た」かどうか。
 // 旧フラグ(tutorial_seen==='true')しか無い古いユーザーは「version 1 を見た」とみなす。
@@ -9745,6 +9979,8 @@ const tourSteps = [
   { sel:'[data-tour="spaceweather"]', title:'🛰️ 宇宙天気', text:'NICT（情報通信研究機構）が発表する「宇宙天気」の状況です。太陽フレア・地磁気の乱れ・電波やGPSへの影響をまとめています。大規模な太陽フレアが起きると、通信・放送・測位（GPS）などに影響が出ることがあります。各項目をタップすると、NICTの詳しい解説ページが開きます。', onShow:closeDtabsForTour, fallbackToTop:true },
   { sel:'[data-tour="stats"]', title:'本日の地震サマリー', text:'本日の有感地震の回数、最大マグニチュード・最大震度、最終更新時刻をひと目で確認できます。', onShow:closeDtabsForTour },
   { sel:'.quake-list', title:'地震リスト', text:'最近発生した地震の一覧です。カードをタップすると詳細が表示されます。', fallbackToTop:true },
+  { sel:'[data-tour="novel"]', title:'📖 防災小説', text:'防災をテーマにした連載小説のコーナーです。作品ごとに「第1話」から順番に並んでいて、読みたい話をタップするとその場で全画面で読めます。読み終わったら「次の話 →」で読み進められます。物語を通して、災害への備えや、いざという時の判断を体感的に知ることができます。「📤 共有」から友達に教えることもできます。', fallbackToTop:true },
+  { sel:'#section-column', title:'📰 防災コラム・知識', text:'防災の「備え」や「ヒント」をまとめた記事コーナーです。地震・台風・停電への備え、非常持ち出し袋の中身、防災グッズの選び方などを、短い記事で読めます。カードをタップすると全文が開きます。右上の「一覧表示」ボタンで、表題だけのコンパクトな一覧に切り替えることもできるので、目的の記事を探しやすくなります。', onShow:scrollToColumnForTour, fallbackToTop:true },
   { sel:'[data-tour="bookmark"]', selAlt:'#section-column', title:'🔖 ブックマーク', text:'防災記事カードの右上にあるこのマークをタップすると、その記事をブックマーク（お気に入り保存）できます。あとで読み返したい「備え」や「ヒント」を保存しておくと、必要なときにすぐ見返せます。', onShow:scrollToColumnForTour, fallbackToTop:true },
   { sel:'[data-tour="review"]', title:'⭐ 口コミ・レビュー', text:'このサイトの感想や評価を投稿できるコーナーです。星の数と一言コメントで、使ってみての感想をぜひ聞かせてください。みんなの口コミも読めます。', fallbackToTop:true },
   { sel:'[data-tour="chat"]', title:'📨 災害用伝言板', text:'災害時の安否や連絡を書き残せる「災害用伝言板」です。ボタンから専用ページが開きます。閲覧は誰でもでき、書き込みには「引き継ぎコード」での参加が必要です。', fallbackToTop:true },
@@ -12339,6 +12575,9 @@ async function loadArticles(){
     // シート由来の記事で、既存の非シート記事は残す
     blogCards = normalCards.concat(blogCards.filter(c => !c.fromSheet));
     renderBlog();
+    // ── 防災小説（プロジェクト＋各話）──
+    try { novelData = (data && Array.isArray(data.novels)) ? data.novels : []; renderNovels(); } catch(e){}
+    try { openNovelFromHash(); } catch(e){}
     renderArchiveBadge();
     refreshVersionUI();
     try { loadLikes(); } catch(e){}
@@ -15463,6 +15702,7 @@ document.addEventListener('keydown', function(e){
     tsunami: { emoji:'🌊', name:'津波バナー',     sub:'発令時のみ表示' },
     jmawarn: { emoji:'⚠️', name:'気象警報バナー', sub:'発令時のみ表示' },
     quake:   { emoji:'📋', name:'地震リスト',     sub:'最新地震一覧' },
+    novel:   { emoji:'📖', name:'防災小説',       sub:'連載小説（作品・各話）' },
     column:  { emoji:'📰', name:'防災コラム',     sub:'記事一覧' }
   };
   // 地震サマリーの表示タイプ（wide=横長 / compact=コンパクト）
@@ -16931,6 +17171,7 @@ document.addEventListener('keydown', function(e){
     '災害情報タブ':                { sel: '[data-tour="tabs"]' },
     '宇宙天気':                    { sel: '[data-tour="spaceweather"]' },
     '本日の地震サマリー':          { sel: '[data-tour="stats"]' },
+    '防災小説':                    { sel: '[data-tour="novel"]' },
     '防災コラム':                  { sel: '#section-column' },
     '口コミ':                      { sel: '[data-tour="review"]' },
     '災害用伝言板':                { sel: '[data-tour="chat"]' },
