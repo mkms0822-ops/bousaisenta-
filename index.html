@@ -4620,6 +4620,18 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-top:8px;">
         ホーム画面に追加すると、アプリのように1タップで起動できます。災害時にすぐ開けるようにしておくと安心です。
       </div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-top:10px;padding:9px 11px;border:1px solid rgba(255,180,60,0.25);background:rgba(255,180,60,0.06);border-radius:6px;">
+        <div style="color:#ffc24d;font-weight:700;margin-bottom:5px;">🔄 画面の向きについて（ご注意）</div>
+        <div style="margin-bottom:6px;">
+          <b style="color:var(--text);">Android</b>：アプリとしてインストールすると、端末の向きに合わせて画面が回転します。<b style="color:var(--text);">端末側の画面回転がオフ（回転ロック中）の場合は回転しません。</b>
+        </div>
+        <div style="margin-bottom:6px;">
+          <b style="color:var(--text);">iPhone / iPad</b>：Appleの仕様により、アプリ側から画面の向きを制御できません。<b style="color:var(--text);">端末の回転ロック設定がそのまま反映されます。</b>
+        </div>
+        <div>
+          掲示板モードの表示だけを固定したい場合は、掲示板モードの設定（⚙）内にある<b style="color:var(--text);">「画面の向き」</b>で「縦画面」「横画面」を選んでください。端末を倒しても表示が固定されます。
+        </div>
+      </div>
     </div>
 
     <!-- レイアウト並び替え -->
@@ -9431,6 +9443,25 @@ function addToHomeScreen(){
   showA2HSGuide();
 }
 
+// インストール後の画面回転の挙動に関する注意事項（iOS / Android で内容を出し分け）
+function A2HS_ROTATE_NOTE(os){
+  var body = '';
+  if(os === 'ios'){
+    body =
+      '<div style="margin-bottom:6px;">Appleの仕様により、<b style="color:var(--text);">アプリ側から画面の向きを固定できません</b>。ホーム画面に追加したあとも、画面の向きは<b style="color:var(--text);">端末の回転ロック設定がそのまま反映</b>されます。</div>'+
+      '<div style="margin-bottom:6px;">向きを固定したいときは、コントロールセンターの<b style="color:var(--text);">画面縦向きのロック</b>をオンにしてください。</div>';
+  }else{
+    body =
+      '<div style="margin-bottom:6px;">インストール後は、<b style="color:var(--text);">端末の向きに合わせて画面が回転</b>します。端末側の画面回転が<b style="color:var(--text);">オフ（回転ロック中）の場合は回転しません</b>。</div>'+
+      '<div style="margin-bottom:6px;">向きを固定したいときは、クイック設定の<b style="color:var(--text);">自動回転</b>をオフにしてください。</div>';
+  }
+  return '<div style="font-size:11px;color:var(--muted);margin-top:12px;line-height:1.7;padding:9px 11px;border:1px solid rgba(255,180,60,0.25);background:rgba(255,180,60,0.06);border-radius:6px;">'+
+           '<div style="color:#ffc24d;font-weight:700;margin-bottom:5px;">🔄 画面の向きについて</div>'+
+           body+
+           '<div>掲示板モードの表示だけを固定したい場合は、掲示板モードの設定（⚙）内の<b style="color:var(--text);">「画面の向き」</b>で「縦画面」「横画面」を選んでください。</div>'+
+         '</div>';
+}
+
 function showA2HSGuide(){
   const p = detectPlatform();
   let html = '';
@@ -9442,7 +9473,8 @@ function showA2HSGuide(){
         '<li style="margin-bottom:8px;">メニューを下にスクロールし<b style="color:var(--text);">「ホーム画面に追加」</b>をタップ</li>'+
         '<li>右上の<b style="color:var(--text);">「追加」</b>をタップで完了</li>'+
       '</ol>'+
-      '<div style="font-size:11px;color:var(--muted);margin-top:12px;line-height:1.7;">※ Chromeアプリでは追加できません。<b style="color:var(--text);">Safari</b>で開いて操作してください。</div>';
+      '<div style="font-size:11px;color:var(--muted);margin-top:12px;line-height:1.7;">※ Chromeアプリでは追加できません。<b style="color:var(--text);">Safari</b>で開いて操作してください。</div>'+
+      A2HS_ROTATE_NOTE('ios');
   } else if(p.android){
     html =
       '<p style="margin:0 0 12px;color:var(--muted);">Android（Chrome）での追加手順：</p>'+
@@ -9450,7 +9482,8 @@ function showA2HSGuide(){
         '<li style="margin-bottom:8px;">画面右上の<b style="color:var(--text);">メニュー（⋮）</b>をタップ</li>'+
         '<li style="margin-bottom:8px;"><b style="color:var(--text);">「ホーム画面に追加」</b>または「アプリをインストール」を選択</li>'+
         '<li>確認画面で<b style="color:var(--text);">「追加」</b>をタップで完了</li>'+
-      '</ol>';
+      '</ol>'+
+      A2HS_ROTATE_NOTE('android');
   } else {
     html =
       '<p style="margin:0 0 12px;color:var(--muted);">パソコン（Chrome / Edge）での追加手順：</p>'+
