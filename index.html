@@ -10959,17 +10959,32 @@ window.kioskUI = (function(){
     setTheme(saved);
   }
 
-  // ===== 画面の向き（縦画面 / 横画面）レイアウト =====   ← 10962行目 ここから
+  // ===== 画面の向き（縦画面 / 横画面）レイアウト =====
   const LAYOUT_KEY = 'kiosk_layout';
   function setLayout(mode){
-    ...
+    if(mode !== 'landscape') mode = 'portrait';
+    var sg = document.getElementById('signage');
+    if(sg) sg.setAttribute('data-klayout', mode);
+    // :has() 非対応環境でも外周余白を切り替えられるよう、親にも印を付ける
+    try{ var body = sg && sg.closest('.ksg-body'); if(body) body.setAttribute('data-klayout', mode); }catch(e){}
+    // 縦画面に戻すときは、横画面用の補正（インラインwidth・zoom）を消す
+    try{ if(sg && mode !== 'landscape'){ sg.style.width = ''; sg.style.zoom = ''; } }catch(e){}
+    // ボタンの選択状態を更新
+    var pb = document.getElementById('layoutPortraitBtn');
+    var lb = document.getElementById('layoutLandscapeBtn');
+    if(pb) pb.classList.toggle('active', mode === 'portrait');
+    if(lb) lb.classList.toggle('active', mode === 'landscape');
+    try { localStorage.setItem(LAYOUT_KEY, mode); } catch(e){}
+    // 向きが変わると全体の高さが変わるため、自動フィット中なら再計算する
+    try { if(_autoFit) setAutoFit(); } catch(e){}
   }
   // 起動時：保存済みの向きを復元（無ければ縦画面）
   function restoreLayout(){
     let saved = 'portrait';
     try { saved = localStorage.getItem(LAYOUT_KEY) || 'portrait'; } catch(e){}
     setLayout(saved);
-  }                                                        ← 10986行目 ここまで
+  }
+
   // ===== 表示サイズ（枠ごとスケール）=====
   const SCALE_KEY = 'kiosk_scale';
   let _autoFit = true;        // 自動フィットが有効か
