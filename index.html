@@ -6075,61 +6075,10 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     </div>
   </div>
 
-  <!-- 協賛プラン -->
-  <div class="spo-sec"><span class="num">04</span>協賛プラン（料金例）</div>
-  <div class="spo-plans">
-
-    <div class="spo-plan">
-      <div class="pl-name">SUPPORT</div>
-      <div class="pl-price"><span class="yen">¥</span>30,000<span class="per"> /月</span></div>
-      <div class="pl-note">小規模・個人事業も歓迎</div>
-      <ul>
-        <li>協賛企業一覧にロゴ掲載</li>
-        <li>公式サイトからの被リンク</li>
-        <li>協賛証（バナー素材）提供</li>
-        <li class="off">バナー枠の掲出</li>
-        <li class="off">記事タイアップ</li>
-      </ul>
-      <div class="spo-plan-foot">最低契約 3ヶ月〜</div>
-    </div>
-
-    <div class="spo-plan feature">
-      <div class="pl-name">PARTNER</div>
-      <div class="pl-price"><span class="yen">¥</span>100,000<span class="per"> /月</span></div>
-      <div class="pl-note">最もご利用の多いプラン</div>
-      <ul>
-        <li>SUPPORT の全特典</li>
-        <li>サイト内バナー枠の掲出</li>
-        <li>診断ツール「提供スポンサー」表記</li>
-        <li>年2回の記事タイアップ</li>
-        <li class="off">トップ最上部の優先掲出</li>
-      </ul>
-      <div class="spo-plan-foot">最低契約 6ヶ月〜</div>
-    </div>
-
-    <div class="spo-plan">
-      <div class="pl-name">OFFICIAL</div>
-      <div class="pl-price">個別見積</div>
-      <div class="pl-note">独占・大型タイアップ向け</div>
-      <ul>
-        <li>PARTNER の全特典</li>
-        <li>トップ最上部の優先掲出</li>
-        <li>カテゴリ独占スポンサー枠</li>
-        <li>共同企画・キャンペーン実施</li>
-        <li>レポート定期提供</li>
-      </ul>
-      <div class="spo-plan-foot">内容に応じてご提案します</div>
-    </div>
-
-  </div>
-  <p style="font-size:11px;color:var(--spo-muted);text-align:center;margin:14px 0 0;line-height:1.8;">
-    ※上記は税抜の参考価格です。掲出位置・期間・内容により個別にご相談を承ります。単発（イベント連動・期間限定）のご協賛も可能です。
-  </p>
-
   <!-- 申し込みフォーム -->
-  <div class="spo-sec"><span class="num">05</span>お申し込み・お問い合わせ</div>
+  <div class="spo-sec"><span class="num">04</span>お申し込み・お問い合わせ</div>
   <div class="spo-card">
-    <p style="margin-bottom:20px;">下記フォームよりお気軽にお問い合わせください。資料送付・お見積り・個別のご提案も承ります。担当より <strong>2〜3営業日以内</strong> にご連絡します。</p>
+    <p style="margin-bottom:20px;">下記フォームよりお気軽にお問い合わせください。資料送付・個別のご提案も承ります。担当より <strong>2〜3営業日以内</strong> にご連絡します。</p>
 
     <!-- 送信は既存サイトと同じ ARTICLES_URL（GAS）へ type:'sponsor' で POST します -->
     <form class="spo-form" id="spoForm" onsubmit="return false;">
@@ -6168,12 +6117,12 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
 
       <div class="spo-field row2">
         <div class="spo-field">
-          <label class="spo-label" for="spo-plan">ご希望のプラン <span class="spo-req">必須</span></label>
+          <label class="spo-label" for="spo-plan">ご希望の内容 <span class="spo-req">必須</span></label>
           <select class="spo-select" id="spo-plan" name="plan" required>
             <option value="" selected disabled>選択してください</option>
-            <option value="support">SUPPORT（月3万円〜）</option>
-            <option value="partner">PARTNER（月10万円〜）</option>
-            <option value="official">OFFICIAL（個別見積）</option>
+            <option value="banner">バナー掲出・ロゴ掲載</option>
+            <option value="tieup">記事タイアップ</option>
+            <option value="tool">診断ツールの提供スポンサー</option>
             <option value="spot">単発・期間限定で相談</option>
             <option value="undecided">未定 / 相談しながら決めたい</option>
           </select>
@@ -6195,18 +6144,7 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
         </div>
       </div>
 
-      <div class="spo-field">
-        <label class="spo-label" for="spo-budget">想定ご予算 <span class="spo-opt">任意</span></label>
-        <select class="spo-select" id="spo-budget" name="budget">
-          <option value="" selected disabled>選択してください</option>
-          <option>〜月5万円</option>
-          <option>月5〜10万円</option>
-          <option>月10〜30万円</option>
-          <option>月30万円以上</option>
-          <option>単発予算で検討</option>
-          <option>未定</option>
-        </select>
-      </div>
+
 
       <div class="spo-field">
         <label class="spo-label" for="spo-message">ご相談・ご質問 <span class="spo-opt">任意</span></label>
@@ -6265,7 +6203,7 @@ function submitSponsor(){
   if(!company){ alert('会社名・団体名を入力してください。'); return; }
   if(!name){ alert('ご担当者名を入力してください。'); return; }
   if(!email || email.indexOf('@') < 0){ alert('メールアドレスを正しく入力してください。'); return; }
-  if(!plan){ alert('ご希望のプランを選択してください。'); return; }
+  if(!plan){ alert('ご希望の内容を選択してください。'); return; }
   if(!agreed){ alert('プライバシーポリシーへの同意が必要です。'); return; }
 
   var payload = {
@@ -6278,7 +6216,6 @@ function submitSponsor(){
     website:    ($('spo-url').value || '').trim(),
     plan:       plan,
     industry:   ($('spo-industry').value || ''),
-    budget:     ($('spo-budget').value || ''),
     message:    ($('spo-message').value || '').trim()
   };
 
