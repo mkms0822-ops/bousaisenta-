@@ -2927,6 +2927,27 @@ html.light .scale-item.lv1 { background:rgba(0,0,0,0.04); border-color:rgba(0,0,
 .nr-nav button{ flex:1; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:12px; border-radius:9px; cursor:pointer; font-size:13px; font-family:var(--user-font); }
 .nr-nav button:hover:not(:disabled){ border-color:var(--blue); }
 .nr-nav button:disabled{ opacity:0.35; cursor:default; }
+.nr-comments{ margin-top:34px; padding-top:22px; border-top:1px solid var(--border); }
+.nrc-head{ font-size:14px; font-weight:700; color:var(--text); margin-bottom:14px; }
+.nrc-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:22px; }
+.nrc-item{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
+.nrc-item .nrc-meta{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:6px; }
+.nrc-item .nrc-who{ font-size:12.5px; font-weight:700; color:var(--blue); }
+.nrc-item .nrc-when{ font-size:11px; color:var(--muted); white-space:nowrap; }
+.nrc-item .nrc-text{ font-size:13px; color:var(--text); line-height:1.75; white-space:pre-wrap; word-break:break-word; }
+.nrc-empty{ font-size:12.5px; color:var(--muted); padding:8px 2px; }
+.nrc-form{ background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px; }
+.nrc-name, .nrc-body{ width:100%; box-sizing:border-box; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:var(--user-font); font-size:13px; padding:10px 12px; margin-bottom:10px; }
+.nrc-name:focus, .nrc-body:focus{ outline:none; border-color:var(--blue); }
+.nrc-body{ resize:vertical; min-height:64px; line-height:1.7; }
+.nrc-actions{ display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.nrc-note{ font-size:11px; color:var(--muted); }
+.nrc-send{ background:var(--blue); color:#fff; border:none; border-radius:8px; padding:10px 22px; font-size:13px; font-weight:700; cursor:pointer; font-family:var(--user-font); white-space:nowrap; }
+.nrc-send:hover{ filter:brightness(1.08); }
+.nrc-send:disabled{ opacity:0.45; cursor:default; }
+.nrc-msg{ font-size:12px; margin-top:10px; min-height:1em; }
+.nrc-msg.ok{ color:#37c26b; }
+.nrc-msg.err{ color:#ff6b6b; }
 
 /* ===== コラム コンパクト表示（表題＋日時の一覧／タップで展開） ===== */
 .col-compact-item{border:1px solid var(--border);border-radius:10px;background:var(--surface);margin-bottom:8px;overflow:hidden;}
@@ -4976,6 +4997,24 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <button type="button" id="nrPrev" onclick="novelStep(-1)">← 前の話</button>
       <button type="button" id="nrNext" onclick="novelStep(1)">次の話 →</button>
     </div>
+
+    <div class="nr-comments" id="nrComments">
+      <div class="nrc-head">💬 この話の感想</div>
+      <div class="nrc-list" id="nrcList">
+        <div class="nrc-empty">読み込み中…</div>
+      </div>
+      <div class="nrc-form">
+        <input type="text" id="nrcName" class="nrc-name" maxlength="40"
+               placeholder="お名前（空欄なら「匿名」）">
+        <textarea id="nrcBody" class="nrc-body" maxlength="1000" rows="3"
+                  placeholder="感想を書く（最大1000字）"></textarea>
+        <div class="nrc-actions">
+          <span class="nrc-note">投稿は管理者の確認後に表示されます</span>
+          <button type="button" id="nrcSend" class="nrc-send" onclick="submitNovelComment()">送信</button>
+        </div>
+        <div class="nrc-msg" id="nrcMsg"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -6496,6 +6535,7 @@ function openNovel(pi, ei){
   var ov = document.getElementById('novelReader');
   if(ov){ ov.classList.add('open'); ov.scrollTop = 0; }
   document.body.style.overflow = 'hidden';
+  try { loadNovelComments(); } catch(e){}
 }
 
 function paintNovel(){
@@ -6526,6 +6566,7 @@ function novelStep(d){
   _nrIdx = n;
   paintNovel();
   try { trackNovelRead(_nrProj, _nrIdx); } catch(e){}
+  try { loadNovelComments(); } catch(e){}
 }
 
 // ── 読了カウント ──
@@ -6557,6 +6598,76 @@ function trackNovelRead(pi, ei){
     var img = new Image();
     img.src = ARTICLES_URL + '?' + params + '&_=' + now;
   } catch(e){}
+}
+
+// ── 感想欄（承認制） ──
+function _nrEpKey(){
+  var p = novelData[_nrProj]; if(!p) return null;
+  var e = p.episodes[_nrIdx]; if(!e) return null;
+  return { pid: p.id, no: String(e.no || (_nrIdx + 1)) };
+}
+
+function loadNovelComments(){
+  var key = _nrEpKey();
+  var listEl = document.getElementById('nrcList');
+  if(!key || !listEl) return;
+  var msg = document.getElementById('nrcMsg'); if(msg){ msg.textContent=''; msg.className='nrc-msg'; }
+  listEl.innerHTML = '<div class="nrc-empty">読み込み中…</div>';
+  var cbName = '_nrcCb_' + Date.now();
+  window[cbName] = function(res){
+    try { delete window[cbName]; } catch(e){ window[cbName] = undefined; }
+    if(!res || !res.ok || !res.comments || !res.comments.length){
+      listEl.innerHTML = '<div class="nrc-empty">まだ感想はありません。最初のひとことをどうぞ。</div>';
+      return;
+    }
+    var h = '';
+    res.comments.forEach(function(c){
+      h += '<div class="nrc-item"><div class="nrc-meta">'
+         + '<span class="nrc-who">' + escHtml(c.name || '匿名') + '</span>'
+         + '<span class="nrc-when">' + escHtml(c.date || '') + '</span>'
+         + '</div><div class="nrc-text">' + escHtml(c.body || '') + '</div></div>';
+    });
+    listEl.innerHTML = h;
+  };
+  var s = document.createElement('script');
+  s.src = ARTICLES_URL + '?type=comments&action=get'
+        + '&pid=' + encodeURIComponent(key.pid)
+        + '&no='  + encodeURIComponent(key.no)
+        + '&callback=' + cbName + '&_=' + Date.now();
+  s.onerror = function(){ try { delete window[cbName]; } catch(e){} listEl.innerHTML = '<div class="nrc-empty">感想を読み込めませんでした。</div>'; };
+  document.body.appendChild(s);
+  setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); }, 15000);
+}
+
+function submitNovelComment(){
+  var key = _nrEpKey();
+  var msg = document.getElementById('nrcMsg');
+  var btn = document.getElementById('nrcSend');
+  var nameEl = document.getElementById('nrcName');
+  var bodyEl = document.getElementById('nrcBody');
+  if(!key || !msg || !bodyEl) return;
+  var body = (bodyEl.value || '').trim();
+  var name = (nameEl.value || '').trim();
+  msg.className = 'nrc-msg'; msg.textContent = '';
+  if(!body){ msg.className='nrc-msg err'; msg.textContent='感想を入力してください。'; return; }
+  if(body.length > 1000){ msg.className='nrc-msg err'; msg.textContent='1000字以内でお願いします。'; return; }
+  if(/https?:\/\/|www\.|\.com|\.net/i.test(body)){ msg.className='nrc-msg err'; msg.textContent='URLは投稿できません。'; return; }
+  var uid = ''; try { uid = localStorage.getItem('dwa_visit_uid') || ''; } catch(e){}
+  if(btn){ btn.disabled = true; }
+  var params = 'type=comments&action=post'
+    + '&pid='  + encodeURIComponent(key.pid)
+    + '&no='   + encodeURIComponent(key.no)
+    + '&name=' + encodeURIComponent(name)
+    + '&body=' + encodeURIComponent(body)
+    + '&uid='  + encodeURIComponent(uid);
+  var img = new Image();
+  img.onload = img.onerror = function(){
+    msg.className = 'nrc-msg ok';
+    msg.textContent = '送信しました。確認後に表示されます。ありがとうございます。';
+    bodyEl.value = '';
+    if(btn){ setTimeout(function(){ btn.disabled = false; }, 2000); }
+  };
+  img.src = ARTICLES_URL + '?' + params + '&_=' + Date.now();
 }
 
 function closeNovelReader(){
