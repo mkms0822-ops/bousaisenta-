@@ -22,7 +22,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&family=Noto+Sans+JP:wght@300&family=Orbitron:wght@400;700;900&family=Bebas+Neue&family=Share+Tech+Mono&family=M+PLUS+Rounded+1c:wght@400;700;900&family=BIZ+UDPGothic:wght@400;700&family=Kaisei+Decol&family=Rampart+One&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&family=Noto+Sans+JP:wght@300&family=Orbitron:wght@400;700;900&family=Bebas+Neue&family=Share+Tech+Mono&family=M+PLUS+Rounded+1c:wght@400;700;900&family=BIZ+UDPGothic:wght@400;700&family=Kaisei+Decol&family=Rampart+One&family=Shippori+Mincho:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
   --user-font: 'Noto Sans JP', sans-serif;
@@ -2923,6 +2923,77 @@ html.light .scale-item.lv1 { background:rgba(0,0,0,0.04); border-color:rgba(0,0,
 .nr-date{ font-size:11px; color:var(--muted) !important; font-family:'Share Tech Mono',monospace; margin-bottom:18px; }
 .nr-body{ font-size:15px; line-height:2.05; color:var(--text) !important; white-space:pre-wrap; word-break:break-word; }
 .nr-img{ width:100%; border-radius:10px; margin:16px 0; }
+
+/* ===== 小説リーダー：表示コントロール ===== */
+.nr-controls{
+  display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px;
+  background:var(--surface); border:1px solid var(--border); border-radius:10px;
+  padding:10px 12px; margin-bottom:16px;
+}
+.nr-ctrl-group{ display:flex; align-items:center; gap:6px; }
+.nr-ctrl-label{ font-size:10px; color:var(--muted); letter-spacing:0.08em; font-family:'Share Tech Mono',monospace; margin-right:2px; }
+.nr-ctrl-btn{
+  font-family:var(--user-font); font-size:12px; font-weight:700;
+  color:var(--text); background:var(--surface2); border:1px solid var(--border);
+  border-radius:7px; padding:6px 12px; cursor:pointer; transition:all 0.15s; line-height:1;
+}
+.nr-ctrl-btn:hover{ border-color:var(--blue); color:var(--blue); }
+.nr-ctrl-btn.active{ background:var(--blue); color:#fff; border-color:var(--blue); }
+html.light .nr-ctrl-btn.active{ color:#fff; }
+
+/* 小説フォント3種（本文にだけ適用） */
+.nr-body.nrf-mincho{ font-family:'Shippori Mincho', serif; }
+.nr-body.nrf-gothic{ font-family:'Noto Sans JP', sans-serif; }
+.nr-body.nrf-maru{ font-family:'Rampart One', 'M PLUS Rounded 1c', cursive; }
+.nr-body.nrf-mincho{ letter-spacing:0.01em; }
+
+/* 文字サイズ3段階（横書き用ベース。縦書きは別途上書き） */
+.nr-body.nrs-sm{ font-size:14px; line-height:1.95; }
+.nr-body.nrs-md{ font-size:16px; line-height:2.05; }
+.nr-body.nrs-lg{ font-size:19px; line-height:2.15; }
+
+/* ===== 縦書き（ページめくり）モード ===== */
+.nr-body.nr-tate{
+  writing-mode:vertical-rl;
+  -webkit-writing-mode:vertical-rl;
+  text-orientation:mixed;
+  white-space:normal;                 /* 段落は <span class="nrp"> で表現 */
+  width:100%;                          /* 幅を親に固定（内容で広がらせない） */
+  height:72vh; max-height:820px;
+  padding:22px 26px;
+  border:1px solid var(--border); border-radius:12px;
+  background:var(--surface);
+  overflow-x:auto; overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  text-combine-upright:digits 2;
+  line-height:2.1; letter-spacing:0.02em;
+  scrollbar-width:none;
+}
+.nr-body.nr-tate::-webkit-scrollbar{ display:none; }
+/* 縦書き時の段落・改行は <br> と余白で表現（paintNovelが縦書き用HTMLを差し込む） */
+.nr-body.nr-tate .nrp{ display:block; margin:0 1.2em 0 0; text-indent:0; }
+.nr-body.nr-tate .nrp-tsuzuku{ color:var(--blue); font-weight:600; margin-right:2.2em; }
+.nr-body.nr-tate .nr-img{ display:block; height:auto; max-height:60vh; width:auto; margin:0 1.2em; border-radius:8px; }
+/* 縦書き文字サイズ */
+.nr-body.nr-tate.nrs-sm{ font-size:16px; }
+.nr-body.nr-tate.nrs-md{ font-size:18px; }
+.nr-body.nr-tate.nrs-lg{ font-size:21px; }
+@media (max-width:520px){
+  .nr-body.nr-tate{ height:68vh; padding:18px 20px; }
+}
+
+/* 縦書きページめくり操作バー */
+.nr-pager{ display:none; align-items:center; gap:12px; margin-top:12px; }
+.nr-body.nr-tate ~ .nr-pager{ display:flex; }
+.nr-pager button{
+  font-family:var(--user-font); font-size:13px; font-weight:700;
+  color:var(--text); background:var(--surface); border:1px solid var(--border);
+  border-radius:999px; padding:8px 18px; cursor:pointer;
+}
+.nr-pager button:disabled{ opacity:0.35; cursor:default; }
+.nr-pager .nr-prog{ flex:1; height:4px; background:var(--border); border-radius:4px; position:relative; overflow:hidden; }
+.nr-pager .nr-prog i{ position:absolute; right:0; top:0; bottom:0; background:var(--blue); width:0%; transition:width .25s; }
+.nr-pager .nr-pageno{ font-size:12px; color:var(--muted); min-width:64px; text-align:center; font-family:'Share Tech Mono',monospace; }
 .nr-nav{ display:flex; gap:10px; margin-top:30px; }
 .nr-nav button{ flex:1; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:12px; border-radius:9px; cursor:pointer; font-size:13px; font-family:var(--user-font); }
 .nr-nav button:hover:not(:disabled){ border-color:var(--blue); }
@@ -4992,7 +5063,35 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     </div>
     <h2 class="nr-title" id="nrTitle"></h2>
     <div class="nr-date" id="nrDate"></div>
+
+    <div class="nr-controls">
+      <div class="nr-ctrl-group">
+        <span class="nr-ctrl-label">表示</span>
+        <button type="button" class="nr-ctrl-btn" id="nrDirYoko" onclick="setNovelDir('yoko')">横書き</button>
+        <button type="button" class="nr-ctrl-btn" id="nrDirTate" onclick="setNovelDir('tate')">縦書き</button>
+      </div>
+      <div class="nr-ctrl-group">
+        <span class="nr-ctrl-label">文字</span>
+        <button type="button" class="nr-ctrl-btn" id="nrSizeSm" onclick="setNovelSize('sm')">小</button>
+        <button type="button" class="nr-ctrl-btn" id="nrSizeMd" onclick="setNovelSize('md')">中</button>
+        <button type="button" class="nr-ctrl-btn" id="nrSizeLg" onclick="setNovelSize('lg')">大</button>
+      </div>
+      <div class="nr-ctrl-group">
+        <span class="nr-ctrl-label">書体</span>
+        <button type="button" class="nr-ctrl-btn" id="nrFontMincho" onclick="setNovelFont('mincho')">明朝</button>
+        <button type="button" class="nr-ctrl-btn" id="nrFontGothic" onclick="setNovelFont('gothic')">ゴシック</button>
+        <button type="button" class="nr-ctrl-btn" id="nrFontMaru" onclick="setNovelFont('maru')">丸文字</button>
+      </div>
+    </div>
+
     <div class="nr-body" id="nrBody"></div>
+    <div class="nr-pager" id="nrPager">
+      <button type="button" id="nrPageNext" onclick="novelPage(1)">◀ 次</button>
+      <div class="nr-prog"><i id="nrProgFill"></i></div>
+      <div class="nr-pageno" id="nrPageNo">1 / 1</div>
+      <button type="button" id="nrPagePrev" onclick="novelPage(-1)">前 ▶</button>
+    </div>
+
     <div class="nr-nav">
       <button type="button" id="nrPrev" onclick="novelStep(-1)">← 前の話</button>
       <button type="button" id="nrNext" onclick="novelStep(1)">次の話 →</button>
@@ -6545,19 +6644,130 @@ function paintNovel(){
   if(g('nrWork'))  g('nrWork').textContent = p.title;
   if(g('nrTitle')) g('nrTitle').textContent = '第' + (e.no || (_nrIdx+1)) + '話　' + e.title;
   if(g('nrDate'))  g('nrDate').textContent = e.date || '';
-  var body = '';
+  var imgs = '';
   (e.images || []).forEach(function(u){
     var src = novelImg(u);
-    if(src) body += '<img class="nr-img" src="' + escAttr(src) + '" alt="" loading="lazy">';
+    if(src) imgs += '<img class="nr-img" src="' + escAttr(src) + '" alt="" loading="lazy">';
   });
-  // 本文は white-space:pre-wrap なので改行はそのまま活きる
-  body += escHtml(e.body || '');
-  if(g('nrBody')) g('nrBody').innerHTML = body;
+
+  var bodyEl = g('nrBody');
+  if(bodyEl){
+    if(_novelDir === 'tate'){
+      // 縦書き（段組みでページ化）：空行で段落を分け、各段落を .nrp でくるむ
+      var raw = String(e.body || '');
+      var paras = raw.split(/\n{2,}/);
+      var html = imgs;
+      paras.forEach(function(para){
+        var t = para.replace(/\s+$/,'');
+        if(t === '') return;
+        var cls = (/^（第.*つづく）/.test(t.trim()) || /つづく）\s*$/.test(t.trim())) ? 'nrp nrp-tsuzuku' : 'nrp';
+        html += '<span class="' + cls + '">' + escHtml(t).replace(/\n/g,'<br>') + '</span>';
+      });
+      bodyEl.innerHTML = html;
+    } else {
+      // 横書き：従来どおり（pre-wrapで改行そのまま）
+      bodyEl.innerHTML = imgs + escHtml(e.body || '');
+    }
+  }
+  applyNovelDisplay();
+
   var prev = g('nrPrev'), next = g('nrNext');
   if(prev) prev.disabled = (_nrIdx <= 0);
   if(next) next.disabled = (_nrIdx >= p.episodes.length - 1);
   var ov = g('novelReader'); if(ov) ov.scrollTop = 0;
 }
+
+// ===== 小説リーダー：表示設定（横/縦書き・文字サイズ・書体） =====
+var _novelDir  = localStorage.getItem('novel_dir')  || 'yoko';   // yoko | tate
+var _novelSize = localStorage.getItem('novel_size') || 'md';     // sm | md | lg
+var _novelFont = localStorage.getItem('novel_font') || 'mincho'; // mincho | gothic | maru
+var _nrPage = 0, _nrPageTotal = 1, _nrPageW = 1;
+
+function applyNovelDisplay(){
+  var b = document.getElementById('nrBody');
+  if(!b) return;
+  b.classList.remove('nr-tate','nrs-sm','nrs-md','nrs-lg','nrf-mincho','nrf-gothic','nrf-maru');
+  if(_novelDir === 'tate') b.classList.add('nr-tate');
+  b.classList.add('nrs-' + _novelSize);
+  b.classList.add('nrf-' + _novelFont);
+
+  // ボタンのactive表示
+  var set = function(id, on){ var el=document.getElementById(id); if(el) el.classList.toggle('active', on); };
+  set('nrDirYoko', _novelDir==='yoko'); set('nrDirTate', _novelDir==='tate');
+  set('nrSizeSm', _novelSize==='sm'); set('nrSizeMd', _novelSize==='md'); set('nrSizeLg', _novelSize==='lg');
+  set('nrFontMincho', _novelFont==='mincho'); set('nrFontGothic', _novelFont==='gothic'); set('nrFontMaru', _novelFont==='maru');
+
+  var pager = document.getElementById('nrPager');
+  if(pager) pager.style.display = (_novelDir==='tate') ? 'flex' : 'none';
+
+  if(_novelDir === 'tate'){
+    // レイアウト確定後にページ数を測る
+    setTimeout(novelPagerRecalc, 40);
+    if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ setTimeout(novelPagerRecalc, 40); }); }
+  }
+}
+
+function setNovelDir(d){ _novelDir = d; try{localStorage.setItem('novel_dir', d);}catch(e){} paintNovel(); }
+function setNovelSize(s){ _novelSize = s; try{localStorage.setItem('novel_size', s);}catch(e){} applyNovelDisplay(); }
+function setNovelFont(f){ _novelFont = f; try{localStorage.setItem('novel_font', f);}catch(e){} applyNovelDisplay(); }
+
+// 縦書きページめくり
+function novelPagerRecalc(){
+  var b = document.getElementById('nrBody');
+  if(!b || _novelDir !== 'tate') return;
+  _nrPageW = b.clientWidth || 1;
+  _nrPageTotal = Math.max(1, Math.round(b.scrollWidth / _nrPageW));
+  novelPagerGo(_nrPage, false);
+  novelPagerUpdate();
+}
+function novelPagerCurrent(){
+  var b = document.getElementById('nrBody'); if(!b) return 0;
+  // vertical-rl は右端が先頭で、左へ進むほど scrollLeft は負の値になる。絶対値で扱う。
+  return Math.round(Math.abs(b.scrollLeft) / _nrPageW);
+}
+function novelPagerGo(i, smooth){
+  var b = document.getElementById('nrBody'); if(!b) return;
+  i = Math.max(0, Math.min(_nrPageTotal-1, i));
+  _nrPage = i;
+  // vertical-rl では左方向（＝負）に送る
+  b.scrollTo({ left: -(i * _nrPageW), behavior: smooth ? 'smooth' : 'auto' });
+  novelPagerUpdate();
+}
+function novelPage(dir){
+  // dir=1 で次（左へ）、dir=-1 で前（右へ）
+  novelPagerGo(_nrPage + (dir>0 ? 1 : -1), true);
+}
+function novelPagerUpdate(){
+  _nrPage = novelPagerCurrent();
+  var no = document.getElementById('nrPageNo');
+  var fill = document.getElementById('nrProgFill');
+  var pn = document.getElementById('nrPagePrev'), nx = document.getElementById('nrPageNext');
+  if(no) no.textContent = (_nrPage+1) + ' / ' + _nrPageTotal;
+  if(fill) fill.style.width = ((_nrPage+1)/_nrPageTotal*100) + '%';
+  if(pn) pn.disabled = (_nrPage <= 0);
+  if(nx) nx.disabled = (_nrPage >= _nrPageTotal-1);
+}
+// スクロール追従・リサイズ対応
+(function(){
+  var b = document.getElementById('nrBody');
+  if(b){
+    b.addEventListener('scroll', function(){
+      if(_novelDir !== 'tate') return;
+      clearTimeout(b._nrt); b._nrt = setTimeout(novelPagerUpdate, 90);
+    });
+  }
+  window.addEventListener('resize', function(){
+    if(_novelDir !== 'tate') return;
+    clearTimeout(window._nrr); window._nrr = setTimeout(novelPagerRecalc, 150);
+  });
+  // 縦書き時は左右キーでめくる（リーダーが開いているときのみ）
+  document.addEventListener('keydown', function(e){
+    var ov = document.getElementById('novelReader');
+    if(!ov || !ov.classList.contains('open') || _novelDir !== 'tate') return;
+    if(e.key === 'ArrowLeft'){ novelPage(1); }
+    else if(e.key === 'ArrowRight'){ novelPage(-1); }
+  });
+})();
 
 function novelStep(d){
   var p = novelData[_nrProj]; if(!p) return;
