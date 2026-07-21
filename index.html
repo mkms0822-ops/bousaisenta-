@@ -7035,6 +7035,7 @@ function renderBlog() {
           ${renderBlogPhotos(c.images)}
           <div style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
             <button type="button" class="like-btn ${isLiked(bookmarkId(c))?'on':''}" id="like${i}" aria-pressed="${isLiked(bookmarkId(c))?'true':'false'}" title="いいね" onclick="toggleLikeCard(${i})"><span class="like-heart">❤️</span><span class="like-count">${likeCountOf(bookmarkId(c))}</span></button>
+            <button type="button" class="share-btn" title="この記事を共有" onclick="shareArticleCard(${i})">🔗 共有</button>
             ${c.link?`<a class="blog-card-link" href="${c.link}" target="_blank">リンクを開く →</a>`:''}
           </div>
         </div>
