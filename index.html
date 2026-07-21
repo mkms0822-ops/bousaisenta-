@@ -7620,11 +7620,34 @@ function renderArchive(){
       ${renderBlogPhotos(c.images)}
       <div class="blog-card-footer">
         <span class="blog-card-date">🕐 ${c.updated}</span>
+        <button type="button" class="share-btn" title="この記事を共有" onclick="shareArchiveCard(${i})">🔗 共有</button>
         ${c.link ? `<a class="blog-card-link" href="${c.link}" target="_blank">リンクを開く →</a>` : ''}
         ${isLong ? `<button class="read-more-btn" id="arbtn${i}" onclick="toggleArchiveReadMore(${i})">続きを読む →</button>` : ''}
       </div>
     </div>`;
   }).join('');
+}
+function shareArchiveCard(i){
+  try {
+    var list = (_archiveFilter === 'all')
+      ? archiveItems
+      : archiveItems.filter(function(c){ return c.archTag === _archiveFilter; });
+    var c = list[i];
+    if(!c) return;
+    var url = articleShareUrl(c);
+    var title = String(c.title || '防災情報センター');
+    if(navigator.share){
+      navigator.share({ title: title, text: title, url: url }).catch(function(){});
+      return;
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(function(){
+        _toastShare('記事のURLをコピーしました');
+      }).catch(function(){ _fallbackCopy(url); });
+    } else {
+      _fallbackCopy(url);
+    }
+  } catch(e){}
 }
 function toggleArchiveReadMore(i){
   const short = document.getElementById('ashort'+i);
