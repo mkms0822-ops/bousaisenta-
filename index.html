@@ -3047,6 +3047,10 @@ html.light .nr-ctrl-btn.active{ color:#fff; }
 .col-compact-title{flex:1;min-width:0;font-size:14px;font-weight:700;line-height:1.4;}
 .col-compact-date{flex-shrink:0;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);white-space:nowrap;}
 .col-compact-chev{flex-shrink:0;color:var(--muted);transition:transform .18s;font-size:12px;}
+.col-compact-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:0 14px 11px;}
+.col-compact-item.open .col-compact-actions{display:none;}
+.col-compact-actions .share-btn{flex:0 1 auto;}
+.col-compact-actions .blog-card-link{flex:0 1 auto;}
 .col-compact-item.open .col-compact-chev{transform:rotate(180deg);}
 .col-compact-body{padding:0 16px 16px;border-top:1px solid var(--border);}
 .col-compact-body .blog-subtitle{margin:12px 0 8px;}
@@ -7029,6 +7033,10 @@ function renderBlog() {
           <span class="col-compact-date">🕐 ${c.updated}</span>
           <span class="col-compact-chev">→</span>
         </button>
+        <div class="col-compact-actions">
+          <button type="button" class="share-btn" title="この記事を共有" onclick="event.stopPropagation();shareArticleCard(${i})">🔗 共有</button>
+          ${c.link?`<a class="blog-card-link" href="${c.link}" target="_blank" onclick="event.stopPropagation();">リンクを開く →</a>`:''}
+        </div>
         <div class="col-compact-body" id="ccb${i}" style="display:none;">
           ${c.subtitle?`<div class="blog-subtitle">${c.subtitle}</div>`:''}
           <p>${body}</p>
