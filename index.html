@@ -4496,7 +4496,7 @@ button.dwa-plate{ padding:0; }
     </div>
     <div class="header-btn-stack">
       <button type="button" id="sosHeaderBtn" data-tour="sos" onclick="sosOpenPanel()" title="緊急SOSビーコン" aria-label="緊急SOSビーコン"><span class="sos-btn-main">SOS</span><span class="sos-btn-sub">ビーコン</span></button>
-      <button type="button" id="tempMapHeaderBtn" onclick="openTempMapModal()" title="全国最高気温予測マップ" aria-label="最高気温予測"><span class="tmap-btn-main">🌡️</span><span class="tmap-btn-sub">最高気温</span></button>
+      <button type="button" id="tempMapHeaderBtn" data-tour="tempmap" onclick="openTempMapModal()" title="全国最高気温予測マップ" aria-label="最高気温予測"><span class="tmap-btn-main">🌡️</span><span class="tmap-btn-sub">最高気温</span></button>
     </div>
   </div>
   <div class="header-status hp-wrap">
@@ -10416,6 +10416,7 @@ const tourSteps = [
   { sel:'[data-tour="emg-plate"]', title:'🚨 緊急対応マニュアル', text:'ヘッダーの「緊急対応」プレートです。タップすると、サイトを離れずにその場で緊急対応マニュアルが全画面表示されます。地震・火災・救急・台風・防犯など、いざという時の対応手順を状況を選ぶだけで確認でき、「✕ 閉じる」で元の画面にそのまま戻れます。', fallbackToTop:true },
   { sel:'[data-tour="diag-plate"]', title:'🗾 被害想定診断ツール', text:'「被害想定診断ツール」ボタンです。都道府県を選ぶだけで、活断層マップ・地震の発生確率・想定される死者数や経済損失などを即座に確認できます。お住まいの地域のリスクをチェックしてみましょう。', fallbackToTop:true },
   { sel:'#sosHeaderBtn', title:'🆘 緊急SOSビーコン', text:'ヘッダーの赤い「SOS」ボタンです。通信が無くても使える「音・光ビーコン」（画面をSOS信号で点滅させ、大音量アラームで居場所を知らせる）と、救急車式の連続サイレンが使えます。119・110へのワンタップ発信も可能。GPSでの位置発信・安否登録はプレミアム会員限定機能として10月に提供予定です。', fallbackToTop:true },
+  { sel:'[data-tour="tempmap"]', title:'🌡️ 全国 最高気温予測マップ', text:'SOSボタンの下にある「最高気温」ボタンです。タップすると全国の最高気温予測マップが開き、今日どこがどれくらい暑くなるかをひと目で確認できます。猛暑日や熱中症警戒アラートが出る日は、外出や運動の計画を立てる前にチェックしてみてください。', fallbackToTop:true },
   { sel:'[data-tour="live"]', title:'🟢 LIVE・現在時刻', text:'ヘッダー右の機器パネルです。赤いランプが点滅していれば「LIVE（リアルタイム配信中）」を表し、その下の窓に現在時刻が表示されます。地震データは自動で更新され続けます。' },
   { sel:'#siteRefreshBtn', title:'🔄 最新情報に更新', text:'パネル内の丸い矢印ボタンです。自動更新を待たずに、いますぐ最新の地震・気象情報を取り込みたいときにタップします。表示が古いと感じたらここを押してください。', fallbackToTop:true },
   { sel:'[data-tour="menu"]', title:'☰ メニュー（設定）', text:'パネル右側の三本線アイコンがメニューボタンです。タップで開くメニューの中に、設定・お問い合わせ・プライバシーポリシーがあります。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。' },
