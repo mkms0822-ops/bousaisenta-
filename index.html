@@ -10455,20 +10455,24 @@ function closeDtabsForTour(){
 }
 // ブックマーク説明ステップ：防災コラム（ブックマークボタンのある一覧）まで移動
 function scrollToColumnForTour(){
+  // ブックマークボタンは記事カードが未読み込みだと存在しないため、
+  // コラム見出し（#section-column）を基準にする。
   const target = document.querySelector('[data-tour="bookmark"]') || document.getElementById('section-column');
-  if(target){
-    // 対象を画面の上寄りに置く（block:'start'）。下側に説明ポップアップを出す空間を確保し、
-    // 説明文とハイライト枠が重ならないようにする。
-    try {
-      target.scrollIntoView({ behavior:'smooth', block:'start' });
-      // ヘッダーに隠れない＆少し余白を持たせるため、さらに少し上へ送る
-      setTimeout(function(){
-        try { window.scrollBy({ top: -90, left: 0, behavior:'smooth' }); } catch(e){ window.scrollBy(0,-90); }
-        if(typeof positionTour === 'function') setTimeout(positionTour, 250);
-      }, 350);
-    } catch(e){
-      try { target.scrollIntoView(); } catch(_){}
-    }
+  if(!target) return;
+  // showTourStep 側でも scrollIntoView が走るため、ここでスムーズスクロールを
+  // 二重に呼ぶと打ち消し合って途中で止まる。即時スクロール(auto)で一度に決める。
+  try {
+    const rect = target.getBoundingClientRect();
+    // 対象を画面の上寄り（ヘッダー下）に置き、下側に説明ポップアップの空間を確保する
+    const y = window.scrollY + rect.top - 110;
+    window.scrollTo({ top: Math.max(0, y), behavior:'auto' });
+  } catch(e){
+    try { target.scrollIntoView(); } catch(_){}
+  }
+  // 位置確定後に枠を再計算
+  if(typeof positionTour === 'function'){
+    setTimeout(positionTour, 60);
+    setTimeout(positionTour, 240);
   }
 }
 // 言語説明ステップ：ハンバーガーメニューを開いて「English / 言語」ボタンを見せる
@@ -10818,8 +10822,11 @@ function showTourStep(){
   // ただしメニュー/スタンプカードを開くステップは、要素描画後に onShow 側の settle が
   // 位置決めするため、ここでの早すぎる scrollIntoView/position は行わない（ズレ防止）。
   const _opensOverlay = (step.onShow === openStampCardForTour || step.onShow === openHamburgerForTour);
+  // onShow 側で自前スクロール済みのステップ（コラム系）は、ここで再度 scrollIntoView すると
+  // スムーズスクロールが競合して途中で止まるため除外する。
+  const _selfScrolled = (step.onShow === scrollToColumnForTour);
   const el = _tourTargetEl(step);
-  if(el && !_opensOverlay){
+  if(el && !_opensOverlay && !_selfScrolled){
     const r = el.getBoundingClientRect();
     if(r.top < 80 || r.bottom > window.innerHeight - 80){
       el.scrollIntoView({ behavior:'smooth', block:'center' });
