@@ -10430,8 +10430,8 @@ const tourSteps = [
   { sel:'[data-tour="stats"]', title:'本日の地震サマリー', text:'本日の有感地震の回数、最大マグニチュード・最大震度、最終更新時刻をひと目で確認できます。', onShow:closeDtabsForTour },
   { sel:'.quake-list', title:'地震リスト', text:'最近発生した地震の一覧です。カードをタップすると詳細が表示されます。', fallbackToTop:true },
   { sel:'[data-tour="novel"]', title:'📖 防災小説', text:'防災をテーマにした連載小説のコーナーです。作品ごとに「第1話」から順番に並んでいて、読みたい話をタップするとその場で全画面で読めます。読み終わったら「次の話 →」で読み進められます。物語を通して、災害への備えや、いざという時の判断を体感的に知ることができます。「📤 共有」から友達に教えることもできます。', fallbackToTop:true },
-  { sel:'#section-column', title:'📰 防災コラム・知識', text:'防災の「備え」や「ヒント」をまとめた記事コーナーです。地震・台風・停電への備え、非常持ち出し袋の中身、防災グッズの選び方などを、短い記事で読めます。カードをタップすると全文が開きます。右上の「一覧表示」ボタンで、表題だけのコンパクトな一覧に切り替えることもできるので、目的の記事を探しやすくなります。', onShow:scrollToColumnForTour, fallbackToTop:true },
-  { sel:'[data-tour="bookmark"]', selAlt:'#section-column', title:'🔖 ブックマーク', text:'防災記事カードの右上にあるこのマークをタップすると、その記事をブックマーク（お気に入り保存）できます。あとで読み返したい「備え」や「ヒント」を保存しておくと、必要なときにすぐ見返せます。', onShow:scrollToColumnForTour, fallbackToTop:true },
+  { sel:'#section-column', selAlt:'#columnViewBtn', title:'📰 防災コラム・知識', text:'防災の「備え」や「ヒント」をまとめた記事コーナーです。地震・台風・停電への備え、非常持ち出し袋の中身、防災グッズの選び方などを、短い記事で読めます。カードをタップすると全文が開きます。右上の「一覧表示」ボタンで、表題だけのコンパクトな一覧に切り替えることもできるので、目的の記事を探しやすくなります。', onShow:scrollToColumnForTour },
+  { sel:'[data-tour="bookmark"]', selAlt:'#bookmarkOpenBtn', title:'🔖 ブックマーク', text:'防災記事カードの右上にあるこのマークをタップすると、その記事をブックマーク（お気に入り保存）できます。あとで読み返したい「備え」や「ヒント」を保存しておくと、必要なときにすぐ見返せます。右上の「🔖 ブックマーク」ボタンから、保存した記事の一覧をいつでも開けます。', onShow:scrollToColumnForTour },
   { sel:'[data-tour="review"]', title:'⭐ 口コミ・レビュー', text:'このサイトの感想や評価を投稿できるコーナーです。星の数と一言コメントで、使ってみての感想をぜひ聞かせてください。みんなの口コミも読めます。', fallbackToTop:true },
   { sel:'[data-tour="chat"]', title:'📨 災害用伝言板', text:'災害時の安否や連絡を書き残せる「災害用伝言板」です。ボタンから専用ページが開きます。閲覧は誰でもでき、書き込みには「引き継ぎコード」での参加が必要です。', fallbackToTop:true },
   { sel:'[data-tour="share"]', title:'📤 友達紹介リンク', text:'あなた専用の紹介リンクで、このサイトを友達に教えられます。紹介リンクから友達がアクセスすると、あなたと友達の両方にスタンプを1つずつプレゼント。LINEやXでかんたんに共有できます。', fallbackToTop:true },
@@ -10455,9 +10455,12 @@ function closeDtabsForTour(){
 }
 // ブックマーク説明ステップ：防災コラム（ブックマークボタンのある一覧）まで移動
 function scrollToColumnForTour(){
-  // ブックマークボタンは記事カードが未読み込みだと存在しないため、
-  // コラム見出し（#section-column）を基準にする。
-  const target = document.querySelector('[data-tour="bookmark"]') || document.getElementById('section-column');
+  // コラム関連の要素を複数候補から探す（記事の読み込み状況やレイアウト変更に強くする）
+  const target =
+        document.querySelector('[data-tour="bookmark"]')
+     || document.getElementById('section-column')
+     || document.getElementById('columnViewBtn')
+     || document.getElementById('blogGrid');
   if(!target) return;
   // showTourStep 側でも scrollIntoView が走るため、ここでスムーズスクロールを
   // 二重に呼ぶと打ち消し合って途中で止まる。即時スクロール(auto)で一度に決める。
@@ -10469,10 +10472,11 @@ function scrollToColumnForTour(){
   } catch(e){
     try { target.scrollIntoView(); } catch(_){}
   }
-  // 位置確定後に枠を再計算
+  // 位置確定後に枠を再計算（レイアウト確定の遅れに備えて複数回）
   if(typeof positionTour === 'function'){
     setTimeout(positionTour, 60);
     setTimeout(positionTour, 240);
+    setTimeout(positionTour, 600);
   }
 }
 // 言語説明ステップ：ハンバーガーメニューを開いて「English / 言語」ボタンを見せる
@@ -10790,9 +10794,22 @@ function tourPrev(){
 
 // ステップの対象要素を解決（主セレクタが無ければ代替セレクタ）
 function _tourTargetEl(step){
+  // 要素が「存在するがサイズ0／非表示」の場合、そのまま使うと枠が正しく描けない。
+  // その場合は代替セレクタ(selAlt)を試す。
+  function usable(e){
+    if(!e) return false;
+    if(e.offsetParent === null && getComputedStyle(e).position !== 'fixed') return false;
+    const r = e.getBoundingClientRect();
+    return (r.width > 0 && r.height > 0);
+  }
   let el = step.sel ? document.querySelector(step.sel) : null;
-  if(!el && step.selAlt) el = document.querySelector(step.selAlt);
-  return el;
+  if(!usable(el) && step.selAlt){
+    const alt = document.querySelector(step.selAlt);
+    if(usable(alt)) return alt;
+  }
+  if(usable(el)) return el;
+  // どちらも使えない場合は、存在する方を返す（従来動作を維持）
+  return el || (step.selAlt ? document.querySelector(step.selAlt) : null);
 }
 
 function showTourStep(){
