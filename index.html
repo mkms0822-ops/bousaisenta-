@@ -10493,9 +10493,16 @@ function scrollToColumnForTour(){
   }
 }
 // 言語説明ステップ：ハンバーガーメニューを開いて「English / 言語」ボタンを見せる
+// ステップ世代トークン。ステップが変わるたびに増え、古い setTimeout を無効化する。
+var _tourGen = 0;
 function openHamburgerForTour(){
   try {
-    if(typeof openHamburger === 'function') openHamburger();
+    const _gen = _tourGen;
+    const _idx = _tourIndex;
+    // すでにメニューが開いている（＝連続するメニューステップ）場合は開き直さない。
+    // 開き直すとアニメが再生され、パネル内スクロール位置が先頭に戻ってしまう。
+    const _already = document.querySelector('.hamburger-overlay[data-tour-lifted="1"]');
+    if(!_already && typeof openHamburger === 'function') openHamburger();
     // ハンバーガーオーバーレイ（通常z-index 400）をツアーのマスク(99990)より前面へ持ち上げる
     const ov = document.querySelector('.hamburger-overlay');
     if(ov){
@@ -10511,17 +10518,21 @@ function openHamburgerForTour(){
     if(tourOv){ tourOv.dataset.tourRaised = '1'; tourOv.style.zIndex = '99993'; }
     // メニューが開くアニメ＋スクロール完了を待ち、複数回 位置決めし直してズレを防ぐ
     const settle = function(){
+      // 世代が進んでいたら、これは前のステップ用の予約。何もしない。
+      if(_gen !== _tourGen) return;
       try {
-        var _step = (typeof _activeSteps !== 'undefined' && _activeSteps[_tourIndex]) || tourSteps[_tourIndex];
-        var _sel = (_step && _step.sel) || '[data-tour="lang"]';
-        const el = document.querySelector(_sel);
+        var _step = (typeof _activeSteps !== 'undefined' && _activeSteps[_idx]) || tourSteps[_idx];
+        var _sel = _step && _step.sel;
+        const el = _sel ? document.querySelector(_sel) : null;
         if(el) el.scrollIntoView({ behavior:'smooth', block:'center' });
       } catch(e){}
       if(typeof positionTour === 'function') positionTour();
     };
-    setTimeout(settle, 320);
-    setTimeout(settle, 620);   // スクロール慣性が収まった頃に再調整
-    setTimeout(function(){ if(typeof positionTour === 'function') positionTour(); }, 900);
+    // メニューが既に開いている場合はアニメ待ちが不要なので、素早く合わせる
+    const _d = _already ? [0, 120, 260] : [320, 620, 900];
+    setTimeout(settle, _d[0]);
+    setTimeout(settle, _d[1]);   // スクロール慣性が収まった頃に再調整
+    setTimeout(function(){ if(_gen !== _tourGen) return; if(typeof positionTour === 'function') positionTour(); }, _d[2]);
   } catch(e){}
 }
 // 持ち上げたハンバーガーのz-indexを元に戻し、メニューも閉じる（言語ステップを離れるとき）
@@ -10554,7 +10565,9 @@ function openStampCardForTour(){
     if(tourOv){ tourOv.dataset.tourRaised = '1'; tourOv.style.zIndex = '99993'; }
     // カードが開いてパスワード欄が描画されてから枠を合わせ直す。
     // 開くアニメ＋内部スクロールが落ち着くまで、複数回 位置決めし直す。
+    const _gen = _tourGen;
     const settle = function(){
+      if(_gen !== _tourGen) return;   // 前ステップ用の予約は破棄
       try {
         const el = document.getElementById('pwInput');
         if(el) el.scrollIntoView({ behavior:'smooth', block:'center' });
@@ -10564,7 +10577,7 @@ function openStampCardForTour(){
     setTimeout(settle, 360);
     setTimeout(settle, 680);
     setTimeout(settle, 1100);  // 押印アニメ（約500ms〜）完了後にもう一度合わせる
-    setTimeout(function(){ if(typeof positionTour === 'function') positionTour(); }, 1500);
+    setTimeout(function(){ if(_gen !== _tourGen) return; if(typeof positionTour === 'function') positionTour(); }, 1500);
   } catch(e){}
 }
 // 持ち上げたスタンプカードのz-indexを元に戻す（パスワードステップを離れるとき）
@@ -10689,7 +10702,11 @@ function maybeStartTourOnFirstVisit(){
 
 // ハイライト枠をスクロール完了まで毎フレーム追従させる
 let _tourTrackUntil = 0;
+let _tourTrackGen = -1;   // 現在走っている追従ループの世代
 function trackTourPosition(){
+  // 新しいステップのループが始まっていたら、古いループはここで終了する。
+  // （二重ループが同時に positionTour を呼ぶと枠がガタつく）
+  if(_tourTrackGen !== _tourGen) return;
   positionTour();
   if(Date.now() < _tourTrackUntil) requestAnimationFrame(trackTourPosition);
 }
@@ -10827,6 +10844,9 @@ function _tourTargetEl(step){
 
 function showTourStep(){
   const step = _activeSteps[_tourIndex];
+  if(!step) return;
+  // ステップ世代を進める。これ以前に予約された settle / 追従フレームは無効になる。
+  _tourGen++;
   // ステップが変わったら安全装置の再スクロールガードを解除する
   _tourRescrollFor = -1;
   // パスワード説明ステップ以外に移ったら、持ち上げたスタンプカードを元に戻す
@@ -10867,6 +10887,7 @@ function showTourStep(){
   // スクロールが終わるまで毎フレーム枠を再計算（固定されていない要素でもズレない）。
   // オーバーレイを開くステップは描画完了が遅いので追従期間を長めに取る。
   _tourTrackUntil = Date.now() + (_opensOverlay ? 3200 : 1800);
+  _tourTrackGen = _tourGen;   // このステップのループとして登録（古いループは自動終了）
   requestAnimationFrame(trackTourPosition);
   if(!_opensOverlay) positionTour();   // 開くステップは settle に任せ、中央チラ見せを防ぐ
   // ポップアップ内部のスクロールを先頭に戻す（前ステップの位置が残らないように）
