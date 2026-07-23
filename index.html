@@ -22,7 +22,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&family=Noto+Sans+JP:wght@300&family=Orbitron:wght@400;700;900&family=Bebas+Neue&family=Share+Tech+Mono&family=M+PLUS+Rounded+1c:wght@400;700;900&family=BIZ+UDPGothic:wght@400;700&family=Kaisei+Decol&family=Rampart+One&family=Shippori+Mincho:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&family=Noto+Sans+JP:wght@300&family=Orbitron:wght@400;700;900&family=Bebas+Neue&family=Share+Tech+Mono&family=M+PLUS+Rounded+1c:wght@400;700;900&family=BIZ+UDPGothic:wght@400;700&family=Kaisei+Decol&family=Rampart+One&display=swap" rel="stylesheet">
 <style>
 :root {
   --user-font: 'Noto Sans JP', sans-serif;
@@ -163,24 +163,6 @@
   padding:env(safe-area-inset-top,16px) 0 env(safe-area-inset-bottom,24px);
 }
 #shindanModal.open{ display:block; }
-
-/* 最高気温予測マップ モーダル */
-#tempMapModal{
-  display:none; position:fixed; inset:0; z-index:99990;
-  background:rgba(8,14,22,.94); overflow-y:auto; -webkit-overflow-scrolling:touch;
-}
-#tempMapModal.open{ display:block; }
-.tempmap-modal-inner{ max-width:820px; margin:0 auto; min-height:100%; padding:14px 12px 40px; display:flex; flex-direction:column; }
-.tempmap-modal-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; padding-top:4px; }
-.tempmap-modal-title{ font-size:16px; font-weight:800; color:#ffb27a; letter-spacing:.5px; }
-.tempmap-modal-close{ background:none; border:1px solid #546e7a; color:#b0bec5; border-radius:8px; padding:8px 14px; font-size:14px; cursor:pointer; white-space:nowrap; }
-.tempmap-modal-close:hover{ border-color:#ff9d3c; color:#ff9d3c; }
-.tempmap-modal-body{ flex:1; background:#0d1b2a; border:1px solid #274863; border-radius:14px; overflow:hidden; }
-#tempMapFrame{ width:100%; height:calc(100vh - 90px); min-height:520px; border:0; display:block; }
-@media (max-width: 768px){
-  .tempmap-modal-inner{ padding:10px 8px 30px; }
-  #tempMapFrame{ height:calc(100vh - 80px); }
-}
 .sdm-inner{
   max-width:840px; margin:20px auto; padding:0 14px 60px;
   animation:sdmFadeUp .35s cubic-bezier(.22,.61,.36,1) both;
@@ -855,11 +837,10 @@ main { position:relative; z-index:1; max-width:1280px; margin:0 auto; padding:28
 .blog-card h3 { font-size:28px; font-weight:700; line-height:1.45; margin-bottom:4px; }
 .blog-card .blog-subtitle { font-size:24px; font-weight:400; color:var(--blue); margin-bottom:6px; line-height:1.4; }
 .blog-card p { font-size:22px; color:var(--muted); line-height:1.6; }
-.blog-card-footer { padding:10px 18px; display:flex; align-items:center; justify-content:flex-start; gap:8px; flex-wrap:wrap; }
-.blog-card-footer > * { flex:0 1 auto; max-width:100%; }
+.blog-card-footer { padding:10px 18px; display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
 .blog-card-date { font-family:'Share Tech Mono',monospace; font-size:20px; color:var(--muted); }
 .blog-card-link { font-size:22px; color:var(--cyan); font-weight:700; text-decoration:none; white-space:nowrap; }
-.share-btn { font-size:13px; color:var(--muted); font-weight:600; background:transparent; border:1px solid var(--border); border-radius:8px; padding:5px 10px; cursor:pointer; white-space:normal; word-break:break-word; }
+.share-btn { font-size:13px; color:var(--muted); font-weight:600; background:transparent; border:1px solid var(--line); border-radius:8px; padding:5px 10px; cursor:pointer; white-space:nowrap; }
 .share-btn:hover { color:var(--cyan); border-color:var(--cyan); }
 .share-btn:active { transform:scale(0.95); }
 .blog-card-link:hover { text-decoration:underline; }
@@ -2942,102 +2923,10 @@ html.light .scale-item.lv1 { background:rgba(0,0,0,0.04); border-color:rgba(0,0,
 .nr-date{ font-size:11px; color:var(--muted) !important; font-family:'Share Tech Mono',monospace; margin-bottom:18px; }
 .nr-body{ font-size:15px; line-height:2.05; color:var(--text) !important; white-space:pre-wrap; word-break:break-word; }
 .nr-img{ width:100%; border-radius:10px; margin:16px 0; }
-
-/* ===== 小説リーダー：表示コントロール ===== */
-.nr-controls{
-  display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px;
-  background:var(--surface); border:1px solid var(--border); border-radius:10px;
-  padding:10px 12px; margin-bottom:16px;
-}
-.nr-ctrl-group{ display:flex; align-items:center; gap:6px; }
-.nr-ctrl-label{ font-size:10px; color:var(--muted); letter-spacing:0.08em; font-family:'Share Tech Mono',monospace; margin-right:2px; }
-.nr-ctrl-btn{
-  font-family:var(--user-font); font-size:12px; font-weight:700;
-  color:var(--text); background:var(--surface2); border:1px solid var(--border);
-  border-radius:7px; padding:6px 12px; cursor:pointer; transition:all 0.15s; line-height:1;
-}
-.nr-ctrl-btn:hover{ border-color:var(--blue); color:var(--blue); }
-.nr-ctrl-btn.active{ background:var(--blue); color:#fff; border-color:var(--blue); }
-html.light .nr-ctrl-btn.active{ color:#fff; }
-
-/* 小説フォント3種（本文にだけ適用） */
-.nr-body.nrf-mincho{ font-family:'Shippori Mincho', serif; }
-.nr-body.nrf-gothic{ font-family:'Noto Sans JP', sans-serif; }
-.nr-body.nrf-maru{ font-family:'Rampart One', 'M PLUS Rounded 1c', cursive; }
-.nr-body.nrf-mincho{ letter-spacing:0.01em; }
-
-/* 文字サイズ3段階（横書き用ベース。縦書きは別途上書き） */
-.nr-body.nrs-sm{ font-size:14px; line-height:1.95; }
-.nr-body.nrs-md{ font-size:16px; line-height:2.05; }
-.nr-body.nrs-lg{ font-size:19px; line-height:2.15; }
-
-/* ===== 縦書き（ページめくり）モード ===== */
-.nr-body.nr-tate{
-  writing-mode:vertical-rl;
-  -webkit-writing-mode:vertical-rl;
-  text-orientation:mixed;
-  white-space:normal;                 /* 段落は <span class="nrp"> で表現 */
-  width:100%;                          /* 幅を親に固定（内容で広がらせない） */
-  height:72vh; max-height:820px;
-  padding:22px 26px;
-  border:1px solid var(--border); border-radius:12px;
-  background:var(--surface);
-  overflow-x:auto; overflow-y:hidden;
-  -webkit-overflow-scrolling:touch;
-  text-combine-upright:digits 2;
-  line-height:2.1; letter-spacing:0.02em;
-  scrollbar-width:none;
-}
-.nr-body.nr-tate::-webkit-scrollbar{ display:none; }
-/* 縦書き時の段落・改行は <br> と余白で表現（paintNovelが縦書き用HTMLを差し込む） */
-.nr-body.nr-tate .nrp{ display:block; margin:0 1.2em 0 0; text-indent:0; }
-.nr-body.nr-tate .nrp-tsuzuku{ color:var(--blue); font-weight:600; margin-right:2.2em; }
-.nr-body.nr-tate .nr-img{ display:block; height:auto; max-height:60vh; width:auto; margin:0 1.2em; border-radius:8px; }
-/* 縦書き文字サイズ */
-.nr-body.nr-tate.nrs-sm{ font-size:16px; }
-.nr-body.nr-tate.nrs-md{ font-size:18px; }
-.nr-body.nr-tate.nrs-lg{ font-size:21px; }
-@media (max-width:520px){
-  .nr-body.nr-tate{ height:68vh; padding:18px 20px; }
-}
-
-/* 縦書きページめくり操作バー */
-.nr-pager{ display:none; align-items:center; gap:12px; margin-top:12px; }
-.nr-body.nr-tate ~ .nr-pager{ display:flex; }
-.nr-pager button{
-  font-family:var(--user-font); font-size:13px; font-weight:700;
-  color:var(--text); background:var(--surface); border:1px solid var(--border);
-  border-radius:999px; padding:8px 18px; cursor:pointer;
-}
-.nr-pager button:disabled{ opacity:0.35; cursor:default; }
-.nr-pager .nr-prog{ flex:1; height:4px; background:var(--border); border-radius:4px; position:relative; overflow:hidden; }
-.nr-pager .nr-prog i{ position:absolute; right:0; top:0; bottom:0; background:var(--blue); width:0%; transition:width .25s; }
-.nr-pager .nr-pageno{ font-size:12px; color:var(--muted); min-width:64px; text-align:center; font-family:'Share Tech Mono',monospace; }
 .nr-nav{ display:flex; gap:10px; margin-top:30px; }
 .nr-nav button{ flex:1; background:var(--surface); border:1px solid var(--border); color:var(--text); padding:12px; border-radius:9px; cursor:pointer; font-size:13px; font-family:var(--user-font); }
 .nr-nav button:hover:not(:disabled){ border-color:var(--blue); }
 .nr-nav button:disabled{ opacity:0.35; cursor:default; }
-.nr-comments{ margin-top:34px; padding-top:22px; border-top:1px solid var(--border); }
-.nrc-head{ font-size:14px; font-weight:700; color:var(--text); margin-bottom:14px; }
-.nrc-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:22px; }
-.nrc-item{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
-.nrc-item .nrc-meta{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:6px; }
-.nrc-item .nrc-who{ font-size:12.5px; font-weight:700; color:var(--blue); }
-.nrc-item .nrc-when{ font-size:11px; color:var(--muted); white-space:nowrap; }
-.nrc-item .nrc-text{ font-size:13px; color:var(--text); line-height:1.75; white-space:pre-wrap; word-break:break-word; }
-.nrc-empty{ font-size:12.5px; color:var(--muted); padding:8px 2px; }
-.nrc-form{ background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px; }
-.nrc-name, .nrc-body{ width:100%; box-sizing:border-box; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:var(--user-font); font-size:13px; padding:10px 12px; margin-bottom:10px; }
-.nrc-name:focus, .nrc-body:focus{ outline:none; border-color:var(--blue); }
-.nrc-body{ resize:vertical; min-height:64px; line-height:1.7; }
-.nrc-actions{ display:flex; justify-content:space-between; align-items:center; gap:12px; }
-.nrc-note{ font-size:11px; color:var(--muted); }
-.nrc-send{ background:var(--blue); color:#fff; border:none; border-radius:8px; padding:10px 22px; font-size:13px; font-weight:700; cursor:pointer; font-family:var(--user-font); white-space:nowrap; }
-.nrc-send:hover{ filter:brightness(1.08); }
-.nrc-send:disabled{ opacity:0.45; cursor:default; }
-.nrc-msg{ font-size:12px; margin-top:10px; min-height:1em; }
-.nrc-msg.ok{ color:#37c26b; }
-.nrc-msg.err{ color:#ff6b6b; }
 
 /* ===== コラム コンパクト表示（表題＋日時の一覧／タップで展開） ===== */
 .col-compact-item{border:1px solid var(--border);border-radius:10px;background:var(--surface);margin-bottom:8px;overflow:hidden;}
@@ -3047,10 +2936,6 @@ html.light .nr-ctrl-btn.active{ color:#fff; }
 .col-compact-title{flex:1;min-width:0;font-size:14px;font-weight:700;line-height:1.4;}
 .col-compact-date{flex-shrink:0;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);white-space:nowrap;}
 .col-compact-chev{flex-shrink:0;color:var(--muted);transition:transform .18s;font-size:12px;}
-.col-compact-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:0 14px 11px;}
-.col-compact-item.open .col-compact-actions{display:none;}
-.col-compact-actions .share-btn{flex:0 1 auto;}
-.col-compact-actions .blog-card-link{flex:0 1 auto;}
 .col-compact-item.open .col-compact-chev{transform:rotate(180deg);}
 .col-compact-body{padding:0 16px 16px;border-top:1px solid var(--border);}
 .col-compact-body .blog-subtitle{margin:12px 0 8px;}
@@ -3113,8 +2998,8 @@ html.light .nr-ctrl-btn.active{ color:#fff; }
 .share-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:14px;box-shadow:var(--glow-blue);}
 .share-lead{font-size:13px;color:var(--text);line-height:1.7;margin-bottom:8px;}
 .share-gift{margin:12px 0;padding:10px 12px;background:rgba(255,193,7,0.1);border:1px solid rgba(255,193,7,0.4);border-radius:8px;font-size:12px;color:var(--text);line-height:1.6;}
-.share-box .share-btn{margin-top:10px;width:100%;padding:14px;border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s;background:var(--accent);}
-.share-box .share-btn:hover{opacity:.88;}
+.share-btn{margin-top:10px;width:100%;padding:14px;border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .15s;background:var(--accent);}
+.share-btn:hover{opacity:.88;}
 .share-sub-btns{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
 .share-sub-btn{flex:1;min-width:120px;padding:11px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s;color:#fff;}
 .share-sub-btn:hover{opacity:.85;}
@@ -4494,10 +4379,7 @@ button.dwa-plate{ padding:0; }
         <div class="pd-sub">都道府県を選ぶだけ<br>― 活断層マップ・発生確率・死者数・経済損失を即表示</div>
       </div>
     </div>
-    <div class="header-btn-stack">
-      <button type="button" id="sosHeaderBtn" data-tour="sos" onclick="sosOpenPanel()" title="緊急SOSビーコン" aria-label="緊急SOSビーコン"><span class="sos-btn-main">SOS</span><span class="sos-btn-sub">ビーコン</span></button>
-      <button type="button" id="tempMapHeaderBtn" data-tour="tempmap" onclick="openTempMapModal()" title="全国最高気温予測マップ" aria-label="最高気温予測"><span class="tmap-btn-main">🌡️</span><span class="tmap-btn-sub">最高気温</span></button>
-    </div>
+    <button type="button" id="sosHeaderBtn" data-tour="sos" onclick="sosOpenPanel()" title="緊急SOSビーコン" aria-label="緊急SOSビーコン"><span class="sos-btn-main">SOS</span><span class="sos-btn-sub">ビーコン</span></button>
   </div>
   <div class="header-status hp-wrap">
     <div class="hp-header" aria-label="DWAヘッダー">
@@ -4641,19 +4523,6 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
 
   </div><!-- /sdm-inner -->
 </div><!-- /shindanModal -->
-
-<!-- ===== 最高気温予測マップ モーダル ===== -->
-<div id="tempMapModal" role="dialog" aria-modal="true" aria-label="全国最高気温予測マップ" onclick="if(event.target===this)closeTempMapModal()">
-  <div class="tempmap-modal-inner">
-    <div class="tempmap-modal-head">
-      <span class="tempmap-modal-title">🌡️ 全国 最高気温予測マップ</span>
-      <button type="button" class="tempmap-modal-close" onclick="closeTempMapModal()" aria-label="閉じる">✕ 閉じる</button>
-    </div>
-    <div class="tempmap-modal-body">
-      <iframe id="tempMapFrame" title="全国最高気温予測マップ" loading="lazy" referrerpolicy="no-referrer"></iframe>
-    </div>
-  </div>
-</div><!-- /tempMapModal -->
 
 <!-- ハンバーガーメニュー -->
 <div class="hamburger-overlay" id="hamburgerOverlay" onclick="if(event.target===this)closeHamburger()">
@@ -5102,56 +4971,10 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     </div>
     <h2 class="nr-title" id="nrTitle"></h2>
     <div class="nr-date" id="nrDate"></div>
-
-    <div class="nr-controls">
-      <div class="nr-ctrl-group">
-        <span class="nr-ctrl-label">表示</span>
-        <button type="button" class="nr-ctrl-btn" id="nrDirYoko" onclick="setNovelDir('yoko')">横書き</button>
-        <button type="button" class="nr-ctrl-btn" id="nrDirTate" onclick="setNovelDir('tate')">縦書き</button>
-      </div>
-      <div class="nr-ctrl-group">
-        <span class="nr-ctrl-label">文字</span>
-        <button type="button" class="nr-ctrl-btn" id="nrSizeSm" onclick="setNovelSize('sm')">小</button>
-        <button type="button" class="nr-ctrl-btn" id="nrSizeMd" onclick="setNovelSize('md')">中</button>
-        <button type="button" class="nr-ctrl-btn" id="nrSizeLg" onclick="setNovelSize('lg')">大</button>
-      </div>
-      <div class="nr-ctrl-group">
-        <span class="nr-ctrl-label">書体</span>
-        <button type="button" class="nr-ctrl-btn" id="nrFontMincho" onclick="setNovelFont('mincho')">明朝</button>
-        <button type="button" class="nr-ctrl-btn" id="nrFontGothic" onclick="setNovelFont('gothic')">ゴシック</button>
-        <button type="button" class="nr-ctrl-btn" id="nrFontMaru" onclick="setNovelFont('maru')">丸文字</button>
-      </div>
-    </div>
-
     <div class="nr-body" id="nrBody"></div>
-    <div class="nr-pager" id="nrPager">
-      <button type="button" id="nrPageNext" onclick="novelPage(1)">◀ 次</button>
-      <div class="nr-prog"><i id="nrProgFill"></i></div>
-      <div class="nr-pageno" id="nrPageNo">1 / 1</div>
-      <button type="button" id="nrPagePrev" onclick="novelPage(-1)">前 ▶</button>
-    </div>
-
     <div class="nr-nav">
       <button type="button" id="nrPrev" onclick="novelStep(-1)">← 前の話</button>
       <button type="button" id="nrNext" onclick="novelStep(1)">次の話 →</button>
-    </div>
-
-    <div class="nr-comments" id="nrComments">
-      <div class="nrc-head">💬 この話の感想</div>
-      <div class="nrc-list" id="nrcList">
-        <div class="nrc-empty">読み込み中…</div>
-      </div>
-      <div class="nrc-form">
-        <input type="text" id="nrcName" class="nrc-name" maxlength="40"
-               placeholder="お名前（空欄なら「匿名」）">
-        <textarea id="nrcBody" class="nrc-body" maxlength="1000" rows="3"
-                  placeholder="感想を書く（最大1000字）"></textarea>
-        <div class="nrc-actions">
-          <span class="nrc-note">投稿は管理者の確認後に表示されます</span>
-          <button type="button" id="nrcSend" class="nrc-send" onclick="submitNovelComment()">送信</button>
-        </div>
-        <div class="nrc-msg" id="nrcMsg"></div>
-      </div>
     </div>
   </div>
 </div>
@@ -6641,7 +6464,7 @@ function renderNovels(){
     h += '<div class="novel-title">' + escHtml(p.title) + '</div>';
     if(p.subtitle) h += '<div class="novel-sub">' + escHtml(p.subtitle) + '</div>';
     if(p.author)   h += '<div class="novel-author">著：' + escHtml(p.author) + '</div>';
-    if(p.intro)    h += '<div class="novel-intro">' + escHtml(p.intro) + '</div>';
+    if(p.intro)    h += '<div class="novel-intro">' + sanitizeIntro(p.intro) + '</div>';
     h += '<div class="novel-eplist">';
     (p.episodes || []).forEach(function(e, ei){
       h += '<button type="button" class="novel-ep" onclick="openNovel(' + pi + ',' + ei + ')">';
@@ -6655,6 +6478,17 @@ function renderNovels(){
     h += '</div></div>';
   });
   grid.innerHTML = h;
+}
+
+// 作品紹介文はHTMLタグ（リンクやボタン）を書けるようにする。
+// ただしスクリプト系だけは無効化しておく（管理画面からしか編集できない欄だが念のため）。
+function sanitizeIntro(v){
+  var t = String(v == null ? '' : v);
+  t = t.replace(/<\s*script[^>]*>[\s\S]*?<\s*\/\s*script\s*>/gi, '');
+  t = t.replace(/<\s*iframe[^>]*>[\s\S]*?<\s*\/\s*iframe\s*>/gi, '');
+  t = t.replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '');  // onclick等
+  t = t.replace(/javascript\s*:/gi, '');
+  return t;
 }
 
 function escHtml(v){
@@ -6673,7 +6507,6 @@ function openNovel(pi, ei){
   var ov = document.getElementById('novelReader');
   if(ov){ ov.classList.add('open'); ov.scrollTop = 0; }
   document.body.style.overflow = 'hidden';
-  try { loadNovelComments(); } catch(e){}
 }
 
 function paintNovel(){
@@ -6683,130 +6516,19 @@ function paintNovel(){
   if(g('nrWork'))  g('nrWork').textContent = p.title;
   if(g('nrTitle')) g('nrTitle').textContent = '第' + (e.no || (_nrIdx+1)) + '話　' + e.title;
   if(g('nrDate'))  g('nrDate').textContent = e.date || '';
-  var imgs = '';
+  var body = '';
   (e.images || []).forEach(function(u){
     var src = novelImg(u);
-    if(src) imgs += '<img class="nr-img" src="' + escAttr(src) + '" alt="" loading="lazy">';
+    if(src) body += '<img class="nr-img" src="' + escAttr(src) + '" alt="" loading="lazy">';
   });
-
-  var bodyEl = g('nrBody');
-  if(bodyEl){
-    if(_novelDir === 'tate'){
-      // 縦書き（段組みでページ化）：空行で段落を分け、各段落を .nrp でくるむ
-      var raw = String(e.body || '');
-      var paras = raw.split(/\n{2,}/);
-      var html = imgs;
-      paras.forEach(function(para){
-        var t = para.replace(/\s+$/,'');
-        if(t === '') return;
-        var cls = (/^（第.*つづく）/.test(t.trim()) || /つづく）\s*$/.test(t.trim())) ? 'nrp nrp-tsuzuku' : 'nrp';
-        html += '<span class="' + cls + '">' + escHtml(t).replace(/\n/g,'<br>') + '</span>';
-      });
-      bodyEl.innerHTML = html;
-    } else {
-      // 横書き：従来どおり（pre-wrapで改行そのまま）
-      bodyEl.innerHTML = imgs + escHtml(e.body || '');
-    }
-  }
-  applyNovelDisplay();
-
+  // 本文は white-space:pre-wrap なので改行はそのまま活きる
+  body += escHtml(e.body || '');
+  if(g('nrBody')) g('nrBody').innerHTML = body;
   var prev = g('nrPrev'), next = g('nrNext');
   if(prev) prev.disabled = (_nrIdx <= 0);
   if(next) next.disabled = (_nrIdx >= p.episodes.length - 1);
   var ov = g('novelReader'); if(ov) ov.scrollTop = 0;
 }
-
-// ===== 小説リーダー：表示設定（横/縦書き・文字サイズ・書体） =====
-var _novelDir  = localStorage.getItem('novel_dir')  || 'yoko';   // yoko | tate
-var _novelSize = localStorage.getItem('novel_size') || 'md';     // sm | md | lg
-var _novelFont = localStorage.getItem('novel_font') || 'mincho'; // mincho | gothic | maru
-var _nrPage = 0, _nrPageTotal = 1, _nrPageW = 1;
-
-function applyNovelDisplay(){
-  var b = document.getElementById('nrBody');
-  if(!b) return;
-  b.classList.remove('nr-tate','nrs-sm','nrs-md','nrs-lg','nrf-mincho','nrf-gothic','nrf-maru');
-  if(_novelDir === 'tate') b.classList.add('nr-tate');
-  b.classList.add('nrs-' + _novelSize);
-  b.classList.add('nrf-' + _novelFont);
-
-  // ボタンのactive表示
-  var set = function(id, on){ var el=document.getElementById(id); if(el) el.classList.toggle('active', on); };
-  set('nrDirYoko', _novelDir==='yoko'); set('nrDirTate', _novelDir==='tate');
-  set('nrSizeSm', _novelSize==='sm'); set('nrSizeMd', _novelSize==='md'); set('nrSizeLg', _novelSize==='lg');
-  set('nrFontMincho', _novelFont==='mincho'); set('nrFontGothic', _novelFont==='gothic'); set('nrFontMaru', _novelFont==='maru');
-
-  var pager = document.getElementById('nrPager');
-  if(pager) pager.style.display = (_novelDir==='tate') ? 'flex' : 'none';
-
-  if(_novelDir === 'tate'){
-    // レイアウト確定後にページ数を測る
-    setTimeout(novelPagerRecalc, 40);
-    if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ setTimeout(novelPagerRecalc, 40); }); }
-  }
-}
-
-function setNovelDir(d){ _novelDir = d; try{localStorage.setItem('novel_dir', d);}catch(e){} paintNovel(); }
-function setNovelSize(s){ _novelSize = s; try{localStorage.setItem('novel_size', s);}catch(e){} applyNovelDisplay(); }
-function setNovelFont(f){ _novelFont = f; try{localStorage.setItem('novel_font', f);}catch(e){} applyNovelDisplay(); }
-
-// 縦書きページめくり
-function novelPagerRecalc(){
-  var b = document.getElementById('nrBody');
-  if(!b || _novelDir !== 'tate') return;
-  _nrPageW = b.clientWidth || 1;
-  _nrPageTotal = Math.max(1, Math.round(b.scrollWidth / _nrPageW));
-  novelPagerGo(_nrPage, false);
-  novelPagerUpdate();
-}
-function novelPagerCurrent(){
-  var b = document.getElementById('nrBody'); if(!b) return 0;
-  // vertical-rl は右端が先頭で、左へ進むほど scrollLeft は負の値になる。絶対値で扱う。
-  return Math.round(Math.abs(b.scrollLeft) / _nrPageW);
-}
-function novelPagerGo(i, smooth){
-  var b = document.getElementById('nrBody'); if(!b) return;
-  i = Math.max(0, Math.min(_nrPageTotal-1, i));
-  _nrPage = i;
-  // vertical-rl では左方向（＝負）に送る
-  b.scrollTo({ left: -(i * _nrPageW), behavior: smooth ? 'smooth' : 'auto' });
-  novelPagerUpdate();
-}
-function novelPage(dir){
-  // dir=1 で次（左へ）、dir=-1 で前（右へ）
-  novelPagerGo(_nrPage + (dir>0 ? 1 : -1), true);
-}
-function novelPagerUpdate(){
-  _nrPage = novelPagerCurrent();
-  var no = document.getElementById('nrPageNo');
-  var fill = document.getElementById('nrProgFill');
-  var pn = document.getElementById('nrPagePrev'), nx = document.getElementById('nrPageNext');
-  if(no) no.textContent = (_nrPage+1) + ' / ' + _nrPageTotal;
-  if(fill) fill.style.width = ((_nrPage+1)/_nrPageTotal*100) + '%';
-  if(pn) pn.disabled = (_nrPage <= 0);
-  if(nx) nx.disabled = (_nrPage >= _nrPageTotal-1);
-}
-// スクロール追従・リサイズ対応
-(function(){
-  var b = document.getElementById('nrBody');
-  if(b){
-    b.addEventListener('scroll', function(){
-      if(_novelDir !== 'tate') return;
-      clearTimeout(b._nrt); b._nrt = setTimeout(novelPagerUpdate, 90);
-    });
-  }
-  window.addEventListener('resize', function(){
-    if(_novelDir !== 'tate') return;
-    clearTimeout(window._nrr); window._nrr = setTimeout(novelPagerRecalc, 150);
-  });
-  // 縦書き時は左右キーでめくる（リーダーが開いているときのみ）
-  document.addEventListener('keydown', function(e){
-    var ov = document.getElementById('novelReader');
-    if(!ov || !ov.classList.contains('open') || _novelDir !== 'tate') return;
-    if(e.key === 'ArrowLeft'){ novelPage(1); }
-    else if(e.key === 'ArrowRight'){ novelPage(-1); }
-  });
-})();
 
 function novelStep(d){
   var p = novelData[_nrProj]; if(!p) return;
@@ -6815,7 +6537,6 @@ function novelStep(d){
   _nrIdx = n;
   paintNovel();
   try { trackNovelRead(_nrProj, _nrIdx); } catch(e){}
-  try { loadNovelComments(); } catch(e){}
 }
 
 // ── 読了カウント ──
@@ -6847,76 +6568,6 @@ function trackNovelRead(pi, ei){
     var img = new Image();
     img.src = ARTICLES_URL + '?' + params + '&_=' + now;
   } catch(e){}
-}
-
-// ── 感想欄（承認制） ──
-function _nrEpKey(){
-  var p = novelData[_nrProj]; if(!p) return null;
-  var e = p.episodes[_nrIdx]; if(!e) return null;
-  return { pid: p.id, no: String(e.no || (_nrIdx + 1)) };
-}
-
-function loadNovelComments(){
-  var key = _nrEpKey();
-  var listEl = document.getElementById('nrcList');
-  if(!key || !listEl) return;
-  var msg = document.getElementById('nrcMsg'); if(msg){ msg.textContent=''; msg.className='nrc-msg'; }
-  listEl.innerHTML = '<div class="nrc-empty">読み込み中…</div>';
-  var cbName = '_nrcCb_' + Date.now();
-  window[cbName] = function(res){
-    try { delete window[cbName]; } catch(e){ window[cbName] = undefined; }
-    if(!res || !res.ok || !res.comments || !res.comments.length){
-      listEl.innerHTML = '<div class="nrc-empty">まだ感想はありません。最初のひとことをどうぞ。</div>';
-      return;
-    }
-    var h = '';
-    res.comments.forEach(function(c){
-      h += '<div class="nrc-item"><div class="nrc-meta">'
-         + '<span class="nrc-who">' + escHtml(c.name || '匿名') + '</span>'
-         + '<span class="nrc-when">' + escHtml(c.date || '') + '</span>'
-         + '</div><div class="nrc-text">' + escHtml(c.body || '') + '</div></div>';
-    });
-    listEl.innerHTML = h;
-  };
-  var s = document.createElement('script');
-  s.src = ARTICLES_URL + '?type=comments&action=get'
-        + '&pid=' + encodeURIComponent(key.pid)
-        + '&no='  + encodeURIComponent(key.no)
-        + '&callback=' + cbName + '&_=' + Date.now();
-  s.onerror = function(){ try { delete window[cbName]; } catch(e){} listEl.innerHTML = '<div class="nrc-empty">感想を読み込めませんでした。</div>'; };
-  document.body.appendChild(s);
-  setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); }, 15000);
-}
-
-function submitNovelComment(){
-  var key = _nrEpKey();
-  var msg = document.getElementById('nrcMsg');
-  var btn = document.getElementById('nrcSend');
-  var nameEl = document.getElementById('nrcName');
-  var bodyEl = document.getElementById('nrcBody');
-  if(!key || !msg || !bodyEl) return;
-  var body = (bodyEl.value || '').trim();
-  var name = (nameEl.value || '').trim();
-  msg.className = 'nrc-msg'; msg.textContent = '';
-  if(!body){ msg.className='nrc-msg err'; msg.textContent='感想を入力してください。'; return; }
-  if(body.length > 1000){ msg.className='nrc-msg err'; msg.textContent='1000字以内でお願いします。'; return; }
-  if(/https?:\/\/|www\.|\.com|\.net/i.test(body)){ msg.className='nrc-msg err'; msg.textContent='URLは投稿できません。'; return; }
-  var uid = ''; try { uid = localStorage.getItem('dwa_visit_uid') || ''; } catch(e){}
-  if(btn){ btn.disabled = true; }
-  var params = 'type=comments&action=post'
-    + '&pid='  + encodeURIComponent(key.pid)
-    + '&no='   + encodeURIComponent(key.no)
-    + '&name=' + encodeURIComponent(name)
-    + '&body=' + encodeURIComponent(body)
-    + '&uid='  + encodeURIComponent(uid);
-  var img = new Image();
-  img.onload = img.onerror = function(){
-    msg.className = 'nrc-msg ok';
-    msg.textContent = '送信しました。確認後に表示されます。ありがとうございます。';
-    bodyEl.value = '';
-    if(btn){ setTimeout(function(){ btn.disabled = false; }, 2000); }
-  };
-  img.src = ARTICLES_URL + '?' + params + '&_=' + Date.now();
 }
 
 function closeNovelReader(){
@@ -7033,17 +6684,12 @@ function renderBlog() {
           <span class="col-compact-date">🕐 ${c.updated}</span>
           <span class="col-compact-chev">→</span>
         </button>
-        <div class="col-compact-actions">
-          <button type="button" class="share-btn" title="この記事を共有" onclick="event.stopPropagation();shareArticleCard(${i})">🔗 共有</button>
-          ${c.link?`<a class="blog-card-link" href="${c.link}" target="_blank" onclick="event.stopPropagation();">リンクを開く →</a>`:''}
-        </div>
         <div class="col-compact-body" id="ccb${i}" style="display:none;">
           ${c.subtitle?`<div class="blog-subtitle">${c.subtitle}</div>`:''}
           <p>${body}</p>
           ${renderBlogPhotos(c.images)}
           <div style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
             <button type="button" class="like-btn ${isLiked(bookmarkId(c))?'on':''}" id="like${i}" aria-pressed="${isLiked(bookmarkId(c))?'true':'false'}" title="いいね" onclick="toggleLikeCard(${i})"><span class="like-heart">❤️</span><span class="like-count">${likeCountOf(bookmarkId(c))}</span></button>
-            <button type="button" class="share-btn" title="この記事を共有" onclick="shareArticleCard(${i})">🔗 共有</button>
             ${c.link?`<a class="blog-card-link" href="${c.link}" target="_blank">リンクを開く →</a>`:''}
           </div>
         </div>
@@ -7629,34 +7275,11 @@ function renderArchive(){
       ${renderBlogPhotos(c.images)}
       <div class="blog-card-footer">
         <span class="blog-card-date">🕐 ${c.updated}</span>
-        <button type="button" class="share-btn" title="この記事を共有" onclick="shareArchiveCard(${i})">🔗 共有</button>
         ${c.link ? `<a class="blog-card-link" href="${c.link}" target="_blank">リンクを開く →</a>` : ''}
         ${isLong ? `<button class="read-more-btn" id="arbtn${i}" onclick="toggleArchiveReadMore(${i})">続きを読む →</button>` : ''}
       </div>
     </div>`;
   }).join('');
-}
-function shareArchiveCard(i){
-  try {
-    var list = (_archiveFilter === 'all')
-      ? archiveItems
-      : archiveItems.filter(function(c){ return c.archTag === _archiveFilter; });
-    var c = list[i];
-    if(!c) return;
-    var url = articleShareUrl(c);
-    var title = String(c.title || '防災情報センター');
-    if(navigator.share){
-      navigator.share({ title: title, text: title, url: url }).catch(function(){});
-      return;
-    }
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(url).then(function(){
-        _toastShare('記事のURLをコピーしました');
-      }).catch(function(){ _fallbackCopy(url); });
-    } else {
-      _fallbackCopy(url);
-    }
-  } catch(e){}
 }
 function toggleArchiveReadMore(i){
   const short = document.getElementById('ashort'+i);
@@ -10416,7 +10039,6 @@ const tourSteps = [
   { sel:'[data-tour="emg-plate"]', title:'🚨 緊急対応マニュアル', text:'ヘッダーの「緊急対応」プレートです。タップすると、サイトを離れずにその場で緊急対応マニュアルが全画面表示されます。地震・火災・救急・台風・防犯など、いざという時の対応手順を状況を選ぶだけで確認でき、「✕ 閉じる」で元の画面にそのまま戻れます。', fallbackToTop:true },
   { sel:'[data-tour="diag-plate"]', title:'🗾 被害想定診断ツール', text:'「被害想定診断ツール」ボタンです。都道府県を選ぶだけで、活断層マップ・地震の発生確率・想定される死者数や経済損失などを即座に確認できます。お住まいの地域のリスクをチェックしてみましょう。', fallbackToTop:true },
   { sel:'#sosHeaderBtn', title:'🆘 緊急SOSビーコン', text:'ヘッダーの赤い「SOS」ボタンです。通信が無くても使える「音・光ビーコン」（画面をSOS信号で点滅させ、大音量アラームで居場所を知らせる）と、救急車式の連続サイレンが使えます。119・110へのワンタップ発信も可能。GPSでの位置発信・安否登録はプレミアム会員限定機能として10月に提供予定です。', fallbackToTop:true },
-  { sel:'[data-tour="tempmap"]', title:'🌡️ 全国 最高気温予測マップ', text:'SOSボタンの下にある「最高気温」ボタンです。タップすると全国の最高気温予測マップが開き、今日どこがどれくらい暑くなるかをひと目で確認できます。猛暑日や熱中症警戒アラートが出る日は、外出や運動の計画を立てる前にチェックしてみてください。', fallbackToTop:true },
   { sel:'[data-tour="live"]', title:'🟢 LIVE・現在時刻', text:'ヘッダー右の機器パネルです。赤いランプが点滅していれば「LIVE（リアルタイム配信中）」を表し、その下の窓に現在時刻が表示されます。地震データは自動で更新され続けます。' },
   { sel:'#siteRefreshBtn', title:'🔄 最新情報に更新', text:'パネル内の丸い矢印ボタンです。自動更新を待たずに、いますぐ最新の地震・気象情報を取り込みたいときにタップします。表示が古いと感じたらここを押してください。', fallbackToTop:true },
   { sel:'[data-tour="menu"]', title:'☰ メニュー（設定）', text:'パネル右側の三本線アイコンがメニューボタンです。タップで開くメニューの中に、設定・お問い合わせ・プライバシーポリシーがあります。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。' },
@@ -10430,8 +10052,8 @@ const tourSteps = [
   { sel:'[data-tour="stats"]', title:'本日の地震サマリー', text:'本日の有感地震の回数、最大マグニチュード・最大震度、最終更新時刻をひと目で確認できます。', onShow:closeDtabsForTour },
   { sel:'.quake-list', title:'地震リスト', text:'最近発生した地震の一覧です。カードをタップすると詳細が表示されます。', fallbackToTop:true },
   { sel:'[data-tour="novel"]', title:'📖 防災小説', text:'防災をテーマにした連載小説のコーナーです。作品ごとに「第1話」から順番に並んでいて、読みたい話をタップするとその場で全画面で読めます。読み終わったら「次の話 →」で読み進められます。物語を通して、災害への備えや、いざという時の判断を体感的に知ることができます。「📤 共有」から友達に教えることもできます。', fallbackToTop:true },
-  { sel:'#section-column', selAlt:'#columnViewBtn', title:'📰 防災コラム・知識', text:'防災の「備え」や「ヒント」をまとめた記事コーナーです。地震・台風・停電への備え、非常持ち出し袋の中身、防災グッズの選び方などを、短い記事で読めます。カードをタップすると全文が開きます。右上の「一覧表示」ボタンで、表題だけのコンパクトな一覧に切り替えることもできるので、目的の記事を探しやすくなります。', onShow:scrollToColumnForTour },
-  { sel:'[data-tour="bookmark"]', selAlt:'#bookmarkOpenBtn', title:'🔖 ブックマーク', text:'防災記事カードの右上にあるこのマークをタップすると、その記事をブックマーク（お気に入り保存）できます。あとで読み返したい「備え」や「ヒント」を保存しておくと、必要なときにすぐ見返せます。右上の「🔖 ブックマーク」ボタンから、保存した記事の一覧をいつでも開けます。', onShow:scrollToColumnForTour },
+  { sel:'#section-column', title:'📰 防災コラム・知識', text:'防災の「備え」や「ヒント」をまとめた記事コーナーです。地震・台風・停電への備え、非常持ち出し袋の中身、防災グッズの選び方などを、短い記事で読めます。カードをタップすると全文が開きます。右上の「一覧表示」ボタンで、表題だけのコンパクトな一覧に切り替えることもできるので、目的の記事を探しやすくなります。', onShow:scrollToColumnForTour, fallbackToTop:true },
+  { sel:'[data-tour="bookmark"]', selAlt:'#section-column', title:'🔖 ブックマーク', text:'防災記事カードの右上にあるこのマークをタップすると、その記事をブックマーク（お気に入り保存）できます。あとで読み返したい「備え」や「ヒント」を保存しておくと、必要なときにすぐ見返せます。', onShow:scrollToColumnForTour, fallbackToTop:true },
   { sel:'[data-tour="review"]', title:'⭐ 口コミ・レビュー', text:'このサイトの感想や評価を投稿できるコーナーです。星の数と一言コメントで、使ってみての感想をぜひ聞かせてください。みんなの口コミも読めます。', fallbackToTop:true },
   { sel:'[data-tour="chat"]', title:'📨 災害用伝言板', text:'災害時の安否や連絡を書き残せる「災害用伝言板」です。ボタンから専用ページが開きます。閲覧は誰でもでき、書き込みには「引き継ぎコード」での参加が必要です。', fallbackToTop:true },
   { sel:'[data-tour="share"]', title:'📤 友達紹介リンク', text:'あなた専用の紹介リンクで、このサイトを友達に教えられます。紹介リンクから友達がアクセスすると、あなたと友達の両方にスタンプを1つずつプレゼント。LINEやXでかんたんに共有できます。', fallbackToTop:true },
@@ -10455,28 +10077,20 @@ function closeDtabsForTour(){
 }
 // ブックマーク説明ステップ：防災コラム（ブックマークボタンのある一覧）まで移動
 function scrollToColumnForTour(){
-  // コラム関連の要素を複数候補から探す（記事の読み込み状況やレイアウト変更に強くする）
-  const target =
-        document.querySelector('[data-tour="bookmark"]')
-     || document.getElementById('section-column')
-     || document.getElementById('columnViewBtn')
-     || document.getElementById('blogGrid');
-  if(!target) return;
-  // showTourStep 側でも scrollIntoView が走るため、ここでスムーズスクロールを
-  // 二重に呼ぶと打ち消し合って途中で止まる。即時スクロール(auto)で一度に決める。
-  try {
-    const rect = target.getBoundingClientRect();
-    // 対象を画面の上寄り（ヘッダー下）に置き、下側に説明ポップアップの空間を確保する
-    const y = window.scrollY + rect.top - 110;
-    window.scrollTo({ top: Math.max(0, y), behavior:'auto' });
-  } catch(e){
-    try { target.scrollIntoView(); } catch(_){}
-  }
-  // 位置確定後に枠を再計算（レイアウト確定の遅れに備えて複数回）
-  if(typeof positionTour === 'function'){
-    setTimeout(positionTour, 60);
-    setTimeout(positionTour, 240);
-    setTimeout(positionTour, 600);
+  const target = document.querySelector('[data-tour="bookmark"]') || document.getElementById('section-column');
+  if(target){
+    // 対象を画面の上寄りに置く（block:'start'）。下側に説明ポップアップを出す空間を確保し、
+    // 説明文とハイライト枠が重ならないようにする。
+    try {
+      target.scrollIntoView({ behavior:'smooth', block:'start' });
+      // ヘッダーに隠れない＆少し余白を持たせるため、さらに少し上へ送る
+      setTimeout(function(){
+        try { window.scrollBy({ top: -90, left: 0, behavior:'smooth' }); } catch(e){ window.scrollBy(0,-90); }
+        if(typeof positionTour === 'function') setTimeout(positionTour, 250);
+      }, 350);
+    } catch(e){
+      try { target.scrollIntoView(); } catch(_){}
+    }
   }
 }
 // 言語説明ステップ：ハンバーガーメニューを開いて「English / 言語」ボタンを見せる
@@ -10794,22 +10408,9 @@ function tourPrev(){
 
 // ステップの対象要素を解決（主セレクタが無ければ代替セレクタ）
 function _tourTargetEl(step){
-  // 要素が「存在するがサイズ0／非表示」の場合、そのまま使うと枠が正しく描けない。
-  // その場合は代替セレクタ(selAlt)を試す。
-  function usable(e){
-    if(!e) return false;
-    if(e.offsetParent === null && getComputedStyle(e).position !== 'fixed') return false;
-    const r = e.getBoundingClientRect();
-    return (r.width > 0 && r.height > 0);
-  }
   let el = step.sel ? document.querySelector(step.sel) : null;
-  if(!usable(el) && step.selAlt){
-    const alt = document.querySelector(step.selAlt);
-    if(usable(alt)) return alt;
-  }
-  if(usable(el)) return el;
-  // どちらも使えない場合は、存在する方を返す（従来動作を維持）
-  return el || (step.selAlt ? document.querySelector(step.selAlt) : null);
+  if(!el && step.selAlt) el = document.querySelector(step.selAlt);
+  return el;
 }
 
 function showTourStep(){
@@ -10839,11 +10440,8 @@ function showTourStep(){
   // ただしメニュー/スタンプカードを開くステップは、要素描画後に onShow 側の settle が
   // 位置決めするため、ここでの早すぎる scrollIntoView/position は行わない（ズレ防止）。
   const _opensOverlay = (step.onShow === openStampCardForTour || step.onShow === openHamburgerForTour);
-  // onShow 側で自前スクロール済みのステップ（コラム系）は、ここで再度 scrollIntoView すると
-  // スムーズスクロールが競合して途中で止まるため除外する。
-  const _selfScrolled = (step.onShow === scrollToColumnForTour);
   const el = _tourTargetEl(step);
-  if(el && !_opensOverlay && !_selfScrolled){
+  if(el && !_opensOverlay){
     const r = el.getBoundingClientRect();
     if(r.top < 80 || r.bottom > window.innerHeight - 80){
       el.scrollIntoView({ behavior:'smooth', block:'center' });
@@ -15403,42 +15001,39 @@ function sendSiteInquiry(){
   //   lv5=特別警報 / lv4=危険警報 / lv3=警報 / lv2=注意報
   // ※氾濫(34/44/04/18)は別ファイル(flood)で出るが、コード自体はここでも定義しておく。
   var WARN_INFO = {
-    // ※レベル数字が名称に付くのは、警戒レベル相当情報である4災害
-    //   （河川氾濫・大雨・土砂災害・高潮）のみ。暴風・波浪・大雪・暴風雪などは
-    //   警戒レベルに相当しないため、これまで通りレベル数字を付けない。
     // ── レベル5：特別警報 ──
     '32':{lv:5,name:'暴風雪特別警報'},
-    '33':{lv:5,name:'レベル5大雨特別警報'},
-    '34':{lv:5,name:'レベル5氾濫特別警報'},
+    '33':{lv:5,name:'大雨特別警報'},
+    '34':{lv:5,name:'氾濫特別警報'},
     '35':{lv:5,name:'暴風特別警報'},
     '36':{lv:5,name:'大雪特別警報'},
     '37':{lv:5,name:'波浪特別警報'},
-    '38':{lv:5,name:'レベル5高潮特別警報'},
-    '39':{lv:5,name:'レベル5土砂災害特別警報'},
-    // ── レベル4：危険警報（2026年5月29日運用開始） ──
-    '43':{lv:4,name:'レベル4大雨危険警報'},
-    '44':{lv:4,name:'レベル4氾濫危険警報'},
-    '48':{lv:4,name:'レベル4高潮危険警報'},
-    '49':{lv:4,name:'レベル4土砂災害危険警報'},
+    '38':{lv:5,name:'高潮特別警報'},
+    '39':{lv:5,name:'土砂災害特別警報'},
+    // ── レベル4：危険警報（2026年新設。暴風雪/暴風/波浪のlv4は現時点未運用） ──
+    '43':{lv:4,name:'大雨危険警報'},
+    '44':{lv:4,name:'氾濫危険警報'},
+    '48':{lv:4,name:'高潮危険警報'},
+    '49':{lv:4,name:'土砂災害危険警報'},
     // ── レベル3：警報 ──
     '02':{lv:3,name:'暴風雪警報'},
-    '03':{lv:3,name:'レベル3大雨警報'},
-    '04':{lv:3,name:'レベル3氾濫警報'},
+    '03':{lv:3,name:'大雨警報'},
+    '04':{lv:3,name:'氾濫警報'},
     '05':{lv:3,name:'暴風警報'},
     '06':{lv:3,name:'大雪警報'},
     '07':{lv:3,name:'波浪警報'},
-    '08':{lv:3,name:'レベル3高潮警報'},
-    '09':{lv:3,name:'レベル3土砂災害警報'},
+    '08':{lv:3,name:'高潮警報'},
+    '09':{lv:3,name:'土砂災害警報'},
     // ── レベル2：注意報（バナー対象外） ──
-    '10':{lv:2,name:'レベル2大雨注意報'},
+    '10':{lv:2,name:'大雨注意報'},
     '12':{lv:2,name:'大雪注意報'},
     '13':{lv:2,name:'風雪注意報'},
     '14':{lv:2,name:'雷注意報'},
     '15':{lv:2,name:'強風注意報'},
     '16':{lv:2,name:'波浪注意報'},
     '17':{lv:2,name:'融雪注意報'},
-    '18':{lv:2,name:'レベル2氾濫注意報'},
-    '19':{lv:2,name:'レベル2高潮注意報'},
+    '18':{lv:2,name:'氾濫注意報'},
+    '19':{lv:2,name:'高潮注意報'},
     '20':{lv:2,name:'濃霧注意報'},
     '21':{lv:2,name:'乾燥注意報'},
     '22':{lv:2,name:'なだれ注意報'},
@@ -15447,7 +15042,7 @@ function sendSiteInquiry(){
     '25':{lv:2,name:'着氷注意報'},
     '26':{lv:2,name:'着雪注意報'},
     '27':{lv:2,name:'その他の注意報'},
-    '29':{lv:2,name:'レベル2土砂災害注意報'},
+    '29':{lv:2,name:'土砂災害注意報'},
     // 解除を表すコード
     '00':{lv:0,name:'解除'}
   };
@@ -15758,18 +15353,18 @@ function sendSiteInquiry(){
     var emptyLevels = function(){ return { 2:{names:[],prefs:[]}, 3:{names:[],prefs:[]}, 4:{names:[],prefs:[]}, 5:{names:[],prefs:[]} }; };
     var L = emptyLevels();
     if(level === true || level === 'special'){
-      L[5] = { names:['レベル5大雨特別警報','レベル5土砂災害特別警報'], prefs:['熊本県','鹿児島県'] };
+      L[5] = { names:['大雨特別警報','土砂災害特別警報'], prefs:['熊本県','鹿児島県'] };
       L[3] = { names:['暴風警報'], prefs:['宮崎県'] };
-      L[2] = { names:['レベル2大雨注意報','雷注意報'], prefs:['大分県','福岡県'] };
+      L[2] = { names:['大雨注意報','雷注意報'], prefs:['大分県','福岡県'] };
       info = { active:true, warnActive:true, levels:L, maxLevel:5, special:true, danger:false };
     } else if(level === 'danger'){
-      L[4] = { names:['レベル4大雨危険警報','レベル4土砂災害危険警報'], prefs:['広島県','岡山県'] };
-      L[2] = { names:['レベル2大雨注意報'], prefs:['山口県','兵庫県'] };
+      L[4] = { names:['大雨危険警報','土砂災害危険警報'], prefs:['広島県','岡山県'] };
+      L[2] = { names:['大雨注意報'], prefs:['山口県','兵庫県'] };
       info = { active:true, warnActive:true, levels:L, maxLevel:4, special:false, danger:true };
     } else {
       // 警報と注意報の混在デモ（同じ県は上位のみに出る）
-      L[3] = { names:['レベル3大雨警報','レベル3氾濫警報','暴風警報'], prefs:['東京都','神奈川県','千葉県'] };
-      L[2] = { names:['レベル2大雨注意報','雷注意報','強風注意報'], prefs:['埼玉県','茨城県','栃木県','群馬県'] };
+      L[3] = { names:['大雨警報','氾濫警報','暴風警報'], prefs:['東京都','神奈川県','千葉県'] };
+      L[2] = { names:['大雨注意報','雷注意報','強風注意報'], prefs:['埼玉県','茨城県','栃木県','群馬県'] };
       info = { active:true, warnActive:true, levels:L, maxLevel:3, special:false, danger:false };
     }
     info.report = new Date().toISOString();
@@ -15990,22 +15585,6 @@ function closeShindanModal(){
   document.getElementById('shindanModal').classList.remove('open');
   document.body.style.overflow = '';
 }
-function openTempMapModal(){
-  const m = document.getElementById('tempMapModal');
-  const f = document.getElementById('tempMapFrame');
-  // 初回のみ読み込み（毎回リロードしない）
-  if(!f.getAttribute('src')){ f.setAttribute('src', 'temp-map.html'); }
-  m.classList.add('open');
-  m.scrollTop = 0;
-  document.body.style.overflow = 'hidden';
-}
-function closeTempMapModal(){
-  document.getElementById('tempMapModal').classList.remove('open');
-  document.body.style.overflow = '';
-}
-document.addEventListener('keydown', function(e){
-  if(e.key === 'Escape') closeTempMapModal();
-});
 document.addEventListener('keydown', function(e){
   if(e.key === 'Escape') closeShindanModal();
 });
@@ -16564,7 +16143,6 @@ document.addEventListener('keydown', function(e){
     'splitPane',          // 2画面表示（その他リンク）
     'stampOverlay',       // スタンプカード
     'shindanModal',       // 診断モーダル
-    'tempMapModal',       // 最高気温予測マップ
     'versionModal'        // バージョン情報
   ];
 
@@ -16981,35 +16559,15 @@ document.addEventListener('keydown', function(e){
   #sosHeaderBtn .sos-btn-main{ font-weight:900; font-size:15px; letter-spacing:1.5px; }
   #sosHeaderBtn .sos-btn-sub{ font-size:8.5px; letter-spacing:.5px; opacity:.9; }
   #sosHeaderBtn:active{ transform:scale(.94); }
-
-  /* 最高気温予測ボタン（SOSの下に同形式で配置） */
-  .header-btn-stack{ display:flex; flex-direction:column; gap:6px; align-self:center; flex:0 0 auto; margin-left:8px; }
-  #tempMapHeaderBtn{
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    min-width:58px; height:44px; padding:2px 10px;
-    border-radius:12px; border:2px solid rgba(255,255,255,.55);
-    background:radial-gradient(circle at 30% 28%, #ff9d3c, #d84315);
-    color:#fff; cursor:pointer; line-height:1.05;
-    box-shadow:0 0 8px rgba(255,140,40,.5);
-  }
-  #tempMapHeaderBtn .tmap-btn-main{ font-size:15px; }
-  #tempMapHeaderBtn .tmap-btn-sub{ font-size:8.5px; letter-spacing:.3px; opacity:.95; font-weight:700; }
-  #tempMapHeaderBtn:active{ transform:scale(.94); }
-  .header-btn-stack #sosHeaderBtn{ margin-left:0; }
   @keyframes sosBtnPulse{ 0%,100%{ box-shadow:0 0 6px rgba(255,40,40,.45);} 50%{ box-shadow:0 0 16px rgba(255,70,70,.95);} }
 
   /* スマホ幅：SOSボタンをコンパクト化し、右の機器パネルは
      「入りきらない分だけ」自動で縮む方式にする（端末幅を問わず見切れない）。
      パネル内部の時計・更新・メニューは%配置のため、縮んでも位置関係は崩れない */
   @media (max-width: 768px){
-    #sosHeaderBtn{ min-width:0; width:44px; height:40px; margin-left:4px; padding:0; border-width:2px; border-radius:10px; flex:0 0 auto; }
+    #sosHeaderBtn{ min-width:0; width:44px; height:44px; margin-left:4px; padding:0; border-width:2px; border-radius:10px; flex:0 0 auto; }
     #sosHeaderBtn .sos-btn-main{ font-size:12px; letter-spacing:.5px; }
     #sosHeaderBtn .sos-btn-sub{ font-size:7px; letter-spacing:0; }
-    .header-btn-stack{ margin-left:4px; gap:4px; }
-    .header-btn-stack #sosHeaderBtn{ margin-left:0; }
-    #tempMapHeaderBtn{ min-width:0; width:44px; height:38px; padding:0; border-width:2px; border-radius:10px; }
-    #tempMapHeaderBtn .tmap-btn-main{ font-size:13px; }
-    #tempMapHeaderBtn .tmap-btn-sub{ font-size:6.5px; letter-spacing:0; }
     .plate-nav{ flex:0 0 auto; }
     .header-status.hp-wrap{ flex:1 1 auto; min-width:90px; }
     .hp-header{ width:min(47vw, 100%); min-width:0; }
@@ -17019,8 +16577,7 @@ document.addEventListener('keydown', function(e){
     .plate-nav, .hp-wrap{ transform:none; }
   }
   @media (max-width: 400px){
-    #sosHeaderBtn{ width:40px; height:38px; }
-    #tempMapHeaderBtn{ width:40px; height:36px; }
+    #sosHeaderBtn{ width:40px; height:40px; }
   }
 
   /* ===== SOSパネル ===== */
