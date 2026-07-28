@@ -4695,6 +4695,9 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <a class="hamburger-link" href="https://mkms0822-ops.github.io/nankaitorafutunamisinndann/" target="_blank">
         <span class="h-link-icon">🌊</span>南海トラフ 津波避難診断
       </a>
+      <button class="hamburger-link" data-tour="ecs-timer" onclick="closeHamburger();openEcs();" style="color:#00ffe0;border-color:rgba(0,255,224,0.3);background:rgba(0,255,224,0.07);width:100%;text-align:left;cursor:pointer;">
+        <span class="h-link-icon">🦵</span>エコノミークラス症候群 予防<br><span style="font-size:11px;opacity:.75;">足うごかしタイマー</span>
+      </button>
       <button class="hamburger-link" onclick="openOverseasModal();closeHamburger();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:none;width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">🌏</span>海外地震履歴
       </button>
@@ -17973,6 +17976,683 @@ document.addEventListener('keydown', function(e){
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && ov.classList.contains('open')) window.closeDwaDoc();
   });
+})();
+</script>
+
+
+<!-- ============================================================
+     エコノミークラス症候群 予防ツール（足うごかしタイマー）
+     ・メニュー →「エコノミークラス症候群 予防」から起動
+     ・共有URL：  ?ecs=1  で直接この画面が開く
+     ・記録はローカル保存（端末内）＋GASへ匿名集計を送信
+     ============================================================ -->
+<style>
+.ecs-overlay{display:none;position:fixed;inset:0;background:rgba(2,5,10,0.86);z-index:9200;
+  align-items:flex-start;justify-content:center;padding:0;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.ecs-overlay.open{display:flex;}
+.ecs-panel{width:100%;max-width:520px;min-height:100%;background:var(--surface);
+  border-left:1px solid var(--border);border-right:1px solid var(--border);
+  padding:0 0 40px;position:relative;}
+.ecs-head{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px;
+  padding:12px 14px;background:rgba(4,8,15,0.97);border-bottom:1px solid var(--border);backdrop-filter:blur(6px);}
+.ecs-head-t{flex:1;min-width:0;line-height:1.25;}
+.ecs-head-t b{display:block;font-size:15px;color:var(--text);font-weight:800;}
+.ecs-head-t span{display:block;font-family:'Orbitron',monospace;font-size:9px;letter-spacing:.16em;color:var(--blue);}
+.ecs-ico{background:var(--surface3);border:1px solid var(--border);color:var(--blue);
+  width:38px;height:38px;border-radius:10px;font-size:16px;cursor:pointer;flex:0 0 38px;
+  display:flex;align-items:center;justify-content:center;}
+.ecs-ico:hover{border-color:var(--blue);}
+.ecs-body{padding:18px 16px 0;}
+
+.ecs-ringwrap{text-align:center;padding:8px 0 2px;}
+.ecs-ringbox{position:relative;width:250px;height:250px;margin:0 auto;}
+.ecs-ringbox svg{width:100%;height:100%;transform:rotate(-90deg);}
+.ecs-rbg{fill:none;stroke:var(--surface3);stroke-width:13;}
+.ecs-rfg{fill:none;stroke:var(--cyan);stroke-width:13;stroke-linecap:round;
+  transition:stroke-dashoffset .5s linear,stroke .3s;}
+.ecs-rfg.warn{stroke:var(--accent2);}
+.ecs-dot{fill:var(--cyan);}
+.ecs-rin{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;}
+.ecs-lbl{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:.18em;color:var(--muted);}
+.ecs-time{font-family:'Orbitron',monospace;font-weight:900;font-size:40px;color:var(--text);line-height:1.15;}
+.ecs-next{font-size:13px;color:var(--muted);margin-top:2px;}
+.ecs-next b{color:var(--cyan);font-family:'Orbitron',monospace;}
+.ecs-idle{font-size:14px;color:var(--muted);line-height:1.8;max-width:180px;margin:0 auto;}
+
+.ecs-acts{display:flex;flex-direction:column;gap:9px;margin-top:18px;}
+.ecs-btn{border:0;border-radius:12px;padding:16px;font-size:17px;font-weight:800;cursor:pointer;
+  font-family:var(--user-font);display:flex;align-items:center;justify-content:center;gap:8px;min-height:56px;}
+.ecs-b1{background:var(--cyan);color:#04241f;}
+.ecs-b2{background:var(--accent2);color:#2b1600;}
+.ecs-b3{background:var(--surface3);color:var(--text);border:1px solid var(--border);}
+.ecs-b4{background:none;color:var(--muted);font-size:14px;min-height:0;padding:11px;}
+.ecs-btn:active{filter:brightness(.88);}
+
+.ecs-card{margin-top:16px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 15px;}
+.ecs-card h4{margin:0 0 10px;font-family:'Orbitron',monospace;font-size:10px;letter-spacing:.16em;color:var(--blue);font-weight:400;}
+.ecs-chips{display:flex;gap:7px;}
+.ecs-chip{flex:1;background:var(--surface3);border:1px solid var(--border);color:var(--muted);
+  border-radius:9px;padding:10px 2px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--user-font);}
+.ecs-chip[aria-pressed="true"]{background:var(--cyan);color:#04241f;border-color:var(--cyan);}
+.ecs-tog{display:flex;align-items:center;justify-content:space-between;margin-top:12px;
+  padding-top:12px;border-top:1px solid var(--border);font-size:14px;color:var(--text);}
+.ecs-sw{width:50px;height:28px;border-radius:999px;background:var(--surface3);border:1px solid var(--border);
+  position:relative;cursor:pointer;flex:0 0 50px;}
+.ecs-sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;
+  background:var(--muted);transition:.18s;}
+.ecs-sw[aria-pressed="true"]{background:var(--cyan);border-color:var(--cyan);}
+.ecs-sw[aria-pressed="true"]::after{left:25px;background:#04241f;}
+
+.ecs-tally{margin-top:14px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:12px;padding:13px 15px;font-size:13px;color:var(--muted);}
+.ecs-tally b{color:var(--cyan);font-family:'Orbitron',monospace;font-size:18px;}
+
+.ecs-warn{margin-top:14px;border:1px solid var(--border-red);background:rgba(255,45,45,0.07);
+  border-radius:12px;padding:14px 15px;}
+.ecs-warn h4{margin:0 0 8px;font-size:14px;color:#ff6b6b;font-weight:800;}
+.ecs-warn p{margin:0 0 7px;font-size:13px;color:var(--muted);line-height:1.7;}
+.ecs-warn p:last-child{margin-bottom:0;}
+.ecs-warn b{color:var(--text);}
+.ecs-foot{font-size:11px;color:var(--muted);text-align:center;line-height:1.8;margin-top:18px;}
+
+/* シート（下から出るパネル） */
+.ecs-sheet{display:none;position:fixed;inset:0;background:rgba(2,5,10,0.9);z-index:9300;
+  align-items:flex-end;justify-content:center;}
+.ecs-sheet.open{display:flex;}
+.ecs-sin{width:100%;max-width:520px;max-height:92vh;overflow-y:auto;background:var(--surface);
+  border:1px solid var(--border);border-radius:18px 18px 0 0;padding:18px 16px 28px;
+  animation:ecsRise .2s ease-out;}
+@keyframes ecsRise{from{transform:translateY(14px);opacity:.4}to{transform:none;opacity:1}}
+.ecs-sh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
+.ecs-sh h3{margin:0;font-size:18px;color:var(--text);font-weight:800;}
+
+.ecs-eyeb{display:inline-block;background:var(--accent2);color:#2b1600;font-size:11px;font-weight:800;
+  letter-spacing:.12em;padding:5px 11px;border-radius:999px;margin-bottom:11px;}
+.ecs-art{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:8px;margin-bottom:12px;}
+.ecs-art svg{width:100%;height:auto;display:block;}
+.ecs-exn{font-size:22px;font-weight:800;color:var(--text);margin:0 0 3px;line-height:1.35;}
+.ecs-exd{font-size:14px;color:var(--accent2);font-weight:800;margin:0 0 9px;}
+.ecs-exh{font-size:15px;color:var(--muted);line-height:1.75;margin:0 0 16px;}
+
+.ecs-cl{display:flex;flex-direction:column;gap:7px;margin-bottom:6px;}
+.ecs-cli{display:flex;align-items:center;gap:11px;width:100%;text-align:left;cursor:pointer;
+  background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:12px 13px;
+  color:var(--muted);font-size:15px;font-weight:600;font-family:var(--user-font);}
+.ecs-cli[aria-pressed="true"]{background:rgba(0,255,224,0.09);border-color:var(--cyan);color:var(--text);}
+.ecs-tick{width:24px;height:24px;flex:0 0 24px;border-radius:7px;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:14px;color:transparent;font-weight:900;}
+.ecs-cli[aria-pressed="true"] .ecs-tick{background:var(--cyan);border-color:var(--cyan);color:#04241f;}
+.ecs-hint{font-size:12px;color:var(--muted);margin:6px 0 14px;}
+
+.ecs-day{margin-bottom:18px;}
+.ecs-dayh{display:flex;align-items:baseline;gap:9px;border-bottom:1px solid var(--border);
+  padding-bottom:6px;margin-bottom:9px;}
+.ecs-dayh b{font-size:16px;color:var(--text);}
+.ecs-dayh span{font-size:12px;color:var(--cyan);font-weight:700;}
+.ecs-rec{background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:11px 13px;margin-bottom:7px;}
+.ecs-rect{font-size:12px;color:var(--muted);margin-bottom:6px;font-family:'Orbitron',monospace;}
+.ecs-tags{display:flex;flex-wrap:wrap;gap:5px;}
+.ecs-tag{background:var(--surface3);border:1px solid var(--border);border-radius:999px;
+  padding:3px 10px;font-size:12px;color:var(--muted);}
+.ecs-sum{display:flex;gap:8px;margin-bottom:16px;}
+.ecs-sum div{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:11px 4px;text-align:center;}
+.ecs-sum b{display:block;font-family:'Orbitron',monospace;font-size:22px;color:var(--cyan);font-weight:900;}
+.ecs-sum span{font-size:11px;color:var(--muted);}
+.ecs-empty{text-align:center;color:var(--muted);padding:40px 10px;font-size:14px;line-height:1.9;}
+
+/* 共有 */
+.ecs-shareurl{display:flex;gap:7px;margin-top:10px;}
+.ecs-shareurl input{flex:1;min-width:0;background:var(--surface3);border:1px solid var(--border);
+  color:var(--text);border-radius:9px;padding:11px 12px;font-size:12px;font-family:'Orbitron',monospace;}
+
+/* チュートリアル */
+.ecs-tut{display:none;position:fixed;inset:0;background:rgba(2,5,10,0.94);z-index:9400;
+  align-items:center;justify-content:center;padding:20px;}
+.ecs-tut.open{display:flex;}
+.ecs-tutin{width:100%;max-width:400px;background:var(--surface2);border:1px solid var(--blue);
+  border-radius:16px;padding:24px 20px;box-shadow:0 0 40px rgba(0,180,255,0.18);}
+.ecs-tutno{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:.2em;color:var(--blue);margin-bottom:12px;}
+.ecs-tuticon{font-size:44px;text-align:center;margin-bottom:12px;}
+.ecs-tutt{font-size:19px;font-weight:800;color:var(--text);margin:0 0 10px;text-align:center;line-height:1.4;}
+.ecs-tuttx{font-size:14px;color:var(--muted);line-height:1.85;margin:0 0 18px;}
+.ecs-tutdots{display:flex;gap:6px;justify-content:center;margin-bottom:16px;}
+.ecs-tutdots i{width:7px;height:7px;border-radius:50%;background:var(--surface3);border:1px solid var(--border);}
+.ecs-tutdots i.on{background:var(--blue);border-color:var(--blue);}
+.ecs-tutbtns{display:flex;gap:8px;}
+.ecs-tutbtns button{flex:1;border:0;border-radius:10px;padding:13px;font-size:15px;font-weight:800;
+  cursor:pointer;font-family:var(--user-font);}
+</style>
+
+<!-- 本体 -->
+<div class="ecs-overlay" id="ecsOverlay" onclick="if(event.target===this)closeEcs()">
+  <div class="ecs-panel">
+    <div class="ecs-head">
+      <div class="ecs-head-t">
+        <b>足うごかしタイマー</b>
+        <span>// ECONOMY CLASS SYNDROME</span>
+      </div>
+      <button class="ecs-ico" onclick="ecsTutStart()" title="使い方">❓</button>
+      <button class="ecs-ico" onclick="ecsOpenShare()" title="共有">🔗</button>
+      <button class="ecs-ico" onclick="ecsOpenHist()" title="記録">📋</button>
+      <button class="ecs-ico" onclick="closeEcs()" title="閉じる">✕</button>
+    </div>
+
+    <div class="ecs-body">
+      <div class="ecs-ringwrap">
+        <div class="ecs-ringbox">
+          <svg viewBox="0 0 200 200" aria-hidden="true">
+            <circle class="ecs-rbg" cx="100" cy="100" r="86"></circle>
+            <circle class="ecs-rfg" id="ecsRing" cx="100" cy="100" r="86" stroke-dasharray="540.35" stroke-dashoffset="540.35"></circle>
+            <circle class="ecs-dot" id="ecsDot" cx="100" cy="14" r="0"></circle>
+          </svg>
+          <div class="ecs-rin"><div id="ecsRingIn">
+            <div class="ecs-idle">じっとしている時間を計ります。<br>座ったら押してください。</div>
+          </div></div>
+        </div>
+      </div>
+
+      <div class="ecs-acts">
+        <button class="ecs-btn ecs-b1" id="ecsStart" onclick="ecsStart(false)">はじめる</button>
+        <button class="ecs-btn ecs-b2" id="ecsDone" onclick="ecsOpenCheck(null)" style="display:none">動かした（記録する）</button>
+        <button class="ecs-btn ecs-b4" id="ecsStop" onclick="ecsStop(true)" style="display:none">今日はここまでにする</button>
+      </div>
+
+      <div class="ecs-card" id="ecsSet">
+        <h4>// お知らせの間隔</h4>
+        <div class="ecs-chips">
+          <button class="ecs-chip" data-min="30" aria-pressed="false" onclick="ecsSetMin(this,30)">30分</button>
+          <button class="ecs-chip" data-min="60" aria-pressed="true" onclick="ecsSetMin(this,60)">1時間</button>
+          <button class="ecs-chip" data-min="90" aria-pressed="false" onclick="ecsSetMin(this,90)">1時間半</button>
+        </div>
+        <div class="ecs-tog">
+          <span>音声でお知らせ</span>
+          <button class="ecs-sw" id="ecsVoiceSw" aria-pressed="true" onclick="ecsToggleVoice(this)" aria-label="音声でお知らせ"></button>
+        </div>
+      </div>
+
+      <div class="ecs-tally" id="ecsTally" style="display:none">
+        今回の予防：<b id="ecsN">0</b> 回　／　次のお知らせ <span id="ecsNextT">—</span>
+      </div>
+
+      <div class="ecs-warn">
+        <h4>⚠ こんなときは、すぐ受診してください</h4>
+        <p><b>片方のふくらはぎが腫れる・痛む・赤くなる・熱をもつ</b> → 血のかたまりができているサインです。医療機関へ。</p>
+        <p><b>急に息が苦しい・胸が痛い・気を失いそう</b> → 血のかたまりが肺に飛んだおそれ。ためらわず<b>119番</b>。</p>
+        <p>このツールは予防を助けるものです。診断はできません。</p>
+      </div>
+
+      <div class="ecs-foot">
+        記録はこの端末の中だけに保存されます。<br>
+        通信が切れても、この画面は動き続けます。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- お知らせ -->
+<div class="ecs-sheet" id="ecsAlert"><div class="ecs-sin">
+  <span class="ecs-eyeb" id="ecsEyeb">1時間 うごいていません</span>
+  <div class="ecs-art" id="ecsArt"></div>
+  <h3 class="ecs-exn" id="ecsExN"></h3>
+  <p class="ecs-exd" id="ecsExD"></p>
+  <p class="ecs-exh" id="ecsExH"></p>
+  <div class="ecs-acts" style="margin-top:0">
+    <button class="ecs-btn ecs-b2" onclick="ecsAlertDone()">やった（記録する）</button>
+    <button class="ecs-btn ecs-b3" onclick="ecsSnooze()">あと5分だけ待つ</button>
+  </div>
+</div></div>
+
+<!-- チェックリスト -->
+<div class="ecs-sheet" id="ecsCheck"><div class="ecs-sin">
+  <div class="ecs-sh"><h3>やったことを選ぶ</h3>
+    <button class="ecs-ico" onclick="ecsCloseCheck()">✕</button></div>
+  <div class="ecs-cl" id="ecsCL"></div>
+  <p class="ecs-hint">ひとつも選ばずに登録もできます。</p>
+  <button class="ecs-btn ecs-b1" onclick="ecsSave()">記録する</button>
+</div></div>
+
+<!-- 続ける？ -->
+<div class="ecs-sheet" id="ecsNext"><div class="ecs-sin">
+  <div class="ecs-sh"><h3>記録しました</h3></div>
+  <p class="ecs-exh" id="ecsNextMsg"></p>
+  <div class="ecs-acts" style="margin-top:0">
+    <button class="ecs-btn ecs-b1" onclick="ecsContinue()">このまま予防を続ける</button>
+    <button class="ecs-btn ecs-b3" onclick="ecsFinish()">終わりにする</button>
+  </div>
+</div></div>
+
+<!-- 記録 -->
+<div class="ecs-sheet" id="ecsHist"><div class="ecs-sin">
+  <div class="ecs-sh"><h3>これまでの記録</h3>
+    <button class="ecs-ico" onclick="document.getElementById('ecsHist').classList.remove('open')">✕</button></div>
+  <div id="ecsHistBody"></div>
+</div></div>
+
+<!-- 共有 -->
+<div class="ecs-sheet" id="ecsShare"><div class="ecs-sin">
+  <div class="ecs-sh"><h3>このツールを共有する</h3>
+    <button class="ecs-ico" onclick="document.getElementById('ecsShare').classList.remove('open')">✕</button></div>
+  <p class="ecs-exh" style="margin-bottom:6px">下のURLを開くと、このタイマーが直接開きます。避難所や車中泊をされている方に送ってください。</p>
+  <div class="ecs-shareurl">
+    <input type="text" id="ecsShareUrl" readonly onclick="this.select()">
+    <button class="ecs-btn ecs-b1" style="min-height:0;padding:11px 16px;font-size:14px;flex:0 0 auto" onclick="ecsCopyUrl()">コピー</button>
+  </div>
+  <div class="ecs-acts" style="margin-top:14px">
+    <button class="ecs-btn ecs-b3" onclick="ecsShareNative()">📤 他のアプリで共有する</button>
+    <button class="ecs-btn ecs-b3" onclick="ecsCopyText()">📝 説明文つきでコピー</button>
+  </div>
+</div></div>
+
+<!-- チュートリアル -->
+<div class="ecs-tut" id="ecsTut"><div class="ecs-tutin">
+  <div class="ecs-tutno" id="ecsTutNo">// STEP 1 / 6</div>
+  <div class="ecs-tuticon" id="ecsTutIcon">🦵</div>
+  <h3 class="ecs-tutt" id="ecsTutT"></h3>
+  <p class="ecs-tuttx" id="ecsTutTx"></p>
+  <div class="ecs-tutdots" id="ecsTutDots"></div>
+  <div class="ecs-tutbtns">
+    <button class="ecs-b3" id="ecsTutPrev" onclick="ecsTutGo(-1)" style="border:1px solid var(--border)">戻る</button>
+    <button class="ecs-b1" id="ecsTutNext" onclick="ecsTutGo(1)">次へ</button>
+  </div>
+</div></div>
+
+<script>
+/* ============================================================
+   エコノミークラス症候群 予防ツール
+   ============================================================ */
+(function(){
+"use strict";
+
+var ECS_KEY = "dwa_ecs_log_v1";
+var ECS_GAS = (typeof ARTICLES_URL !== 'undefined' && ARTICLES_URL) ? ARTICLES_URL
+  : "https://script.google.com/macros/s/AKfycbzVC_aeGGOv4m7-CpKl2Z75muRwWrU6MZDj3sgaBcobw9mSq9jYDY95BsoxiZHkw1dimg/exec";
+
+var memLogs = null, canStore = true;
+try { localStorage.setItem("__ecs","1"); localStorage.removeItem("__ecs"); } catch(e){ canStore = false; }
+function loadLogs(){ if(!canStore) return memLogs||[]; try{ return JSON.parse(localStorage.getItem(ECS_KEY)||"[]"); }catch(e){ return []; } }
+function putLogs(a){ if(!canStore){ memLogs=a; return; } try{ localStorage.setItem(ECS_KEY, JSON.stringify(a)); }catch(e){ memLogs=a; } }
+
+/* ---- GASへ匿名で集計を送る（画像ビーコン方式） ---- */
+function ecsSend(action, extra){
+  try{
+    var uid = "";
+    try{ uid = localStorage.getItem("dwa_visit_uid") || ""; }catch(e){}
+    var code = "";
+    try{ if(typeof getStampCode === "function") code = getStampCode() || ""; }catch(e){}
+    var p = "type=ecs&action=" + encodeURIComponent(action) +
+            "&site=main&uid=" + encodeURIComponent(uid) +
+            "&code=" + encodeURIComponent(code);
+    if(extra){ for(var k in extra){ if(extra.hasOwnProperty(k)) p += "&"+k+"="+encodeURIComponent(extra[k]); } }
+    var img = new Image(); img.src = ECS_GAS + "?" + p + "&_=" + Date.now();
+  }catch(e){}
+}
+function ecsTrack(cat, label){ try{ if(typeof window.dwaTrack === "function") window.dwaTrack(cat, label); }catch(e){} }
+
+/* ---- 運動メニュー ---- */
+var CI="#4a6a8a", CA="#00ffe0", CS="#ff8c00", CD="#1b2b40";
+function art(inner){
+  return '<svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" role="img">'+
+  '<style>.s{fill:none;stroke:'+CI+';stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}'+
+  '.a{fill:none;stroke:'+CA+';stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}'+
+  '.g{fill:none;stroke:'+CD+';stroke-width:3;stroke-linecap:round;stroke-dasharray:6 6}'+
+  '.ar{fill:none;stroke:'+CS+';stroke-width:3;stroke-linecap:round;stroke-linejoin:round}'+
+  '.fs{fill:'+CI+'}</style>'+inner+'</svg>';
+}
+var AR='<path class="ar" d="M0 0 l-6 7 M0 0 l6 7"/>';
+
+var MENU=[
+{id:"ankle",name:"足首を上下に動かす",dose:"20回",
+ how:"座ったまま、つま先を天井へグッと上げ、ゆっくり下ろします。ふくらはぎのポンプが働いて、血液が心臓へ戻ります。いちばん大事な運動です。",
+ say:"足首を上下に、20回動かしましょう。つま先を上げて、下ろす。ふくらはぎのポンプを動かします。",
+ svg:art('<path class="s" d="M72 26 L96 96"/><path class="s" d="M96 96 L150 96"/><circle class="fs" cx="72" cy="26" r="7"/>'+
+   '<path class="g" d="M96 96 L142 66"/><path class="a" d="M96 96 L138 118"/>'+
+   '<path class="ar" d="M168 104 q22 -22 0 -44"/><g transform="translate(168,60) rotate(20)">'+AR+'</g>'+
+   '<path class="s" d="M232 40 L232 140" stroke-width="2.4"/>'+
+   '<text x="246" y="76" fill="'+CS+'" font-size="16" font-family="sans-serif" font-weight="700">上げる</text>'+
+   '<text x="246" y="122" fill="'+CA+'" font-size="16" font-family="sans-serif" font-weight="700">下ろす</text>')},
+{id:"heel",name:"かかとの上げ下げ",dose:"20回",
+ how:"足の裏を床につけたまま、かかとだけを持ち上げます。降ろすときはゆっくり。立っても座ったままでもできます。",
+ say:"かかとの上げ下げを20回。かかとを持ち上げて、ゆっくり下ろします。",
+ svg:art('<path class="s" d="M40 150 L280 150"/><path class="s" d="M92 60 L92 128 L64 150 L128 150"/>'+
+   '<path class="a" d="M212 60 L212 122 L236 150 L188 150"/><path class="a" d="M212 122 L186 138"/>'+
+   '<path class="ar" d="M158 132 L158 78"/><g transform="translate(158,78)">'+AR+'</g>'+
+   '<text x="174" y="96" fill="'+CS+'" font-size="16" font-family="sans-serif" font-weight="700">かかとだけ</text>')},
+{id:"toes",name:"足の指をグー・パー",dose:"20回",
+ how:"足の指をギュッと握り、次に大きく開きます。靴を脱ぐとやりやすくなります。狭い車内でも音を立てずにできます。",
+ say:"足の指をグー、パー。20回くり返しましょう。",
+ svg:art('<path class="s" d="M56 118 q0 -34 34 -34 q28 0 28 26"/><path class="s" d="M56 118 q34 22 62 -8"/>'+
+   '<path class="s" d="M118 110 q10 12 2 20 M108 118 q10 12 2 20 M98 124 q10 12 2 18"/>'+
+   '<text x="68" y="160" fill="'+CI+'" font-size="16" font-family="sans-serif" font-weight="700">グー</text>'+
+   '<path class="a" d="M196 118 q0 -34 34 -34 q28 0 28 26"/><path class="a" d="M196 118 q34 22 62 -8"/>'+
+   '<path class="a" d="M258 110 L282 100 M250 122 L276 120 M240 130 L262 138"/>'+
+   '<text x="206" y="160" fill="'+CA+'" font-size="16" font-family="sans-serif" font-weight="700">パー</text>')},
+{id:"calf",name:"ふくらはぎをもむ",dose:"左右30秒ずつ",
+ how:"ふくらはぎを下から上へ、心臓に向かってやさしくさすります。強く揉みすぎないこと。痛みや腫れがある側は、さすらずに受診してください。",
+ say:"ふくらはぎを、下から上へ、やさしくさすりましょう。左右30秒ずつです。",
+ svg:art('<path class="s" d="M132 24 q34 30 30 66 q-4 34 -14 62"/><path class="s" d="M132 24 q-26 32 -22 68 q4 34 14 60"/>'+
+   '<path class="a" d="M96 118 q-14 -10 -6 -24 q8 -12 22 -6"/><path class="a" d="M170 118 q14 -10 6 -24 q-8 -12 -22 -6"/>'+
+   '<path class="ar" d="M228 140 L228 52"/><g transform="translate(228,52)">'+AR+'</g>'+
+   '<text x="242" y="100" fill="'+CS+'" font-size="16" font-family="sans-serif" font-weight="700">心臓へ</text>')},
+{id:"knee",name:"ひざを抱えて曲げ伸ばし",dose:"左右10回",
+ how:"片方のひざを両手で抱えて胸に引き寄せ、ゆっくり戻します。股関節とひざの裏がほぐれ、たまった血液が流れ出します。",
+ say:"ひざを抱えて、胸に引き寄せましょう。左右10回ずつです。",
+ svg:art('<circle class="fs" cx="96" cy="40" r="13"/><path class="s" d="M96 54 L96 108"/>'+
+   '<path class="a" d="M96 108 L146 92 L172 128"/><path class="s" d="M96 108 L150 130 L196 130"/>'+
+   '<path class="s" d="M96 70 q34 6 48 22"/>'+
+   '<path class="ar" d="M186 78 q-26 -20 -48 -6"/><g transform="translate(138,72) rotate(200)">'+AR+'</g>'+
+   '<text x="194" y="70" fill="'+CS+'" font-size="16" font-family="sans-serif" font-weight="700">胸へ</text>')},
+{id:"walk",name:"立ち上がって歩く",dose:"3分",
+ how:"いちばん効果があります。車の外に出て、少しでいいので歩いてください。夜間や足元が悪いときは、車のそばで足踏みでも大丈夫です。",
+ say:"立ち上がって、3分ほど歩きましょう。むずかしければ、その場で足踏みでもかまいません。",
+ svg:art('<path class="s" d="M30 152 L290 152"/><circle class="fs" cx="120" cy="36" r="13"/>'+
+   '<path class="a" d="M120 50 L120 100"/><path class="a" d="M120 100 L96 132 L78 152"/>'+
+   '<path class="a" d="M120 100 L152 128 L172 152"/><path class="s" d="M120 64 L92 92 M120 64 L154 84"/>'+
+   '<path class="ar" d="M200 60 L246 60"/><g transform="translate(246,60) rotate(90)">'+AR+'</g>'+
+   '<text x="196" y="104" fill="'+CS+'" font-size="16" font-family="sans-serif" font-weight="700">3分でいい</text>')},
+{id:"water",name:"水を飲む",dose:"コップ1杯（200ml）",
+ how:"水分が足りないと血液が濃くなり、かたまりができやすくなります。トイレを気にして水を控えるのが、いちばん危険です。",
+ say:"水を、コップ一杯飲みましょう。トイレを気にして控えないでください。",
+ svg:art('<path class="s" d="M116 46 L128 146 L188 146 L200 46 Z"/>'+
+   '<path class="a" d="M124 92 q16 10 32 0 q16 -10 32 0 L188 146 L128 146 Z" fill="rgba(0,255,224,0.14)"/>'+
+   '<path class="s" d="M110 46 L206 46"/><path class="a" d="M242 44 q14 18 0 28 q-14 -10 0 -28"/>'+
+   '<path class="a" d="M258 82 q10 13 0 20 q-10 -7 0 -20"/>'+
+   '<text x="220" y="132" fill="'+CA+'" font-size="16" font-family="sans-serif" font-weight="700">200ml</text>')},
+{id:"breath",name:"深呼吸と肩まわし",dose:"各10回",
+ how:"鼻から4秒吸って、口から8秒かけて吐きます。あわせて肩を大きく回してください。呼吸が深くなると、静脈の血液が心臓へ戻りやすくなります。",
+ say:"深呼吸をしましょう。鼻から4秒吸って、口から8秒かけて吐きます。肩も大きく回してください。",
+ svg:art('<circle class="fs" cx="160" cy="40" r="13"/><path class="s" d="M160 54 L160 132"/>'+
+   '<path class="s" d="M112 78 L160 66 L208 78"/><path class="a" d="M126 62 q-16 -14 -2 -26 q14 -10 26 4"/>'+
+   '<path class="a" d="M194 62 q16 -14 2 -26 q-14 -10 -26 4"/>'+
+   '<path class="ar" d="M160 96 q-30 8 -30 34"/><path class="ar" d="M160 96 q30 8 30 34"/>'+
+   '<text x="30" y="152" fill="'+CS+'" font-size="15" font-family="sans-serif" font-weight="700">吸う4秒</text>'+
+   '<text x="216" y="152" fill="'+CA+'" font-size="15" font-family="sans-serif" font-weight="700">吐く8秒</text>')}
+];
+
+/* ---- 状態 ---- */
+var running=false,totalMs=0,lastTick=0,sinceAlert=0,ivMin=60,voiceOn=true;
+var count=0,alertOpen=false,mIdx=0,pendId=null,timer=null,actx=null;
+var CIRC=2*Math.PI*86;
+function $(id){ return document.getElementById(id); }
+
+/* ---- 音 ---- */
+function beep(){
+  try{
+    if(!actx) actx=new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state==="suspended") actx.resume();
+    [0,0.22,0.44].forEach(function(t,i){
+      var o=actx.createOscillator(),g=actx.createGain();
+      o.type="sine"; o.frequency.value=i===2?1046:784;
+      g.gain.setValueAtTime(0,actx.currentTime+t);
+      g.gain.linearRampToValueAtTime(0.26,actx.currentTime+t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.001,actx.currentTime+t+0.19);
+      o.connect(g);g.connect(actx.destination);
+      o.start(actx.currentTime+t);o.stop(actx.currentTime+t+0.2);
+    });
+  }catch(e){}
+}
+function say(txt){
+  if(!voiceOn||!("speechSynthesis" in window)) return;
+  try{
+    speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(txt); u.lang="ja-JP"; u.rate=0.95;
+    var vs=speechSynthesis.getVoices();
+    for(var i=0;i<vs.length;i++){ if(vs[i].lang&&vs[i].lang.indexOf("ja")===0){ u.voice=vs[i]; break; } }
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function unlock(){ try{
+  if(!actx) actx=new (window.AudioContext||window.webkitAudioContext)();
+  if(actx.state==="suspended") actx.resume();
+  if("speechSynthesis" in window) speechSynthesis.getVoices();
+}catch(e){} }
+
+/* ---- 表示 ---- */
+function fmt(ms){var s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;
+  var p=function(n){return n<10?"0"+n:""+n;}; return (h>0?h+":":"")+p(m)+":"+p(x);}
+function fmtL(ms){var s=Math.max(0,Math.ceil(ms/1000)),m=Math.floor(s/60),x=s%60;
+  return m+"分"+(x<10?"0"+x:x)+"秒";}
+function render(){
+  var iv=ivMin*60000, ring=$("ecsRing"), dot=$("ecsDot"), inn=$("ecsRingIn");
+  if(!ring) return;
+  if(!running&&totalMs===0){
+    inn.innerHTML='<div class="ecs-idle">じっとしている時間を計ります。<br>座ったら押してください。</div>';
+    ring.setAttribute("stroke-dashoffset",CIRC); dot.setAttribute("r",0); return;
+  }
+  var left=Math.max(0,iv-sinceAlert), ratio=Math.min(1,sinceAlert/iv);
+  ring.setAttribute("stroke-dashoffset",CIRC*(1-ratio));
+  ring.setAttribute("class","ecs-rfg"+(ratio>0.8?" warn":""));
+  dot.setAttribute("r",running?5:0);
+  var ang=-Math.PI/2+ratio*2*Math.PI;
+  dot.setAttribute("cx",100+86*Math.cos(ang)); dot.setAttribute("cy",100+86*Math.sin(ang));
+  inn.innerHTML='<div><div class="ecs-lbl">SITTING</div><div class="ecs-time">'+fmt(totalMs)+
+    '</div><div class="ecs-next">次のお知らせまで <b>'+fmtL(left)+'</b></div></div>';
+  if($("ecsN")) $("ecsN").textContent=count;
+  if($("ecsNextT")) $("ecsNextT").textContent=running?fmtL(left):"停止中";
+}
+function tick(){
+  var now=Date.now(), d=now-lastTick; lastTick=now;
+  if(running&&!alertOpen){
+    totalMs+=d; sinceAlert+=d;
+    if(sinceAlert>=ivMin*60000) fire();
+  }
+  render();
+}
+
+/* ---- お知らせ ---- */
+function fire(){
+  alertOpen=true;
+  var ex=MENU[mIdx%MENU.length]; pendId=ex.id;
+  $("ecsEyeb").textContent=ivMin+"分 うごいていません";
+  $("ecsArt").innerHTML=ex.svg;
+  $("ecsExN").textContent=ex.name;
+  $("ecsExD").textContent=ex.dose;
+  $("ecsExH").textContent=ex.how;
+  $("ecsAlert").classList.add("open");
+  beep(); setTimeout(function(){ say("足を動かす時間です。"+ex.say); },900);
+  ecsSend("alert",{iv:ivMin,ex:ex.id});
+  ecsTrack("event","ECS予防：お知らせ発生");
+}
+
+/* ---- チェックリスト ---- */
+var picked={};
+window.ecsOpenCheck=function(id){
+  picked={}; if(id||pendId) picked[id||pendId]=true;
+  var h="";
+  for(var i=0;i<MENU.length;i++){
+    var m=MENU[i];
+    h+='<button class="ecs-cli" data-id="'+m.id+'" aria-pressed="'+(picked[m.id]?"true":"false")+'">'+
+       '<span class="ecs-tick">✓</span><span>'+m.name+'</span></button>';
+  }
+  $("ecsCL").innerHTML=h; $("ecsCheck").classList.add("open");
+};
+window.ecsCloseCheck=function(){ $("ecsCheck").classList.remove("open"); lastTick=Date.now(); };
+document.addEventListener("click",function(e){
+  var b=e.target.closest?e.target.closest(".ecs-cli"):null; if(!b) return;
+  var id=b.getAttribute("data-id"); picked[id]=!picked[id];
+  b.setAttribute("aria-pressed",picked[id]?"true":"false");
+});
+
+window.ecsSave=function(){
+  var names=[],ids=[];
+  for(var i=0;i<MENU.length;i++){ if(picked[MENU[i].id]){ names.push(MENU[i].name); ids.push(MENU[i].id); } }
+  var now=new Date(), logs=loadLogs();
+  logs.push({
+    ymd:now.getFullYear()+"-"+(now.getMonth()+1)+"-"+now.getDate(),
+    hm:(now.getHours()<10?"0":"")+now.getHours()+":"+(now.getMinutes()<10?"0":"")+now.getMinutes(),
+    items:names, sat:totalMs
+  });
+  putLogs(logs); count++;
+  $("ecsCheck").classList.remove("open");
+  $("ecsNextMsg").textContent=names.length
+    ? names.length+"個の運動を記録しました。じっとしていた時間は "+fmt(totalMs)+" です。"
+    : "記録しました。じっとしていた時間は "+fmt(totalMs)+" です。";
+  $("ecsNext").classList.add("open");
+  ecsSend("record",{items:ids.join(","),n:ids.length,sat:Math.round(totalMs/1000),iv:ivMin});
+  ecsTrack("action","ECS予防：運動を記録");
+};
+
+/* ---- 開始・継続・終了 ---- */
+window.ecsStart=function(cont){
+  unlock(); running=true;
+  if(!cont){ totalMs=0; count=0; }
+  sinceAlert=0; lastTick=Date.now();
+  if(!timer) timer=setInterval(tick,500);
+  $("ecsStart").style.display="none"; $("ecsDone").style.display="flex";
+  $("ecsStop").style.display="block"; $("ecsSet").style.display="none";
+  $("ecsTally").style.display="block";
+  render(); say(cont?"計測を続けます。":ivMin+"分ごとにお知らせします。");
+  if(!cont){ ecsSend("start",{iv:ivMin}); ecsTrack("button","ECS予防：計測開始"); }
+};
+window.ecsStop=function(ask){
+  if(ask&&!confirm("計測を終わりにします。よろしいですか。")) return;
+  running=false; totalMs=0; sinceAlert=0; count=0; pendId=null;
+  if(timer){ clearInterval(timer); timer=null; }
+  $("ecsStart").style.display="flex"; $("ecsDone").style.display="none";
+  $("ecsStop").style.display="none"; $("ecsSet").style.display="block";
+  $("ecsTally").style.display="none"; render();
+};
+window.ecsAlertDone=function(){ $("ecsAlert").classList.remove("open"); alertOpen=false; lastTick=Date.now(); window.ecsOpenCheck(pendId); };
+window.ecsSnooze=function(){ $("ecsAlert").classList.remove("open"); alertOpen=false;
+  sinceAlert=ivMin*60000-5*60000; lastTick=Date.now(); render(); ecsTrack("action","ECS予防：5分あとまわし"); };
+window.ecsContinue=function(){ $("ecsNext").classList.remove("open");
+  mIdx++; pendId=null; sinceAlert=0; lastTick=Date.now();
+  if(!running) window.ecsStart(true); else render(); };
+window.ecsFinish=function(){ $("ecsNext").classList.remove("open"); window.ecsStop(false); };
+window.ecsSetMin=function(el,m){
+  var cs=document.querySelectorAll(".ecs-chip");
+  for(var i=0;i<cs.length;i++) cs[i].setAttribute("aria-pressed","false");
+  el.setAttribute("aria-pressed","true"); ivMin=m; render();
+};
+window.ecsToggleVoice=function(el){
+  voiceOn=el.getAttribute("aria-pressed")!=="true";
+  el.setAttribute("aria-pressed",voiceOn?"true":"false");
+  if(voiceOn){ unlock(); say("音声でお知らせします。"); }
+  else if("speechSynthesis" in window) speechSynthesis.cancel();
+};
+
+/* ---- 記録 ---- */
+window.ecsOpenHist=function(){
+  var logs=loadLogs(), body=$("ecsHistBody");
+  if(!logs.length){
+    body.innerHTML='<div class="ecs-empty">まだ記録がありません。<br>「はじめる」を押して、<br>最初の1回を記録しましょう。</div>';
+    $("ecsHist").classList.add("open"); return;
+  }
+  var days={},order=[],ti=0;
+  for(var i=logs.length-1;i>=0;i--){ var L=logs[i];
+    if(!days[L.ymd]){ days[L.ymd]=[]; order.push(L.ymd); } days[L.ymd].push(L); }
+  for(var j=0;j<logs.length;j++) ti+=(logs[j].items?logs[j].items.length:0);
+  var h='<div class="ecs-sum"><div><b>'+logs.length+'</b><span>予防した回数</span></div>'+
+        '<div><b>'+order.length+'</b><span>続けた日数</span></div>'+
+        '<div><b>'+ti+'</b><span>運動の合計</span></div></div>';
+  for(var k=0;k<order.length;k++){
+    var y=order[k],p=y.split("-");
+    h+='<div class="ecs-day"><div class="ecs-dayh"><b>'+p[0]+'年'+p[1]+'月'+p[2]+'日</b><span>'+days[y].length+'回</span></div>';
+    for(var n=0;n<days[y].length;n++){ var r=days[y][n];
+      h+='<div class="ecs-rec"><div class="ecs-rect">'+r.hm+'　じっとしていた時間 '+fmt(r.sat||0)+'</div><div class="ecs-tags">';
+      if(r.items&&r.items.length){ for(var q=0;q<r.items.length;q++) h+='<span class="ecs-tag">'+r.items[q]+'</span>'; }
+      else h+='<span class="ecs-tag">記録のみ</span>';
+      h+='</div></div>';
+    }
+    h+='</div>';
+  }
+  h+='<button class="ecs-btn ecs-b4" style="width:100%" onclick="ecsClearHist()">すべての記録を消す</button>';
+  body.innerHTML=h; $("ecsHist").classList.add("open");
+  ecsTrack("button","ECS予防：記録を見る");
+};
+window.ecsClearHist=function(){
+  if(confirm("すべての記録を消します。元に戻せません。よろしいですか。")){ putLogs([]); window.ecsOpenHist(); }
+};
+
+/* ---- 共有 ---- */
+function shareUrl(){ return location.origin + location.pathname + "?ecs=1"; }
+window.ecsOpenShare=function(){
+  $("ecsShareUrl").value=shareUrl(); $("ecsShare").classList.add("open");
+  ecsTrack("button","ECS予防：共有を開く");
+};
+window.ecsCopyUrl=function(){
+  var u=shareUrl();
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(u).then(function(){ toast("URLをコピーしました"); },function(){ fallbackCopy(u); });
+  } else fallbackCopy(u);
+  ecsSend("share",{}); ecsTrack("action","ECS予防：URLをコピー");
+};
+window.ecsCopyText=function(){
+  var t="【車中泊・避難所の方へ】エコノミークラス症候群の予防タイマーです。\n"+
+        "決まった時間ごとに音と声でお知らせし、足の動かし方をイラストで案内します。\n"+
+        shareUrl();
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(function(){ toast("説明文つきでコピーしました"); },function(){ fallbackCopy(t); });
+  } else fallbackCopy(t);
+  ecsSend("share",{}); ecsTrack("action","ECS予防：説明文をコピー");
+};
+window.ecsShareNative=function(){
+  var d={title:"足うごかしタイマー｜エコノミークラス症候群の予防",
+    text:"車中泊・避難所での血栓予防タイマーです。",url:shareUrl()};
+  if(navigator.share){ navigator.share(d).catch(function(){}); }
+  else window.ecsCopyUrl();
+  ecsSend("share",{}); ecsTrack("action","ECS予防：共有シート");
+};
+function fallbackCopy(t){
+  try{ var ta=document.createElement("textarea"); ta.value=t;
+    ta.style.cssText="position:fixed;left:-9999px"; document.body.appendChild(ta);
+    ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+    toast("コピーしました");
+  }catch(e){ toast("コピーできませんでした"); }
+}
+function toast(m){ if(typeof _toastShare==="function") _toastShare(m); else alert(m); }
+
+/* ---- チュートリアル ---- */
+var TUT=[
+{i:"🩸",t:"エコノミークラス症候群とは",x:"長い時間おなじ姿勢でいると、足の静脈に血のかたまり（血栓）ができます。それが肺に飛ぶと、命に関わります。車中泊や避難所生活では、実際に亡くなった方が出ています。"},
+{i:"⏱",t:"座ったら「はじめる」",x:"車に乗ったとき、避難所で腰を下ろしたときに押してください。じっとしている時間を数えはじめます。ページを閉じても記録は残りますが、時間の計測はリセットされます。"},
+{i:"🔔",t:"時間がきたら音と声でお知らせ",x:"設定した間隔（初期は1時間）ごとに、音・音声・イラストでお知らせします。画面を見ていなくても気づけます。いますぐ動けないときは「あと5分だけ待つ」を押してください。"},
+{i:"🦵",t:"8種類の運動を順番にご案内",x:"足首の上下、かかと上げ、足指のグーパー、ふくらはぎさすり、ひざ抱え、歩く、水分補給、深呼吸。イラストと回数つきで、毎回ちがう運動をご案内します。"},
+{i:"✅",t:"やったことを記録する",x:"「動かした」を押すと、何をしたか選べます。記録すると日付ごとに残り、「📋 記録」から見返せます。続けて予防する場合は、そのまま計測を再開できます。"},
+{i:"🔗",t:"必要な方へ共有できます",x:"「🔗」からURLをコピーできます。そのURLを開くと、この画面が直接ひらきます。車中泊をされている方、ご家族、避難所の運営の方へ送ってください。"}
+];
+var tutI=0;
+window.ecsTutStart=function(){ tutI=0; tutRender(); $("ecsTut").classList.add("open"); ecsTrack("button","ECS予防：使い方を見る"); };
+window.ecsTutGo=function(d){
+  tutI+=d;
+  if(tutI<0){ tutI=0; return; }
+  if(tutI>=TUT.length){ $("ecsTut").classList.remove("open");
+    try{ localStorage.setItem("dwa_ecs_tut","1"); }catch(e){} return; }
+  tutRender();
+};
+function tutRender(){
+  var s=TUT[tutI];
+  $("ecsTutNo").textContent="// STEP "+(tutI+1)+" / "+TUT.length;
+  $("ecsTutIcon").textContent=s.i; $("ecsTutT").textContent=s.t; $("ecsTutTx").textContent=s.x;
+  var d=""; for(var i=0;i<TUT.length;i++) d+='<i class="'+(i===tutI?"on":"")+'"></i>';
+  $("ecsTutDots").innerHTML=d;
+  $("ecsTutPrev").style.visibility=tutI===0?"hidden":"visible";
+  $("ecsTutNext").textContent=(tutI===TUT.length-1)?"はじめる":"次へ";
+}
+
+/* ---- 開閉 ---- */
+window.openEcs=function(){
+  $("ecsOverlay").classList.add("open");
+  document.body.style.overflow="hidden";
+  ecsSend("open",{}); ecsTrack("button","エコノミー症候群予防を開く");
+  var seen=""; try{ seen=localStorage.getItem("dwa_ecs_tut")||""; }catch(e){}
+  if(!seen) setTimeout(function(){ window.ecsTutStart(); },350);
+};
+window.closeEcs=function(){
+  $("ecsOverlay").classList.remove("open");
+  document.body.style.overflow="";
+};
+
+document.addEventListener("visibilitychange",function(){ if(!document.hidden){ lastTick=Date.now(); tick(); } });
+
+/* ---- 共有URLから直接ひらく ---- */
+try{
+  var q=new URLSearchParams(location.search);
+  if(q.get("ecs")==="1"||location.hash==="#ecs"){
+    window.addEventListener("load",function(){ setTimeout(function(){ window.openEcs(); },600); });
+  }
+}catch(e){}
+
+render();
 })();
 </script>
 
