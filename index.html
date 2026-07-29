@@ -4038,6 +4038,149 @@ button.dwa-plate{ padding:0; }
   }
 
 </style>
+<style id="kyusui-style">
+/* ===================== 熊本給水所 ===================== */
+.kyusui-banner{
+  display:flex; align-items:center; gap:13px; width:100%; box-sizing:border-box;
+  padding:13px 18px; border:0; text-align:left; cursor:pointer; color:#fff;
+  background:linear-gradient(100deg,#00344f 0%,#0079b8 55%,#00b4ff 100%);
+  position:relative; overflow:hidden;
+  border-bottom:1px solid rgba(0,255,224,0.28);
+  box-shadow:0 4px 18px rgba(0,180,255,0.28);
+  font-family:var(--user-font);
+}
+.kyusui-banner::before{
+  content:""; position:absolute; inset:0; pointer-events:none; opacity:.45;
+  background:repeating-linear-gradient(45deg,rgba(0,0,0,0.10) 0 14px,transparent 14px 28px);
+}
+.kyusui-banner:active{ filter:brightness(.94); }
+.kyusui-banner .kb-icon{ font-size:26px; flex-shrink:0; position:relative; z-index:1; }
+.kyusui-banner .kb-text{ flex:1; min-width:0; position:relative; z-index:1; }
+.kyusui-banner .kb-title{ font-size:16px; font-weight:900; letter-spacing:.02em; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.kyusui-banner .kb-tag{
+  font-family:'Orbitron',monospace; font-size:9px; font-weight:700; letter-spacing:.14em;
+  padding:2px 7px; border-radius:4px; background:rgba(255,255,255,0.22);
+}
+.kyusui-banner .kb-sub{ font-size:12px; opacity:.92; margin-top:3px; line-height:1.5; }
+.kyusui-banner .kb-arrow{ font-size:20px; opacity:.9; position:relative; z-index:1; transition:transform .2s; }
+.kyusui-banner:hover .kb-arrow{ transform:translateX(4px); }
+.d-tab.kyusui:hover,.d-tab.kyusui.active{ color:#00ffe0; border-bottom-color:#00ffe0; }
+
+#kyusuiModal{
+  display:none; position:fixed; inset:0; z-index:99600;
+  background:rgba(2,6,14,0.92); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
+}
+#kyusuiModal.open{ display:block; }
+.ky-inner{ max-width:820px; margin:0 auto; min-height:100%; background:var(--bg); border-left:1px solid var(--border); border-right:1px solid var(--border); }
+
+/* 上部固定バー：共有／ホームに戻る／閉じる */
+.ky-bar{
+  position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:8px;
+  padding:10px 12px calc(10px + env(safe-area-inset-top)); padding-top:calc(10px + env(safe-area-inset-top));
+  background:rgba(4,8,15,0.97); border-bottom:1px solid var(--border);
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+.ky-bar .ky-brand{
+  font-family:'Orbitron',monospace; font-size:12px; font-weight:700; letter-spacing:.1em;
+  color:#00b4ff; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.ky-bar button{
+  flex-shrink:0; display:inline-flex; align-items:center; gap:5px; cursor:pointer;
+  padding:8px 12px; border-radius:8px; font-family:var(--user-font);
+  font-size:12.5px; font-weight:700; white-space:nowrap;
+  background:rgba(0,180,255,0.10); border:1px solid rgba(0,180,255,0.38); color:#8fd9ff;
+}
+.ky-bar button.ky-share{ background:rgba(0,255,224,0.10); border-color:rgba(0,255,224,0.4); color:#00ffe0; }
+.ky-bar button.ky-home{ background:rgba(255,213,79,0.10); border-color:rgba(255,213,79,0.38); color:#ffd54f; }
+.ky-bar button:active{ filter:brightness(1.25); }
+
+/* 鮮度バー */
+.ky-fresh{ padding:11px 16px; background:#0b4a6e; color:#eaf7ff; display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; }
+.ky-fresh.warn{ background:#7a4a06; }
+.ky-fresh.stale{ background:#8c1a13; }
+.ky-fresh .age{ font-family:'Orbitron',monospace; font-weight:900; font-size:16px; }
+.ky-fresh .msg{ font-size:12.5px; opacity:.95; line-height:1.5; }
+
+.ky-head{ padding:16px 16px 6px; }
+.ky-head h3{ margin:0; font-size:21px; font-weight:900; color:var(--text); letter-spacing:-.01em; }
+.ky-head p{ margin:7px 0 0; font-size:12.5px; color:var(--muted); line-height:1.65; }
+
+.ky-chips{ display:flex; gap:7px; overflow-x:auto; padding:12px 16px 4px; scrollbar-width:none; }
+.ky-chips::-webkit-scrollbar{ display:none; }
+.ky-chip{
+  flex:0 0 auto; padding:7px 13px; border-radius:999px; cursor:pointer; white-space:nowrap;
+  font-size:13px; font-weight:700; font-family:var(--user-font);
+  background:var(--surface2); border:1px solid var(--border); color:var(--muted);
+}
+.ky-chip[aria-pressed="true"]{ background:rgba(0,180,255,0.16); border-color:#00b4ff; color:#8fd9ff; }
+.ky-chip .n{ font-family:'Orbitron',monospace; font-size:10px; opacity:.75; margin-left:5px; }
+
+.ky-tools{ display:flex; gap:8px; padding:10px 16px 0; }
+.ky-tools button{
+  flex:1; padding:10px 6px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:700;
+  font-family:var(--user-font); background:var(--surface2); border:1px solid var(--border); color:#8fd9ff;
+}
+.ky-tools button[aria-pressed="true"]{ background:rgba(0,180,255,0.18); border-color:#00b4ff; }
+.ky-search{ padding:10px 16px 0; }
+.ky-search input{
+  width:100%; box-sizing:border-box; padding:11px 13px; font-size:16px; border-radius:8px;
+  background:var(--surface); border:1px solid var(--border); color:var(--text); -webkit-appearance:none;
+}
+#kyMap{ height:300px; margin:12px 0 0; background:var(--surface2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+.ky-mapfail{ display:none; margin:12px 16px 0; padding:11px 13px; border-radius:8px; font-size:12.5px; background:rgba(255,180,60,0.10); border:1px solid rgba(255,180,60,0.35); color:#ffc24d; }
+.ky-pin{ display:grid; place-items:center; width:26px; height:26px; border-radius:50% 50% 50% 4px; transform:rotate(45deg); background:#0079b8; border:2px solid #eaf7ff; box-shadow:0 1px 5px rgba(0,0,0,.6); }
+.ky-pin span{ transform:rotate(-45deg); color:#fff; font-size:12px; font-weight:900; font-family:'Orbitron',monospace; }
+.ky-pin.est{ background:#b06a00; }
+#kyMap .leaflet-popup-content-wrapper{ background:#0c1628; color:var(--text); border:1px solid var(--border); }
+#kyMap .leaflet-popup-tip{ background:#0c1628; }
+#kyMap .leaflet-popup-content{ font-family:var(--user-font); font-size:13px; margin:11px 13px; line-height:1.6; }
+#kyMap .leaflet-popup-content a{ color:#00b4ff; }
+
+.ky-list{ padding:16px; }
+.ky-muni{ margin:0 0 24px; }
+.ky-muni h4{ margin:0; font-family:'Orbitron',monospace; font-size:12px; letter-spacing:.1em; color:#00b4ff; display:flex; align-items:center; gap:9px; }
+.ky-muni h4::after{ content:""; flex:1; height:1px; background:var(--border); }
+.ky-muni .ky-note{ margin:9px 0 0; padding:10px 12px; background:var(--surface2); border-left:3px solid #00b4ff; border-radius:0 8px 8px 0; font-size:12.5px; color:var(--text); line-height:1.65; }
+.ky-muni .ky-mtel{ margin:9px 0 0; }
+.ky-muni .ky-mtel a{ display:inline-block; padding:8px 13px; border-radius:8px; font-size:13.5px; font-weight:700; text-decoration:none; background:rgba(0,192,96,0.10); border:1px solid rgba(0,192,96,0.4); color:#00e07a; }
+.ky-muni .ky-src{ display:inline-block; margin:9px 0 0; font-size:12.5px; font-weight:700; color:#00b4ff; }
+.ky-sites{ list-style:none; margin:11px 0 0; padding:0; display:grid; gap:9px; }
+.ky-site{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:13px 14px; }
+.ky-site .ky-top{ display:flex; gap:10px; align-items:flex-start; }
+.ky-site .ky-num{ flex:0 0 auto; width:24px; height:24px; border-radius:50%; background:rgba(0,180,255,0.14); color:#8fd9ff; font-family:'Orbitron',monospace; font-size:11px; font-weight:700; display:grid; place-items:center; margin-top:2px; }
+.ky-site .ky-name{ font-size:16px; font-weight:900; color:var(--text); line-height:1.4; }
+.ky-site .ky-addr,.ky-site .ky-hrs{ margin:5px 0 0 34px; font-size:12.5px; color:var(--muted); line-height:1.55; }
+.ky-site .ky-hrs b{ color:var(--text); }
+.ky-site .ky-dist{ margin:5px 0 0 34px; font-size:12.5px; font-weight:700; color:#00ffe0; font-family:'Orbitron',monospace; }
+.ky-badge{ display:inline-block; margin:7px 0 0 34px; padding:3px 8px; border-radius:5px; font-size:11px; font-weight:700; background:rgba(255,180,60,0.12); border:1px solid rgba(255,180,60,0.34); color:#ffc24d; }
+.ky-acts{ display:flex; gap:7px; margin:10px 0 0 34px; flex-wrap:wrap; }
+.ky-acts a,.ky-acts button{ padding:8px 12px; border-radius:8px; font-size:12.5px; font-weight:700; text-decoration:none; cursor:pointer; font-family:var(--user-font); background:var(--surface2); border:1px solid var(--border); color:#8fd9ff; }
+.ky-acts a.pri{ background:rgba(0,180,255,0.18); border-color:#00b4ff; color:#bfe9ff; }
+.ky-acts a.tel{ background:rgba(0,192,96,0.10); border-color:rgba(0,192,96,0.4); color:#00e07a; }
+.ky-empty{ padding:18px; border-radius:10px; background:var(--surface); border:1px solid var(--border); color:var(--muted); font-size:13.5px; }
+.ky-foot{ padding:0 16px 40px; }
+.ky-foot .ky-home-big{
+  width:100%; padding:15px; border-radius:10px; cursor:pointer; font-family:var(--user-font);
+  font-size:15px; font-weight:900; background:rgba(255,213,79,0.10);
+  border:1px solid rgba(255,213,79,0.38); color:#ffd54f; margin-bottom:16px;
+}
+.ky-foot p{ margin:0 0 9px; font-size:11.5px; color:var(--muted); line-height:1.7; }
+.ky-toast{
+  position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(12px);
+  z-index:99700; padding:11px 20px; border-radius:999px; opacity:0; pointer-events:none;
+  background:rgba(0,255,224,0.14); border:1px solid rgba(0,255,224,0.45); color:#00ffe0;
+  font-size:13px; font-weight:700; transition:opacity .2s, transform .2s;
+}
+.ky-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+@media(max-width:700px){
+  #kyMap{ height:240px; }
+  .ky-bar button{ padding:8px 10px; font-size:11.5px; }
+  .ky-bar .ky-brand{ font-size:10px; }
+}
+@media (prefers-reduced-motion:reduce){ .kyusui-banner,.ky-toast{ transition:none; animation:none; } }
+</style>
+
 </head>
 
 <body>
@@ -5353,6 +5496,9 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
 <!-- split-open 時に disaster-tabs をここへ戻すためのアンカー -->
 <span id="dtabsAnchor" style="display:none"></span>
 <div class="disaster-tabs" data-tour="tabs">
+  <button type="button" class="d-tab kyusui" onclick="openKyusui()">
+    <span class="tab-icon">💧</span>熊本給水所
+  </button>
   <a class="d-tab typhoon" href="https://www.jma.go.jp/bosai/typhoon/" target="_blank">
     <span class="tab-icon">🌀</span>台風情報
   </a>
@@ -5372,6 +5518,16 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     <span class="tab-icon">🚨</span>大雨危険度
   </a>
 </div>
+
+<!-- ===== 熊本給水所 バナー ===== -->
+<button type="button" class="kyusui-banner" onclick="openKyusui()">
+  <span class="kb-icon">💧</span>
+  <span class="kb-text">
+    <span class="kb-title">熊本給水所<span class="kb-tag">WATER</span></span>
+    <span class="kb-sub">令和8年熊本地震の応急給水所　7自治体・34か所<br>地図・住所・電話番号をまとめて確認できます</span>
+  </span>
+  <span class="kb-arrow">›</span>
+</button>
 
 <!-- ===== 上部 広告カルーセル（1枚ずつ自動／ドットでめくる／PR） ===== -->
 <div class="topad" id="topAd" aria-label="広告">
@@ -18653,6 +18809,357 @@ try{
 }catch(e){}
 
 render();
+})();
+</script>
+
+
+<!-- ===== 熊本給水所 モーダル ===== -->
+<div id="kyusuiModal" role="dialog" aria-modal="true" aria-label="熊本給水所" onclick="if(event.target===this)closeKyusui()">
+  <div class="ky-inner">
+
+    <div class="ky-bar">
+      <span class="ky-brand">💧 KUMAMOTO WATER</span>
+      <button type="button" class="ky-share" onclick="shareKyusui()">🔗 共有</button>
+      <button type="button" class="ky-home" onclick="kyusuiGoHome()">🏠 ホームに戻る</button>
+      <button type="button" onclick="closeKyusui()" aria-label="閉じる">✕</button>
+    </div>
+
+    <div class="ky-fresh" id="kyFresh" role="status">
+      <span class="age" id="kyAge">--</span><span class="msg" id="kyAgeMsg"></span>
+    </div>
+
+    <div class="ky-head">
+      <h3>熊本給水所マップ</h3>
+      <p>令和8年熊本地震（2026年7月28日）の応急給水所。出発する前に、必ず各自治体の発表で最新の状況を確認してください。</p>
+    </div>
+
+    <div class="ky-chips" id="kyChips" role="group" aria-label="自治体で絞り込み"></div>
+    <div class="ky-tools">
+      <button type="button" id="kyNearBtn" aria-pressed="false" onclick="kyToggleNear(this)">📍 現在地から近い順</button>
+    </div>
+    <div class="ky-search">
+      <label class="ky-vh" for="kyQ" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">施設名や住所で探す</label>
+      <input id="kyQ" type="search" inputmode="search" autocomplete="off" placeholder="施設名・町名で探す（例：松橋、小学校）">
+    </div>
+
+    <div id="kyMap"></div>
+    <p class="ky-mapfail" id="kyMapFail">地図を読み込めませんでした。通信が不安定な可能性があります。下の一覧はそのまま使えます。</p>
+
+    <div class="ky-list" id="kyList"></div>
+
+    <div class="ky-foot">
+      <button type="button" class="ky-home-big" onclick="kyusuiGoHome()">🏠 ホームに戻る</button>
+      <p><b>情報の出どころ：</b>給水所の一覧と時間は各自治体の公式発表（各項目のリンク先）および報道。住所・電話番号・緯度経度は施設情報データベースから取得し、施設ごとに突き合わせています。7自治体・34か所。</p>
+      <p><b>位置の精度：</b>31か所は実測座標です。「位置は目安」と表示された施設は、必ず電話で確認してから向かってください。</p>
+      <p><b>電話番号について：</b>施設の番号は代表番号です。給水の実施状況は自治体の担当課のほうが確実に答えられます。学校への問い合わせは避けてください。</p>
+      <p>地図：地理院タイル（国土地理院）</p>
+    </div>
+
+  </div>
+</div>
+<div class="ky-toast" id="kyToast"></div>
+
+<!-- ===== 熊本給水所 スクリプト ===== -->
+<script>
+(function(){
+/* ---------------------------------------------------------------
+   DATA — 更新はここだけ。updated の日時は必ず直すこと。
+   直し忘れると上部の鮮度バーが赤くなり「古い情報です」と表示される。
+--------------------------------------------------------------- */
+var KY_DATA = {
+  updated: "2026-07-29T17:00:00+09:00",
+  municipalities: [
+    { name:"熊本市 南区", center:[32.735,130.700], hours:"8:00〜19:00",
+      note:"南区城南町を中心に約9,000戸が断水。29日8時から給水を開始。",
+      tel:"096-381-1118", telName:"熊本市上下水道局",
+      srcName:"熊本市上下水道局", srcUrl:"https://www.kumamoto-waterworks.jp/",
+      sites:[
+        {name:"火の君文化センター",addr:"〒861-4214 熊本市南区城南町舞原394-1",tel:"0964-28-1800",lat:32.707373,lng:130.739915},
+        {name:"力合小学校",addr:"〒861-4134 熊本市南区刈草2-10-1",tel:"096-357-9417",lat:32.758155,lng:130.681319},
+        {name:"城南小学校",addr:"〒861-4106 熊本市南区南高江4-2-70",tel:"096-358-2380",lat:32.751483,lng:130.691224,warn:"位置は要確認（城南町ではなく南高江）"},
+        {name:"飽田南小学校",addr:"〒861-4117 熊本市南区護藤町999",tel:"096-357-9240",lat:32.750093,lng:130.662934},
+        {name:"隈庄小学校",addr:"〒861-4203 熊本市南区城南町隈庄270",tel:"0964-28-2045",lat:32.708175,lng:130.726765},
+        {name:"豊田小学校",addr:"〒861-4226 熊本市南区城南町塚原264",tel:"0964-28-2044",lat:32.690147,lng:130.745273},
+        {name:"力合西小学校",addr:"〒861-4136 熊本市南区荒尾1-11-1",tel:"096-358-8700",lat:32.763508,lng:130.671875},
+        {name:"天明中学校",addr:"〒861-4125 熊本市南区奥古閑町2146-1",tel:"096-223-0038",lat:32.734411,lng:130.636205},
+        {name:"富合中学校",addr:"〒861-4154 熊本市南区富合町平原56",tel:"096-357-4343",lat:32.706925,lng:130.684086},
+        {name:"御幸小学校",addr:"〒861-4172 熊本市南区御幸笛田7-16-1",tel:"096-379-1921",lat:32.754154,lng:130.715998}
+      ]},
+    { name:"宇城市", center:[32.647,130.683], hours:"8:30〜17:00",
+      note:"水量に限りがあるため、当面は1日1回・1人4リットルまで。容器は各自で持参してください。",
+      tel:"0964-32-1674", telName:"宇城市上下水道課",
+      srcName:"宇城市上下水道局", srcUrl:"https://www.city.uki.kumamoto.jp/kurashi/sumai/jogesuido/2606682",
+      sites:[
+        {name:"不知火防災拠点センター",addr:"〒869-0552 宇城市不知火町高良2273-1",tel:null,lat:32.646029,lng:130.668317},
+        {name:"宇城市役所",addr:"〒869-0531 宇城市松橋町大野85",tel:"0964-32-1111",lat:32.647911,lng:130.684293},
+        {name:"松橋東防災拠点センター",addr:"〒869-0524 宇城市松橋町豊福1786",tel:"0964-34-3900",lat:32.642929,lng:130.702769},
+        {name:"松橋西防災拠点センター",addr:"〒869-0502 宇城市松橋町松橋564-2",tel:"0964-33-4141",lat:32.651621,lng:130.678805},
+        {name:"小川防災拠点センター",addr:"〒869-0624 宇城市小川町江頭100",tel:"0964-48-6555",lat:32.592827,lng:130.703821},
+        {name:"豊野防災拠点センター",addr:"〒861-4301 宇城市豊野町糸石3140-3",tel:"0964-45-3700",lat:32.635921,lng:130.750943,warn:"建物は開放していないとの投稿あり。市に確認を"},
+        {name:"三角防災拠点センター",addr:"〒869-3205 宇城市三角町波多619",tel:"0964-53-1322",lat:32.613051,lng:130.479379,warn:"29日午後からの予定。開始前の可能性あり"}
+      ]},
+    { name:"宇土市", center:[32.689,130.658], hours:"7月29日 9:00〜（給水車）",
+      note:"給水車が巡回します。到着時刻は前後することがあります。",
+      tel:"0964-22-1111", telName:"宇土市役所",
+      srcName:"宇土市", srcUrl:"https://www.city.uto.lg.jp/category/list/1301.html",
+      sites:[
+        {name:"ecowin宇土アリーナ（市民体育館）",addr:"〒869-0432 宇土市旭町504",tel:"0964-23-3472",lat:32.684267,lng:130.664550},
+        {name:"宇土市スポーツセンター（立岡）",addr:"〒869-0413 宇土市花園町523-2",tel:"0964-22-1119",lat:32.676991,lng:130.694344},
+        {name:"網津地区グラウンド",addr:"〒869-0461 宇土市網津町 付近",tel:null,lat:32.696327,lng:130.599779,prec:"approx",warn:"網津小学校の位置を目安に表示。正確な場所は市に確認を"}
+      ]},
+    { name:"八代市", center:[32.507,130.602], hours:"場所ごとに異なります",
+      note:"市内ほぼ全域の約6万戸が断水。場所によって給水開始の時刻が違います。",
+      tel:"0965-32-7194", telName:"八代市水道局",
+      srcName:"八代市 緊急情報", srcUrl:"https://www.city.yatsushiro.lg.jp/kinkyu.html",
+      sites:[
+        {name:"太田郷コミュニティセンター",addr:"〒866-0825 八代市井上町601-1",tel:"0965-35-0222",lat:32.515224,lng:130.630014,hours:"7:00〜"},
+        {name:"第二中学校",addr:"〒866-0896 八代市日置町2248-1",tel:"0965-32-8139",lat:32.510927,lng:130.624631,hours:"7:00〜"},
+        {name:"代陽コミュニティセンター",addr:"〒866-0863 八代市西松江城町2-18",tel:"0965-31-5507",lat:32.507104,lng:130.597332,hours:"7:00〜"},
+        {name:"八代コミュニティセンター",addr:"〒866-0016 八代市新地町6-3",tel:"0965-34-3479",lat:32.509172,lng:130.590511,hours:"9時すぎ〜"},
+        {name:"郡築コミュニティセンター",addr:"〒866-0007 八代市郡築六番町61-2",tel:"0965-37-0175",lat:32.535456,lng:130.572971,hours:"10時ごろ〜"}
+      ]},
+    { name:"甲佐町", center:[32.658,130.789], hours:"時間の発表なし",
+      note:"町の発表に給水時間の記載がありません。出発前に電話で確認するのが確実です。",
+      tel:"096-234-1111", telName:"甲佐町役場",
+      srcName:"甲佐町", srcUrl:"https://www.town.kosa.lg.jp/q/aview/51/13513.html",
+      sites:[
+        {name:"船津地区河川防災ステーション",addr:"〒861-4605 上益城郡甲佐町有安771-62",tel:null,lat:32.663528,lng:130.804612},
+        {name:"津志田公民館",addr:"〒861-4617 上益城郡甲佐町津志田",tel:null,lat:32.686065,lng:130.789321,prec:"approx",warn:"津志田地区のおおよその位置。正確な場所は町に確認を"},
+        {name:"北原地区シーエスアイ駐車場",addr:"上益城郡甲佐町 北原地区",tel:null,lat:null,lng:null,prec:"none",warn:"場所を特定できませんでした。町に確認を"}
+      ]},
+    { name:"大津町", center:[32.877,130.869], hours:"時間の発表なし",
+      note:"町の発表に給水時間の記載がありません。出発前に電話で確認するのが確実です。",
+      tel:"096-293-3111", telName:"大津町役場",
+      srcName:"大津町", srcUrl:"https://www.town.ozu.kumamoto.jp/page/26590.html",
+      sites:[
+        {name:"矢護川コミュニティセンター（ふれあいセンター矢護川）",addr:"〒869-1211 菊池郡大津町矢護川476",tel:"096-293-2180",lat:32.917542,lng:130.881474},
+        {name:"オークスプラザ（町民交流施設）",addr:"〒869-1233 菊池郡大津町大津1220-1",tel:"096-293-1807",lat:32.878281,lng:130.868084},
+        {name:"大津町運動公園 総合体育館 北側",addr:"〒869-1217 菊池郡大津町森1000",tel:"096-293-8088",lat:32.874890,lng:130.896976}
+      ]},
+    { name:"人吉市", center:[32.211,130.762], hours:"市の発表を確認してください",
+      note:"29日11時に給水車を増設。",
+      tel:"0966-22-2111", telName:"人吉市役所",
+      srcName:"人吉市 防災無線", srcUrl:"https://www.city.hitoyoshi.lg.jp/toppage/bosaimusen/2500362",
+      sites:[
+        {name:"東間コミュニティセンター",addr:"〒868-0042 人吉市願成寺町1531-1",tel:"0966-24-3381",lat:32.196329,lng:130.775440},
+        {name:"蓑野町公民館",addr:"〒868-0061 人吉市蓑野町324-1",tel:null,lat:32.185247,lng:130.768998},
+        {name:"中原団地",addr:"〒868-0085 人吉市中神町段 付近",tel:null,lat:32.223670,lng:130.724430,prec:"approx",warn:"「中原団地前」バス停の位置。正確な給水地点は市に確認を"}
+      ]}
+  ]
+};
+/* ======================= ここまでがデータ ======================= */
+
+var SITES = [];
+KY_DATA.municipalities.forEach(function(m, mi){
+  m.sites.forEach(function(s, si){
+    var prec = s.prec || (s.lat != null ? "exact" : "none");
+    SITES.push({
+      id: mi+"-"+si, mi:mi, si:si, name:s.name, muni:m.name,
+      addr:s.addr||null, tel:s.tel||null, hours:s.hours||m.hours, warn:s.warn||null,
+      lat:s.lat, lng:s.lng, prec:prec, exact:(prec==="exact"),
+      plat: s.lat != null ? s.lat : m.center[0] + 0.020*Math.cos(2*Math.PI*si/m.sites.length),
+      plng: s.lng != null ? s.lng : m.center[1] + 0.024*Math.sin(2*Math.PI*si/m.sites.length),
+      muniTel:m.tel, muniTelName:m.telName, srcName:m.srcName, srcUrl:m.srcUrl
+    });
+  });
+});
+
+var filter="all", nearMode=false, here=null, kyMap=null, kyMarkers={}, kyBooted=false;
+
+function esc(t){ return String(t==null?"":t).replace(/[&<>"]/g, function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+function gmaps(s){
+  return s.exact
+    ? "https://www.google.com/maps/search/?api=1&query="+s.lat+","+s.lng
+    : "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent("熊本県 "+s.muni.replace(/ .*/,"")+" "+s.name);
+}
+function distKm(a,b,c,d){
+  var R=6371,p=Math.PI/180,x=(c-a)*p,y=(d-b)*p;
+  var h=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*p)*Math.cos(c*p)*Math.sin(y/2)*Math.sin(y/2);
+  return 2*R*Math.asin(Math.sqrt(h));
+}
+function toast(msg){
+  var t=document.getElementById('kyToast'); if(!t) return;
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(function(){ t.classList.remove('show'); },2200);
+}
+
+/* ---- 鮮度バー：更新から時間が経つほど強く警告する ---- */
+function kyFresh(){
+  var el=document.getElementById('kyFresh'); if(!el) return;
+  var t=new Date(KY_DATA.updated), h=(Date.now()-t.getTime())/36e5;
+  var ageEl=document.getElementById('kyAge'), msgEl=document.getElementById('kyAgeMsg');
+  var stamp=t.toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  el.className='ky-fresh';
+  if(h<0){ ageEl.textContent=stamp+' 時点'; msgEl.textContent=''; return; }
+  if(h<1) ageEl.textContent='数十分前の情報';
+  else if(h<24) ageEl.textContent=Math.floor(h)+'時間前の情報';
+  else ageEl.textContent=Math.floor(h/24)+'日前の情報';
+  if(h>=24){ el.className='ky-fresh stale';
+    msgEl.innerHTML='給水所は毎日変わります。<b>この一覧を信用せず</b>、各自治体の発表を直接見てください。（'+stamp+' 時点）'; }
+  else if(h>=8){ el.className='ky-fresh warn';
+    msgEl.textContent='出発前に自治体の発表で確認してください。（'+stamp+' 時点）'; }
+  else msgEl.textContent=stamp+' 時点';
+}
+
+/* ---- 地図（Leafletは開いたときだけ読み込む） ---- */
+function loadLeaflet(cb){
+  if(window.L) return cb();
+  var css=document.createElement('link');
+  css.rel='stylesheet'; css.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';
+  document.head.appendChild(css);
+  var js=document.createElement('script');
+  js.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+  js.onload=function(){ cb(); }; js.onerror=function(){ cb(new Error('leaflet')); };
+  document.head.appendChild(js);
+}
+function initKyMap(){
+  loadLeaflet(function(err){
+    if(err || !window.L){
+      document.getElementById('kyMapFail').style.display='block';
+      document.getElementById('kyMap').style.display='none'; return;
+    }
+    kyMap=L.map('kyMap',{zoomControl:true}).setView([32.62,130.70],10);
+    L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png',{
+      maxZoom:18, attribution:"<a href='https://maps.gsi.go.jp/development/ichiran.html'>地理院タイル</a>"
+    }).addTo(kyMap);
+    SITES.forEach(function(s){
+      var icon=L.divIcon({className:'',iconSize:[26,26],iconAnchor:[13,26],
+        html:'<div class="ky-pin'+(s.exact?'':' est')+'"><span>'+(s.si+1)+'</span></div>'});
+      var mk=L.marker([s.plat,s.plng],{icon:icon,title:s.name}).addTo(kyMap);
+      mk.bindPopup('<b>'+esc(s.name)+'</b><br>'+esc(s.muni)+'　'+esc(s.hours)
+        +(s.addr?'<br>'+esc(s.addr):'')
+        +(s.tel?"<br><a href='tel:"+esc(s.tel)+"'>"+esc(s.tel)+'</a>':'')
+        +(s.exact?'':"<br><span style='color:#ffc24d'>この位置は目安です。"+esc(s.muniTelName)+'（'+esc(s.muniTel)+'）に確認してください。</span>')
+        +"<br><a href='"+gmaps(s)+"' target='_blank' rel='noopener'>地図アプリで開く</a>");
+      kyMarkers[s.id]=mk;
+    });
+    setTimeout(function(){ kyMap.invalidateSize(); },120);
+  });
+}
+
+/* ---- 一覧 ---- */
+function kyChips(){
+  var c=document.getElementById('kyChips');
+  var html='<button class="ky-chip" data-f="all" aria-pressed="true">すべて<span class="n">'+SITES.length+'</span></button>';
+  KY_DATA.municipalities.forEach(function(m){
+    html+='<button class="ky-chip" data-f="'+esc(m.name)+'" aria-pressed="false">'+esc(m.name)+'<span class="n">'+m.sites.length+'</span></button>';
+  });
+  c.innerHTML=html;
+  Array.prototype.forEach.call(c.querySelectorAll('.ky-chip'), function(b){
+    b.onclick=function(){
+      filter=b.dataset.f;
+      Array.prototype.forEach.call(c.querySelectorAll('.ky-chip'), function(x){ x.setAttribute('aria-pressed', x===b); });
+      if(kyMap){
+        if(filter==='all') kyMap.setView([32.62,130.70],10);
+        else { var m=KY_DATA.municipalities.filter(function(x){return x.name===filter;})[0]; if(m) kyMap.setView(m.center,12); }
+      }
+      kyRender();
+    };
+  });
+}
+function kyCard(s){
+  return '<li class="ky-site">'
+   +'<div class="ky-top"><span class="ky-num">'+(s.si+1)+'</span><span class="ky-name">'+esc(s.name)+'</span></div>'
+   +(s.addr?'<p class="ky-addr">'+esc(s.addr)+'</p>':'')
+   +'<p class="ky-hrs"><b>'+esc(s.hours)+'</b></p>'
+   +(nearMode&&s.d!=null?'<p class="ky-dist">約'+s.d.toFixed(1)+'km'+(s.exact?'':'（目安）')+'</p>':'')
+   +(s.warn?'<span class="ky-badge">'+esc(s.warn)+'</span>':'')
+   +(s.prec==='approx'?'<span class="ky-badge">地図上の位置は目安</span>':'')
+   +(s.prec==='none'?'<span class="ky-badge">地図上の位置は未確定</span>':'')
+   +'<div class="ky-acts">'
+   +'<a class="pri" href="'+gmaps(s)+'" target="_blank" rel="noopener">地図アプリで開く</a>'
+   +(s.tel?'<a class="tel" href="tel:'+esc(s.tel)+'">'+esc(s.tel)+'</a>'
+          :'<a class="tel" href="tel:'+esc(s.muniTel)+'">'+esc(s.muniTelName)+'</a>')
+   +'<a href="'+esc(s.srcUrl)+'" target="_blank" rel="noopener">発表</a>'
+   +'</div></li>';
+}
+function kyRender(){
+  var list=document.getElementById('kyList');
+  var q=(document.getElementById('kyQ').value||'').trim();
+  var rows=SITES.filter(function(s){ return filter==='all'||s.muni===filter; });
+  if(q) rows=rows.filter(function(s){ return (s.name+' '+(s.addr||'')+' '+s.muni).indexOf(q)>=0; });
+
+  if(!rows.length){
+    list.innerHTML='<p class="ky-empty">「'+esc(q)+'」に一致する給水所はありません。自治体名だけで探すか、絞り込みを外してください。</p>';
+    return;
+  }
+  if(nearMode && here){
+    rows=rows.map(function(s){ var o={}; for(var k in s) o[k]=s[k];
+      o.d=distKm(here[0],here[1],s.plat,s.plng); return o; })
+      .sort(function(a,b){ return a.d-b.d; });
+    list.innerHTML='<section class="ky-muni"><h4>近い順</h4><ul class="ky-sites">'+rows.map(kyCard).join('')+'</ul></section>';
+  } else {
+    var groups={};
+    rows.forEach(function(s){ (groups[s.muni]=groups[s.muni]||[]).push(s); });
+    list.innerHTML=KY_DATA.municipalities.filter(function(m){ return groups[m.name]; }).map(function(m){
+      return '<section class="ky-muni"><h4>'+esc(m.name)+'</h4>'
+        +'<p class="ky-note">'+esc(m.note)+'</p>'
+        +'<p class="ky-mtel"><a href="tel:'+esc(m.tel)+'">📞 '+esc(m.telName)+'　'+esc(m.tel)+'</a></p>'
+        +'<a class="ky-src" href="'+esc(m.srcUrl)+'" target="_blank" rel="noopener">'+esc(m.srcName)+'の発表を見る →</a>'
+        +'<ul class="ky-sites">'+groups[m.name].map(kyCard).join('')+'</ul></section>';
+    }).join('');
+  }
+}
+
+/* ---- 開閉・共有・ホーム ---- */
+window.openKyusui=function(){
+  var el=document.getElementById('kyusuiModal');
+  el.classList.add('open');
+  document.body.style.overflow='hidden';
+  if(!kyBooted){
+    kyBooted=true;
+    kyChips();
+    document.getElementById('kyQ').addEventListener('input', kyRender);
+    kyRender(); initKyMap();
+    kyFresh(); setInterval(kyFresh, 60000);
+  } else if(kyMap){ setTimeout(function(){ kyMap.invalidateSize(); },120); }
+  if(history.replaceState) history.replaceState(null,'','#kyusui');
+};
+window.closeKyusui=function(){
+  document.getElementById('kyusuiModal').classList.remove('open');
+  document.body.style.overflow='';
+  if(history.replaceState) history.replaceState(null,'',location.pathname+location.search);
+};
+window.kyusuiGoHome=function(){
+  window.closeKyusui();
+  var top=document.getElementById('section-top');
+  if(top && top.scrollIntoView) top.scrollIntoView({behavior:'smooth',block:'start'});
+  else window.scrollTo({top:0,behavior:'smooth'});
+};
+window.shareKyusui=function(){
+  var url=location.origin+location.pathname+'#kyusui';
+  var data={ title:'熊本給水所マップ｜防災情報センター',
+             text:'令和8年熊本地震の給水所（7自治体・34か所）を地図と一覧で確認できます。',
+             url:url };
+  if(navigator.share){
+    navigator.share(data).catch(function(){});
+  } else if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(function(){ toast('リンクをコピーしました'); })
+      .catch(function(){ window.prompt('このリンクをコピーしてください', url); });
+  } else {
+    window.prompt('このリンクをコピーしてください', url);
+  }
+};
+window.kyToggleNear=function(btn){
+  if(nearMode){ nearMode=false; btn.setAttribute('aria-pressed','false');
+    btn.textContent='📍 現在地から近い順'; kyRender(); return; }
+  if(!navigator.geolocation){ toast('現在地を取得できません'); return; }
+  btn.textContent='現在地を確認中…';
+  navigator.geolocation.getCurrentPosition(function(p){
+    here=[p.coords.latitude,p.coords.longitude]; nearMode=true;
+    btn.setAttribute('aria-pressed','true'); btn.textContent='🗂 自治体ごとに戻す';
+    kyRender();
+  }, function(){ btn.textContent='📍 現在地から近い順'; toast('現在地を取得できません'); }, {timeout:8000});
+};
+
+document.addEventListener('keydown', function(e){
+  if(e.key==='Escape' && document.getElementById('kyusuiModal').classList.contains('open')) window.closeKyusui();
+});
+// 共有リンク（#kyusui）で開かれたら自動で表示
+function kyHashBoot(){ if(location.hash==='#kyusui') setTimeout(window.openKyusui, 400); }
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', kyHashBoot);
+else kyHashBoot();
 })();
 </script>
 
