@@ -4181,6 +4181,121 @@ button.dwa-plate{ padding:0; }
 @media (prefers-reduced-motion:reduce){ .kyusui-banner,.ky-toast{ transition:none; animation:none; } }
 </style>
 
+<style id="quakehub-style">
+/* ===================== 令和8年熊本地震 情報センター ===================== */
+.qh-banner{
+  display:flex; align-items:center; gap:13px; width:100%; box-sizing:border-box;
+  padding:14px 18px; border:0; text-align:left; cursor:pointer; color:#fff;
+  background:linear-gradient(100deg,#4a0d0d 0%,#a3200f 52%,#e0451c 100%);
+  position:relative; overflow:hidden; font-family:var(--user-font);
+  border-bottom:1px solid rgba(255,170,60,.3); box-shadow:0 4px 18px rgba(200,60,20,.3);
+}
+.qh-banner::before{ content:""; position:absolute; inset:0; pointer-events:none; opacity:.4;
+  background:repeating-linear-gradient(45deg,rgba(0,0,0,.1) 0 14px,transparent 14px 28px); }
+.qh-banner:active{ filter:brightness(.94); }
+.qh-banner .qb-i{ font-size:26px; flex-shrink:0; position:relative; z-index:1; }
+.qh-banner .qb-t{ flex:1; min-width:0; position:relative; z-index:1; }
+.qh-banner .qb-title{ font-size:16px; font-weight:900; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.qh-banner .qb-tag{ font-family:'Orbitron',monospace; font-size:9px; font-weight:700; letter-spacing:.14em;
+  padding:2px 7px; border-radius:4px; background:rgba(255,255,255,.22); }
+.qh-banner .qb-sub{ font-size:12px; opacity:.93; margin-top:3px; line-height:1.5; }
+.qh-banner .qb-a{ font-size:20px; opacity:.9; position:relative; z-index:1; }
+.d-tab.qhub:hover,.d-tab.qhub.active{ color:#ff8a5c; border-bottom-color:#ff8a5c; }
+
+#quakeHub{ display:none; position:fixed; inset:0; z-index:99500;
+  background:rgba(2,6,14,.94); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+  overflow-y:auto; -webkit-overflow-scrolling:touch; }
+#quakeHub.open{ display:block; }
+.qh-inner{ max-width:860px; margin:0 auto; min-height:100%; background:var(--bg);
+  border-left:1px solid var(--border); border-right:1px solid var(--border); }
+
+.qh-bar{ position:sticky; top:0; z-index:30; display:flex; align-items:center; gap:8px;
+  padding:10px 12px; padding-top:calc(10px + env(safe-area-inset-top));
+  background:rgba(4,8,15,.97); border-bottom:1px solid var(--border);
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
+.qh-bar .qh-brand{ font-family:'Orbitron',monospace; font-size:11px; font-weight:700; letter-spacing:.1em;
+  color:#ff7a4d; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.qh-bar button{ flex-shrink:0; display:inline-flex; align-items:center; gap:5px; cursor:pointer;
+  padding:8px 12px; border-radius:8px; font-family:var(--user-font); font-size:12.5px; font-weight:700; white-space:nowrap;
+  background:rgba(0,180,255,.1); border:1px solid rgba(0,180,255,.38); color:#8fd9ff; }
+.qh-bar button.qh-share{ background:rgba(0,255,224,.1); border-color:rgba(0,255,224,.4); color:#00ffe0; }
+.qh-bar button.qh-home{ background:rgba(255,213,79,.1); border-color:rgba(255,213,79,.38); color:#ffd54f; }
+
+.qh-fresh{ padding:11px 16px; background:#0b4a6e; color:#eaf7ff; display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; }
+.qh-fresh.warn{ background:#7a4a06; } .qh-fresh.stale{ background:#8c1a13; }
+.qh-fresh .age{ font-family:'Orbitron',monospace; font-weight:900; font-size:15px; }
+.qh-fresh .msg{ font-size:12.5px; opacity:.95; line-height:1.5; }
+.qh-loading{ padding:11px 16px; background:rgba(0,180,255,.08); color:#8fd9ff; font-size:12.5px; }
+
+.qh-head{ padding:16px 16px 4px; }
+.qh-head h3{ margin:0; font-size:21px; font-weight:900; color:var(--text); }
+.qh-head p{ margin:7px 0 0; font-size:12.5px; color:var(--muted); line-height:1.65; }
+
+/* セクションタブ */
+.qh-tabs{ position:sticky; top:52px; z-index:25; display:flex; gap:7px; overflow-x:auto;
+  padding:12px 16px; background:rgba(4,8,15,.96); border-bottom:1px solid var(--border);
+  scrollbar-width:none; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
+.qh-tabs::-webkit-scrollbar{ display:none; }
+.qh-tab{ flex:0 0 auto; padding:8px 13px; border-radius:999px; cursor:pointer; white-space:nowrap;
+  font-size:13px; font-weight:700; font-family:var(--user-font);
+  background:var(--surface2); border:1px solid var(--border); color:var(--muted); }
+.qh-tab[aria-selected="true"]{ background:rgba(224,69,28,.18); border-color:#e0451c; color:#ffb499; }
+
+.qh-body{ padding:16px; }
+.qh-sec{ margin:0 0 12px; }
+.qh-sec > h4{ margin:0 0 10px; font-size:19px; font-weight:900; color:var(--text); display:flex; align-items:center; gap:9px; }
+.qh-sec .qh-secnote{ margin:0 0 12px; padding:11px 13px; background:var(--surface2);
+  border-left:3px solid #e0451c; border-radius:0 8px 8px 0; font-size:13px; color:var(--text); line-height:1.7; }
+
+/* 数値カード */
+.qh-stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:9px; margin:0 0 14px; }
+.qh-stat{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:13px 14px; }
+.qh-stat .l{ font-size:12px; color:var(--muted); line-height:1.4; }
+.qh-stat .v{ font-family:'Orbitron',monospace; font-size:26px; font-weight:900; color:var(--text); line-height:1.2; margin-top:5px; }
+.qh-stat .v .u{ font-family:var(--user-font); font-size:13px; font-weight:700; margin-left:3px; color:var(--muted); }
+.qh-stat .s{ font-size:11.5px; color:var(--muted); margin-top:5px; line-height:1.5; }
+.qh-stat.alert{ border-color:rgba(224,69,28,.5); } .qh-stat.alert .v{ color:#ff7a4d; }
+.qh-stat.warn{ border-color:rgba(255,180,60,.45); } .qh-stat.warn .v{ color:#ffc24d; }
+.qh-stat.ok{ border-color:rgba(0,224,122,.4); } .qh-stat.ok .v{ color:#00e07a; }
+.qh-stat.pending .v{ color:var(--muted); font-size:17px; }
+
+/* 明細リスト */
+.qh-rows{ display:grid; gap:8px; margin:0 0 14px; }
+.qh-row{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
+.qh-row .rt{ font-size:15px; font-weight:800; color:var(--text); line-height:1.45; }
+.qh-row .rd{ font-size:12.5px; color:var(--muted); margin-top:5px; line-height:1.7; }
+.qh-row.alert{ border-left:3px solid #e0451c; } .qh-row.warn{ border-left:3px solid #ffc24d; }
+.qh-row.ok{ border-left:3px solid #00e07a; }
+.qh-badge{ display:inline-block; margin-top:7px; padding:3px 8px; border-radius:5px; font-size:11px; font-weight:700;
+  background:rgba(255,180,60,.12); border:1px solid rgba(255,180,60,.34); color:#ffc24d; }
+.qh-src{ font-size:11px; color:var(--muted); margin-top:7px; }
+
+/* 窓口・リンク */
+.qh-links{ display:grid; gap:8px; }
+.qh-link{ display:flex; align-items:center; gap:11px; padding:12px 14px; border-radius:10px; text-decoration:none;
+  background:var(--surface); border:1px solid var(--border); }
+.qh-link .li{ font-size:20px; flex-shrink:0; }
+.qh-link .lt{ flex:1; min-width:0; }
+.qh-link .lt b{ display:block; font-size:14.5px; color:var(--text); font-weight:800; line-height:1.4; }
+.qh-link .lt span{ display:block; font-size:12px; color:var(--muted); margin-top:3px; line-height:1.5; }
+.qh-link .la{ color:#8fd9ff; font-size:16px; flex-shrink:0; }
+.qh-link.tel{ border-color:rgba(0,192,96,.35); } .qh-link.tel .la{ color:#00e07a; }
+.qh-inline{ display:inline-flex; align-items:center; gap:5px; margin:10px 8px 0 0; padding:9px 14px; border-radius:8px;
+  font-size:13px; font-weight:700; text-decoration:none; cursor:pointer; font-family:var(--user-font);
+  background:rgba(0,180,255,.14); border:1px solid rgba(0,180,255,.45); color:#bfe9ff; }
+
+.qh-foot{ padding:8px 16px 44px; }
+.qh-foot .qh-home-big{ width:100%; padding:15px; border-radius:10px; cursor:pointer; font-family:var(--user-font);
+  font-size:15px; font-weight:900; background:rgba(255,213,79,.1); border:1px solid rgba(255,213,79,.38);
+  color:#ffd54f; margin-bottom:16px; }
+.qh-foot p{ margin:0 0 9px; font-size:11.5px; color:var(--muted); line-height:1.75; }
+@media(max-width:700px){
+  .qh-bar button{ padding:8px 10px; font-size:11.5px; } .qh-bar .qh-brand{ font-size:10px; }
+  .qh-tabs{ top:50px; } .qh-stats{ grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); }
+  .qh-stat .v{ font-size:22px; }
+}
+</style>
+
 </head>
 
 <body>
@@ -5496,6 +5611,9 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
 <!-- split-open 時に disaster-tabs をここへ戻すためのアンカー -->
 <span id="dtabsAnchor" style="display:none"></span>
 <div class="disaster-tabs" data-tour="tabs">
+  <button type="button" class="d-tab qhub" onclick="openQuakeHub()">
+    <span class="tab-icon">🔴</span>熊本地震情報
+  </button>
   <button type="button" class="d-tab kyusui" onclick="openKyusui()">
     <span class="tab-icon">💧</span>熊本給水所
   </button>
@@ -5518,6 +5636,16 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     <span class="tab-icon">🚨</span>大雨危険度
   </a>
 </div>
+
+<!-- ===== 熊本地震 情報センター バナー ===== -->
+<button type="button" class="qh-banner" onclick="openQuakeHub()">
+  <span class="qb-i">🔴</span>
+  <span class="qb-t">
+    <span class="qb-title">令和8年熊本地震 情報センター<span class="qb-tag">LIVE</span></span>
+    <span class="qb-sub">被害状況・ライフライン・交通・避難所・医療・罹災証明・相談窓口<br>14セクションを１日２回更新でまとめています</span>
+  </span>
+  <span class="qb-a">›</span>
+</button>
 
 <!-- ===== 熊本給水所 バナー ===== -->
 <button type="button" class="kyusui-banner" onclick="openKyusui()">
@@ -13597,7 +13725,9 @@ function noticeLinkClick(ev, url){
       var modalMap = {
         'open-stamp':   function(){ if(typeof openStampCard==='function') openStampCard(); },
         'open-shindan': function(){ if(typeof openShindanModal==='function') openShindanModal(); },
-        'open-post':    function(){ if(typeof openPostModal==='function') openPostModal(); }
+        'open-post':    function(){ if(typeof openPostModal==='function') openPostModal(); },
+        'open-kyusui':  function(){ if(typeof openKyusui==='function') openKyusui(); },
+        'open-quake':   function(){ if(typeof openQuakeHub==='function') openQuakeHub(); }
       };
 
       if(samePage || !target.pathname || target.pathname === '/'){
@@ -19160,6 +19290,398 @@ document.addEventListener('keydown', function(e){
 function kyHashBoot(){ if(location.hash==='#kyusui') setTimeout(window.openKyusui, 400); }
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', kyHashBoot);
 else kyHashBoot();
+})();
+</script>
+
+
+<!-- ===== 令和8年熊本地震 情報センター ===== -->
+<div id="quakeHub" role="dialog" aria-modal="true" aria-label="令和8年熊本地震 情報センター" onclick="if(event.target===this)closeQuakeHub()">
+  <div class="qh-inner">
+    <div class="qh-bar">
+      <span class="qh-brand">🔴 KUMAMOTO 2026</span>
+      <button type="button" class="qh-share" onclick="shareQuakeHub()">🔗 共有</button>
+      <button type="button" class="qh-home" onclick="quakeHubGoHome()">🏠 ホーム</button>
+      <button type="button" onclick="closeQuakeHub()" aria-label="閉じる">✕</button>
+    </div>
+    <div class="qh-fresh" id="qhFresh" role="status"><span class="age" id="qhAge">--</span><span class="msg" id="qhAgeMsg"></span></div>
+    <div class="qh-loading" id="qhLoading" style="display:none;">最新情報を取得しています…</div>
+    <div class="qh-head">
+      <h3>令和8年熊本地震 情報センター</h3>
+      <p id="qhLead">2026年7月28日16時27分、熊本県熊本地方でM7.1の地震。宇城市と氷川町で最大震度7を観測しました。情報は1日2回（朝・夕）を目安に更新しています。行動の前に、必ず各自治体の公式発表で最新の状況をご確認ください。</p>
+    </div>
+    <div class="qh-tabs" id="qhTabs" role="tablist"></div>
+    <div class="qh-body" id="qhBody"></div>
+    <div class="qh-foot">
+      <button type="button" class="qh-home-big" onclick="quakeHubGoHome()">🏠 ホームに戻る</button>
+      <p><b>この情報について：</b>各府省庁・熊本県・各市町村・ライフライン事業者・報道機関の発表をもとに、1日2回を目安にまとめています。数値は発表時点のもので、その後変動します。「確認中」と表示されている項目は、公式発表が出ていないか、当方で確認が取れていないものです。</p>
+      <p><b>お願い：</b>被災自治体・社会福祉協議会への電話でのお問い合わせは、災害対応の妨げになります。可能な限りお控えください。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 令和8年熊本地震 情報センター スクリプト ===== -->
+<script>
+(function(){
+/* ---------------------------------------------------------------
+   フォールバック用スナップショット（2026-07-31 朝時点）
+   通常はスプレッドシート（GAS ?type=quake）の内容で上書きされる。
+   シートが空・通信失敗のときだけ、この内容が表示される。
+--------------------------------------------------------------- */
+var QH_FALLBACK = {
+  updated: "2026-07-31T07:00:00+09:00",
+  sections: [
+    { key:"概況", icon:"📊", title:"概況・人的被害",
+      note:"7月28日16時27分、熊本県熊本地方でM7.1の地震。宇城市と氷川町で最大震度7を観測しました。真夏に震度7が発生したのは観測史上初めてです。",
+      stats:[
+        {l:"死者", v:"34", u:"人", s:"災害との関連を調査中の方を含む／うち25人は市町村が地震が原因と認定（30日16時・県災害対策本部）", tone:"alert"},
+        {l:"負傷者", v:"64", u:"人以上", s:"29日16時・県発表。精査中", tone:"warn"},
+        {l:"最大震度", v:"7", u:"", s:"宇城市・氷川町", tone:"alert"},
+        {l:"震度3以上の地震", v:"58", u:"回", s:"30日正午まで。震度6弱以上も複数回", tone:"warn"}
+      ],
+      rows:[
+        {t:"イオンモール熊本（嘉島町）", d:"地震後に爆発が発生。7人が死亡、5人がけが、捜索が続いています。", tone:"alert", src:"30日21時・報道"},
+        {t:"日本製紙八代工場（八代市）", d:"煙突の一部が折れて倒壊。閉じ込められた11人のうち8人の死亡を確認、2人負傷、1人が安否不明です。", tone:"alert", src:"30日・報道"}
+      ] },
+
+    { key:"建物", icon:"🏚️", title:"建物被害",
+      note:"被害認定調査が進行中です。数値は今後大きく増える可能性があります。",
+      stats:[
+        {l:"氷川町 全壊", v:"125", u:"棟", s:"800棟以上に被害（30日）", tone:"alert"},
+        {l:"県全体の住家被害", v:"調査中", u:"", s:"罹災証明の申請受付とあわせて集計中", tone:"pending"}
+      ],
+      rows:[
+        {t:"熊本城", d:"天守閣近くの石垣が崩落しました。2016年の地震からの復旧途上での再被災です。", tone:"warn"},
+        {t:"エレベーター閉じ込め", d:"31件（熊本県28件、鹿児島県2件相当、福岡県2件）発生し、全て救出済みです。", tone:"ok", src:"29日6時・国交省"},
+        {t:"港湾", d:"熊本県や八代市などが管理する9港で、液状化や亀裂などの被害を確認しています。", tone:"warn", src:"30日・国交省"}
+      ] },
+
+    { key:"給水", icon:"💧", title:"給水の実施状況",
+      note:"給水所の場所・時間・住所・電話番号は、専用の地図から確認できます。",
+      stats:[
+        {l:"収録している給水所", v:"34", u:"か所", s:"7自治体", tone:"ok"}
+      ],
+      rows:[
+        {t:"実施中の自治体", d:"熊本市南区／宇城市／宇土市／八代市／甲佐町／大津町／人吉市", tone:"ok"},
+        {t:"容器の持参が必要です", d:"宇城市では当面、1日1回・1人4リットルまでの制限があります。自治体によって条件が異なります。", tone:"warn"}
+      ],
+      buttons:[ {label:"💧 給水所マップを開く", act:"kyusui"} ] },
+
+    { key:"避難所", icon:"🏫", title:"避難所・避難者",
+      note:"避難所の開設状況は市町村ごとに変わります。最新の一覧は各市町村の公式サイトでご確認ください。",
+      stats:[
+        {l:"避難者数", v:"確認中", u:"", s:"各市町村が集計中", tone:"pending"},
+        {l:"開設避難所", v:"確認中", u:"", s:"開設・閉鎖が随時発生します", tone:"pending"}
+      ],
+      rows:[
+        {t:"暑さ対策が進んでいます", d:"避難所向けにスポットクーラー300台が入間基地から輸送されました。段ボールベッドや電源車のプッシュ型支援も実施されています。", tone:"ok"},
+        {t:"自衛隊駐屯地の開放", d:"津波注意報の発表に伴い、別府駐屯地と北熊本駐屯地が一時避難所として開放されました。", tone:"ok"}
+      ],
+      links:[
+        {i:"🏛️", t:"熊本県 令和8年熊本地震に関する情報", s:"県内の避難情報・支援情報の入口", url:"https://www.pref.kumamoto.jp/soshiki/1/274517.html"}
+      ] },
+
+    { key:"ライフライン", icon:"⚡", title:"電気・ガス・水道・通信",
+      note:"復旧見込みは変更されることがあります。各事業者の発表をあわせてご確認ください。",
+      stats:[
+        {l:"断水", v:"約95,200", u:"戸", s:"11市町（30日9時半・国交省）", tone:"alert"},
+        {l:"停電", v:"約22,940", u:"戸", s:"30日5時時点。31日夕に全域復旧見込み（九州電力）", tone:"warn"},
+        {l:"ガス", v:"確認中", u:"", s:"事業者の発表を確認中", tone:"pending"},
+        {l:"通信", v:"確認中", u:"", s:"各キャリアの発表を確認中", tone:"pending"}
+      ],
+      rows:[
+        {t:"断水の内訳", d:"八代市 約25,300戸（市内全域）／宇城市 約18,000戸（市内全域）／宇土市 約12,200戸／熊本市 約8,700戸／人吉市 地下水の濁りにより新たに15,000戸。福岡・長崎・佐賀の一部で発生した断水は復旧済みです。", tone:"alert", src:"30日9時半・国交省"},
+        {t:"停電の復旧見込み", d:"九州電力と九州電力送配電は、31日夕に県内全域で復旧する見込みと発表しました。ただし各家庭への引き込み線が断線している場合は、個別に時間がかかります。", tone:"warn", src:"30日・九州電力"},
+        {t:"給水支援", d:"自衛隊が八代市1か所・宇城市5か所で給水を開始し、宇土市・御船町にも拡大。海上保安庁も巡視船2隻で給水活動を行っています。", tone:"ok"}
+      ] },
+
+    { key:"医療", icon:"🚑", title:"医療の状況",
+      note:"急性期の医療支援が全国から入っています。",
+      stats:[
+        {l:"転院した患者", v:"約120", u:"人", s:"国立病院機構熊本南病院（宇城市）入院126人のうち", tone:"warn"}
+      ],
+      rows:[
+        {t:"DMATの派遣", d:"厚生労働省DMAT事務局の要請により、全国から災害派遣医療チームが参集しています。宮崎県は7チームとコーディネーションチーム2、鹿児島県は11隊が出動しました。", tone:"ok"},
+        {t:"熊本南病院（宇城市）", d:"診療の継続が困難となり、入院患者126人のうち約120人が熊本市内などの病院へ転院しました。一部はヘリコプターで搬送されています。", tone:"warn"},
+        {t:"避難所での医療相談", d:"八代市の太田郷コミュニティセンターに医療相談ブースが特設され、住民への医療支援と物資支援が行われています。", tone:"ok"},
+        {t:"熱中症に注意してください", d:"停電でエアコンが使えない地域は、屋内でも熱中症の危険があります。断水中でも水分を惜しまないでください。睡眠不足もリスクを上げます。", tone:"alert"}
+      ] },
+
+    { key:"交通", icon:"🚗", title:"道路・鉄道・空港",
+      note:"緊急車両と物資輸送のため、不要不急の高速道路のご利用はお控えください。",
+      rows:[
+        {t:"【鉄道】九州新幹線 筑後船小屋〜熊本", d:"31日始発から運転再開。上りは熊本6時08分発博多行き、下りは博多6時42分発熊本行きから。おおむね1時間に1〜2本、すべて各駅停車です。山陽新幹線との相互直通運転は行いません。", tone:"ok", src:"JR九州"},
+        {t:"【鉄道】九州新幹線 熊本〜鹿児島中央", d:"終日運転取りやめ。復旧には時間がかかる見込みです。", tone:"alert", src:"JR九州"},
+        {t:"【鉄道】西九州新幹線・在来線", d:"西九州新幹線は28日中に全線再開済み。在来線は安全を確認できた区間から順次再開しています。", tone:"ok"},
+        {t:"【高速】通行止め継続", d:"E3九州自動車道 松橋IC〜えびのIC（上下線）／E3A南九州自動車道 八代JCT〜日奈久IC（上下線）。南九州道の妙見第一橋では道路が上下にずれる損傷が見つかっています。", tone:"alert", src:"NEXCO西日本"},
+        {t:"【高速】解除済み", d:"益城熊本空港IC〜松橋IC、九州中央道 嘉島JCT〜益城TB（30日9時4分解除）、植木IC〜益城熊本空港IC、えびのIC〜栗野IC、宮崎道 えびのJCT〜高原IC。一部区間で復旧作業のための車線規制があります。", tone:"ok", src:"NEXCO西日本"},
+        {t:"【空港】阿蘇くまもと空港", d:"30日から平常運航。余震により変更となる可能性があるため、航空各社のサイトで最新の運航情報をご確認ください。JALは九州新幹線の運休に伴い福岡〜鹿児島に臨時便を運航しています。", tone:"ok"}
+      ],
+      links:[
+        {i:"🛣️", t:"NEXCO西日本 交通情報", s:"通行止め・規制の最新状況", url:"https://www.w-nexco.co.jp/"},
+        {i:"✈️", t:"阿蘇くまもと空港 公式サイト", s:"運航への影響のお知らせ", url:"https://www.kumamoto-airport.co.jp/"}
+      ] },
+
+    { key:"罹災証明", icon:"📄", title:"罹災証明・支援制度",
+      note:"災害救助法が適用されています。罹災証明書は、税や保険料の減免、被災者生活再建支援金の申請に必要になります。",
+      rows:[
+        {t:"熊本市は受付を開始しています", d:"30日から全5区役所と総合出張所7か所の窓口で申請受付が始まりました。", tone:"ok"},
+        {t:"オンライン申請ができます", d:"マイナンバーカードとマイナポータルを使い、窓口へ行かずに申請できます。29日時点で熊本市・八代市・宇土市など17自治体が対応しています。対応状況は自治体により異なります。", tone:"ok"},
+        {t:"自己判定方式", d:"被害の程度が軽い場合、写真の提出により「一部損壊」と判定する方式を選べる自治体があります。現地調査を待たずに証明書が出るため、早く手続きしたい方は確認してください。", tone:"ok"},
+        {t:"写真を撮っておいてください", d:"片づける前に、被害の状況を複数の角度から撮影してください。全体が写る「引き」の写真と、損傷部分の「寄り」の写真の両方が必要です。", tone:"warn"},
+        {t:"災害弔慰金・災害障害見舞金", d:"亡くなられた方のご遺族、重度の障害を負われた方が対象です。災害関連死と認められた場合も含みます。", tone:"normal"},
+        {t:"応急修理制度", d:"半壊以上などの被害を受け、そのままでは住めない状態の住宅について、応急的な修理費用の支援を受けられる場合があります。", tone:"normal"}
+      ],
+      links:[
+        {i:"💻", t:"デジタル庁 罹災証明書のオンライン申請", s:"対応自治体の一覧", url:"https://www.digital.go.jp/news/f83a8d24-4c79-4c47-b768-6a2435c3d350"}
+      ] },
+
+    { key:"就学", icon:"🎒", title:"就学・こども",
+      note:"避難によって通学が難しくなった場合の相談を受け付けています。",
+      rows:[
+        {t:"指定校変更・区域外就学", d:"被害により居住地を離れて避難している児童生徒について、申し立てに基づき期間などを相談のうえ許可されます。避難先の住所を確認できるもの（賃貸契約書・同居証明書など）、本人と保護者を確認できるもの、罹災証明書等が必要です。罹災証明書はコピーや後日提出でも受け付けられる場合があります。", tone:"ok"},
+        {t:"学校の再開状況", d:"市町村・学校ごとに異なります。各教育委員会からの連絡をご確認ください。", tone:"pending"},
+        {t:"こどもの心のケア", d:"揺れが続く環境では、眠れない、甘えが強くなる、落ち着かないといった反応が出ることがあります。多くは自然な反応です。気になる場合は避難所の保健師や医療相談ブースにご相談ください。", tone:"normal"}
+      ] },
+
+    { key:"防犯", icon:"🚨", title:"防犯・悪質商法",
+      note:"災害に便乗した被害が発生しやすい時期です。",
+      rows:[
+        {t:"住宅修理をめぐるトラブル", d:"「今すぐ契約しないと順番が回らない」といった勧誘に注意してください。その場で契約せず、必ず複数社を比較し、家族や自治体の相談窓口に相談してください。", tone:"alert"},
+        {t:"不審な電話・訪問", d:"自治体職員や工事業者を装った訪問、義援金を求める電話が確認されています。身分証の提示を求め、少しでも不審なら扉を開けず、警察に連絡してください。", tone:"alert"},
+        {t:"賃貸退去のトラブル", d:"被災による退去や修繕について、相談窓口が設けられています。", tone:"warn"},
+        {t:"留守宅の防犯", d:"避難で家を空ける際は、可能な範囲で施錠を。窓が割れている場合はブルーシートや板で塞ぎ、貴重品は持ち出してください。", tone:"warn"}
+      ],
+      links:[
+        {i:"📞", t:"消費者ホットライン", s:"188（いやや）／局番なしでつながります", tel:"188"},
+        {i:"👮", t:"警察相談専用電話", s:"#9110／緊急時は110番", tel:"#9110"}
+      ] },
+
+    { key:"相談窓口", icon:"☎️", title:"相談窓口",
+      note:"被災自治体への電話は災害対応の妨げになります。緊急でない用件は、公式サイトの確認を優先してください。",
+      links:[
+        {i:"💧", t:"熊本市上下水道局", s:"断水・給水について", tel:"096-381-1118"},
+        {i:"💧", t:"宇城市上下水道課", s:"断水・給水について", tel:"0964-32-1674"},
+        {i:"💧", t:"八代市水道局", s:"断水・給水について", tel:"0965-32-7194"},
+        {i:"🏛️", t:"宇土市役所", s:"代表番号", tel:"0964-22-1111"},
+        {i:"🏛️", t:"甲佐町役場", s:"代表番号", tel:"096-234-1111"},
+        {i:"🏛️", t:"大津町役場", s:"代表番号", tel:"096-293-3111"},
+        {i:"🏛️", t:"人吉市役所", s:"代表番号", tel:"0966-22-2111"},
+        {i:"💚", t:"こころの健康相談統一ダイヤル", s:"0570-064-556", tel:"0570-064-556"}
+      ] },
+
+    { key:"天気", icon:"🌡️", title:"天気・暑さ指数",
+      note:"復旧作業と避難生活のうえで、いまは暑さが最大のリスクです。",
+      stats:[
+        {l:"熱中症警戒アラート", v:"28", u:"都府県", s:"関東〜九州（31日対象）。熊本県は対象外です", tone:"warn"},
+        {l:"県内の予想最高気温", v:"35", u:"℃以上", s:"猛暑日となる所が多い見込み", tone:"alert"}
+      ],
+      rows:[
+        {t:"31日の熊本県内", d:"各地で夏空が広がり、朝から強い日差しが照りつけます。急な雨や雷雨はない見込みです。最高気温は30日と同じか、さらに高くなる予想です。", tone:"warn"},
+        {t:"30日の実況", d:"八代市35.2℃（午前8時前に30℃超、午後6時でも31.8℃）、熊本市34.9℃、甲佐町35℃以上。八代市では1日のうち30℃を超えた時間が約11時間に達しました。", tone:"alert"},
+        {t:"来週はさらに危険な暑さに", d:"8月2日頃から熊本市で39℃前後、5日頃には宇城市・氷川町・八代市でも39℃近くまで上がる予想です。酷暑日（40℃以上）一歩手前の危険な暑さになります。", tone:"alert"},
+        {t:"雨が降ったときの土砂災害", d:"当面は晴れの予報ですが、震度7と58回を超える揺れで地盤が緩んでいます。雨の予報が出たら、平時より一段早く動いてください。", tone:"warn"}
+      ],
+      links:[
+        {i:"🌡️", t:"環境省 熱中症予防情報サイト", s:"地点別の暑さ指数（WBGT）", url:"https://www.wbgt.env.go.jp/"}
+      ] },
+
+    { key:"ボランティア", icon:"🤝", title:"ボランティア・支援",
+      note:"「行けば役に立つ」ではなく「受け入れ準備が整ってから」が原則です。",
+      rows:[
+        {t:"熊本県災害ボランティアセンター", d:"7月29日に熊本県社会福祉協議会が設置しました。市町村ごとのセンターは、安全確保と被害状況を踏まえて順次設置される段階です。", tone:"ok"},
+        {t:"参加前に必ず募集条件の確認を", d:"受け入れ対象を県内在住者に限定している場合があります。装備・保険・集合方法も含め、各センターの案内を確認してから向かってください。", tone:"warn"},
+        {t:"電話での問い合わせはお控えください", d:"被災自治体や社会福祉協議会への電話は、災害対応業務の支障になります。最新情報は熊本県社会福祉協議会のサイトでご確認ください。", tone:"alert"},
+        {t:"支援金・義援金", d:"日本財団がNPO・ボランティア団体への助成と寄付受付を開始。中央共同募金会が「ボラサポ・令和8年熊本地震」を実施しています。九州各地の自治体でも義援金箱の設置が広がっています。", tone:"ok"}
+      ],
+      links:[
+        {i:"🤝", t:"熊本県社会福祉協議会", s:"災害ボランティア関連情報", url:"https://www.fukushi-kumamoto.or.jp/"}
+      ] },
+
+    { key:"情報の扱い", icon:"📵", title:"デマ・情報の扱い",
+      note:"発災直後は誤情報が広がりやすくなります。",
+      rows:[
+        {t:"雲と地震を関連付ける投稿にご注意", d:"「地震雲」など、雲の形から次の地震を予測したとする投稿がSNSで拡散しています。現在の科学では地震の予知はできません。根拠のない予測は拡散しないでください。", tone:"alert"},
+        {t:"拡散する前に発信元の確認を", d:"気象庁・自治体・ライフライン事業者・報道機関のいずれかが出している情報かを確認してください。「知り合いから聞いた」情報の転載は、救助や復旧の妨げになります。", tone:"warn"},
+        {t:"古い情報が回り続けます", d:"通行止めや断水は日ごとに変わります。投稿の日時を必ず確認し、日付のない情報は共有しないでください。", tone:"warn"}
+      ],
+      links:[
+        {i:"🌐", t:"気象庁", s:"地震・津波・気象の公式発表", url:"https://www.jma.go.jp/"},
+        {i:"🏛️", t:"内閣府 防災情報のページ", s:"政府の被害状況まとめ", url:"https://www.bousai.go.jp/updates/r8kumamoto_jishin/index.html"}
+      ] }
+  ]
+};
+
+var QH = null, qhTab = 0, qhBooted = false;
+
+/* シートの内容でスナップショットを「セクション単位で」上書きする。
+   シートが空でも、書きかけでも、必ず全セクションが表示される。
+   → 運用初日から破綻せず、埋めたところから順に反映されていく。 */
+function qhMerge(sheet){
+  var base = JSON.parse(JSON.stringify(QH_FALLBACK));
+  if(!sheet) return base;
+  if(sheet.updated) base.updated = sheet.updated;
+  if(sheet.lead){ var el=document.getElementById('qhLead'); if(el) el.textContent = sheet.lead; }
+  if(!sheet.sections || !sheet.sections.length) return base;
+  var idx = {};
+  base.sections.forEach(function(s,i){ idx[s.key] = i; });
+  sheet.sections.forEach(function(s){
+    if(!s || !s.key) return;
+    var has = (s.stats&&s.stats.length)||(s.rows&&s.rows.length)||(s.links&&s.links.length)||s.note;
+    if(!has) return;                      // 空セクションはスナップショットを残す
+    var keep = base.sections[idx[s.key]];
+    if(keep){
+      if(keep.buttons && !s.buttons) s.buttons = keep.buttons;  // 給水所ボタン等は維持
+      s.icon = s.icon || keep.icon; s.title = s.title || keep.title;
+      base.sections[idx[s.key]] = s;
+    } else base.sections.push(s);
+  });
+  return base;
+}
+function esc(t){ return String(t==null?"":t).replace(/[&<>"]/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+
+/* ---- スプレッドシートから取得（失敗時はスナップショットを使う） ---- */
+function qhLoad(cb){
+  var url = (typeof ARTICLES_URL !== 'undefined' && ARTICLES_URL) ? ARTICLES_URL : '';
+  if(!url){ QH = QH_FALLBACK; return cb(); }
+  var done = false, cbName = 'qhCb' + Date.now();
+  var finish = function(data){
+    if(done) return; done = true;
+    try{ delete window[cbName]; }catch(e){ window[cbName] = undefined; }
+    if(s && s.parentNode) s.parentNode.removeChild(s);
+    document.getElementById('qhLoading').style.display = 'none';
+    QH = qhMerge(data && data.quake);
+    cb();
+  };
+  window[cbName] = function(d){ finish(d); };
+  document.getElementById('qhLoading').style.display = 'block';
+  var s = document.createElement('script');
+  s.src = url + '?type=quake&callback=' + cbName + '&_=' + Date.now();
+  s.onerror = function(){ finish(null); };
+  document.head.appendChild(s);
+  setTimeout(function(){ finish(null); }, 8000); // 通信が遅くても必ず表示する
+}
+
+/* ---- 鮮度バー ---- */
+function qhFresh(){
+  var el = document.getElementById('qhFresh'); if(!el || !QH) return;
+  var t = new Date(QH.updated), h = (Date.now() - t.getTime())/36e5;
+  var a = document.getElementById('qhAge'), m = document.getElementById('qhAgeMsg');
+  var stamp = t.toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  el.className = 'qh-fresh';
+  if(isNaN(h)){ a.textContent = '更新時刻の記録なし'; m.textContent = ''; el.className='qh-fresh warn'; return; }
+  if(h < 1) a.textContent = '数十分前の情報';
+  else if(h < 24) a.textContent = Math.floor(h) + '時間前の情報';
+  else a.textContent = Math.floor(h/24) + '日前の情報';
+  if(h >= 24){ el.className = 'qh-fresh stale';
+    m.innerHTML = '半日ごとの更新が止まっています。<b>この内容を信用せず</b>、各自治体・気象庁の発表を直接ご確認ください。（' + stamp + ' 時点）'; }
+  else if(h >= 13){ el.className = 'qh-fresh warn';
+    m.textContent = '次の更新時刻を過ぎています。公式発表をあわせてご確認ください。（' + stamp + ' 時点）'; }
+  else m.textContent = stamp + ' 時点';
+}
+
+/* ---- 描画 ---- */
+function qhTabs(){
+  var c = document.getElementById('qhTabs');
+  c.innerHTML = QH.sections.map(function(s,i){
+    return '<button class="qh-tab" role="tab" data-i="'+i+'" aria-selected="'+(i===qhTab)+'">'
+      + esc(s.icon||'') + ' ' + esc(s.title||s.key) + '</button>';
+  }).join('');
+  Array.prototype.forEach.call(c.querySelectorAll('.qh-tab'), function(b){
+    b.onclick = function(){ qhTab = +b.dataset.i; qhTabs(); qhRender();
+      document.getElementById('qhBody').scrollIntoView({block:'nearest'}); };
+  });
+}
+function qhRender(){
+  var s = QH.sections[qhTab]; if(!s) return;
+  var h = '<section class="qh-sec"><h4>' + esc(s.icon||'') + ' ' + esc(s.title||s.key) + '</h4>';
+  if(s.note) h += '<p class="qh-secnote">' + esc(s.note) + '</p>';
+
+  if(s.stats && s.stats.length){
+    h += '<div class="qh-stats">' + s.stats.map(function(x){
+      return '<div class="qh-stat ' + esc(x.tone||'') + '">'
+        + '<div class="l">' + esc(x.l) + '</div>'
+        + '<div class="v">' + esc(x.v) + (x.u ? '<span class="u">' + esc(x.u) + '</span>' : '') + '</div>'
+        + (x.s ? '<div class="s">' + esc(x.s) + '</div>' : '') + '</div>';
+    }).join('') + '</div>';
+  }
+  if(s.rows && s.rows.length){
+    h += '<div class="qh-rows">' + s.rows.map(function(x){
+      return '<div class="qh-row ' + esc(x.tone||'') + '">'
+        + '<div class="rt">' + esc(x.t) + '</div>'
+        + (x.d ? '<div class="rd">' + esc(x.d) + '</div>' : '')
+        + (x.badge ? '<span class="qh-badge">' + esc(x.badge) + '</span>' : '')
+        + (x.src ? '<div class="qh-src">' + esc(x.src) + '</div>' : '') + '</div>';
+    }).join('') + '</div>';
+  }
+  if(s.links && s.links.length){
+    h += '<div class="qh-links">' + s.links.map(function(x){
+      var href = x.tel ? ('tel:' + esc(x.tel)) : esc(x.url||'#');
+      var ext  = x.tel ? '' : ' target="_blank" rel="noopener"';
+      return '<a class="qh-link' + (x.tel?' tel':'') + '" href="' + href + '"' + ext + '>'
+        + '<span class="li">' + esc(x.i||'🔗') + '</span>'
+        + '<span class="lt"><b>' + esc(x.t) + '</b>' + (x.s ? '<span>' + esc(x.s) + '</span>' : '') + '</span>'
+        + '<span class="la">' + (x.tel ? '📞' : '›') + '</span></a>';
+    }).join('') + '</div>';
+  }
+  if(s.buttons && s.buttons.length){
+    h += s.buttons.map(function(b){
+      if(b.act === 'kyusui') return '<button type="button" class="qh-inline" onclick="qhOpenKyusui()">' + esc(b.label) + '</button>';
+      return '<a class="qh-inline" href="' + esc(b.url||'#') + '" target="_blank" rel="noopener">' + esc(b.label) + '</a>';
+    }).join('');
+  }
+  document.getElementById('qhBody').innerHTML = h + '</section>';
+}
+
+/* ---- 開閉・共有・ホーム ---- */
+window.openQuakeHub = function(sectionKey){
+  var el = document.getElementById('quakeHub');
+  el.classList.add('open'); document.body.style.overflow = 'hidden';
+  if(history.replaceState) history.replaceState(null,'','#quake');
+  var show = function(){
+    if(sectionKey){
+      var i = QH.sections.map(function(s){ return s.key; }).indexOf(sectionKey);
+      if(i >= 0) qhTab = i;
+    }
+    qhFresh(); qhTabs(); qhRender();
+  };
+  if(!qhBooted){ qhBooted = true; qhLoad(function(){ show(); setInterval(qhFresh, 60000); }); }
+  else show();
+};
+window.closeQuakeHub = function(){
+  document.getElementById('quakeHub').classList.remove('open');
+  document.body.style.overflow = '';
+  if(history.replaceState) history.replaceState(null,'',location.pathname + location.search);
+};
+window.quakeHubGoHome = function(){
+  window.closeQuakeHub();
+  var top = document.getElementById('section-top');
+  if(top && top.scrollIntoView) top.scrollIntoView({behavior:'smooth',block:'start'});
+  else window.scrollTo({top:0,behavior:'smooth'});
+};
+window.shareQuakeHub = function(){
+  var url = location.origin + location.pathname + '#quake';
+  var d = { title:'令和8年熊本地震 情報センター｜防災情報センター',
+            text:'被害状況・ライフライン・交通・給水・支援制度・相談窓口を、1日2回更新でまとめています。', url:url };
+  if(navigator.share){ navigator.share(d).catch(function(){}); }
+  else if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(function(){
+      if(typeof toast === 'function') toast('リンクをコピーしました');
+      else window.alert('リンクをコピーしました');
+    }).catch(function(){ window.prompt('このリンクをコピーしてください', url); });
+  } else window.prompt('このリンクをコピーしてください', url);
+};
+window.qhOpenKyusui = function(){
+  window.closeQuakeHub();
+  setTimeout(function(){ if(typeof openKyusui === 'function') openKyusui(); }, 180);
+};
+
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && document.getElementById('quakeHub').classList.contains('open')) window.closeQuakeHub();
+});
+function qhHashBoot(){ if(location.hash === '#quake') setTimeout(function(){ window.openQuakeHub(); }, 400); }
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', qhHashBoot);
+else qhHashBoot();
 })();
 </script>
 
