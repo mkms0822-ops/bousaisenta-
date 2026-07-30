@@ -4232,10 +4232,38 @@ button.dwa-plate{ padding:0; }
 .qh-head p{ margin:7px 0 0; font-size:12.5px; color:var(--muted); line-height:1.65; }
 
 /* セクションタブ */
-.qh-tabs{ position:sticky; top:52px; z-index:25; display:flex; gap:7px; overflow-x:auto;
-  padding:12px 16px; background:rgba(4,8,15,.96); border-bottom:1px solid var(--border);
-  scrollbar-width:none; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
+.qh-tabswrap{ position:sticky; top:52px; z-index:25; display:flex; align-items:stretch;
+  background:rgba(4,8,15,.96); border-bottom:1px solid var(--border);
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
+.qh-tabsbox{ position:relative; flex:1 1 auto; min-width:0; }
+.qh-tabs{ display:flex; gap:7px; overflow-x:auto; padding:12px 8px 12px 16px;
+  scrollbar-width:none; -webkit-overflow-scrolling:touch; }
 .qh-tabs::-webkit-scrollbar{ display:none; }
+/* 端のフェード：まだ続きがあることを示す */
+.qh-fade{ position:absolute; top:0; bottom:0; width:34px; pointer-events:none; z-index:2;
+  opacity:0; transition:opacity .18s; }
+.qh-fade.on{ opacity:1; }
+.qh-fade.l{ left:0;  background:linear-gradient(90deg,rgba(4,8,15,.98),rgba(4,8,15,0)); }
+.qh-fade.r{ right:0; background:linear-gradient(270deg,rgba(4,8,15,.98),rgba(4,8,15,0)); }
+/* 右端に固定する「一覧」ボタン */
+.qh-more{ flex:0 0 auto; align-self:center; margin:0 12px 0 2px; cursor:pointer;
+  display:inline-flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
+  min-width:46px; padding:7px 8px; border-radius:9px; font-family:var(--user-font);
+  background:var(--surface2); border:1px solid var(--border); color:#ffb499; line-height:1; }
+.qh-more .mi{ font-size:15px; }
+.qh-more .ml{ font-size:9.5px; font-weight:700; letter-spacing:.02em; }
+.qh-more[aria-expanded="true"]{ background:rgba(224,69,28,.2); border-color:#e0451c; }
+/* 全セクション一覧 */
+.qh-grid{ display:none; padding:12px 16px 14px; background:var(--surface2);
+  border-bottom:1px solid var(--border); }
+.qh-grid.open{ display:block; }
+.qh-grid .gg{ display:grid; grid-template-columns:repeat(auto-fill,minmax(148px,1fr)); gap:8px; }
+.qh-gitem{ display:flex; align-items:center; gap:8px; padding:11px 12px; border-radius:9px; cursor:pointer;
+  text-align:left; font-family:var(--user-font); font-size:13px; font-weight:700; line-height:1.35;
+  background:var(--surface); border:1px solid var(--border); color:var(--text); }
+.qh-gitem .gi{ font-size:16px; flex-shrink:0; }
+.qh-gitem[aria-current="true"]{ background:rgba(224,69,28,.16); border-color:#e0451c; color:#ffb499; }
+.qh-gnote{ margin:0 0 9px; font-size:11.5px; color:var(--muted); }
 .qh-tab{ flex:0 0 auto; padding:8px 13px; border-radius:999px; cursor:pointer; white-space:nowrap;
   font-size:13px; font-weight:700; font-family:var(--user-font);
   background:var(--surface2); border:1px solid var(--border); color:var(--muted); }
@@ -4291,8 +4319,144 @@ button.dwa-plate{ padding:0; }
 .qh-foot p{ margin:0 0 9px; font-size:11.5px; color:var(--muted); line-height:1.75; }
 @media(max-width:700px){
   .qh-bar button{ padding:8px 10px; font-size:11.5px; } .qh-bar .qh-brand{ font-size:10px; }
-  .qh-tabs{ top:50px; } .qh-stats{ grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); }
+  .qh-tabswrap{ top:50px; }
+  .qh-grid .gg{ grid-template-columns:repeat(auto-fill,minmax(132px,1fr)); } .qh-stats{ grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); }
   .qh-stat .v{ font-size:22px; }
+}
+</style>
+
+<style id="qh-ky-light-fix">
+/* =============================================================
+   ライト系テーマ（light / pastel 5種）での可読性修正
+   ダーク前提の淡色文字（#bfe9ff 等）が白背景で読めなくなるため、
+   文字は var(--text)（＝#111827 のほぼ黒）と濃色アクセントに置き換える。
+   ============================================================= */
+html.light, html.pastel-pink, html.pastel-sky,
+html.pastel-yellow, html.pastel-green, html.pastel-purple{
+  --qc-blue:#0059a8; --qc-teal:#046b5d; --qc-amber:#8a5b00;
+  --qc-red:#b8300f;  --qc-green:#06663a;
+}
+
+/* ---------- 共通：オーバーレイと固定バー ---------- */
+html.light #quakeHub, html.pastel-pink #quakeHub, html.pastel-sky #quakeHub,
+html.pastel-yellow #quakeHub, html.pastel-green #quakeHub, html.pastel-purple #quakeHub,
+html.light #kyusuiModal, html.pastel-pink #kyusuiModal, html.pastel-sky #kyusuiModal,
+html.pastel-yellow #kyusuiModal, html.pastel-green #kyusuiModal, html.pastel-purple #kyusuiModal{
+  background:rgba(210,222,234,.94);
+}
+html.light .qh-bar, html.pastel-pink .qh-bar, html.pastel-sky .qh-bar,
+html.pastel-yellow .qh-bar, html.pastel-green .qh-bar, html.pastel-purple .qh-bar,
+html.light .ky-bar, html.pastel-pink .ky-bar, html.pastel-sky .ky-bar,
+html.pastel-yellow .ky-bar, html.pastel-green .ky-bar, html.pastel-purple .ky-bar,
+html.light .qh-tabswrap, html.pastel-pink .qh-tabswrap, html.pastel-sky .qh-tabswrap,
+html.pastel-yellow .qh-tabswrap, html.pastel-green .qh-tabswrap, html.pastel-purple .qh-tabswrap{
+  background:var(--header-bg);
+}
+/* タブ端のフェードは背景色に合わせる（黒いモヤが出るのを防ぐ） */
+html.light .qh-fade.l, html.pastel-pink .qh-fade.l, html.pastel-sky .qh-fade.l,
+html.pastel-yellow .qh-fade.l, html.pastel-green .qh-fade.l, html.pastel-purple .qh-fade.l{
+  background:linear-gradient(90deg,var(--bg),rgba(255,255,255,0));
+}
+html.light .qh-fade.r, html.pastel-pink .qh-fade.r, html.pastel-sky .qh-fade.r,
+html.pastel-yellow .qh-fade.r, html.pastel-green .qh-fade.r, html.pastel-purple .qh-fade.r{
+  background:linear-gradient(270deg,var(--bg),rgba(255,255,255,0));
+}
+
+/* ---------- ボタン・リンク類の文字色 ---------- */
+html.light .qh-bar button, html.pastel-pink .qh-bar button, html.pastel-sky .qh-bar button,
+html.pastel-yellow .qh-bar button, html.pastel-green .qh-bar button, html.pastel-purple .qh-bar button,
+html.light .ky-bar button, html.pastel-pink .ky-bar button, html.pastel-sky .ky-bar button,
+html.pastel-yellow .ky-bar button, html.pastel-green .ky-bar button, html.pastel-purple .ky-bar button,
+html.light .qh-inline, html.pastel-pink .qh-inline, html.pastel-sky .qh-inline,
+html.pastel-yellow .qh-inline, html.pastel-green .qh-inline, html.pastel-purple .qh-inline,
+html.light .ky-acts a, html.pastel-pink .ky-acts a, html.pastel-sky .ky-acts a,
+html.pastel-yellow .ky-acts a, html.pastel-green .ky-acts a, html.pastel-purple .ky-acts a,
+html.light .ky-acts button, html.pastel-pink .ky-acts button, html.pastel-sky .ky-acts button,
+html.pastel-yellow .ky-acts button, html.pastel-green .ky-acts button, html.pastel-purple .ky-acts button,
+html.light .ky-tools button, html.pastel-pink .ky-tools button, html.pastel-sky .ky-tools button,
+html.pastel-yellow .ky-tools button, html.pastel-green .ky-tools button, html.pastel-purple .ky-tools button,
+html.light .qh-more, html.pastel-pink .qh-more, html.pastel-sky .qh-more,
+html.pastel-yellow .qh-more, html.pastel-green .qh-more, html.pastel-purple .qh-more,
+html.light .qh-foot .qh-home-big, html.pastel-pink .qh-foot .qh-home-big, html.pastel-sky .qh-foot .qh-home-big,
+html.pastel-yellow .qh-foot .qh-home-big, html.pastel-green .qh-foot .qh-home-big, html.pastel-purple .qh-foot .qh-home-big,
+html.light .ky-foot .ky-home-big, html.pastel-pink .ky-foot .ky-home-big, html.pastel-sky .ky-foot .ky-home-big,
+html.pastel-yellow .ky-foot .ky-home-big, html.pastel-green .ky-foot .ky-home-big, html.pastel-purple .ky-foot .ky-home-big{
+  color:var(--text);
+}
+/* 主ボタンはベタ塗り＋白文字で最大コントラストに */
+html.light .ky-acts a.pri, html.pastel-pink .ky-acts a.pri, html.pastel-sky .ky-acts a.pri,
+html.pastel-yellow .ky-acts a.pri, html.pastel-green .ky-acts a.pri, html.pastel-purple .ky-acts a.pri{
+  background:var(--qc-blue); border-color:var(--qc-blue); color:#fff;
+}
+/* 電話リンクは緑を濃くする */
+html.light .ky-acts a.tel, html.pastel-pink .ky-acts a.tel, html.pastel-sky .ky-acts a.tel,
+html.pastel-yellow .ky-acts a.tel, html.pastel-green .ky-acts a.tel, html.pastel-purple .ky-acts a.tel,
+html.light .ky-muni .ky-mtel a, html.pastel-pink .ky-muni .ky-mtel a, html.pastel-sky .ky-muni .ky-mtel a,
+html.pastel-yellow .ky-muni .ky-mtel a, html.pastel-green .ky-muni .ky-mtel a, html.pastel-purple .ky-muni .ky-mtel a,
+html.light .qh-link.tel .la, html.pastel-pink .qh-link.tel .la, html.pastel-sky .qh-link.tel .la,
+html.pastel-yellow .qh-link.tel .la, html.pastel-green .qh-link.tel .la, html.pastel-purple .qh-link.tel .la{
+  color:var(--qc-green); border-color:rgba(6,102,58,.45);
+}
+
+/* ---------- 見出し・強調文字 ---------- */
+html.light .ky-muni h4, html.pastel-pink .ky-muni h4, html.pastel-sky .ky-muni h4,
+html.pastel-yellow .ky-muni h4, html.pastel-green .ky-muni h4, html.pastel-purple .ky-muni h4,
+html.light .ky-muni .ky-src, html.pastel-pink .ky-muni .ky-src, html.pastel-sky .ky-muni .ky-src,
+html.pastel-yellow .ky-muni .ky-src, html.pastel-green .ky-muni .ky-src, html.pastel-purple .ky-muni .ky-src,
+html.light .ky-bar .ky-brand, html.pastel-pink .ky-bar .ky-brand, html.pastel-sky .ky-bar .ky-brand,
+html.pastel-yellow .ky-bar .ky-brand, html.pastel-green .ky-bar .ky-brand, html.pastel-purple .ky-bar .ky-brand,
+html.light .qh-link .la, html.pastel-pink .qh-link .la, html.pastel-sky .qh-link .la,
+html.pastel-yellow .qh-link .la, html.pastel-green .qh-link .la, html.pastel-purple .qh-link .la,
+html.light .qh-loading, html.pastel-pink .qh-loading, html.pastel-sky .qh-loading,
+html.pastel-yellow .qh-loading, html.pastel-green .qh-loading, html.pastel-purple .qh-loading{
+  color:var(--qc-blue);
+}
+html.light .ky-site .ky-dist, html.pastel-pink .ky-site .ky-dist, html.pastel-sky .ky-site .ky-dist,
+html.pastel-yellow .ky-site .ky-dist, html.pastel-green .ky-site .ky-dist, html.pastel-purple .ky-site .ky-dist{
+  color:var(--qc-teal);
+}
+html.light .qh-bar .qh-brand, html.pastel-pink .qh-bar .qh-brand, html.pastel-sky .qh-bar .qh-brand,
+html.pastel-yellow .qh-bar .qh-brand, html.pastel-green .qh-bar .qh-brand, html.pastel-purple .qh-bar .qh-brand,
+html.light .qh-tab[aria-selected="true"], html.pastel-pink .qh-tab[aria-selected="true"], html.pastel-sky .qh-tab[aria-selected="true"],
+html.pastel-yellow .qh-tab[aria-selected="true"], html.pastel-green .qh-tab[aria-selected="true"], html.pastel-purple .qh-tab[aria-selected="true"],
+html.light .qh-gitem[aria-current="true"], html.pastel-pink .qh-gitem[aria-current="true"], html.pastel-sky .qh-gitem[aria-current="true"],
+html.pastel-yellow .qh-gitem[aria-current="true"], html.pastel-green .qh-gitem[aria-current="true"], html.pastel-purple .qh-gitem[aria-current="true"],
+html.light .qh-stat.alert .v, html.pastel-pink .qh-stat.alert .v, html.pastel-sky .qh-stat.alert .v,
+html.pastel-yellow .qh-stat.alert .v, html.pastel-green .qh-stat.alert .v, html.pastel-purple .qh-stat.alert .v{
+  color:var(--qc-red);
+}
+html.light .qh-stat.warn .v, html.pastel-pink .qh-stat.warn .v, html.pastel-sky .qh-stat.warn .v,
+html.pastel-yellow .qh-stat.warn .v, html.pastel-green .qh-stat.warn .v, html.pastel-purple .qh-stat.warn .v,
+html.light .qh-badge, html.pastel-pink .qh-badge, html.pastel-sky .qh-badge,
+html.pastel-yellow .qh-badge, html.pastel-green .qh-badge, html.pastel-purple .qh-badge,
+html.light .ky-badge, html.pastel-pink .ky-badge, html.pastel-sky .ky-badge,
+html.pastel-yellow .ky-badge, html.pastel-green .ky-badge, html.pastel-purple .ky-badge,
+html.light .ky-mapfail, html.pastel-pink .ky-mapfail, html.pastel-sky .ky-mapfail,
+html.pastel-yellow .ky-mapfail, html.pastel-green .ky-mapfail, html.pastel-purple .ky-mapfail{
+  color:var(--qc-amber); background:rgba(180,120,0,.1); border-color:rgba(180,120,0,.4);
+}
+html.light .qh-stat.ok .v, html.pastel-pink .qh-stat.ok .v, html.pastel-sky .qh-stat.ok .v,
+html.pastel-yellow .qh-stat.ok .v, html.pastel-green .qh-stat.ok .v, html.pastel-purple .qh-stat.ok .v{
+  color:var(--qc-green);
+}
+/* 地図のポップアップ */
+html.light #kyMap .leaflet-popup-content-wrapper, html.pastel-pink #kyMap .leaflet-popup-content-wrapper,
+html.pastel-sky #kyMap .leaflet-popup-content-wrapper, html.pastel-yellow #kyMap .leaflet-popup-content-wrapper,
+html.pastel-green #kyMap .leaflet-popup-content-wrapper, html.pastel-purple #kyMap .leaflet-popup-content-wrapper,
+html.light #kyMap .leaflet-popup-tip, html.pastel-pink #kyMap .leaflet-popup-tip,
+html.pastel-sky #kyMap .leaflet-popup-tip, html.pastel-yellow #kyMap .leaflet-popup-tip,
+html.pastel-green #kyMap .leaflet-popup-tip, html.pastel-purple #kyMap .leaflet-popup-tip{
+  background:var(--surface); color:var(--text);
+}
+html.light #kyMap .leaflet-popup-content a, html.pastel-pink #kyMap .leaflet-popup-content a,
+html.pastel-sky #kyMap .leaflet-popup-content a, html.pastel-yellow #kyMap .leaflet-popup-content a,
+html.pastel-green #kyMap .leaflet-popup-content a, html.pastel-purple #kyMap .leaflet-popup-content a{
+  color:var(--qc-blue);
+}
+/* トースト */
+html.light .ky-toast, html.pastel-pink .ky-toast, html.pastel-sky .ky-toast,
+html.pastel-yellow .ky-toast, html.pastel-green .ky-toast, html.pastel-purple .ky-toast{
+  background:var(--surface); border-color:var(--qc-teal); color:var(--text);
 }
 </style>
 
@@ -19309,7 +19473,17 @@ else kyHashBoot();
       <h3>令和8年熊本地震 情報センター</h3>
       <p id="qhLead">2026年7月28日16時27分、熊本県熊本地方でM7.1の地震。宇城市と氷川町で最大震度7を観測しました。情報は1日2回（朝・夕）を目安に更新しています。行動の前に、必ず各自治体の公式発表で最新の状況をご確認ください。</p>
     </div>
-    <div class="qh-tabs" id="qhTabs" role="tablist"></div>
+    <div class="qh-tabswrap">
+      <div class="qh-tabsbox">
+        <div class="qh-tabs" id="qhTabs" role="tablist"></div>
+        <span class="qh-fade l" id="qhFadeL"></span>
+        <span class="qh-fade r" id="qhFadeR"></span>
+      </div>
+      <button type="button" class="qh-more" id="qhMore" aria-expanded="false" aria-controls="qhGrid" onclick="qhToggleGrid()">
+        <span class="mi">⊞</span><span class="ml">一覧</span>
+      </button>
+    </div>
+    <div class="qh-grid" id="qhGrid"><p class="qh-gnote">全１４セクション</p><div class="gg" id="qhGridBody"></div></div>
     <div class="qh-body" id="qhBody"></div>
     <div class="qh-foot">
       <button type="button" class="qh-home-big" onclick="quakeHubGoHome()">🏠 ホームに戻る</button>
@@ -19588,10 +19762,50 @@ function qhTabs(){
       + esc(s.icon||'') + ' ' + esc(s.title||s.key) + '</button>';
   }).join('');
   Array.prototype.forEach.call(c.querySelectorAll('.qh-tab'), function(b){
-    b.onclick = function(){ qhTab = +b.dataset.i; qhTabs(); qhRender();
-      document.getElementById('qhBody').scrollIntoView({block:'nearest'}); };
+    b.onclick = function(){ qhGo(+b.dataset.i); };
   });
+  // 全セクション一覧（14個あるので、横スクロールだけに頼らない）
+  var g = document.getElementById('qhGridBody');
+  g.innerHTML = QH.sections.map(function(s,i){
+    return '<button class="qh-gitem" data-i="'+i+'" aria-current="'+(i===qhTab)+'">'
+      + '<span class="gi">' + esc(s.icon||'') + '</span><span>' + esc(s.title||s.key) + '</span></button>';
+  }).join('');
+  Array.prototype.forEach.call(g.querySelectorAll('.qh-gitem'), function(b){
+    b.onclick = function(){ qhGo(+b.dataset.i); qhSetGrid(false); };
+  });
+  document.querySelector('.qh-grid .qh-gnote').textContent = '全' + QH.sections.length + 'セクション';
+  qhCenter(); qhFade();
 }
+/* 選ばれたタブを見える位置まで動かす */
+function qhCenter(){
+  var c = document.getElementById('qhTabs');
+  var b = c.querySelector('.qh-tab[aria-selected="true"]');
+  if(!b) return;
+  var want = b.offsetLeft - (c.clientWidth - b.offsetWidth) / 2;
+  try{ c.scrollTo({ left: Math.max(0, want), behavior:'smooth' }); }
+  catch(e){ c.scrollLeft = Math.max(0, want); }
+}
+/* 端のフェードで「まだ続きがある」ことを示す */
+function qhFade(){
+  var c = document.getElementById('qhTabs');
+  var L = document.getElementById('qhFadeL'), R = document.getElementById('qhFadeR');
+  if(!c || !L || !R) return;
+  var max = c.scrollWidth - c.clientWidth;
+  L.className = 'qh-fade l' + (c.scrollLeft > 6 ? ' on' : '');
+  R.className = 'qh-fade r' + (c.scrollLeft < max - 6 ? ' on' : '');
+}
+function qhGo(i){
+  qhTab = i; qhTabs(); qhRender();
+  var b = document.getElementById('qhBody');
+  if(b && b.scrollIntoView) b.scrollIntoView({ block:'nearest' });
+}
+function qhSetGrid(open){
+  document.getElementById('qhGrid').classList.toggle('open', !!open);
+  document.getElementById('qhMore').setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+window.qhToggleGrid = function(){
+  qhSetGrid(!document.getElementById('qhGrid').classList.contains('open'));
+};
 function qhRender(){
   var s = QH.sections[qhTab]; if(!s) return;
   var h = '<section class="qh-sec"><h4>' + esc(s.icon||'') + ' ' + esc(s.title||s.key) + '</h4>';
@@ -19639,6 +19853,7 @@ window.openQuakeHub = function(sectionKey){
   el.classList.add('open'); document.body.style.overflow = 'hidden';
   if(history.replaceState) history.replaceState(null,'','#quake');
   var show = function(){
+    qhSetGrid(false);
     if(sectionKey){
       var i = QH.sections.map(function(s){ return s.key; }).indexOf(sectionKey);
       if(i >= 0) qhTab = i;
@@ -19679,6 +19894,11 @@ window.qhOpenKyusui = function(){
 document.addEventListener('keydown', function(e){
   if(e.key === 'Escape' && document.getElementById('quakeHub').classList.contains('open')) window.closeQuakeHub();
 });
+(function(){
+  var t = document.getElementById('qhTabs');
+  if(t) t.addEventListener('scroll', qhFade, { passive:true });
+  window.addEventListener('resize', function(){ qhFade(); });
+})();
 function qhHashBoot(){ if(location.hash === '#quake') setTimeout(function(){ window.openQuakeHub(); }, 400); }
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', qhHashBoot);
 else qhHashBoot();
