@@ -4460,6 +4460,82 @@ html.pastel-yellow .ky-toast, html.pastel-green .ky-toast, html.pastel-purple .k
 }
 </style>
 
+<style id="support-style">
+/* ===================== 活動サポートのお願い ===================== */
+.sup-banner{ display:flex; align-items:center; gap:13px; width:100%; box-sizing:border-box;
+  padding:14px 18px; border:0; text-align:left; cursor:pointer; color:#fff; font-family:var(--user-font);
+  background:linear-gradient(100deg,#3a2a05 0%,#8a6410 52%,#c99a1e 100%);
+  position:relative; overflow:hidden; border-bottom:1px solid rgba(255,213,79,.3); }
+.sup-banner::before{ content:""; position:absolute; inset:0; pointer-events:none; opacity:.35;
+  background:repeating-linear-gradient(45deg,rgba(0,0,0,.1) 0 14px,transparent 14px 28px); }
+.sup-banner:active{ filter:brightness(.94); }
+.sup-banner .sb-i{ font-size:25px; flex-shrink:0; position:relative; z-index:1; }
+.sup-banner .sb-t{ flex:1; min-width:0; position:relative; z-index:1; }
+.sup-banner .sb-title{ font-size:15.5px; font-weight:900; }
+.sup-banner .sb-sub{ font-size:12px; opacity:.93; margin-top:3px; line-height:1.5; }
+.sup-banner .sb-a{ font-size:20px; opacity:.9; position:relative; z-index:1; }
+.d-tab.support:hover,.d-tab.support.active{ color:#ffd54f; border-bottom-color:#ffd54f; }
+
+#supportModal{ display:none; position:fixed; inset:0; z-index:99550;
+  background:rgba(2,6,14,.94); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+  overflow-y:auto; -webkit-overflow-scrolling:touch; }
+#supportModal.open{ display:block; }
+.sup-inner{ max-width:800px; margin:0 auto; min-height:100%; background:var(--bg);
+  border-left:1px solid var(--border); border-right:1px solid var(--border); }
+.sup-bar{ position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:8px;
+  padding:10px 12px; padding-top:calc(10px + env(safe-area-inset-top));
+  background:var(--header-bg); border-bottom:1px solid var(--border);
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
+.sup-bar .sup-brand{ font-family:'Orbitron',monospace; font-size:11px; font-weight:700;
+  letter-spacing:.1em; color:#ffd54f; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sup-bar button{ flex-shrink:0; cursor:pointer; padding:8px 12px; border-radius:8px;
+  font-family:var(--user-font); font-size:12.5px; font-weight:700; white-space:nowrap;
+  background:rgba(0,180,255,.1); border:1px solid rgba(0,180,255,.38); color:var(--text); }
+.sup-bar button.sup-home{ background:rgba(255,213,79,.1); border-color:rgba(255,213,79,.38); }
+
+.sup-body{ padding:18px 16px 40px; }
+.sup-body h3{ margin:0 0 6px; font-size:22px; font-weight:900; color:var(--text); line-height:1.4; }
+.sup-body .sup-lead{ margin:0 0 20px; font-size:13.5px; color:var(--muted); line-height:1.85; }
+.sup-body h4{ margin:26px 0 10px; font-size:16.5px; font-weight:900; color:var(--text);
+  display:flex; align-items:center; gap:9px; }
+.sup-body h4::after{ content:""; flex:1; height:1px; background:var(--border); }
+.sup-body p{ margin:0 0 12px; font-size:13.5px; color:var(--text); line-height:1.95; }
+.sup-body ul{ margin:0 0 12px; padding-left:1.3em; }
+.sup-body li{ font-size:13.5px; color:var(--text); line-height:1.9; margin-bottom:5px; }
+.sup-note{ padding:13px 15px; border-radius:9px; background:var(--surface2);
+  border-left:3px solid #ffd54f; font-size:13px; line-height:1.85; color:var(--text); margin:0 0 14px; }
+.sup-warn{ padding:13px 15px; border-radius:9px; background:rgba(224,69,28,.1);
+  border:1px solid rgba(224,69,28,.4); font-size:13px; line-height:1.85; color:var(--text); margin:0 0 14px; }
+.sup-card{ background:var(--surface); border:1px solid var(--border); border-radius:11px;
+  padding:16px 17px; margin:0 0 14px; }
+.sup-bank{ border-color:rgba(255,213,79,.5); }
+.sup-bank dl{ margin:0; display:grid; grid-template-columns:auto 1fr; gap:9px 16px; align-items:baseline; }
+.sup-bank dt{ font-size:12.5px; color:var(--muted); white-space:nowrap; }
+.sup-bank dd{ margin:0; font-size:16px; font-weight:800; color:var(--text); font-family:'Orbitron',var(--user-font),monospace; letter-spacing:.02em; }
+.sup-bank dd.ja{ font-family:var(--user-font); }
+.sup-steps{ counter-reset:s; list-style:none; padding:0; margin:0 0 14px; display:grid; gap:9px; }
+.sup-steps li{ counter-increment:s; position:relative; padding:13px 15px 13px 46px; border-radius:10px;
+  background:var(--surface); border:1px solid var(--border); font-size:13.5px; line-height:1.8; margin:0; }
+.sup-steps li::before{ content:counter(s); position:absolute; left:14px; top:13px;
+  width:22px; height:22px; border-radius:50%; background:rgba(255,213,79,.18); color:#a37a00;
+  font-family:'Orbitron',monospace; font-size:11px; font-weight:900; display:grid; place-items:center; }
+.sup-cta{ display:inline-flex; align-items:center; gap:6px; margin:4px 0 0; padding:13px 20px;
+  border-radius:10px; cursor:pointer; font-family:var(--user-font); font-size:14.5px; font-weight:900;
+  text-decoration:none; background:rgba(255,213,79,.14); border:1px solid rgba(255,213,79,.5); color:var(--text); }
+.sup-meta{ font-size:12.5px; color:var(--muted); line-height:1.9; }
+.sup-foot{ margin-top:26px; padding-top:16px; border-top:1px solid var(--border); }
+.sup-foot .sup-home-big{ width:100%; padding:15px; border-radius:10px; cursor:pointer;
+  font-family:var(--user-font); font-size:15px; font-weight:900; background:rgba(255,213,79,.1);
+  border:1px solid rgba(255,213,79,.38); color:var(--text); margin-bottom:14px; }
+html.light .sup-steps li::before, html.pastel-pink .sup-steps li::before, html.pastel-sky .sup-steps li::before,
+html.pastel-yellow .sup-steps li::before, html.pastel-green .sup-steps li::before, html.pastel-purple .sup-steps li::before{ color:#7a5c00; }
+html.light .sup-bar .sup-brand, html.pastel-pink .sup-bar .sup-brand, html.pastel-sky .sup-bar .sup-brand,
+html.pastel-yellow .sup-bar .sup-brand, html.pastel-green .sup-bar .sup-brand, html.pastel-purple .sup-bar .sup-brand{ color:#8a5b00; }
+html.light #supportModal, html.pastel-pink #supportModal, html.pastel-sky #supportModal,
+html.pastel-yellow #supportModal, html.pastel-green #supportModal, html.pastel-purple #supportModal{ background:rgba(210,222,234,.94); }
+@media(max-width:700px){ .sup-bar button{ padding:8px 10px; font-size:11.5px; } .sup-body h3{ font-size:19px; } }
+</style>
+
 </head>
 
 <body>
@@ -5781,6 +5857,9 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
   <button type="button" class="d-tab kyusui" onclick="openKyusui()">
     <span class="tab-icon">💧</span>熊本給水所
   </button>
+  <button type="button" class="d-tab support" onclick="openSupport()">
+    <span class="tab-icon">🤲</span>活動サポート
+  </button>
   <a class="d-tab typhoon" href="https://www.jma.go.jp/bosai/typhoon/" target="_blank">
     <span class="tab-icon">🌀</span>台風情報
   </a>
@@ -5819,6 +5898,16 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     <span class="kb-sub">令和8年熊本地震の応急給水所　7自治体・34か所<br>地図・住所・電話番号をまとめて確認できます</span>
   </span>
   <span class="kb-arrow">›</span>
+</button>
+
+<!-- ===== 活動サポート バナー ===== -->
+<button type="button" class="sup-banner" onclick="openSupport()">
+  <span class="sb-i">🤲</span>
+  <span class="sb-t">
+    <span class="sb-title">サポート活動への資金援助のお願い</span>
+    <span class="sb-sub">給水所マップと情報センターを止めないために。専用サーバーの使用料など維持費のご支援をお願いしています</span>
+  </span>
+  <span class="sb-a">›</span>
 </button>
 
 <!-- ===== 上部 広告カルーセル（1枚ずつ自動／ドットでめくる／PR） ===== -->
@@ -13891,7 +13980,8 @@ function noticeLinkClick(ev, url){
         'open-shindan': function(){ if(typeof openShindanModal==='function') openShindanModal(); },
         'open-post':    function(){ if(typeof openPostModal==='function') openPostModal(); },
         'open-kyusui':  function(){ if(typeof openKyusui==='function') openKyusui(); },
-        'open-quake':   function(){ if(typeof openQuakeHub==='function') openQuakeHub(); }
+        'open-quake':   function(){ if(typeof openQuakeHub==='function') openQuakeHub(); },
+        'open-support': function(){ if(typeof openSupport==='function') openSupport(); }
       };
 
       if(samePage || !target.pathname || target.pathname === '/'){
@@ -19929,6 +20019,170 @@ document.addEventListener('keydown', function(e){
 function qhHashBoot(){ if(location.hash === '#quake') setTimeout(function(){ window.openQuakeHub(); }, 400); }
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', qhHashBoot);
 else qhHashBoot();
+})();
+</script>
+
+
+<!-- ===== 活動サポートのお願い ===== -->
+<div id="supportModal" role="dialog" aria-modal="true" aria-label="活動サポートのお願い" onclick="if(event.target===this)closeSupport()">
+  <div class="sup-inner">
+    <div class="sup-bar">
+      <span class="sup-brand">🤲 SUPPORT</span>
+      <button type="button" onclick="shareSupport()">🔗 共有</button>
+      <button type="button" class="sup-home" onclick="supportGoHome()">🏠 ホーム</button>
+      <button type="button" onclick="closeSupport()" aria-label="閉じる">✕</button>
+    </div>
+
+    <div class="sup-body">
+      <h3>令和8年熊本地震<br>サポート活動 資金援助のお願い</h3>
+      <p class="sup-lead">当サイトは、令和8年熊本地震の被災地に向けて、デジタルツールを使った情報支援を続けています。この活動を止めずに続けるため、皆様のお力をお貸しいただけないでしょうか。</p>
+
+      <div class="sup-warn">
+        <b>はじめにお読みください。</b><br>
+        こちらは<b>被災された方へお渡しする義援金ではありません</b>。当サイトが情報支援を継続するための<b>運営費</b>としてお預かりするものです。被災者の生活再建を直接支援されたい場合は、熊本県や日本赤十字社、中央共同募金会などの義援金・支援金の窓口をご利用ください。
+      </div>
+
+      <h4>いま行っていること</h4>
+      <ul>
+        <li><b>給水所マップ</b>：7自治体34か所の場所・給水時間・住所・電話番号を掲載し、現在地から近い順に案内しています</li>
+        <li><b>熊本地震 情報センター</b>：被害状況、ライフライン、交通、医療、医薬品、罹災証明、相談窓口など15分野を1日2回更新しています</li>
+        <li><b>24時間の地震・気象情報配信</b>：地震速報、警報・注意報、熱中症情報などを自動で更新しています</li>
+        <li><b>SNSでの情報発信</b>：毎日の天気概況と防災情報をお届けしています</li>
+      </ul>
+      <p>これらはすべて、どなたでも登録不要・無料でお使いいただけます。今後もその形を変えるつもりはありません。</p>
+
+      <h4>なぜ費用がかかるのか</h4>
+      <p>災害時はアクセスが平常時の何倍にも増えます。止まらない運営のために、当サイトは共用の無料環境ではなく<b>専用サーバー</b>を使用しており、提供元へ<b>使用料をお支払い</b>しています。</p>
+      <p>また、地図の表示やデータの取得に外部サービスを利用しており、その他の支援ツールを維持するためにも継続的な費用が必要です。これらはすべて、災害の有無にかかわらず毎月発生します。</p>
+      <div class="sup-note">
+        <b>主な費用の内訳</b><br>
+        ・専用サーバーの使用料（提供元へ月額でお支払い）<br>
+        ・地図配信・データ取得など外部サービスの利用料<br>
+        ・ドメインおよびSSL証明書の維持費<br>
+        ・その他の支援ツールの維持費<br>
+        ・情報収集と更新に必要な実費
+      </div>
+      <p>現在これらは運営者が個人で負担しています。活動を長く続けるため、また災害時にアクセスが集中しても止まらない体制を保つために、皆様のご支援をお願いする次第です。</p>
+
+      <h4>いただいた資金の使いみち</h4>
+      <p>お預かりした資金は、上記の<b>運営費のみ</b>に充てます。運営者個人の報酬には充当いたしません。使途は責任をもって適切に管理し、当サイト上で定期的にご報告いたします。</p>
+
+      <h4>お振込先</h4>
+      <div class="sup-card sup-bank">
+        <dl>
+          <dt>金融機関</dt><dd class="ja">ゆうちょ銀行</dd>
+          <dt>店名（店番）</dt><dd class="ja">四一八 店（418）</dd>
+          <dt>預金種目</dt><dd class="ja">普通預金</dd>
+          <dt>口座番号</dt><dd>2239499</dd>
+          <dt>口座名義</dt><dd class="ja">古谷 浩二</dd>
+        </dl>
+      </div>
+      <p class="sup-meta">※ 金額の指定はございません。無理のない範囲でお願いいたします。<br>
+      ※ 振込手数料はご負担をお願いしております。<br>
+      ※ ゆうちょ銀行の口座からお振込みの場合は、記号・番号での送金となります。窓口またはATMにて上記の店番・口座番号をお伝えください。<br>
+      ※ 個人に対するご支援のため、寄附金控除の対象にはなりません。</p>
+
+      <h4>お礼の品をお送りしています</h4>
+      <p>ご支援いただいた方に、感謝のしるしとしてお礼の品をお届けしております。お手数ですが、次の手順でお知らせください。</p>
+      <ol class="sup-steps">
+        <li>上記の口座へお振込みいただきます。</li>
+        <li><b>お問い合わせフォーム</b>から、「振り込んだ旨」「お名前」「メールアドレス」をご記入のうえ送信してください。</li>
+        <li>入金を確認しましたら、<b>お届け先を入力していただくフォーム</b>を、ご記入のメールアドレス宛にお送りします。</li>
+        <li>フォームにご入力いただいた住所へ、お礼の品をお届けします。</li>
+      </ol>
+      <div class="sup-note">お礼の品が不要な方は、フォームの送信は不要です。お気持ちだけで十分に助かります。<br>
+      なお、発送は被災地の状況が落ち着いてからとなる場合がございます。お時間をいただくことをご了承ください。</div>
+      <a class="sup-cta" href="#" onclick="supportOpenContact();return false;">✉️ お問い合わせフォームを開く</a>
+
+      <h4>個人情報の取り扱いについて</h4>
+      <p class="sup-meta"><b>1. 取得する情報</b><br>
+      お名前、メールアドレス、お問い合わせ内容。お礼の品の発送にあたっては、お届け先のご住所、宛名、電話番号を別途フォームにてご記入いただきます。</p>
+      <p class="sup-meta"><b>2. 利用目的</b><br>
+      ご入金の確認、お礼の品の発送、発送に関するご連絡、およびご支援に対する御礼のご連絡にのみ使用します。これ以外の目的では使用いたしません。</p>
+      <p class="sup-meta"><b>3. 第三者への提供</b><br>
+      法令に基づく場合を除き、ご本人の同意なく第三者へ提供することはありません。ただし、お礼の品の発送に必要な範囲で、配送業者へお届け先情報を提供いたします。</p>
+      <p class="sup-meta"><b>4. 口座情報について</b><br>
+      当方が保有するのは、金融機関から通知される振込明細に記載された振込名義のみです。ご支援者様の口座番号、暗証番号、キャッシュカード情報を当方が取得することはありません。これらをお尋ねすることも一切ございません。</p>
+      <p class="sup-meta"><b>5. 保管期間と廃棄</b><br>
+      お礼の品の発送完了後、必要な連絡が終了した時点で速やかに廃棄します。ただし、会計処理上その他法令により保存が必要な記録については、所定の期間保管したのち廃棄します。</p>
+      <p class="sup-meta"><b>6. 安全管理</b><br>
+      取得した情報は、アクセス権限を運営者に限定して管理します。メール送信の際は、他のご支援者様のアドレスが表示されないよう配慮いたします。</p>
+      <p class="sup-meta"><b>7. 開示・訂正・削除のご請求</b><br>
+      ご自身の情報の開示、訂正、利用停止、削除をご希望の場合は、お問い合わせフォームよりご連絡ください。ご本人であることを確認のうえ、速やかに対応いたします。</p>
+      <p class="sup-meta"><b>8. 送信は任意です</b><br>
+      情報のご提供は任意ですが、お名前とメールアドレスをいただけない場合、お礼の品をお届けできません。あらかじめご了承ください。</p>
+      <p class="sup-meta">当サイト全体の個人情報の取り扱いについては、<a href="#" onclick="supportOpenPrivacy();return false;">プライバシーポリシー</a>もあわせてご確認ください。</p>
+
+      <h4>運営者情報</h4>
+      <div class="sup-card">
+        <p class="sup-meta" style="margin:0;">
+          <b>サイト運営者</b>　古谷 浩二<br>
+          <b>事務局</b>　〒617-0834 京都府長岡京市神足芝本19<br>
+          <b>連絡先</b>　当サイトのお問い合わせフォームよりご連絡ください
+        </p>
+      </div>
+
+      <div class="sup-warn">
+        <b>なりすましにご注意ください。</b><br>
+        当方がご案内する口座は、このページに記載のものだけです。当サイト以外の場所で当方や本活動を名乗り、別の口座への振込を求める案内があった場合は、絶対にお振込みにならないでください。また、当方からお電話やご訪問で寄付をお願いすることは一切ございません。
+      </div>
+
+      <p class="sup-meta">最後に。ご支援をいただけなくても、サイトの機能が制限されることはありません。必要な方が必要な情報にたどり着けること。それがこの活動の目的です。まずは、必要な方へこのサイトを知らせていただくことが、何よりのご支援になります。</p>
+
+      <div class="sup-foot">
+        <button type="button" class="sup-home-big" onclick="supportGoHome()">🏠 ホームに戻る</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  window.openSupport = function(){
+    document.getElementById('supportModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if(history.replaceState) history.replaceState(null,'','#support');
+  };
+  window.closeSupport = function(){
+    document.getElementById('supportModal').classList.remove('open');
+    document.body.style.overflow = '';
+    if(history.replaceState) history.replaceState(null,'',location.pathname + location.search);
+  };
+  window.supportGoHome = function(){
+    window.closeSupport();
+    var t = document.getElementById('section-top');
+    if(t && t.scrollIntoView) t.scrollIntoView({behavior:'smooth',block:'start'});
+    else window.scrollTo({top:0,behavior:'smooth'});
+  };
+  window.shareSupport = function(){
+    var url = location.origin + location.pathname + '#support';
+    var d = { title:'令和8年熊本地震 サポート活動 資金援助のお願い｜防災情報センター',
+              text:'給水所マップと情報センターの運営を続けるため、活動資金のご支援をお願いしています。', url:url };
+    if(navigator.share){ navigator.share(d).catch(function(){}); }
+    else if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(function(){ window.alert('リンクをコピーしました'); })
+        .catch(function(){ window.prompt('このリンクをコピーしてください', url); });
+    } else window.prompt('このリンクをコピーしてください', url);
+  };
+  window.supportOpenContact = function(){
+    window.closeSupport();
+    setTimeout(function(){
+      if(typeof openPageSection === 'function') openPageSection('section-contact');
+      else location.hash = '#section-contact';
+    }, 180);
+  };
+  window.supportOpenPrivacy = function(){
+    window.closeSupport();
+    setTimeout(function(){
+      if(typeof openPageSection === 'function') openPageSection('section-privacy');
+      else location.hash = '#section-privacy';
+    }, 180);
+  };
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && document.getElementById('supportModal').classList.contains('open')) window.closeSupport();
+  });
+  function boot(){ if(location.hash === '#support') setTimeout(window.openSupport, 400); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
 </script>
 
