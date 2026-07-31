@@ -17463,6 +17463,16 @@ document.addEventListener('keydown', function(e){
     wrap("openInstaQr",        "button", "Instagramを開く");
     wrap("openBigDetail",      "button", "注目地震の詳細を見る");
 
+    // ---- 令和8年熊本地震 支援機能 ----
+    wrap("openQuakeHub",       "button", "熊本地震情報センター");
+    wrap("openKyusui",         "button", "給水所マップ");
+    wrap("openSupport",        "button", "活動サポート（資金援助）");
+    wrap("supportOpenContact", "button", "サポート→問い合わせへ");
+    wrap("qhOpenKyusui",       "button", "情報センター→給水所");
+    wrap("shareQuakeHub",      "button", "情報センターを共有");
+    wrap("shareKyusui",        "button", "給水所マップを共有");
+    wrap("shareSupport",       "button", "活動サポートを共有");
+
     // ---- 画面モード・操作系 ----
     wrap("enterEmergency",     "action", "緊急モードに入る");
     wrap("enterMode",          "action", function (m) { return "画面モード:" + (m === "quake" ? "地震監視" : (m || "")); });
@@ -19452,9 +19462,9 @@ function kyCard(s){
    +(s.prec==='approx'?'<span class="ky-badge">地図上の位置は目安</span>':'')
    +(s.prec==='none'?'<span class="ky-badge">地図上の位置は未確定</span>':'')
    +'<div class="ky-acts">'
-   +'<a class="pri" href="'+gmaps(s)+'" target="_blank" rel="noopener">地図アプリで開く</a>'
-   +(s.tel?'<a class="tel" href="tel:'+esc(s.tel)+'">'+esc(s.tel)+'</a>'
-          :'<a class="tel" href="tel:'+esc(s.muniTel)+'">'+esc(s.muniTelName)+'</a>')
+   +'<a class="pri" data-track="button:給水所→地図アプリ" href="'+gmaps(s)+'" target="_blank" rel="noopener">地図アプリで開く</a>'
+   +(s.tel?'<a class="tel" data-track="電話:給水所の電話" href="tel:'+esc(s.tel)+'">'+esc(s.tel)+'</a>'
+          :'<a class="tel" data-track="電話:給水所の電話" href="tel:'+esc(s.muniTel)+'">'+esc(s.muniTelName)+'</a>')
    +'<a href="'+esc(s.srcUrl)+'" target="_blank" rel="noopener">発表</a>'
    +'</div></li>';
 }
@@ -19913,6 +19923,8 @@ function qhFade(){
 }
 function qhGo(i){
   qhTab = i; qhTabs(); qhRender();
+  try{ var k = QH.sections[i] && QH.sections[i].key;
+       if(k && typeof window.dwaTrack === 'function') window.dwaTrack('情報センター', k); }catch(e){}
   var b = document.getElementById('qhBody');
   if(b && b.scrollIntoView) b.scrollIntoView({ block:'nearest' });
 }
@@ -20117,7 +20129,7 @@ else qhHashBoot();
       <div class="sup-card">
         <p class="sup-meta" style="margin:0;">
           <b>サイト運営者</b>　古谷 浩二<br>
-          <b>事務局</b>　〒617-0833 京都府長岡京市神足芝本19<br>
+          <b>事務局</b>　〒617-0834 京都府長岡京市神足芝本19<br>
           <b>連絡先</b>　当サイトのお問い合わせフォームよりご連絡ください
         </p>
       </div>
