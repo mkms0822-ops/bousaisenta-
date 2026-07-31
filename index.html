@@ -19221,6 +19221,7 @@ render();
     <div class="ky-fresh" id="kyFresh" role="status">
       <span class="age" id="kyAge">--</span><span class="msg" id="kyAgeMsg"></span>
     </div>
+    <div class="qh-loading" id="kyLoading" style="display:none;">最新の給水情報を取得しています…</div>
 
     <div class="ky-head">
       <h3>熊本給水所マップ</h3>
@@ -19260,7 +19261,7 @@ render();
    DATA — 更新はここだけ。updated の日時は必ず直すこと。
    直し忘れると上部の鮮度バーが赤くなり「古い情報です」と表示される。
 --------------------------------------------------------------- */
-var KY_DATA = {
+var KY_FALLBACK = {
   updated: "2026-07-29T17:00:00+09:00",
   municipalities: [
     { name:"熊本市 南区", center:[32.735,130.700], hours:"8:00〜19:00",
@@ -19343,20 +19344,67 @@ var KY_DATA = {
 };
 /* ======================= ここまでがデータ ======================= */
 
+var KY_DATA = KY_FALLBACK;
 var SITES = [];
-KY_DATA.municipalities.forEach(function(m, mi){
-  m.sites.forEach(function(s, si){
-    var prec = s.prec || (s.lat != null ? "exact" : "none");
-    SITES.push({
-      id: mi+"-"+si, mi:mi, si:si, name:s.name, muni:m.name,
-      addr:s.addr||null, tel:s.tel||null, hours:s.hours||m.hours, warn:s.warn||null,
-      lat:s.lat, lng:s.lng, prec:prec, exact:(prec==="exact"),
-      plat: s.lat != null ? s.lat : m.center[0] + 0.020*Math.cos(2*Math.PI*si/m.sites.length),
-      plng: s.lng != null ? s.lng : m.center[1] + 0.024*Math.sin(2*Math.PI*si/m.sites.length),
-      muniTel:m.tel, muniTelName:m.telName, srcName:m.srcName, srcUrl:m.srcUrl
+
+/* シートの内容で「自治体単位」に差し替える。
+   シートが空でも書きかけでも、必ず全自治体が表示される。 */
+function kyMerge(sheet){
+  var base = JSON.parse(JSON.stringify(KY_FALLBACK));
+  if(!sheet) return base;
+  if(sheet.updated) base.updated = sheet.updated;
+  if(!sheet.municipalities || !sheet.municipalities.length) return base;
+  var idx = {};
+  base.municipalities.forEach(function(m,i){ idx[m.name] = i; });
+  sheet.municipalities.forEach(function(m){
+    if(!m || !m.name || !m.sites || !m.sites.length) return;
+    var keep = (idx[m.name] != null) ? base.municipalities[idx[m.name]] : null;
+    if(keep && !m.center) m.center = keep.center;
+    if(!m.center) m.center = [32.68, 130.70];
+    if(idx[m.name] != null) base.municipalities[idx[m.name]] = m;
+    else base.municipalities.push(m);
+  });
+  return base;
+}
+
+function kyBuild(){
+  SITES = [];
+  KY_DATA.municipalities.forEach(function(m, mi){
+    (m.sites||[]).forEach(function(s, si){
+      var prec = s.prec || (s.lat != null ? "exact" : "none");
+      SITES.push({
+        id: mi+"-"+si, mi:mi, si:si, name:s.name, muni:m.name,
+        addr:s.addr||null, tel:s.tel||null, hours:s.hours||m.hours, warn:s.warn||null,
+        lat:s.lat, lng:s.lng, prec:prec, exact:(prec==="exact"),
+        plat: s.lat != null ? s.lat : m.center[0] + 0.020*Math.cos(2*Math.PI*si/m.sites.length),
+        plng: s.lng != null ? s.lng : m.center[1] + 0.024*Math.sin(2*Math.PI*si/m.sites.length),
+        muniTel:m.tel, muniTelName:m.telName, srcName:m.srcName, srcUrl:m.srcUrl
+      });
     });
   });
-});
+}
+
+/* GAS（?type=kyusui）から取得。失敗・遅延時はスナップショットで表示する。 */
+function kyLoad(cb){
+  var url = (typeof ARTICLES_URL !== 'undefined' && ARTICLES_URL) ? ARTICLES_URL : '';
+  if(!url){ KY_DATA = KY_FALLBACK; kyBuild(); return cb(); }
+  var done = false, cbName = 'kyCb' + Date.now(), s = null;
+  function finish(data){
+    if(done) return; done = true;
+    try{ delete window[cbName]; }catch(e){ window[cbName] = undefined; }
+    if(s && s.parentNode) s.parentNode.removeChild(s);
+    var ld = document.getElementById('kyLoading'); if(ld) ld.style.display = 'none';
+    KY_DATA = kyMerge(data && data.kyusui);
+    kyBuild(); cb();
+  }
+  window[cbName] = function(d){ finish(d); };
+  var ld = document.getElementById('kyLoading'); if(ld) ld.style.display = 'block';
+  s = document.createElement('script');
+  s.src = url + '?type=kyusui&callback=' + cbName + '&_=' + Date.now();
+  s.onerror = function(){ finish(null); };
+  document.head.appendChild(s);
+  setTimeout(function(){ finish(null); }, 8000);
+}
 
 var filter="all", nearMode=false, here=null, kyMap=null, kyMarkers={}, kyBooted=false;
 
@@ -19390,9 +19438,9 @@ function kyFresh(){
   else if(h<24) ageEl.textContent=Math.floor(h)+'時間前の情報';
   else ageEl.textContent=Math.floor(h/24)+'日前の情報';
   if(h>=24){ el.className='ky-fresh stale';
-    msgEl.innerHTML='給水所は毎日変わります。<b>この一覧を信用せず</b>、各自治体の発表を直接見てください。（'+stamp+' 時点）'; }
-  else if(h>=8){ el.className='ky-fresh warn';
-    msgEl.textContent='出発前に自治体の発表で確認してください。（'+stamp+' 時点）'; }
+    msgEl.innerHTML='半日ごとの更新が止まっています。<b>この一覧を信用せず</b>、各自治体の発表を直接見てください。（'+stamp+' 時点）'; }
+  else if(h>=13){ el.className='ky-fresh warn';
+    msgEl.textContent='次の更新時刻を過ぎています。出発前に自治体の発表で確認してください。（'+stamp+' 時点）'; }
   else msgEl.textContent=stamp+' 時点';
 }
 
@@ -19503,10 +19551,11 @@ window.openKyusui=function(){
   document.body.style.overflow='hidden';
   if(!kyBooted){
     kyBooted=true;
-    kyChips();
     document.getElementById('kyQ').addEventListener('input', kyRender);
-    kyRender(); initKyMap();
-    kyFresh(); setInterval(kyFresh, 60000);
+    kyLoad(function(){
+      kyChips(); kyRender(); initKyMap();
+      kyFresh(); setInterval(kyFresh, 60000);
+    });
   } else if(kyMap){ setTimeout(function(){ kyMap.invalidateSize(); },120); }
   if(history.replaceState) history.replaceState(null,'','#kyusui');
 };
