@@ -4627,6 +4627,7 @@ html.pastel-yellow #nearPanel, html.pastel-green #nearPanel, html.pastel-purple 
 .pg-bar .t{ flex:1; min-width:0; font-size:14px; font-weight:800; color:#7CE0AC; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .pg-bar button{ flex-shrink:0; padding:8px 12px; border-radius:8px; cursor:pointer; font-size:12.5px; font-weight:700;
   background:rgba(124,224,172,.1); border:1px solid rgba(124,224,172,.36); color:#7CE0AC; }
+.pg-bar button.pg-share{ background:rgba(0,255,224,.1); border-color:rgba(0,255,224,.4); color:#00ffe0; }
 .pg-body{ padding:20px 18px 50px; color:#E8F0EC; font-size:15px; line-height:1.9; }
 .pg-body h2{ margin:0 0 6px; font-size:23px; font-weight:800; line-height:1.45; color:#fff; }
 .pg-body .lead{ margin:0 0 22px; font-size:13.5px; color:#94A9A0; line-height:1.85; }
@@ -4669,6 +4670,65 @@ html.light #petGuide, html.pastel-pink #petGuide, html.pastel-sky #petGuide,
 html.pastel-yellow #petGuide, html.pastel-green #petGuide, html.pastel-purple #petGuide{ background:rgba(210,222,216,.96); }
 @media print{ .pg-bar{display:none} #petGuide{position:static;background:#fff;overflow:visible} .pg-in{background:#fff;border:0}
   .pg-body,.pg-body h2,.pg-body h3,.pg-item .tx b{color:#000} .pg-item{border:1px solid #999;background:#fff} }
+</style>
+
+<style id="printcopy-style">
+/* ===================== 共通：印刷とコピー ===================== */
+.pc-btn{
+  flex-shrink:0; padding:8px 11px; border-radius:8px; cursor:pointer; white-space:nowrap;
+  font-family:var(--user-font); font-size:12.5px; font-weight:700;
+  background:rgba(200,210,220,.10); border:1px solid rgba(200,210,220,.34); color:#C7D3DC;
+}
+.pc-btn:hover{ background:rgba(200,210,220,.18); }
+#pcToast{
+  position:fixed; left:50%; bottom:28px; transform:translateX(-50%) translateY(12px);
+  z-index:100000; padding:12px 22px; border-radius:999px; opacity:0; pointer-events:none;
+  background:rgba(0,255,224,.14); border:1px solid rgba(0,255,224,.45); color:#00ffe0;
+  font-size:13.5px; font-weight:700; transition:opacity .2s, transform .2s; max-width:90vw; text-align:center;
+}
+#pcToast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+#pcToast.ng{ background:rgba(200,32,46,.16); border-color:rgba(224,67,80,.5); color:#FF9AA2; }
+
+/* 印刷：指定したパネルだけを紙に出す */
+@media print{
+  body[data-print] > *{ display:none !important; }
+  body[data-print] > #quakeHub[data-target],
+  body[data-print] > #kyusuiModal[data-target],
+  body[data-print] > #supportModal[data-target],
+  body[data-print] > #nearPanel[data-target],
+  body[data-print] > #petGuide[data-target]{
+    display:block !important; position:static !important; inset:auto !important;
+    background:#fff !important; color:#000 !important; overflow:visible !important;
+    -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+  }
+  body[data-print] [data-target] *{
+    background:transparent !important; color:#000 !important;
+    box-shadow:none !important; text-shadow:none !important;
+  }
+  body[data-print] [data-target] .qh-bar,
+  body[data-print] [data-target] .ky-bar,
+  body[data-print] [data-target] .sup-bar,
+  body[data-print] [data-target] .np-bar,
+  body[data-print] [data-target] .pg-bar,
+  body[data-print] [data-target] .qh-tabswrap,
+  body[data-print] [data-target] #kyMap,
+  body[data-print] [data-target] .pc-btn,
+  body[data-print] [data-target] .ky-tools,
+  body[data-print] [data-target] .ky-search,
+  body[data-print] [data-target] .ky-chips,
+  body[data-print] [data-target] .np-coord button{ display:none !important; }
+  body[data-print] [data-target] .qh-inner,
+  body[data-print] [data-target] .ky-inner,
+  body[data-print] [data-target] .sup-inner,
+  body[data-print] [data-target] .np-in,
+  body[data-print] [data-target] .pg-in{ border:0 !important; min-height:0 !important; }
+  body[data-print] [data-target] a{ text-decoration:underline !important; }
+  body[data-print] [data-target] .qh-row,
+  body[data-print] [data-target] .qh-stat,
+  body[data-print] [data-target] .ky-site,
+  body[data-print] [data-target] .np-btn,
+  body[data-print] [data-target] .pg-item{ border:1px solid #999 !important; page-break-inside:avoid; }
+}
 </style>
 
 </head>
@@ -19355,6 +19415,8 @@ render();
     <div class="ky-bar">
       <span class="ky-brand">💧 KUMAMOTO WATER</span>
       <button type="button" class="ky-near" onclick="openNear()">📍 近くを探す</button>
+      <button type="button" class="pc-btn" onclick="printPanel('kyusuiModal')">🖨</button>
+      <button type="button" class="pc-btn" onclick="copyPanel('kyusuiModal')">📋</button>
       <button type="button" class="ky-share" onclick="shareKyusui()">🔗 共有</button>
       <button type="button" class="ky-home" onclick="kyusuiGoHome()">🏠 ホームに戻る</button>
       <button type="button" onclick="closeKyusui()" aria-label="閉じる">✕</button>
@@ -19772,6 +19834,8 @@ else kyHashBoot();
     <div class="qh-bar">
       <span class="qh-brand">🔴 KUMAMOTO 2026</span>
       <button type="button" class="qh-near" onclick="openNear()">📍 近くを探す</button>
+      <button type="button" class="pc-btn" onclick="printPanel('quakeHub')">🖨</button>
+      <button type="button" class="pc-btn" onclick="copyPanel('quakeHub')">📋</button>
       <button type="button" class="qh-share" onclick="shareQuakeHub()">🔗 共有</button>
       <button type="button" class="qh-home" onclick="quakeHubGoHome()">🏠 ホーム</button>
       <button type="button" onclick="closeQuakeHub()" aria-label="閉じる">✕</button>
@@ -20259,6 +20323,8 @@ else qhHashBoot();
   <div class="sup-inner">
     <div class="sup-bar">
       <span class="sup-brand">🤲 SUPPORT</span>
+      <button type="button" class="pc-btn" onclick="printPanel('supportModal')">🖨</button>
+      <button type="button" class="pc-btn" onclick="copyPanel('supportModal')">📋</button>
       <button type="button" onclick="shareSupport()">🔗 共有</button>
       <button type="button" class="sup-home" onclick="supportGoHome()">🏠 ホーム</button>
       <button type="button" onclick="closeSupport()" aria-label="閉じる">✕</button>
@@ -20423,6 +20489,8 @@ else qhHashBoot();
   <div class="np-in">
     <div class="np-bar">
       <span class="np-t">📍 いまいる場所から探す</span>
+      <button type="button" class="pc-btn" onclick="printPanel('nearPanel')">🖨</button>
+      <button type="button" class="pc-btn" onclick="copyPanel('nearPanel')">📋</button>
       <button type="button" onclick="nearLocate(true)">再取得</button>
       <button type="button" onclick="closeNear()" aria-label="閉じる">✕</button>
     </div>
@@ -20615,7 +20683,9 @@ else qhHashBoot();
   <div class="pg-in">
     <div class="pg-bar">
       <span class="t">🐾 ペットと一緒に逃げる</span>
-      <button type="button" onclick="window.print()">🖨 印刷</button>
+      <button type="button" class="pg-share" onclick="sharePetGuide()">🔗 共有</button>
+      <button type="button" class="pc-btn" onclick="printPanel('petGuide')">🖨</button>
+      <button type="button" class="pc-btn" onclick="copyPanel('petGuide')">📋</button>
       <button type="button" onclick="closePetGuide()" aria-label="閉じる">✕</button>
     </div>
     <div class="pg-body" id="pgBody"></div>
@@ -20745,6 +20815,8 @@ else qhHashBoot();
     h+='<div class="pg-foot">'+
       '<p>本ページは熊本県および熊本市が公表している情報をもとに構成しています。避難所ごとの受入れ状況やルールは変更されますので、実際の避難にあたっては、必ずお住まいの自治体の最新の発表をご確認ください。</p>'+
       '<p>チェックの状態は保存されません。印刷してお使いいただくか、備えが済んだものはご自身の持ち出し袋に反映してください。</p>'+
+      '<p>このページは <b>' + location.origin + location.pathname + '#pet</b> で直接開けます。'+
+      'ペットと暮らすご家族やご友人に、上の「共有」ボタンからお送りいただけます。</p>'+
       '</div>';
     document.getElementById('pgBody').innerHTML = h;
   }
@@ -20754,11 +20826,24 @@ else qhHashBoot();
     if(!built){ build(); built=true; }
     document.getElementById('petGuide').classList.add('open');
     document.body.style.overflow='hidden';
+    if(history.replaceState) history.replaceState(null,'','#pet');
     try{ if(window.dwaTrack) window.dwaTrack('button','ペット同行避難ガイド'); }catch(e){}
   };
   window.closePetGuide = function(){
     document.getElementById('petGuide').classList.remove('open');
     document.body.style.overflow='';
+    if(history.replaceState) history.replaceState(null,'',location.pathname+location.search);
+  };
+  window.sharePetGuide = function(){
+    var url = location.origin + location.pathname + '#pet';
+    var d = { title:'ペットと一緒に逃げる｜熊本県の同行避難ガイド',
+              text:'同行避難のルールと、チェックできる持ち物リスト。熊本県の公式情報をもとにまとめています。', url:url };
+    if(navigator.share){ navigator.share(d).catch(function(){}); }
+    else if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(function(){ alert('リンクをコピーしました。\n' + url); })
+        .catch(function(){ window.prompt('このリンクをコピーしてください', url); });
+    } else window.prompt('このリンクをコピーしてください', url);
+    try{ if(window.dwaTrack) window.dwaTrack('button','ペット同行避難ガイドを共有'); }catch(e){}
   };
   window.nearToPetGuide = function(){
     if(typeof closeNear==='function') closeNear();
@@ -20769,6 +20854,76 @@ else qhHashBoot();
   });
   function boot(){ if(location.hash==='#pet') setTimeout(window.openPetGuide,400); }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+})();
+</script>
+
+
+<div id="pcToast" role="status"></div>
+<script>
+/* ============================================================
+   共通の「印刷」と「コピー」
+   printPanel(id) … そのパネルだけを紙に出す
+   copyPanel(id)  … 表示中の内容をテキストにしてコピーする
+   ============================================================ */
+(function(){
+  function toast(msg, ng){
+    var t=document.getElementById('pcToast'); if(!t) return;
+    t.textContent=msg; t.className = ng?'show ng':'show';
+    clearTimeout(t._t); t._t=setTimeout(function(){ t.className=''; },2600);
+  }
+  window.printPanel = function(id){
+    var el=document.getElementById(id); if(!el) return;
+    el.setAttribute('data-target','1');
+    document.body.setAttribute('data-print', id);
+    var done=function(){
+      document.body.removeAttribute('data-print');
+      el.removeAttribute('data-target');
+      window.removeEventListener('afterprint', done);
+    };
+    window.addEventListener('afterprint', done);
+    setTimeout(function(){ window.print(); }, 60);
+    setTimeout(done, 4000);   // afterprint が来ない環境の保険
+    try{ if(window.dwaTrack) window.dwaTrack('button','印刷：'+id); }catch(e){}
+  };
+
+  /* 画面に見えているテキストだけを、読みやすい形に整えて取り出す */
+  function extract(id){
+    var el=document.getElementById(id); if(!el) return '';
+    var clone=el.cloneNode(true);
+    // 操作用の要素は落とす
+    clone.querySelectorAll('button, .qh-tabswrap, #kyMap, .ky-chips, .ky-search, .ky-tools, script, style, input')
+         .forEach(function(x){ x.remove(); });
+    var t=(clone.innerText||clone.textContent||'');
+    t=t.replace(/[ \t\u3000]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
+    var url=location.origin+location.pathname;
+    var HASH={quakeHub:'#quake',kyusuiModal:'#kyusui',supportModal:'#support',nearPanel:'#near',petGuide:'#pet'};
+    var TITLE={quakeHub:'令和8年熊本地震 情報センター',kyusuiModal:'熊本 給水所・入浴マップ',
+               supportModal:'サポート活動 資金援助のお願い',nearPanel:'近くを探す',petGuide:'ペットと一緒に逃げる'};
+    var d=new Date(), p=function(n){return String(n).padStart(2,'0');};
+    return '■ '+(TITLE[id]||'')+'\n'
+         + '（'+d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 '+p(d.getHours())+':'+p(d.getMinutes())+' 時点）\n\n'
+         + t + '\n\n──────────\n'
+         + '出典：防災情報センター '+url+(HASH[id]||'')+'\n'
+         + '情報は変わります。行動の前に、必ず各自治体の公式発表をご確認ください。';
+  }
+
+  window.copyPanel = function(id){
+    var txt=extract(id);
+    if(!txt){ toast('コピーする内容が見つかりませんでした', true); return; }
+    var ok=function(){ toast('内容をコピーしました（'+txt.length.toLocaleString()+'文字）'); };
+    var ng=function(){
+      var ta=document.createElement('textarea');
+      ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); ok(); }
+      catch(e){ toast('コピーできませんでした。長押しで選択してください', true); }
+      document.body.removeChild(ta);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(ok).catch(ng);
+    } else ng();
+    try{ if(window.dwaTrack) window.dwaTrack('button','コピー：'+id); }catch(e){}
+  };
 })();
 </script>
 
