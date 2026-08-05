@@ -4091,6 +4091,7 @@ button.dwa-plate{ padding:0; }
   font-size:12.5px; font-weight:700; white-space:nowrap;
   background:rgba(0,180,255,0.10); border:1px solid rgba(0,180,255,0.38); color:#8fd9ff;
 }
+.ky-bar button.ky-near{ background:rgba(11,125,74,0.18); border-color:rgba(63,190,116,0.55); color:#7CE0AC; }
 .ky-bar button.ky-share{ background:rgba(0,255,224,0.10); border-color:rgba(0,255,224,0.4); color:#00ffe0; }
 .ky-bar button.ky-home{ background:rgba(255,213,79,0.10); border-color:rgba(255,213,79,0.38); color:#ffd54f; }
 .ky-bar button:active{ filter:brightness(1.25); }
@@ -4217,6 +4218,7 @@ button.dwa-plate{ padding:0; }
 .qh-bar button{ flex-shrink:0; display:inline-flex; align-items:center; gap:5px; cursor:pointer;
   padding:8px 12px; border-radius:8px; font-family:var(--user-font); font-size:12.5px; font-weight:700; white-space:nowrap;
   background:rgba(0,180,255,.1); border:1px solid rgba(0,180,255,.38); color:#8fd9ff; }
+.qh-bar button.qh-near{ background:rgba(11,125,74,.18); border-color:rgba(63,190,116,.55); color:#7CE0AC; }
 .qh-bar button.qh-share{ background:rgba(0,255,224,.1); border-color:rgba(0,255,224,.4); color:#00ffe0; }
 .qh-bar button.qh-home{ background:rgba(255,213,79,.1); border-color:rgba(255,213,79,.38); color:#ffd54f; }
 
@@ -4545,7 +4547,7 @@ html.pastel-yellow #supportModal, html.pastel-green #supportModal, html.pastel-p
 .d-tab.near:hover,.d-tab.near.active{ color:#4fd996; border-bottom-color:#4fd996; }
 
 #nearPanel{
-  display:none; position:fixed; inset:0; z-index:99985;
+  display:none; position:fixed; inset:0; z-index:99995;
   background:rgba(4,10,8,.96); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
   overflow-y:auto; -webkit-overflow-scrolling:touch;
 }
@@ -4597,6 +4599,8 @@ html.pastel-yellow #supportModal, html.pastel-green #supportModal, html.pastel-p
 .np-btn:hover{ border-color:#3FBE74; background:#18291F; }
 .np-btn .ic{ font-size:19px; flex-shrink:0; }
 .np-btn small{ display:block; font-size:11.5px; font-weight:400; color:#8FA79B; margin-top:3px; line-height:1.6; }
+.np-btn.tel{ border-color:rgba(0,224,122,.4); background:#0F1F17; }
+.np-btn.tel:hover{ border-color:#00E07A; background:#132A1E; }
 .np-btn.urgent{ border-color:rgba(200,32,46,.5); background:#1E1214; }
 .np-btn.urgent:hover{ border-color:#E04350; }
 .np-foot{ margin-top:8px; font-size:11.5px; color:#7A8C83; line-height:1.85; }
@@ -19287,6 +19291,7 @@ render();
 
     <div class="ky-bar">
       <span class="ky-brand">💧 KUMAMOTO WATER</span>
+      <button type="button" class="ky-near" onclick="openNear()">📍 近くを探す</button>
       <button type="button" class="ky-share" onclick="shareKyusui()">🔗 共有</button>
       <button type="button" class="ky-home" onclick="kyusuiGoHome()">🏠 ホームに戻る</button>
       <button type="button" onclick="closeKyusui()" aria-label="閉じる">✕</button>
@@ -19619,7 +19624,20 @@ function kyRender(){
 }
 
 /* ---- 開閉・共有・ホーム ---- */
-window.openKyusui=function(){
+/* group を渡すと、その自治体グループで絞り込んだ状態で開く */
+function kyApplyFilter(group){
+  if(!group) return;
+  var hit = KY_DATA.municipalities.filter(function(m){ return m.name===group; })[0];
+  if(!hit) return;
+  filter = group;
+  var c = document.getElementById('kyChips');
+  if(c) Array.prototype.forEach.call(c.querySelectorAll('.ky-chip'), function(b){
+    b.setAttribute('aria-pressed', b.dataset.f===group);
+  });
+  if(kyMap && hit.center) kyMap.setView(hit.center, 11);
+  kyRender();
+}
+window.openKyusui=function(group){
   var el=document.getElementById('kyusuiModal');
   el.classList.add('open');
   document.body.style.overflow='hidden';
@@ -19629,8 +19647,12 @@ window.openKyusui=function(){
     kyLoad(function(){
       kyChips(); kyRender(); initKyMap();
       kyFresh(); setInterval(kyFresh, 60000);
+      if(typeof group==='string') kyApplyFilter(group);
     });
-  } else if(kyMap){ setTimeout(function(){ kyMap.invalidateSize(); },120); }
+  } else {
+    if(typeof group==='string') kyApplyFilter(group);
+    if(kyMap) setTimeout(function(){ kyMap.invalidateSize(); },120);
+  }
   if(history.replaceState) history.replaceState(null,'','#kyusui');
 };
 window.closeKyusui=function(){
@@ -19686,6 +19708,7 @@ else kyHashBoot();
   <div class="qh-inner">
     <div class="qh-bar">
       <span class="qh-brand">🔴 KUMAMOTO 2026</span>
+      <button type="button" class="qh-near" onclick="openNear()">📍 近くを探す</button>
       <button type="button" class="qh-share" onclick="shareQuakeHub()">🔗 共有</button>
       <button type="button" class="qh-home" onclick="quakeHubGoHome()">🏠 ホーム</button>
       <button type="button" onclick="closeQuakeHub()" aria-label="閉じる">✕</button>
@@ -20398,6 +20421,24 @@ else qhHashBoot();
       { i:"♨️", n:"銭湯・入浴施設", q:"銭湯", s:"" },
       { i:"🧺", n:"コインランドリー", q:"コインランドリー", s:"" },
       { i:"🚻", n:"公衆トイレ", q:"公衆トイレ", s:"" }
+    ]},
+    { g:"🥵 涼みたいとき", it:[
+      { i:"❄️", n:"クーリングシェルター（当サイトの地図）", c:1, s:"八代市・宇城市・宇土市・甲佐町の施設を地図で表示します" },
+      { i:"🏬", n:"ショッピングモール・大型店", q:"ショッピングモール", s:"冷房があり、長く滞在しやすい場所です" },
+      { i:"📚", n:"図書館", q:"図書館", s:"静かに休めます。開館時間をご確認ください" },
+      { i:"🏛️", n:"公民館・コミュニティセンター", q:"公民館", s:"" },
+      { i:"🏪", n:"コンビニ", q:"コンビニ", s:"短時間の休憩に" },
+      { i:"🗺️", n:"熊本市のクーリングシェルター一覧", url:"https://www.city.kumamoto.jp/kiji0035311/index.html", s:"市内の指定暑熱避難施設。図書館・公民館・商業施設など" }
+    ]},
+    { g:"🐾 ペットと一緒のとき", it:[
+      { i:"🏥", n:"動物病院", q:"動物病院", s:"けがや体調不良のとき。夜間の対応は事前に電話でご確認ください" },
+      { i:"🏨", n:"ペットホテル", q:"ペットホテル", s:"一時的に預けたいとき" },
+      { i:"✂️", n:"ペットサロン・トリミング", q:"ペットサロン", s:"預かりに対応している店舗もあります" },
+      { i:"🛒", n:"ペット用品店", q:"ペットショップ", s:"フード、トイレシート、キャリーなど" },
+      { i:"🗺️", n:"動物避難所マップ（うちトコ）", url:"https://uchitoko.jp/", s:"一時預かりや同伴避難ができる施設を探せます" },
+      { i:"📋", n:"熊本県の同行避難ガイド", url:"https://www.kumamoto-doubutuaigo.jp/", s:"同行避難のルールと、持ち物のチェックリスト" },
+      { i:"📞", n:"熊本県動物愛護センター", tel:"0964-27-8115", s:"迷子、避難所での飼育、フードや物資の相談。平日9時〜16時" },
+      { i:"📞", n:"熊本市動物愛護センター", tel:"096-380-2153", s:"熊本市内の保護・迷子情報" }
     ]}
   ];
 
@@ -20415,9 +20456,15 @@ else qhHashBoot();
     document.getElementById('npBody').innerHTML = G.map(function(gr){
       return '<section class="np-grp"><h4>'+gr.g+'</h4><div class="np-items">' +
         gr.it.map(function(x){
-          var href = x.h ? hazard() : (x.q ? gmap(x.q) : '#');
-          var on = x.k ? ' onclick="nearToKyusui();return false;"' : '';
-          return '<a class="np-btn'+(x.u?' urgent':'')+'" href="'+href+'" target="_blank" rel="noopener"'+on+'>'+
+          var href, ext = ' target="_blank" rel="noopener"';
+          if(x.tel){ href = 'tel:' + String(x.tel).replace(/#/g,'%23').replace(/[\s-]/g,''); ext = ''; }
+          else if(x.h)   href = hazard();
+          else if(x.url) href = x.url;
+          else if(x.q)   href = gmap(x.q);
+          else           href = '#';
+          var on = x.k ? ' onclick="nearToKyusui();return false;"'
+                 : x.c ? ' onclick="nearToCooling();return false;"' : '';
+          return '<a class="np-btn'+(x.u?' urgent':'')+(x.tel?' tel':'')+'" href="'+href+'"'+ext+on+'>'+
             '<span class="ic">'+x.i+'</span><span>'+x.n+
             (x.s?'<small>'+x.s+'</small>':'')+'</span></a>';
         }).join('') + '</div></section>';
@@ -20425,6 +20472,8 @@ else qhHashBoot();
     '<div class="np-foot">' +
     '<p><b>検索結果はGoogleマップの情報です。</b>災害時は営業していない、被災している、閉鎖されている場合があります。到着してから使えないこともあるとお考えください。</p>' +
     '<p><b>避難所の開設状況は、必ずお住まいの自治体の発表でご確認ください。</b>地図に載っている施設が、その災害で開設されるとは限りません。</p>' +
+    '<p><b>暑さをしのぐ場所について。</b>クーリングシェルター（指定暑熱避難施設）は、暑さを避けるために立ち寄れる施設です。'+'開放している時間や曜日は施設ごとに異なり、休館日もあります。長時間の滞在や、施設本来の利用の妨げにならないようご配慮ください。</p>' +
+    '<p><b>ペットについて。</b>「同行避難」は避難所まで一緒に行くこと、「同伴避難」は避難所の中で一緒に過ごせることを指します。'+'多くの避難所は同行避難までで、居住スペースとは別の場所で飼育することになります。受入れの方法は避難所ごとに違いますので、必ず運営者にご確認ください。</p>' +
     '<p>緊急のときは、探すより先に <b>119番・110番</b> へ。場所が説明できないときは、上の緯度・経度を読み上げてください。</p>' +
     '</div>';
   }
@@ -20480,6 +20529,12 @@ else qhHashBoot();
   window.nearToKyusui = function(){
     closeNear();
     setTimeout(function(){ if(typeof openKyusui==='function') openKyusui(); else location.hash='#kyusui'; },160);
+  };
+  window.nearToCooling = function(){
+    closeNear();
+    setTimeout(function(){
+      if(typeof openKyusui==='function') openKyusui('涼める場所'); else location.hash='#kyusui';
+    },160);
   };
 
   document.addEventListener('keydown', function(e){
