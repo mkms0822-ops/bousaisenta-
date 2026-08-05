@@ -4668,8 +4668,7 @@ html.pastel-yellow #nearPanel, html.pastel-green #nearPanel, html.pastel-purple 
 .pg-foot{ margin-top:26px; padding-top:16px; border-top:1px solid #1E2E27; font-size:11.5px; color:#7A8C83; line-height:1.85; }
 html.light #petGuide, html.pastel-pink #petGuide, html.pastel-sky #petGuide,
 html.pastel-yellow #petGuide, html.pastel-green #petGuide, html.pastel-purple #petGuide{ background:rgba(210,222,216,.96); }
-@media print{ .pg-bar{display:none} #petGuide{position:static;background:#fff;overflow:visible} .pg-in{background:#fff;border:0}
-  .pg-body,.pg-body h2,.pg-body h3,.pg-item .tx b{color:#000} .pg-item{border:1px solid #999;background:#fff} }
+/* 印刷は共通の printPanel() で制御します */
 </style>
 
 <style id="printcopy-style">
@@ -4691,43 +4690,62 @@ html.pastel-yellow #petGuide, html.pastel-green #petGuide, html.pastel-purple #p
 
 /* 印刷：指定したパネルだけを紙に出す */
 @media print{
+  @page{ margin:12mm; }
+  /* ページ全体の制約をすべて外す（モーダル表示中の overflow:hidden や zoom を打ち消す） */
+  html, body{
+    overflow:visible !important; height:auto !important; max-height:none !important;
+    position:static !important; zoom:1 !important; background:#fff !important; color:#000 !important;
+  }
+  /* 対象以外は出さない */
   body[data-print] > *{ display:none !important; }
-  body[data-print] > #quakeHub[data-target],
-  body[data-print] > #kyusuiModal[data-target],
-  body[data-print] > #supportModal[data-target],
-  body[data-print] > #nearPanel[data-target],
-  body[data-print] > #petGuide[data-target]{
+  /* 対象パネルだけを通常のブロックとして流し込む */
+  body[data-print] > [data-target]{
     display:block !important; position:static !important; inset:auto !important;
-    background:#fff !important; color:#000 !important; overflow:visible !important;
+    left:auto !important; top:auto !important; right:auto !important; bottom:auto !important;
+    width:auto !important; height:auto !important; max-height:none !important; min-height:0 !important;
+    margin:0 !important; padding:0 !important; overflow:visible !important; zoom:1 !important;
+    background:#fff !important; color:#000 !important;
     -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
   }
   body[data-print] [data-target] *{
-    background:transparent !important; color:#000 !important;
-    box-shadow:none !important; text-shadow:none !important;
+    overflow:visible !important; max-height:none !important;
+    position:static !important; background:transparent !important; color:#000 !important;
+    box-shadow:none !important; text-shadow:none !important; filter:none !important;
+    -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
   }
+  body[data-print] [data-target] .qh-inner,
+  body[data-print] [data-target] .ky-inner,
+  body[data-print] [data-target] .sup-inner,
+  body[data-print] [data-target] .np-in,
+  body[data-print] [data-target] .pg-in{
+    max-width:none !important; min-height:0 !important; border:0 !important; margin:0 !important;
+  }
+  /* 操作用の部品は紙に出さない */
   body[data-print] [data-target] .qh-bar,
   body[data-print] [data-target] .ky-bar,
   body[data-print] [data-target] .sup-bar,
   body[data-print] [data-target] .np-bar,
   body[data-print] [data-target] .pg-bar,
   body[data-print] [data-target] .qh-tabswrap,
+  body[data-print] [data-target] .qh-nav,
   body[data-print] [data-target] #kyMap,
-  body[data-print] [data-target] .pc-btn,
   body[data-print] [data-target] .ky-tools,
   body[data-print] [data-target] .ky-search,
   body[data-print] [data-target] .ky-chips,
-  body[data-print] [data-target] .np-coord button{ display:none !important; }
-  body[data-print] [data-target] .qh-inner,
-  body[data-print] [data-target] .ky-inner,
-  body[data-print] [data-target] .sup-inner,
-  body[data-print] [data-target] .np-in,
-  body[data-print] [data-target] .pg-in{ border:0 !important; min-height:0 !important; }
+  body[data-print] [data-target] .ky-near-btn,
+  body[data-print] [data-target] button,
+  body[data-print] [data-target] .pc-btn{ display:none !important; }
+  /* 見やすさの調整 */
   body[data-print] [data-target] a{ text-decoration:underline !important; }
+  body[data-print] [data-target] a[href^="http"]::after{ content:" (" attr(href) ")"; font-size:9pt; color:#555 !important; }
   body[data-print] [data-target] .qh-row,
   body[data-print] [data-target] .qh-stat,
   body[data-print] [data-target] .ky-site,
   body[data-print] [data-target] .np-btn,
   body[data-print] [data-target] .pg-item{ border:1px solid #999 !important; page-break-inside:avoid; }
+  body[data-print] [data-target] h2,
+  body[data-print] [data-target] h3,
+  body[data-print] [data-target] h4{ page-break-after:avoid; }
 }
 </style>
 
@@ -20554,12 +20572,16 @@ else qhHashBoot();
       { i:"🚻", n:"公衆トイレ", q:"公衆トイレ", s:"" }
     ]},
     { g:"🥵 涼みたいとき", it:[
-      { i:"❄️", n:"クーリングシェルター（当サイトの地図）", c:1, s:"八代市・宇城市・宇土市・甲佐町の施設を地図で表示します" },
-      { i:"🏬", n:"ショッピングモール・大型店", q:"ショッピングモール", s:"冷房があり、長く滞在しやすい場所です" },
+      { i:"❄️", n:"クーリングシェルター（当サイトの地図）", c:1, s:"熊本市・八代市・宇城市・宇土市・甲佐町・氷川町の129か所を、近い順に表示します" },
+      { i:"🔎", n:"クーリングシェルターを地図で探す", q:"クーリングシェルター 指定暑熱避難施設", s:"全国どこでも。地図アプリで現在地の周辺を検索します" },
+      { i:"🏛️", n:"市役所・区役所・支所", q:"市役所 支所", s:"ロビーを開放している自治体が多くあります" },
       { i:"📚", n:"図書館", q:"図書館", s:"静かに休めます。開館時間をご確認ください" },
-      { i:"🏛️", n:"公民館・コミュニティセンター", q:"公民館", s:"" },
-      { i:"🏪", n:"コンビニ", q:"コンビニ", s:"短時間の休憩に" },
-      { i:"🗺️", n:"熊本市のクーリングシェルター一覧", url:"https://www.city.kumamoto.jp/kiji0035311/index.html", s:"市内の指定暑熱避難施設。図書館・公民館・商業施設など" }
+      { i:"🏬", n:"ショッピングモール・大型店", q:"ショッピングモール", s:"冷房があり、長く滞在しやすい場所です" },
+      { i:"🏢", n:"公民館・コミュニティセンター", q:"公民館 コミュニティセンター", s:"" },
+      { i:"💊", n:"薬局", q:"薬局", s:"短時間の休憩に応じている店舗があります" },
+      { i:"🏪", n:"コンビニ", q:"コンビニ", s:"24時間。短時間の休憩に" },
+      { i:"🗺️", n:"クーリングシェルターを探す（環境省）", url:"https://www.wbgt.env.go.jp/cooling_shelter.php", s:"全国の指定暑熱避難施設。市町村から探せます" },
+      { i:"🏛️", n:"熊本市のクーリングシェルター一覧", url:"https://www.city.kumamoto.jp/kiji0035311/index.html", s:"市内の指定暑熱避難施設。図書館・公民館・商業施設など" }
     ]},
     { g:"🐾 ペットと一緒のとき", it:[
       { i:"🏥", n:"動物病院", q:"動物病院", s:"けがや体調不良のとき。夜間の対応は事前に電話でご確認ください" },
@@ -20570,6 +20592,16 @@ else qhHashBoot();
       { i:"📋", n:"熊本県の同行避難ガイド", g:1, s:"同行避難のルールと、チェックできる持ち物リスト。印刷もできます" },
       { i:"📞", n:"熊本県動物愛護センター", tel:"0964-27-8115", s:"迷子、避難所での飼育、フードや物資の相談。平日9時〜16時" },
       { i:"📞", n:"熊本市動物愛護センター", tel:"096-380-2153", s:"熊本市内の保護・迷子情報" }
+    ]},
+    { g:"🐕 ペットの相談・情報（全国）", it:[
+      { i:"🏛️", n:"お住まいの動物愛護センター", q:"動物愛護センター", s:"迷子の届け出、保護情報、飼育の相談。地図アプリで最寄りを探します" },
+      { i:"🏛️", n:"保健所（動物担当）", q:"保健所", s:"動物愛護センターがない地域は、保健所が窓口です" },
+      { i:"📋", n:"環境省 ペットの災害対策", url:"https://www.env.go.jp/nature/dobutsu/aigo/2_data/pamph/h3009a.html", s:"同行避難の考え方と、飼い主が備えるべきこと（国のガイドライン）" },
+      { i:"🗺️", n:"動物避難所マップ（全国）", url:"https://uchitoko.jp/", s:"一時預かりや同伴避難ができる施設を、全国から探せます" },
+      { i:"🔎", n:"迷子ペットの掲示板（環境省）", url:"https://www.env.go.jp/nature/dobutsu/aigo/2_data/pamph/h2909a.html", s:"災害時のペット救護と、迷子になったときの手順" },
+      { i:"💳", n:"マイクロチップの登録・変更", url:"https://reg.mc.env.go.jp/", s:"環境省の登録サイト。住所や電話番号が古いままだと連絡が届きません" },
+      { i:"🏥", n:"夜間・救急の動物病院", q:"夜間 救急 動物病院", s:"受け入れの可否は、必ず事前に電話でご確認ください" },
+      { i:"🏨", n:"ペットホテル・一時預かり", q:"ペットホテル 一時預かり", s:"" }
     ]}
   ];
 
@@ -20871,19 +20903,35 @@ else qhHashBoot();
     t.textContent=msg; t.className = ng?'show ng':'show';
     clearTimeout(t._t); t._t=setTimeout(function(){ t.className=''; },2600);
   }
+  var _pv = null;
+  function _clear(){
+    if(!_pv) return;
+    document.body.removeAttribute('data-print');
+    _pv.removeAttribute('data-target');
+    _pv.style.removeProperty('display');
+    _pv = null;
+  }
+  window.addEventListener('afterprint', _clear);
+  try{
+    var mq = window.matchMedia('print');
+    var onmq = function(e){ if(!e.matches) _clear(); };
+    if(mq.addEventListener) mq.addEventListener('change', onmq);
+    else if(mq.addListener) mq.addListener(onmq);
+  }catch(e){}
+
   window.printPanel = function(id){
     var el=document.getElementById(id); if(!el) return;
+    _clear();
+    _pv = el;
     el.setAttribute('data-target','1');
+    // 閉じているパネルでも紙には出せるようにする
+    if(getComputedStyle(el).display === 'none') el.style.setProperty('display','block','important');
     document.body.setAttribute('data-print', id);
-    var done=function(){
-      document.body.removeAttribute('data-print');
-      el.removeAttribute('data-target');
-      window.removeEventListener('afterprint', done);
-    };
-    window.addEventListener('afterprint', done);
-    setTimeout(function(){ window.print(); }, 60);
-    setTimeout(done, 4000);   // afterprint が来ない環境の保険
     try{ if(window.dwaTrack) window.dwaTrack('button','印刷：'+id); }catch(e){}
+    // レイアウトを1フレーム反映させてから印刷する
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){ window.print(); });
+    });
   };
 
   /* 画面に見えているテキストだけを、読みやすい形に整えて取り出す */
