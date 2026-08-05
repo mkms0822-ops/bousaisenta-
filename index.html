@@ -4535,6 +4535,76 @@ html.pastel-yellow #supportModal, html.pastel-green #supportModal, html.pastel-p
 @media(max-width:700px){ .sup-bar button{ padding:8px 10px; font-size:11.5px; } .sup-body h3{ font-size:19px; } }
 </style>
 
+<style id="near-style">
+/* ===================== 近くを探す ===================== */
+.near-open{
+  background:#0b7d4a; color:#fff; border:none; border-radius:9px;
+  padding:9px 14px; font-size:13.5px; font-weight:700; cursor:pointer; white-space:nowrap;
+}
+.near-open:hover{ background:#0a6b40; }
+.d-tab.near:hover,.d-tab.near.active{ color:#4fd996; border-bottom-color:#4fd996; }
+
+#nearPanel{
+  display:none; position:fixed; inset:0; z-index:99985;
+  background:rgba(4,10,8,.96); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
+}
+#nearPanel.open{ display:block; }
+.np-in{ max-width:760px; margin:0 auto; min-height:100%; background:#0C1512; border-left:1px solid #1E2E27; border-right:1px solid #1E2E27; }
+
+.np-bar{
+  position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:9px;
+  padding:11px 14px; padding-top:calc(11px + env(safe-area-inset-top));
+  background:rgba(8,16,13,.97); border-bottom:1px solid #1E2E27;
+}
+.np-bar .np-t{ flex:1; min-width:0; font-size:14px; font-weight:800; color:#7CE0AC; letter-spacing:.04em; }
+.np-bar button{
+  flex-shrink:0; padding:8px 12px; border-radius:8px; cursor:pointer; font-size:12.5px; font-weight:700;
+  background:rgba(124,224,172,.1); border:1px solid rgba(124,224,172,.36); color:#7CE0AC;
+}
+
+/* 現在地の状態 */
+.np-loc{ padding:14px 16px; border-bottom:1px solid #1E2E27; }
+.np-loc .st{ font-size:13px; color:#8FA79B; line-height:1.7; }
+.np-loc .st b{ color:#fff; }
+.np-loc.ok{ background:rgba(11,125,74,.14); }
+.np-loc.ng{ background:rgba(200,32,46,.12); }
+.np-coord{ display:flex; gap:8px; align-items:center; margin-top:10px; flex-wrap:wrap; }
+.np-coord code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:14px; color:#fff;
+  background:#132019; border:1px solid #24382E; border-radius:6px; padding:7px 11px; letter-spacing:.02em;
+}
+.np-coord button{
+  padding:7px 12px; border-radius:6px; font-size:12.5px; font-weight:700; cursor:pointer;
+  background:#132019; border:1px solid #24382E; color:#7CE0AC;
+}
+.np-note{ margin:10px 0 0; font-size:12px; color:#8FA79B; line-height:1.75; }
+
+.np-body{ padding:16px 16px 44px; }
+.np-grp{ margin:0 0 22px; }
+.np-grp h4{
+  margin:0 0 11px; font-size:13px; font-weight:800; letter-spacing:.08em; color:#7CE0AC;
+  display:flex; align-items:center; gap:9px;
+}
+.np-grp h4::after{ content:""; flex:1; height:1px; background:#1E2E27; }
+.np-items{ display:grid; gap:8px; grid-template-columns:1fr; }
+@media(min-width:560px){ .np-items{ grid-template-columns:1fr 1fr; } }
+.np-btn{
+  display:flex; align-items:center; gap:11px; width:100%; text-align:left; cursor:pointer;
+  padding:14px 15px; border-radius:9px; background:#132019; border:1px solid #24382E;
+  color:#fff; font-size:14.5px; font-weight:700; line-height:1.5; text-decoration:none;
+}
+.np-btn:hover{ border-color:#3FBE74; background:#18291F; }
+.np-btn .ic{ font-size:19px; flex-shrink:0; }
+.np-btn small{ display:block; font-size:11.5px; font-weight:400; color:#8FA79B; margin-top:3px; line-height:1.6; }
+.np-btn.urgent{ border-color:rgba(200,32,46,.5); background:#1E1214; }
+.np-btn.urgent:hover{ border-color:#E04350; }
+.np-foot{ margin-top:8px; font-size:11.5px; color:#7A8C83; line-height:1.85; }
+.np-foot p{ margin:0 0 7px; }
+html.light #nearPanel, html.pastel-pink #nearPanel, html.pastel-sky #nearPanel,
+html.pastel-yellow #nearPanel, html.pastel-green #nearPanel, html.pastel-purple #nearPanel{ background:rgba(210,222,216,.95); }
+</style>
+
 </head>
 
 <body>
@@ -5855,6 +5925,9 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
   </button>
   <button type="button" class="d-tab kyusui" onclick="openKyusui()">
     <span class="tab-icon">💧</span>給水所・入浴
+  </button>
+  <button type="button" class="d-tab near" onclick="openNear()">
+    <span class="tab-icon">📍</span>近くを探す
   </button>
   <button type="button" class="d-tab support" onclick="openSupport()">
     <span class="tab-icon">🤲</span>活動サポート
@@ -13980,7 +14053,8 @@ function noticeLinkClick(ev, url){
         'open-post':    function(){ if(typeof openPostModal==='function') openPostModal(); },
         'open-kyusui':  function(){ if(typeof openKyusui==='function') openKyusui(); },
         'open-quake':   function(){ if(typeof openQuakeHub==='function') openQuakeHub(); },
-        'open-support': function(){ if(typeof openSupport==='function') openSupport(); }
+        'open-support': function(){ if(typeof openSupport==='function') openSupport(); },
+        'open-near':    function(){ if(typeof openNear==='function') openNear(); }
       };
 
       if(samePage || !target.pathname || target.pathname === '/'){
@@ -18480,6 +18554,7 @@ document.addEventListener('keydown', function(e){
   <div class="dwadoc-bar">
     <span class="dwadoc-title" id="dwaDocTitle">📖</span>
     <span class="dwadoc-actions">
+      <button type="button" class="near-open" onclick="openNear()">📍 近くを探す</button>
       <a id="dwaDocNewTab" href="#" target="_blank" rel="noopener">別タブで開く</a>
       <button class="dwadoc-close" type="button" onclick="closeDwaDoc()">✕ 閉じる</button>
     </span>
@@ -20253,6 +20328,165 @@ else qhHashBoot();
   });
   function boot(){ if(location.hash === '#support') setTimeout(window.openSupport, 400); }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+</script>
+
+
+<!-- ===== 近くを探す ===== -->
+<div id="nearPanel" role="dialog" aria-modal="true" aria-label="近くを探す" onclick="if(event.target===this)closeNear()">
+  <div class="np-in">
+    <div class="np-bar">
+      <span class="np-t">📍 いまいる場所から探す</span>
+      <button type="button" onclick="nearLocate(true)">再取得</button>
+      <button type="button" onclick="closeNear()" aria-label="閉じる">✕</button>
+    </div>
+
+    <div class="np-loc" id="npLoc">
+      <p class="st" id="npSt">現在地を確認しています…</p>
+      <div class="np-coord" id="npCoord" style="display:none">
+        <code id="npLL">—</code>
+        <button type="button" onclick="nearCopy()">位置をコピー</button>
+        <button type="button" onclick="nearOpenHere()">地図で開く</button>
+      </div>
+      <p class="np-note" id="npNote">
+        119番や110番で場所をうまく伝えられないとき、この数字（緯度・経度）を読み上げると位置が伝わります。
+      </p>
+    </div>
+
+    <div class="np-body" id="npBody"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var LAT=null, LNG=null, ACC=null;
+
+  /* 探せるもの。situ は緊急対応マニュアルの区分に合わせている */
+  var G = [
+    { g:"🚨 いますぐ必要なとき", it:[
+      { i:"🚓", n:"交番・警察署", q:"交番", s:"事件・事故・不審者。緊急は110番", u:1 },
+      { i:"🚒", n:"消防署", q:"消防署", s:"火災・救助。緊急は119番", u:1 },
+      { i:"🏥", n:"救急病院", q:"救急病院", s:"夜間・休日も受け付ける病院", u:1 },
+      { i:"🏫", n:"避難所・避難場所", q:"避難所", s:"開設状況は自治体の発表をご確認ください", u:1 }
+    ]},
+    { g:"🌊 地震・津波", it:[
+      { i:"🌊", n:"津波避難ビル・津波避難場所", q:"津波避難ビル", s:"高い建物へ。水平より垂直に逃げる" },
+      { i:"🗺️", n:"指定緊急避難場所（公式）", h:1, s:"国土地理院 重ねるハザードマップ。津波・洪水の想定も見られます" },
+      { i:"🏞️", n:"広い公園・グラウンド", q:"公園", s:"落下物のない開けた場所" },
+      { i:"💧", n:"給水所（熊本地震）", k:1, s:"当サイトの給水所・入浴マップへ" }
+    ]},
+    { g:"🚑 けが・急病", it:[
+      { i:"🏥", n:"夜間・休日診療所", q:"夜間休日診療所", s:"" },
+      { i:"💊", n:"薬局", q:"薬局", s:"処方箋がなくても相談できます" },
+      { i:"🫀", n:"AEDのある場所", q:"AED設置場所", s:"コンビニ・公共施設・駅にあることが多い" },
+      { i:"🦷", n:"歯科", q:"歯科医院", s:"" }
+    ]},
+    { g:"🌀 台風・大雨・土砂", it:[
+      { i:"🗺️", n:"浸水・土砂のハザードマップ", h:1, s:"いまいる場所の災害リスクを確認できます" },
+      { i:"🏢", n:"高い建物・立体駐車場", q:"立体駐車場", s:"車ごと退避できる場所" },
+      { i:"🏫", n:"避難所", q:"避難所", s:"" }
+    ]},
+    { g:"🚨 防犯・身の危険", it:[
+      { i:"🚓", n:"交番", q:"交番", s:"" },
+      { i:"🏪", n:"コンビニ", q:"コンビニ", s:"24時間で人がいます。駆け込み先に" },
+      { i:"🚉", n:"駅", q:"駅", s:"人が多く、係員がいます" }
+    ]},
+    { g:"🔦 停電・断水のとき", it:[
+      { i:"☎️", n:"公衆電話", q:"公衆電話", s:"停電中も使えるものがあります" },
+      { i:"🏪", n:"コンビニ", q:"コンビニ", s:"" },
+      { i:"⛽", n:"ガソリンスタンド", q:"ガソリンスタンド", s:"" },
+      { i:"♨️", n:"銭湯・入浴施設", q:"銭湯", s:"" },
+      { i:"🧺", n:"コインランドリー", q:"コインランドリー", s:"" },
+      { i:"🚻", n:"公衆トイレ", q:"公衆トイレ", s:"" }
+    ]}
+  ];
+
+  function gmap(q){
+    var z = 15;
+    if(LAT!=null) return 'https://www.google.com/maps/search/'+encodeURIComponent(q)+'/@'+LAT+','+LNG+','+z+'z';
+    return 'https://www.google.com/maps/search/'+encodeURIComponent(q);
+  }
+  function hazard(){
+    if(LAT!=null) return 'https://disaportal.gsi.go.jp/maps/index.html?ll='+LAT+','+LNG+'&z=15';
+    return 'https://disaportal.gsi.go.jp/';
+  }
+
+  function draw(){
+    document.getElementById('npBody').innerHTML = G.map(function(gr){
+      return '<section class="np-grp"><h4>'+gr.g+'</h4><div class="np-items">' +
+        gr.it.map(function(x){
+          var href = x.h ? hazard() : (x.q ? gmap(x.q) : '#');
+          var on = x.k ? ' onclick="nearToKyusui();return false;"' : '';
+          return '<a class="np-btn'+(x.u?' urgent':'')+'" href="'+href+'" target="_blank" rel="noopener"'+on+'>'+
+            '<span class="ic">'+x.i+'</span><span>'+x.n+
+            (x.s?'<small>'+x.s+'</small>':'')+'</span></a>';
+        }).join('') + '</div></section>';
+    }).join('') +
+    '<div class="np-foot">' +
+    '<p><b>検索結果はGoogleマップの情報です。</b>災害時は営業していない、被災している、閉鎖されている場合があります。到着してから使えないこともあるとお考えください。</p>' +
+    '<p><b>避難所の開設状況は、必ずお住まいの自治体の発表でご確認ください。</b>地図に載っている施設が、その災害で開設されるとは限りません。</p>' +
+    '<p>緊急のときは、探すより先に <b>119番・110番</b> へ。場所が説明できないときは、上の緯度・経度を読み上げてください。</p>' +
+    '</div>';
+  }
+
+  window.openNear = function(){
+    document.getElementById('nearPanel').classList.add('open');
+    document.body.style.overflow='hidden';
+    draw();
+    if(LAT==null) nearLocate(false);
+    try{ if(window.dwaTrack) window.dwaTrack('button','近くを探す'); }catch(e){}
+  };
+  window.closeNear = function(){
+    document.getElementById('nearPanel').classList.remove('open');
+    document.body.style.overflow='';
+  };
+  window.nearLocate = function(force){
+    var box=document.getElementById('npLoc'), st=document.getElementById('npSt');
+    if(!navigator.geolocation){
+      box.className='np-loc ng';
+      st.innerHTML='この端末では現在地を取得できません。<b>地名を入れて探す形になります。</b>';
+      draw(); return;
+    }
+    box.className='np-loc'; st.textContent='現在地を確認しています…';
+    navigator.geolocation.getCurrentPosition(function(p){
+      LAT=p.coords.latitude.toFixed(6); LNG=p.coords.longitude.toFixed(6);
+      ACC=Math.round(p.coords.accuracy||0);
+      box.className='np-loc ok';
+      st.innerHTML='現在地を取得しました。<b>おおよそ'+ACC+'メートル</b>の精度です。';
+      document.getElementById('npCoord').style.display='flex';
+      document.getElementById('npLL').textContent='北緯 '+LAT+' / 東経 '+LNG;
+      draw();
+    }, function(err){
+      box.className='np-loc ng';
+      var m = err && err.code===1
+        ? '位置情報の利用が許可されていません。<b>ブラウザの設定から許可すると、近い順に探せます。</b>許可しない場合も、地名を入れて探せます。'
+        : '現在地を取得できませんでした。<b>地名を入れて探す形になります。</b>';
+      st.innerHTML=m;
+      draw();
+    }, { enableHighAccuracy:true, timeout:10000, maximumAge: force?0:60000 });
+  };
+  window.nearCopy = function(){
+    if(LAT==null){ alert('現在地がまだ取得できていません。'); return; }
+    var t = LAT+','+LNG;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(function(){ alert('位置をコピーしました：'+t); })
+        .catch(function(){ window.prompt('この数字をお使いください', t); });
+    } else window.prompt('この数字をお使いください', t);
+  };
+  window.nearOpenHere = function(){
+    if(LAT==null){ alert('現在地がまだ取得できていません。'); return; }
+    window.open('https://www.google.com/maps/search/?api=1&query='+LAT+','+LNG,'_blank','noopener');
+  };
+  window.nearToKyusui = function(){
+    closeNear();
+    setTimeout(function(){ if(typeof openKyusui==='function') openKyusui(); else location.hash='#kyusui'; },160);
+  };
+
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Escape' && document.getElementById('nearPanel').classList.contains('open')) closeNear();
+  });
+  function boot(){ if(location.hash==='#near') setTimeout(window.openNear, 400); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
 </script>
 
