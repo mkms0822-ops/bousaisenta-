@@ -4609,6 +4609,68 @@ html.light #nearPanel, html.pastel-pink #nearPanel, html.pastel-sky #nearPanel,
 html.pastel-yellow #nearPanel, html.pastel-green #nearPanel, html.pastel-purple #nearPanel{ background:rgba(210,222,216,.95); }
 </style>
 
+<style id="pet-style">
+/* ===================== ペット同行避難ガイド ===================== */
+#petGuide{
+  display:none; position:fixed; inset:0; z-index:99996;
+  background:rgba(6,12,10,.97); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
+}
+#petGuide.open{ display:block; }
+.pg-in{ max-width:760px; margin:0 auto; min-height:100%; background:#0C1512; border-left:1px solid #1E2E27; border-right:1px solid #1E2E27; }
+.pg-bar{
+  position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:8px;
+  padding:11px 14px; padding-top:calc(11px + env(safe-area-inset-top));
+  background:rgba(8,16,13,.97); border-bottom:1px solid #1E2E27;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+.pg-bar .t{ flex:1; min-width:0; font-size:14px; font-weight:800; color:#7CE0AC; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pg-bar button{ flex-shrink:0; padding:8px 12px; border-radius:8px; cursor:pointer; font-size:12.5px; font-weight:700;
+  background:rgba(124,224,172,.1); border:1px solid rgba(124,224,172,.36); color:#7CE0AC; }
+.pg-body{ padding:20px 18px 50px; color:#E8F0EC; font-size:15px; line-height:1.9; }
+.pg-body h2{ margin:0 0 6px; font-size:23px; font-weight:800; line-height:1.45; color:#fff; }
+.pg-body .lead{ margin:0 0 22px; font-size:13.5px; color:#94A9A0; line-height:1.85; }
+.pg-body h3{
+  margin:30px 0 12px; font-size:18px; font-weight:800; color:#fff;
+  display:flex; align-items:center; gap:10px; line-height:1.5;
+}
+.pg-body h3::after{ content:""; flex:1; height:1px; background:#1E2E27; }
+.pg-body p{ margin:0 0 14px; }
+.pg-key{ background:#12271C; border:1px solid #2E5F45; border-left:3px solid #3FBE74; border-radius:0 8px 8px 0; padding:15px 17px; margin:0 0 16px; font-size:14.5px; line-height:1.9; }
+.pg-warn{ background:#2A1418; border:1px solid rgba(200,32,46,.5); border-radius:8px; padding:15px 17px; margin:0 0 16px; font-size:14.5px; line-height:1.9; }
+.pg-warn b, .pg-key b{ color:#fff; }
+
+/* チェックリスト */
+.pg-cl{ margin:0 0 18px; }
+.pg-cl .cl-h{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 10px; flex-wrap:wrap; }
+.pg-cl .cl-h .cnt{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px; color:#7CE0AC; }
+.pg-cl .cl-h button{ font-size:11.5px; font-weight:700; padding:5px 10px; border-radius:6px; cursor:pointer;
+  background:none; border:1px solid #2A3E35; color:#8FA79B; }
+.pg-item{ display:flex; gap:12px; align-items:flex-start; background:#132019; border:1px solid #24382E;
+  border-radius:9px; padding:13px 15px; margin-bottom:8px; cursor:pointer; transition:border-color .15s,background .15s; }
+.pg-item:hover{ border-color:#3FBE74; }
+.pg-item input{ width:20px; height:20px; margin:2px 0 0; flex-shrink:0; accent-color:#00913A; cursor:pointer; }
+.pg-item .tx{ flex:1; min-width:0; }
+.pg-item .tx b{ display:block; font-size:14.5px; font-weight:700; color:#fff; line-height:1.6; }
+.pg-item .tx span{ display:block; font-size:12.5px; color:#94A9A0; margin-top:5px; line-height:1.75; }
+.pg-item.done{ background:#0F1F17; border-color:#2E5F45; }
+.pg-item.done .tx b{ color:#7CE0AC; text-decoration:line-through; text-decoration-color:rgba(124,224,172,.45); }
+.pg-sub{ font-size:12px; font-family:ui-monospace,monospace; letter-spacing:.1em; color:#7CE0AC; margin:18px 0 9px; }
+
+.pg-tel{ display:flex; align-items:center; gap:11px; padding:13px 15px; border-radius:9px; text-decoration:none;
+  background:rgba(0,192,96,.08); border:1px solid rgba(0,224,122,.35); margin-bottom:9px; }
+.pg-tel .i{ font-size:19px; flex-shrink:0; }
+.pg-tel .tx b{ display:block; font-size:14.5px; color:#fff; font-weight:800; }
+.pg-tel .tx span{ display:block; font-size:12px; color:#94A9A0; margin-top:3px; line-height:1.6; }
+.pg-link{ display:inline-flex; align-items:center; gap:6px; margin:2px 8px 10px 0; padding:10px 15px; border-radius:8px;
+  font-size:13.5px; font-weight:700; text-decoration:none; background:rgba(0,180,255,.12); border:1px solid rgba(0,180,255,.4); color:#bfe9ff; }
+.pg-foot{ margin-top:26px; padding-top:16px; border-top:1px solid #1E2E27; font-size:11.5px; color:#7A8C83; line-height:1.85; }
+html.light #petGuide, html.pastel-pink #petGuide, html.pastel-sky #petGuide,
+html.pastel-yellow #petGuide, html.pastel-green #petGuide, html.pastel-purple #petGuide{ background:rgba(210,222,216,.96); }
+@media print{ .pg-bar{display:none} #petGuide{position:static;background:#fff;overflow:visible} .pg-in{background:#fff;border:0}
+  .pg-body,.pg-body h2,.pg-body h3,.pg-item .tx b{color:#000} .pg-item{border:1px solid #999;background:#fff} }
+</style>
+
 </head>
 
 <body>
@@ -14058,7 +14120,8 @@ function noticeLinkClick(ev, url){
         'open-kyusui':  function(){ if(typeof openKyusui==='function') openKyusui(); },
         'open-quake':   function(){ if(typeof openQuakeHub==='function') openQuakeHub(); },
         'open-support': function(){ if(typeof openSupport==='function') openSupport(); },
-        'open-near':    function(){ if(typeof openNear==='function') openNear(); }
+        'open-near':    function(){ if(typeof openNear==='function') openNear(); },
+        'open-pet':     function(){ if(typeof openPetGuide==='function') openPetGuide(); }
       };
 
       if(samePage || !target.pathname || target.pathname === '/'){
@@ -20436,7 +20499,7 @@ else qhHashBoot();
       { i:"✂️", n:"ペットサロン・トリミング", q:"ペットサロン", s:"預かりに対応している店舗もあります" },
       { i:"🛒", n:"ペット用品店", q:"ペットショップ", s:"フード、トイレシート、キャリーなど" },
       { i:"🗺️", n:"動物避難所マップ（うちトコ）", url:"https://uchitoko.jp/", s:"一時預かりや同伴避難ができる施設を探せます" },
-      { i:"📋", n:"熊本県の同行避難ガイド", url:"https://www.kumamoto-doubutuaigo.jp/", s:"同行避難のルールと、持ち物のチェックリスト" },
+      { i:"📋", n:"熊本県の同行避難ガイド", g:1, s:"同行避難のルールと、チェックできる持ち物リスト。印刷もできます" },
       { i:"📞", n:"熊本県動物愛護センター", tel:"0964-27-8115", s:"迷子、避難所での飼育、フードや物資の相談。平日9時〜16時" },
       { i:"📞", n:"熊本市動物愛護センター", tel:"096-380-2153", s:"熊本市内の保護・迷子情報" }
     ]}
@@ -20463,7 +20526,8 @@ else qhHashBoot();
           else if(x.q)   href = gmap(x.q);
           else           href = '#';
           var on = x.k ? ' onclick="nearToKyusui();return false;"'
-                 : x.c ? ' onclick="nearToCooling();return false;"' : '';
+                 : x.c ? ' onclick="nearToCooling();return false;"'
+                 : x.g ? ' onclick="nearToPetGuide();return false;"' : '';
           return '<a class="np-btn'+(x.u?' urgent':'')+(x.tel?' tel':'')+'" href="'+href+'"'+ext+on+'>'+
             '<span class="ic">'+x.i+'</span><span>'+x.n+
             (x.s?'<small>'+x.s+'</small>':'')+'</span></a>';
@@ -20542,6 +20606,169 @@ else qhHashBoot();
   });
   function boot(){ if(location.hash==='#near') setTimeout(window.openNear, 400); }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+</script>
+
+
+<!-- ===== ペット同行避難ガイド ===== -->
+<div id="petGuide" role="dialog" aria-modal="true" aria-label="ペット同行避難ガイド" onclick="if(event.target===this)closePetGuide()">
+  <div class="pg-in">
+    <div class="pg-bar">
+      <span class="t">🐾 ペットと一緒に逃げる</span>
+      <button type="button" onclick="window.print()">🖨 印刷</button>
+      <button type="button" onclick="closePetGuide()" aria-label="閉じる">✕</button>
+    </div>
+    <div class="pg-body" id="pgBody"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var CL = {
+    now:[
+      ["自分の身の安全を確保する","まず自分です。飼い主が無事でなければ、ペットを守ることはできません。頭を守り、揺れが収まってから動きます。"],
+      ["犬はリードをつけ、首輪が緩んでいないか確認する","興奮した犬は普段より力が出ます。緩みがあると抜けます。"],
+      ["迷子札・鑑札・狂犬病予防注射済票がついているか確認する","はぐれたときに、飼い主にたどり着ける手がかりです。"],
+      ["小型犬・猫はキャリーバッグやケージに入れる","抱きかかえての移動は、驚いた拍子に逃がします。"],
+      ["キャリーバッグの扉をガムテープで固定する","移動中に扉が開いて逸走する事故が実際に起きています。熊本県が明示している項目です。"],
+      ["ペット用の避難用品を持つ","下の「持ち出すもの」を確認してください。"],
+      ["落ち着いて、普段どおりの声をかける","飼い主の動揺はペットに伝わります。声のトーンを変えないことが、いちばん効きます。"]
+    ],
+    bring1:[
+      ["フード（最低5日分、できれば7日分以上）","支援物資が届くまで時間がかかります。療法食の子は特に多めに。"],
+      ["水（人用とは別に用意）","断水時、ペット用まで手が回りません。"],
+      ["常用薬・療法食","持病がある場合は最優先。薬の名前を書いたメモも一緒に。"],
+      ["食器（フード用・水用）","折りたためるシリコン製が場所を取りません。"],
+      ["リード（予備を含む）・首輪・ハーネス","1本切れたときに代わりがないと動けなくなります。"],
+      ["キャリーバッグ・ケージ","避難所での居場所そのものになります。"]
+    ],
+    bring2:[
+      ["ペットシーツ、猫砂、排泄物用の袋","避難所でのトラブルの多くは排泄です。多めに。"],
+      ["タオル、ウェットティッシュ",""],
+      ["ガムテープ","キャリーの固定、ケージの補修、貼り紙。用途が広く軽い。"],
+      ["使い慣れた毛布やタオル","自分のにおいがするものがあると落ち着きます。"],
+      ["おもちゃ（音の出ないもの）",""]
+    ],
+    bring3:[
+      ["ペットの写真（飼い主と一緒に写ったもの）","はぐれたときの捜索に使います。所有関係を示せるため、一緒に写ったものが重要です。紙でも持っておいてください。"],
+      ["ワクチン接種の記録",""],
+      ["かかりつけ動物病院の名前と電話番号",""],
+      ["マイクロチップの番号",""]
+    ],
+    prep:[
+      ["マイクロチップを装着する","迷子札や鑑札が外れても残ります。登録した住所・電話番号が最新かも確認を。"],
+      ["ケージやキャリーに慣らしておく","普段から生活空間にケージを置いておくのが効果的です。災害時に初めて入れられると強いストレスになります。"],
+      ["基本的なしつけをしておく","「すわれ」「まて」、不必要に吠えないこと、決められた場所での排泄。避難所で周囲とうまくやる土台になります。"],
+      ["猫は完全室内飼いにする","熊本市は災害時の行方不明を防ぐため完全室内飼養を明記しています。"],
+      ["ワクチン接種と寄生虫の駆除を済ませる","多くの動物が集まる場所では感染症のリスクが上がります。"],
+      ["避難所と道順を確認しておく","ペット同行が可能かどうかも、事前に自治体へ確認を。"],
+      ["実際に持って歩けるか試す","ペット用と人用の避難用品を持って歩けるか。荷物が多すぎて持ち出せない、はよくあります。"],
+      ["預け先を確保しておく","大型動物など同行避難が難しい場合の一時預け先。親族、知人、ペットホテル、かかりつけ医。複数あると安心です。"],
+      ["家族で役割を決めておく","誰がペットを連れ、誰が荷物を持つか。決めていないと、その場で誰も動けません。"]
+    ]
+  };
+  function esc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function list(id,items){
+    return '<div class="pg-cl" data-cl="'+id+'">'+
+      '<div class="cl-h"><span class="cnt" id="cnt-'+id+'">0 / '+items.length+'</span>'+
+      '<button type="button" onclick="pgReset(\''+id+'\')">チェックを外す</button></div>'+
+      items.map(function(it,i){
+        return '<label class="pg-item"><input type="checkbox" data-cl="'+id+'" onchange="pgTick(this)">'+
+          '<span class="tx"><b>'+esc(it[0])+'</b>'+(it[1]?'<span>'+esc(it[1])+'</span>':'')+'</span></label>';
+      }).join('')+'</div>';
+  }
+  window.pgTick = function(el){
+    el.closest('.pg-item').classList.toggle('done', el.checked);
+    var id=el.dataset.cl, all=document.querySelectorAll('input[data-cl="'+id+'"]');
+    var n=0; all.forEach(function(x){ if(x.checked) n++; });
+    document.getElementById('cnt-'+id).textContent = n+' / '+all.length;
+  };
+  window.pgReset = function(id){
+    document.querySelectorAll('input[data-cl="'+id+'"]').forEach(function(x){
+      x.checked=false; x.closest('.pg-item').classList.remove('done');
+    });
+    var all=document.querySelectorAll('input[data-cl="'+id+'"]');
+    document.getElementById('cnt-'+id).textContent = '0 / '+all.length;
+  };
+
+  function build(){
+    var h='';
+    h+='<h2>ペットと一緒に逃げる</h2>';
+    h+='<p class="lead">熊本県が公式に示している考え方とチェックリストをもとにまとめました。チェックは画面上で入れられます（保存はされません）。印刷して持ち出すこともできます。</p>';
+
+    h+='<div class="pg-warn"><b>「同行避難」と「同伴避難」は違います。</b><br>'+
+      '同行避難とは、ペットを連れて安全な場所まで避難する行動のことです。熊本県は「避難所や仮設住宅において、人とペットが同一の空間で居住できるものを意味するものではありません」と明記しています。'+
+      '多くの避難所では、建物まで一緒に行けても、ペットは屋外のテントや別の部屋、ケージの中で過ごすことになります。'+
+      '飼養環境は避難所ごとに異なり、各避難所が定めた管理ルールに従う必要があります。</div>';
+
+    h+='<div class="pg-key"><b>飼い主が無事でなければ、ペットを守ることはできません。</b><br>'+
+      '熊本県も熊本市も、この一文を最初に置いています。まず自分の身の安全を確保する。それがペットを守る最初の行動です。'+
+      '崩れかけた家に戻ってペットを探しに行き、飼い主が亡くなれば、ペットを救う人がいなくなります。</div>';
+
+    h+='<h3>① いま逃げるとき</h3>';
+    h+='<p>熊本県が示している同行避難のチェックリストです。この順で確認してください。</p>';
+    h+=list('now',CL.now);
+
+    h+='<h3>② 持ち出すもの</h3>';
+    h+='<p>優先順位をつけています。時間がないときは、上から順に。</p>';
+    h+='<p class="pg-sub">最優先（これがないと困る）</p>'+list('b1',CL.bring1);
+    h+='<p class="pg-sub">次に大事（衛生と居場所）</p>'+list('b2',CL.bring2);
+    h+='<p class="pg-sub">情報として持っておくもの</p>'+list('b3',CL.bring3);
+
+    h+='<h3>③ 平時にやっておくこと</h3>';
+    h+='<p>いま災害のさなかであっても、次に向けてできることがあります。</p>';
+    h+=list('prep',CL.prep);
+
+    h+='<h3>避難所で過ごすときに</h3>';
+    h+='<p><b>ルールは避難所ごとに違います。</b>到着したら、まず運営者に飼養場所と管理方法を確認してください。</p>';
+    h+='<p><b>飼養管理は飼い主の責任です。</b>熊本県は「避難所ごとのルールに基づき、飼い主自身が責任をもって飼養管理を行いましょう」としています。世話を運営者に任せることはできません。</p>';
+    h+='<p><b>動物が苦手な方、アレルギーのある方がいます。</b>排泄物の始末、鳴き声、抜け毛。この三つに気を配るだけで、周囲との摩擦はかなり減ります。</p>';
+    h+='<div class="pg-warn"><b>暑さに注意してください。</b>気温が高い時期は、ペットのほうが先に熱中症になります。'+
+      '屋外のケージに直射日光が当たっていないか、水は足りているか、こまめに確認してください。</div>';
+
+    h+='<h3>はぐれてしまったら</h3>';
+    h+='<p>すぐに動物愛護センターへご連絡ください。保護された動物の情報が集まります。'+
+      '毛色、大きさ、首輪の有無、マイクロチップの番号を伝えられるようにしておいてください。'+
+      '捕獲器を設置する場合は、他人のペットや野生動物がかかることがあるため、ガイドラインに従ってください。</p>';
+
+    h+='<h3>相談窓口</h3>';
+    h+='<a class="pg-tel" href="tel:0964278115"><span class="i">📞</span><span class="tx">'+
+      '<b>熊本県動物愛護センター「アニマルフレンズ熊本」</b>'+
+      '<span>0964-27-8115／宇城市松橋町東松崎701-4／平日9時〜16時（土日祝・年末年始を除く）</span></span></a>';
+    h+='<a class="pg-tel" href="tel:0963802153"><span class="i">📞</span><span class="tx">'+
+      '<b>熊本市動物愛護センター</b><span>096-380-2153／熊本市東区小山2丁目11-1</span></span></a>';
+    h+='<p style="font-size:13.5px;color:#94A9A0">迷子、避難所での飼育の困りごと、ペットフードや物資が手に入らない、飼い続けることが難しくなった。こうした相談を受け付けています。</p>';
+
+    h+='<a class="pg-link" href="https://www.pref.kumamoto.jp/soshiki/30/275292.html" target="_blank" rel="noopener">🏛️ ペット同行避難ができる避難所（熊本県）</a>';
+    h+='<a class="pg-link" href="https://uchitoko.jp/" target="_blank" rel="noopener">🗺️ 動物避難所マップ（うちトコ）</a>';
+
+    h+='<div class="pg-foot">'+
+      '<p>本ページは熊本県および熊本市が公表している情報をもとに構成しています。避難所ごとの受入れ状況やルールは変更されますので、実際の避難にあたっては、必ずお住まいの自治体の最新の発表をご確認ください。</p>'+
+      '<p>チェックの状態は保存されません。印刷してお使いいただくか、備えが済んだものはご自身の持ち出し袋に反映してください。</p>'+
+      '</div>';
+    document.getElementById('pgBody').innerHTML = h;
+  }
+
+  var built=false;
+  window.openPetGuide = function(){
+    if(!built){ build(); built=true; }
+    document.getElementById('petGuide').classList.add('open');
+    document.body.style.overflow='hidden';
+    try{ if(window.dwaTrack) window.dwaTrack('button','ペット同行避難ガイド'); }catch(e){}
+  };
+  window.closePetGuide = function(){
+    document.getElementById('petGuide').classList.remove('open');
+    document.body.style.overflow='';
+  };
+  window.nearToPetGuide = function(){
+    if(typeof closeNear==='function') closeNear();
+    setTimeout(window.openPetGuide,160);
+  };
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape' && document.getElementById('petGuide').classList.contains('open')) window.closePetGuide();
+  });
+  function boot(){ if(location.hash==='#pet') setTimeout(window.openPetGuide,400); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
 })();
 </script>
 
