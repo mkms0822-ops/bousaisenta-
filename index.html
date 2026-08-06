@@ -4688,65 +4688,7 @@ html.pastel-yellow #petGuide, html.pastel-green #petGuide, html.pastel-purple #p
 #pcToast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 #pcToast.ng{ background:rgba(200,32,46,.16); border-color:rgba(224,67,80,.5); color:#FF9AA2; }
 
-/* 印刷：指定したパネルだけを紙に出す */
-@media print{
-  @page{ margin:12mm; }
-  /* ページ全体の制約をすべて外す（モーダル表示中の overflow:hidden や zoom を打ち消す） */
-  html, body{
-    overflow:visible !important; height:auto !important; max-height:none !important;
-    position:static !important; zoom:1 !important; background:#fff !important; color:#000 !important;
-  }
-  /* 対象以外は出さない */
-  body[data-print] > *{ display:none !important; }
-  /* 対象パネルだけを通常のブロックとして流し込む */
-  body[data-print] > [data-target]{
-    display:block !important; position:static !important; inset:auto !important;
-    left:auto !important; top:auto !important; right:auto !important; bottom:auto !important;
-    width:auto !important; height:auto !important; max-height:none !important; min-height:0 !important;
-    margin:0 !important; padding:0 !important; overflow:visible !important; zoom:1 !important;
-    background:#fff !important; color:#000 !important;
-    -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
-  }
-  body[data-print] [data-target] *{
-    overflow:visible !important; max-height:none !important;
-    position:static !important; background:transparent !important; color:#000 !important;
-    box-shadow:none !important; text-shadow:none !important; filter:none !important;
-    -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
-  }
-  body[data-print] [data-target] .qh-inner,
-  body[data-print] [data-target] .ky-inner,
-  body[data-print] [data-target] .sup-inner,
-  body[data-print] [data-target] .np-in,
-  body[data-print] [data-target] .pg-in{
-    max-width:none !important; min-height:0 !important; border:0 !important; margin:0 !important;
-  }
-  /* 操作用の部品は紙に出さない */
-  body[data-print] [data-target] .qh-bar,
-  body[data-print] [data-target] .ky-bar,
-  body[data-print] [data-target] .sup-bar,
-  body[data-print] [data-target] .np-bar,
-  body[data-print] [data-target] .pg-bar,
-  body[data-print] [data-target] .qh-tabswrap,
-  body[data-print] [data-target] .qh-nav,
-  body[data-print] [data-target] #kyMap,
-  body[data-print] [data-target] .ky-tools,
-  body[data-print] [data-target] .ky-search,
-  body[data-print] [data-target] .ky-chips,
-  body[data-print] [data-target] .ky-near-btn,
-  body[data-print] [data-target] button,
-  body[data-print] [data-target] .pc-btn{ display:none !important; }
-  /* 見やすさの調整 */
-  body[data-print] [data-target] a{ text-decoration:underline !important; }
-  body[data-print] [data-target] a[href^="http"]::after{ content:" (" attr(href) ")"; font-size:9pt; color:#555 !important; }
-  body[data-print] [data-target] .qh-row,
-  body[data-print] [data-target] .qh-stat,
-  body[data-print] [data-target] .ky-site,
-  body[data-print] [data-target] .np-btn,
-  body[data-print] [data-target] .pg-item{ border:1px solid #999 !important; page-break-inside:avoid; }
-  body[data-print] [data-target] h2,
-  body[data-print] [data-target] h3,
-  body[data-print] [data-target] h4{ page-break-after:avoid; }
-}
+/* 印刷は printPanel() が専用の文書を組み立てて出力します */
 </style>
 
 </head>
@@ -20922,35 +20864,88 @@ else qhHashBoot();
     t.textContent=msg; t.className = ng?'show ng':'show';
     clearTimeout(t._t); t._t=setTimeout(function(){ t.className=''; },2600);
   }
-  var _pv = null;
-  function _clear(){
-    if(!_pv) return;
-    document.body.removeAttribute('data-print');
-    _pv.removeAttribute('data-target');
-    _pv.style.removeProperty('display');
-    _pv = null;
+  var TITLE={quakeHub:'令和8年熊本地震 情報センター',kyusuiModal:'熊本 給水所・入浴マップ',
+             supportModal:'サポート活動 資金援助のお願い',nearPanel:'近くを探す',petGuide:'ペットと一緒に逃げる'};
+  var HASH ={quakeHub:'#quake',kyusuiModal:'#kyusui',supportModal:'#support',nearPanel:'#near',petGuide:'#pet'};
+
+  /* 印刷用に、表示中の内容だけを取り出して整える */
+  function buildDoc(id){
+    var src=document.getElementById(id); if(!src) return '';
+    var c=src.cloneNode(true);
+    // 操作用の部品を落とす
+    c.querySelectorAll('button, script, style, noscript, iframe, canvas, svg,'+
+      ' .qh-bar, .ky-bar, .sup-bar, .np-bar, .pg-bar, .qh-tabswrap, .qh-nav,'+
+      ' #kyMap, .ky-chips, .ky-search, .ky-tools, .pc-btn, .ky-fresh .msg')
+     .forEach(function(x){ if(x&&x.parentNode) x.parentNode.removeChild(x); });
+    // チェックボックスは記号に置き換える
+    c.querySelectorAll('input[type=checkbox]').forEach(function(x){
+      var s=document.createElement('span'); s.className='cb';
+      s.textContent = x.checked ? '\u2611 ' : '\u2610 ';
+      x.parentNode.replaceChild(s,x);
+    });
+    c.querySelectorAll('input, select, textarea').forEach(function(x){
+      if(x.parentNode) x.parentNode.removeChild(x);
+    });
+    // リンクは行き先を併記する
+    c.querySelectorAll('a[href]').forEach(function(a){
+      var u=a.getAttribute('href')||'';
+      if(/^https?:/.test(u)) a.insertAdjacentText('beforeend',' （'+u+'）');
+      else if(/^tel:/.test(u)) a.insertAdjacentText('beforeend',' （'+u.replace('tel:','').replace('%23','#')+'）');
+    });
+    var d=new Date(), p2=function(n){return String(n).padStart(2,'0');};
+    var stamp=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 '+p2(d.getHours())+':'+p2(d.getMinutes());
+    var url=location.origin+location.pathname+(HASH[id]||'');
+    return '<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><title>'+
+      (TITLE[id]||'防災情報センター')+'</title><style>'+
+      '@page{margin:14mm}'+
+      '*{box-sizing:border-box;background:transparent!important;color:#000!important;'+
+      'box-shadow:none!important;text-shadow:none!important;filter:none!important;'+
+      'position:static!important;max-height:none!important;overflow:visible!important;'+
+      'width:auto!important;height:auto!important;min-height:0!important;transform:none!important}'+
+      'body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;'+
+      'font-size:10.5pt;line-height:1.75;color:#000;background:#fff}'+
+      '.hd{border-bottom:2.5px solid #000;padding-bottom:8px;margin-bottom:16px}'+
+      '.hd h1{margin:0;font-size:17pt;font-weight:800}'+
+      '.hd .m{margin:5px 0 0;font-size:9pt;color:#444!important}'+
+      'h1,h2,h3,h4{page-break-after:avoid;margin:16px 0 7px;line-height:1.45}'+
+      'h2{font-size:14pt;border-bottom:1px solid #666;padding-bottom:4px}'+
+      'h3{font-size:12pt}h4{font-size:11pt}'+
+      'p{margin:0 0 7px}ul,ol{margin:0 0 8px;padding-left:1.3em}li{margin-bottom:3px}'+
+      'a{text-decoration:underline}'+
+      'img,video{display:none!important}'+
+      '.cb{font-size:13pt;font-weight:700;margin-right:2px}'+
+      '.qh-row,.qh-stat,.ky-site,.np-btn,.pg-item,.dont,.rcard,.sup-box,.qh-link,.np-grp{'+
+      'border:1px solid #999!important;border-radius:0!important;padding:7px 9px!important;'+
+      'margin:0 0 6px!important;page-break-inside:avoid;display:block!important}'+
+      '.ft{margin-top:20px;padding-top:9px;border-top:1px solid #999;font-size:8.5pt;color:#444!important}'+
+      '</style></head><body>'+
+      '<div class="hd"><h1>'+(TITLE[id]||'')+'</h1>'+
+      '<p class="m">'+stamp+' 時点／防災情報センター '+url+'</p></div>'+
+      c.innerHTML+
+      '<div class="ft">この用紙は '+stamp+' に印刷したものです。給水所や支援制度の情報は日ごとに変わります。'+
+      '行動の前に、必ず各自治体の公式発表をご確認ください。<br>出典：防災情報センター '+url+'</div>'+
+      '</body></html>';
   }
-  window.addEventListener('afterprint', _clear);
-  try{
-    var mq = window.matchMedia('print');
-    var onmq = function(e){ if(!e.matches) _clear(); };
-    if(mq.addEventListener) mq.addEventListener('change', onmq);
-    else if(mq.addListener) mq.addListener(onmq);
-  }catch(e){}
 
   window.printPanel = function(id){
-    var el=document.getElementById(id); if(!el) return;
-    _clear();
-    _pv = el;
-    el.setAttribute('data-target','1');
-    // 閉じているパネルでも紙には出せるようにする
-    if(getComputedStyle(el).display === 'none') el.style.setProperty('display','block','important');
-    document.body.setAttribute('data-print', id);
+    var html=buildDoc(id);
+    if(!html){ toast('印刷する内容が見つかりませんでした', true); return; }
+    var old=document.getElementById('pcFrame'); if(old) old.remove();
+    var f=document.createElement('iframe');
+    f.id='pcFrame';
+    f.setAttribute('aria-hidden','true');
+    f.style.cssText='position:fixed;right:0;bottom:0;width:1px;height:1px;opacity:0;border:0;';
+    document.body.appendChild(f);
+    var doc=f.contentWindow.document;
+    doc.open(); doc.write(html); doc.close();
+    var go=function(){
+      try{ f.contentWindow.focus(); f.contentWindow.print(); }
+      catch(e){ toast('印刷を開始できませんでした', true); }
+      setTimeout(function(){ if(f&&f.parentNode) f.parentNode.removeChild(f); }, 60000);
+    };
+    if(doc.readyState==='complete') setTimeout(go,120);
+    else f.onload=function(){ setTimeout(go,120); };
     try{ if(window.dwaTrack) window.dwaTrack('button','印刷：'+id); }catch(e){}
-    // レイアウトを1フレーム反映させてから印刷する
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){ window.print(); });
-    });
   };
 
   /* 画面に見えているテキストだけを、読みやすい形に整えて取り出す */
@@ -20963,9 +20958,6 @@ else qhHashBoot();
     var t=(clone.innerText||clone.textContent||'');
     t=t.replace(/[ \t\u3000]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
     var url=location.origin+location.pathname;
-    var HASH={quakeHub:'#quake',kyusuiModal:'#kyusui',supportModal:'#support',nearPanel:'#near',petGuide:'#pet'};
-    var TITLE={quakeHub:'令和8年熊本地震 情報センター',kyusuiModal:'熊本 給水所・入浴マップ',
-               supportModal:'サポート活動 資金援助のお願い',nearPanel:'近くを探す',petGuide:'ペットと一緒に逃げる'};
     var d=new Date(), p=function(n){return String(n).padStart(2,'0');};
     return '■ '+(TITLE[id]||'')+'\n'
          + '（'+d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 '+p(d.getHours())+':'+p(d.getMinutes())+' 時点）\n\n'
