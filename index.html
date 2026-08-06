@@ -21349,13 +21349,22 @@ else qhHashBoot();
     var q=Object.keys(params).map(function(k){ return k+'='+encodeURIComponent(params[k]); }).join('&');
     return url+(url.indexOf('?')>=0?'&':'?')+'type=volunteer&'+q+'&_='+Date.now();
   }
+  /* POST（本文に入れて送る）を先に試し、だめならGETに切り替える */
   function api(params,cb){
     LASTERR='';
-    var url=apiURL(params);
+    var url=(typeof ARTICLES_URL!=='undefined'&&ARTICLES_URL)?ARTICLES_URL:'';
     if(!url){ LASTERR='送信先が設定されていません（ARTICLES_URL）'; cb(null); return; }
+
+    var body=Object.assign({type:'volunteer'}, params);
     var ctl=(window.AbortController)?new AbortController():null;
     var to=setTimeout(function(){ try{ ctl&&ctl.abort(); }catch(e){} },20000);
-    fetch(url, ctl?{method:'GET',signal:ctl.signal}:{method:'GET'})
+
+    var opt={ method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},  // 事前確認を起こさない形にする
+      body:JSON.stringify(body) };
+    if(ctl) opt.signal=ctl.signal;
+
+    fetch(url,opt)
       .then(function(r){ clearTimeout(to);
         if(!r.ok) throw new Error('サーバーが '+r.status+' を返しました');
         return r.text(); })
@@ -21365,14 +21374,28 @@ else qhHashBoot();
         catch(e){
           if(/<html|<!DOCTYPE/i.test(t)) LASTERR='GASがHTMLを返しました。デプロイの「アクセスできるユーザー」を全員にしてください';
           else LASTERR='応答を読み取れませんでした：'+String(t).substring(0,80);
-          jsonp(params,cb); return;
+          getFallback(params,cb); return;
         }
         cb(d); })
       .catch(function(err){ clearTimeout(to);
         LASTERR=(err&&err.name==='AbortError')?'応答がありません（20秒で打ち切りました）'
-               :'通信に失敗しました：'+String((err&&err.message)||err);
-        jsonp(params,cb); });
+               :'POSTに失敗しました：'+String((err&&err.message)||err);
+        getFallback(params,cb); });
   }
+
+  /* 予備1：GETで送る */
+  function getFallback(params,cb){
+    var u=apiURL(params);
+    if(!u){ cb(null); return; }
+    var ctl=(window.AbortController)?new AbortController():null;
+    var to=setTimeout(function(){ try{ ctl&&ctl.abort(); }catch(e){} },20000);
+    fetch(u, ctl?{method:'GET',signal:ctl.signal}:{method:'GET'})
+      .then(function(r){ clearTimeout(to); if(!r.ok) throw new Error('status '+r.status); return r.text(); })
+      .then(function(t){ var d=null; try{ d=JSON.parse(t); }catch(e){ jsonp(params,cb); return; } cb(d); })
+      .catch(function(){ clearTimeout(to); jsonp(params,cb); });
+  }
+
+  /* 予備2：スクリプトタグで送る */
   function jsonp(params,cb){
     var url=(typeof ARTICLES_URL!=='undefined'&&ARTICLES_URL)?ARTICLES_URL:'';
     if(!url){ cb(null); return; }
@@ -21390,6 +21413,7 @@ else qhHashBoot();
     document.head.appendChild(s);
     setTimeout(function(){ fin(null); },20000);
   }
+
   window.volTest=function(){
     var el=document.getElementById('volTestOut');
     if(!el) return;
