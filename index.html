@@ -4674,11 +4674,22 @@ html.pastel-yellow #petGuide, html.pastel-green #petGuide, html.pastel-purple #p
 <style id="printcopy-style">
 /* ===================== 共通：印刷とコピー ===================== */
 .pc-btn{
-  flex-shrink:0; padding:8px 11px; border-radius:8px; cursor:pointer; white-space:nowrap;
-  font-family:var(--user-font); font-size:12.5px; font-weight:700;
-  background:rgba(200,210,220,.10); border:1px solid rgba(200,210,220,.34); color:#C7D3DC;
+  flex-shrink:0; display:inline-flex; align-items:center; gap:5px;
+  padding:8px 12px; border-radius:8px; cursor:pointer; white-space:nowrap;
+  font-family:var(--user-font); font-size:12.5px; font-weight:700; line-height:1;
+  background:rgba(200,210,220,.12); border:1px solid rgba(200,210,220,.42); color:#DCE5EC;
+  transition:background .16s, border-color .16s, transform .1s;
 }
-.pc-btn:hover{ background:rgba(200,210,220,.18); }
+.pc-btn .ic{ font-size:15px; line-height:1; }
+.pc-btn .tx{ letter-spacing:.02em; }
+.pc-btn:hover{ background:rgba(200,210,220,.24); border-color:rgba(200,210,220,.72); }
+.pc-btn:active{ transform:scale(.96); }
+/* 画面が狭いときは、文字を隠してアイコンだけにする */
+@media (max-width:520px){
+  .pc-btn{ padding:8px 10px; gap:0; }
+  .pc-btn .tx{ display:none; }
+  .pc-btn .ic{ font-size:17px; }
+}
 #pcToast{
   position:fixed; left:50%; bottom:28px; transform:translateX(-50%) translateY(12px);
   z-index:100000; padding:12px 22px; border-radius:999px; opacity:0; pointer-events:none;
@@ -19505,8 +19516,8 @@ render();
     <div class="ky-bar">
       <span class="ky-brand">💧 KUMAMOTO WATER</span>
       <button type="button" class="ky-near" onclick="openNear()">📍 近くを探す</button>
-      <button type="button" class="pc-btn" onclick="printPanel('kyusuiModal')">🖨</button>
-      <button type="button" class="pc-btn" onclick="copyPanel('kyusuiModal')">📋</button>
+      <button type="button" class="pc-btn" onclick="printPanel('kyusuiModal')"><span class="ic">🖨</span><span class="tx">印刷</span></button>
+      <button type="button" class="pc-btn" onclick="copyPanel('kyusuiModal')"><span class="ic">📋</span><span class="tx">コピー</span></button>
       <button type="button" class="ky-share" onclick="shareKyusui()">🔗 共有</button>
       <button type="button" class="ky-home" onclick="kyusuiGoHome()">🏠 ホームに戻る</button>
       <button type="button" onclick="closeKyusui()" aria-label="閉じる">✕</button>
@@ -19924,8 +19935,8 @@ else kyHashBoot();
     <div class="qh-bar">
       <span class="qh-brand">🔴 KUMAMOTO 2026</span>
       <button type="button" class="qh-near" onclick="openNear()">📍 近くを探す</button>
-      <button type="button" class="pc-btn" onclick="printPanel('quakeHub')">🖨</button>
-      <button type="button" class="pc-btn" onclick="copyPanel('quakeHub')">📋</button>
+      <button type="button" class="pc-btn" onclick="printPanel('quakeHub')"><span class="ic">🖨</span><span class="tx">印刷</span></button>
+      <button type="button" class="pc-btn" onclick="copyPanel('quakeHub')"><span class="ic">📋</span><span class="tx">コピー</span></button>
       <button type="button" class="qh-share" onclick="shareQuakeHub()">🔗 共有</button>
       <button type="button" class="qh-home" onclick="quakeHubGoHome()">🏠 ホーム</button>
       <button type="button" onclick="closeQuakeHub()" aria-label="閉じる">✕</button>
@@ -20413,8 +20424,8 @@ else qhHashBoot();
   <div class="sup-inner">
     <div class="sup-bar">
       <span class="sup-brand">🤲 SUPPORT</span>
-      <button type="button" class="pc-btn" onclick="printPanel('supportModal')">🖨</button>
-      <button type="button" class="pc-btn" onclick="copyPanel('supportModal')">📋</button>
+      <button type="button" class="pc-btn" onclick="printPanel('supportModal')"><span class="ic">🖨</span><span class="tx">印刷</span></button>
+      <button type="button" class="pc-btn" onclick="copyPanel('supportModal')"><span class="ic">📋</span><span class="tx">コピー</span></button>
       <button type="button" onclick="shareSupport()">🔗 共有</button>
       <button type="button" class="sup-home" onclick="supportGoHome()">🏠 ホーム</button>
       <button type="button" onclick="closeSupport()" aria-label="閉じる">✕</button>
@@ -20579,8 +20590,8 @@ else qhHashBoot();
   <div class="np-in">
     <div class="np-bar">
       <span class="np-t">📍 いまいる場所から探す</span>
-      <button type="button" class="pc-btn" onclick="printPanel('nearPanel')">🖨</button>
-      <button type="button" class="pc-btn" onclick="copyPanel('nearPanel')">📋</button>
+      <button type="button" class="pc-btn" onclick="printPanel('nearPanel')"><span class="ic">🖨</span><span class="tx">印刷</span></button>
+      <button type="button" class="pc-btn" onclick="copyPanel('nearPanel')"><span class="ic">📋</span><span class="tx">コピー</span></button>
       <button type="button" onclick="nearLocate(true)">再取得</button>
       <button type="button" onclick="closeNear()" aria-label="閉じる">✕</button>
     </div>
@@ -20807,8 +20818,8 @@ else qhHashBoot();
     <div class="pg-bar">
       <span class="t">🐾 ペットと一緒に逃げる</span>
       <button type="button" class="pg-share" onclick="sharePetGuide()">🔗 共有</button>
-      <button type="button" class="pc-btn" onclick="printPanel('petGuide')">🖨</button>
-      <button type="button" class="pc-btn" onclick="copyPanel('petGuide')">📋</button>
+      <button type="button" class="pc-btn" onclick="printPanel('petGuide')"><span class="ic">🖨</span><span class="tx">印刷</span></button>
+      <button type="button" class="pc-btn" onclick="copyPanel('petGuide')"><span class="ic">📋</span><span class="tx">コピー</span></button>
       <button type="button" onclick="closePetGuide()" aria-label="閉じる">✕</button>
     </div>
     <div class="pg-body" id="pgBody"></div>
@@ -21125,8 +21136,8 @@ else qhHashBoot();
     <div class="vol-bar">
       <span class="t">🛠 ボランティア支援</span>
       <button type="button" class="vol-share" onclick="shareVol()">🔗 共有</button>
-      <button type="button" class="pc-btn" onclick="printPanel('volModal')">🖨</button>
-      <button type="button" class="pc-btn" onclick="copyPanel('volModal')">📋</button>
+      <button type="button" class="pc-btn" onclick="printPanel('volModal')"><span class="ic">🖨</span><span class="tx">印刷</span></button>
+      <button type="button" class="pc-btn" onclick="copyPanel('volModal')"><span class="ic">📋</span><span class="tx">コピー</span></button>
       <button type="button" onclick="closeVol()" aria-label="閉じる">✕</button>
     </div>
     <div class="vol-tabs" role="tablist" id="volTabs"></div>
