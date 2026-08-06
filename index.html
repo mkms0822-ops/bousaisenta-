@@ -21290,11 +21290,15 @@ else qhHashBoot();
       '<span class="hint">どの災害・どの地域の情報かを書いてください。都道府県と市町村が分かると探しやすくなります。次回から自動で入ります。</span></label>'+
     '<label><span class="lb">場所（施設名など）</span><input type="text" id="volPlace" maxlength="100" placeholder="例：◯◯コミュニティセンター 付近／△△小学校 体育館"></label>'+
     '<div class="geo"><button type="button" onclick="volGeo()">📍 現在地を取得</button><span id="volGeoSt">位置情報は任意です</span></div>'+
-    '<label><span class="lb">内容</span><textarea id="volBodyTx" maxlength="600" placeholder="例：給水は9時から並び始めます。容器は20リットルだと重くて運べないので10リットル2個がおすすめ。駐車場は west 側が空いています。"></textarea>'+
-      '<span class="hint">具体的に書いてください。時刻、混雑、駐車場、必要な装備、通行止めの場所など。</span></label>'+
+    '<label><span class="lb">内容 <span id="volCnt" style="color:#8E8474;font-weight:400">0 / 400</span></span>'+
+      '<textarea id="volBodyTx" maxlength="400" oninput="volCount()" placeholder="例：給水は9時から並び始めます。容器は20リットルだと重くて運べないので10リットル2個がおすすめ。駐車場は west 側が空いています。"></textarea>'+
+      '<span class="hint">具体的に書いてください。時刻、混雑、駐車場、必要な装備、通行止めの場所など。400文字までです。</span></label>'+
     '<label><span class="lb">お名前・団体名（任意）</span><input type="text" id="volName" maxlength="40" placeholder="例：ボランティア／◯◯の会"></label>'+
     '<label><span class="lb">連絡先（任意・公開されません）</span><input type="text" id="volTel" maxlength="60" placeholder="確認が必要なときだけ使います"></label>'+
     '<button type="button" class="send" id="volSend" onclick="volPost()">この内容で投稿する</button>'+
+    '<div style="margin-top:10px;display:flex;gap:9px;align-items:center;flex-wrap:wrap">'+
+      '<button type="button" onclick="volTest()" style="padding:8px 13px;border-radius:7px;font-size:12.5px;font-weight:700;cursor:pointer;background:#1A170F;border:1px solid #3E3524;color:#ffb84d">接続を確認する</button>'+
+      '<span id="volTestOut" style="font-size:12px;color:#8E8474;line-height:1.7"></span></div>'+
     '</div>'+
     '<div class="vol-warn" style="margin-top:16px"><b>投稿しないでください</b><br>'+
     '被災した方の名前、住所、写真、個人が特定できる内容。うわさや伝聞。「〜らしい」という情報。'+
@@ -21318,6 +21322,11 @@ else qhHashBoot();
   window.volGo=function(k){ cur=k; draw();
     document.getElementById('volModal').scrollTo({top:0,behavior:'smooth'});
     try{ if(window.dwaTrack) window.dwaTrack('ボランティア',k); }catch(e){} };
+  window.volCount=function(){
+    var t=document.getElementById('volBodyTx'), c=document.getElementById('volCnt');
+    if(!t||!c) return; var n=t.value.length;
+    c.textContent=n+' / 400'; c.style.color = n>360 ? '#FF9AA2' : '#8E8474';
+  };
   window.volPickKind=function(k){ pickKind=k;
     document.querySelectorAll('#volKinds button').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.k===k); }); };
 
@@ -21333,26 +21342,70 @@ else qhHashBoot();
     {enableHighAccuracy:true,timeout:10000,maximumAge:60000});
   };
 
+  var LASTERR='';
+  function apiURL(params){
+    var url=(typeof ARTICLES_URL!=='undefined'&&ARTICLES_URL)?ARTICLES_URL:'';
+    if(!url) return '';
+    var q=Object.keys(params).map(function(k){ return k+'='+encodeURIComponent(params[k]); }).join('&');
+    return url+(url.indexOf('?')>=0?'&':'?')+'type=volunteer&'+q+'&_='+Date.now();
+  }
   function api(params,cb){
+    LASTERR='';
+    var url=apiURL(params);
+    if(!url){ LASTERR='送信先が設定されていません（ARTICLES_URL）'; cb(null); return; }
+    var ctl=(window.AbortController)?new AbortController():null;
+    var to=setTimeout(function(){ try{ ctl&&ctl.abort(); }catch(e){} },20000);
+    fetch(url, ctl?{method:'GET',signal:ctl.signal}:{method:'GET'})
+      .then(function(r){ clearTimeout(to);
+        if(!r.ok) throw new Error('サーバーが '+r.status+' を返しました');
+        return r.text(); })
+      .then(function(t){
+        var d=null;
+        try{ d=JSON.parse(t); }
+        catch(e){
+          if(/<html|<!DOCTYPE/i.test(t)) LASTERR='GASがHTMLを返しました。デプロイの「アクセスできるユーザー」を全員にしてください';
+          else LASTERR='応答を読み取れませんでした：'+String(t).substring(0,80);
+          jsonp(params,cb); return;
+        }
+        cb(d); })
+      .catch(function(err){ clearTimeout(to);
+        LASTERR=(err&&err.name==='AbortError')?'応答がありません（20秒で打ち切りました）'
+               :'通信に失敗しました：'+String((err&&err.message)||err);
+        jsonp(params,cb); });
+  }
+  function jsonp(params,cb){
     var url=(typeof ARTICLES_URL!=='undefined'&&ARTICLES_URL)?ARTICLES_URL:'';
     if(!url){ cb(null); return; }
     var name='volCb'+Date.now()+Math.floor(Math.random()*1000), done=false, s=null;
     function fin(d){ if(done)return; done=true;
       try{ delete window[name]; }catch(e){ window[name]=undefined; }
-      if(s&&s.parentNode) s.parentNode.removeChild(s); cb(d); }
+      if(s&&s.parentNode) s.parentNode.removeChild(s);
+      if(d==null && !LASTERR) LASTERR='応答がありません。GASのデプロイを更新してください';
+      cb(d); }
     window[name]=fin;
     var q=Object.keys(params).map(function(k){ return k+'='+encodeURIComponent(params[k]); }).join('&');
     s=document.createElement('script');
-    s.src=url+'?type=volunteer&'+q+'&callback='+name+'&_='+Date.now();
+    s.src=url+(url.indexOf('?')>=0?'&':'?')+'type=volunteer&'+q+'&callback='+name+'&_='+Date.now();
     s.onerror=function(){ fin(null); };
     document.head.appendChild(s);
-    setTimeout(function(){ fin(null); },12000);
+    setTimeout(function(){ fin(null); },20000);
   }
+  window.volTest=function(){
+    var el=document.getElementById('volTestOut');
+    if(el) el.textContent='確認しています…';
+    api({action:'list'},function(d){
+      if(!el) return;
+      if(d&&d.ok) el.textContent='✅ 接続できています（公開中の投稿 '+((d.items||[]).length)+' 件）';
+      else el.textContent='❌ '+(LASTERR||(d&&d.msg)||'原因が特定できませんでした');
+    });
+  };
 
   window.volLoad=function(){
     api({action:'list'},function(d){
       loaded=true;
       reports=(d&&d.ok&&d.items)?d.items:[];
+      if(!d||!d.ok){ var el=document.getElementById('volList');
+        if(el) el.innerHTML='<div class="vr-empty">読み込めませんでした。<br>'+esc(LASTERR||(d&&d.msg)||'')+'</div>'; return; }
       drawList();
     });
   };
@@ -21431,7 +21484,7 @@ else qhHashBoot();
         document.getElementById('volBodyTx').value='';
         document.getElementById('volPlace').value='';
         loaded=false;
-      } else toast((d&&d.msg)||'送信できませんでした。通信の状態をご確認ください',true);
+      } else toast((d&&d.msg)||LASTERR||'送信できませんでした',true);
     });
     try{ if(window.dwaTrack) window.dwaTrack('ボランティア','現地レポート投稿'); }catch(e){}
   };
