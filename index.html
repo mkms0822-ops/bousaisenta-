@@ -21392,11 +21392,31 @@ else qhHashBoot();
   }
   window.volTest=function(){
     var el=document.getElementById('volTestOut');
-    if(el) el.textContent='確認しています…';
+    if(!el) return;
+    el.innerHTML='確認しています…';
+    var raw=apiURL({action:'list'});
     api({action:'list'},function(d){
-      if(!el) return;
-      if(d&&d.ok) el.textContent='✅ 接続できています（公開中の投稿 '+((d.items||[]).length)+' 件）';
-      else el.textContent='❌ '+(LASTERR||(d&&d.msg)||'原因が特定できませんでした');
+      if(d&&d.ok){
+        el.innerHTML='<span style="color:#9FD37A">✅ 接続できています（公開中の投稿 '+((d.items||[]).length)+' 件）</span>';
+        return;
+      }
+      var msg=LASTERR||(d&&d.msg)||'原因が特定できませんでした';
+      var hint='';
+      if(/通信に失敗|Failed to fetch|NetworkError/i.test(msg)){
+        hint='<b>GAS側でエラーが出ている可能性が高いです。</b><br>'+
+          '下のリンクを新しいタブで開くと、GASが返している内容をそのまま確認できます。'+
+          'エラー文が表示されたら、その内容をお知らせください。<br><br>'+
+          '<b>よくある原因</b><br>'+
+          '・handleVolunteer が二重に貼られている（古いほうを削除してください）<br>'+
+          '・コードを貼っただけで、デプロイを「新しいバージョン」で更新していない<br>'+
+          '・doGet に <code>if (type === \'volunteer\')</code> の行を入れていない';
+      } else if(/HTML/i.test(msg)){
+        hint='デプロイの設定で「アクセスできるユーザー」を<b>全員</b>にしてください。';
+      }
+      el.innerHTML='<span style="color:#FF9AA2">❌ '+esc(msg)+'</span>'+
+        (hint?'<br><br>'+hint:'')+
+        (raw?'<br><br><a href="'+raw+'" target="_blank" rel="noopener" style="color:#ffb84d;font-weight:700">'+
+             '🔍 GASの応答を直接開いて確認する</a>':'');
     });
   };
 
@@ -21484,7 +21504,13 @@ else qhHashBoot();
         document.getElementById('volBodyTx').value='';
         document.getElementById('volPlace').value='';
         loaded=false;
-      } else toast((d&&d.msg)||LASTERR||'送信できませんでした',true);
+      } else {
+        toast((d&&d.msg)||LASTERR||'送信できませんでした',true);
+        if(/通信に失敗|Failed to fetch|応答がありません/i.test(LASTERR)){
+          var te=document.getElementById('volTestOut');
+          if(te){ window.volTest(); te.scrollIntoView({behavior:'smooth',block:'center'}); }
+        }
+      }
     });
     try{ if(window.dwaTrack) window.dwaTrack('ボランティア','現地レポート投稿'); }catch(e){}
   };
