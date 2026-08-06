@@ -4784,7 +4784,11 @@ html.pastel-yellow #petGuide, html.pastel-green #petGuide, html.pastel-purple #p
 .vr-item .kind{ font-size:11.5px; font-weight:800; padding:3px 9px; border-radius:999px;
   background:rgba(255,184,77,.15); border:1px solid rgba(255,184,77,.4); color:#ffb84d; }
 .vr-item .kind.danger{ background:rgba(200,32,46,.16); border-color:rgba(224,67,80,.5); color:#FF9AA2; }
+.vr-item .area{ font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:999px;
+  background:rgba(120,180,255,.14); border:1px solid rgba(120,180,255,.4); color:#9CC8FF; }
 .vr-item .ago{ font-size:11.5px; color:#8E8474; font-family:ui-monospace,monospace; }
+.vr-row{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; width:100%; margin-bottom:7px; }
+.vr-lb{ font-size:11.5px; color:#8E8474; font-family:ui-monospace,monospace; margin-right:2px; }
 .vr-item .st{ font-size:11px; padding:2px 8px; border-radius:999px; border:1px solid #3E3524; color:#9C9182; }
 .vr-item .st.done{ border-color:#3F5A2E; color:#9FD37A; }
 .vr-item .pl{ font-size:14px; font-weight:700; color:#fff; margin:0 0 5px; }
@@ -21139,7 +21143,9 @@ else qhHashBoot();
       return v; }catch(e){ return 'u'+Date.now().toString(36); } })();
   var KINDS=['給水','入浴','トイレ','食料','物資','資機材','駐車場','通行止め','危険箇所','ニーズ','熱中症・体調','その他'];
   var DANGER=['危険箇所','熱中症・体調','通行止め'];
-  var pickKind='給水', reports=[], filterKind='', loaded=false;
+  var pickKind='給水', reports=[], filterKind='', filterArea='', loaded=false;
+  var AREA=(function(){ try{ return localStorage.getItem('dwa_vol_area')||''; }catch(e){ return ''; } })();
+  function setArea(v){ AREA=String(v||'').trim(); try{ localStorage.setItem('dwa_vol_area',AREA); }catch(e){} }
 
   function esc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
   function toast(m,ng){ var t=document.getElementById('volToast'); t.textContent=m;
@@ -21152,7 +21158,8 @@ else qhHashBoot();
     ["宿と食事を自分で確保する","センターでの斡旋はありません。食費・宿泊費・交通費はすべて自己負担です。被災地の宿や店を使うと、被災した方の分が減ることがあります。",1],
     ["公共交通機関を調べる","乗用車は渋滞を招き、緊急車両や復旧作業の妨げになります。ボランティアバスがある場合は優先してください。",0],
     ["前日は十分に寝る","寝不足は熱中症のリスクを大きく上げます。夜行バスで直行して、そのまま作業に入るのは避けてください。",1],
-    ["体調が悪ければ、行かない","現地の医療は限界まで使われています。倒れると、助ける側から助けられる側になります。",1],
+    ["体調が悪ければ、行かない","現地の医療は限界まで使われています。倒れると、助ける側から助けられる側になります。発熱、下痢、嘔吐、せきがあるときは、被災地に持ち込まないでください。避難所で広がります。",1],
+    ["破傷風ワクチンの接種歴を確認する","最後の接種から10年以上たっていれば、追加接種を検討してください。がれきの釘や汚れた土で受けた傷から感染し、致死率の高い病気です。かかりつけ医にご相談ください。",1],
     ["家族に行き先を伝える","誰と、どこで、いつまで活動するか。連絡が取れなくなったときのためです。",0]
   ];
   var GEAR1=[
@@ -21168,11 +21175,13 @@ else qhHashBoot();
     ["昼食","コンビニも飲食店も被災しています。持参が原則です。",1],
     ["タオル（複数枚）と着替え","汗と泥で使い物にならなくなります。",0],
     ["帽子（日よけが後ろについたもの）","首の後ろが焼けると、熱中症のリスクが上がります。",0],
-    ["救急ばんそうこう・常備薬","小さな傷でも、汚水に触れると化膿します。",0],
+    ["消毒液・救急ばんそうこう・常備薬","小さな傷でも、汚水に触れると化膿します。けがをしたらその場で洗って消毒し、防水のばんそうこうで覆ってください。",1],
+    ["アルコール手指消毒","水道が使えない場所では、手を洗えません。食事の前と、トイレの後に必ず。",1],
+    ["石けん・ハンドソープ（小分け）","水が使えるときは、消毒より手洗いのほうが確実です。",0],
     ["健康保険証（写しでも可）","けがをしたときに必要です。",1],
     ["雨具・ゴミ袋・ウェットティッシュ","ゴミ袋は雨よけ、荷物の防水、汚れ物入れに使えます。",0],
     ["モバイルバッテリー","停電地域では充電できません。",1],
-    ["自分の名札","混乱の中では、名前を覚えてもらう余裕がありません。",0],
+    ["名札（氏名・血液型・緊急連絡先・住所）","混乱の中では、名前を覚えてもらう余裕がありません。そして倒れて意識がないとき、あなたの情報を伝えられるのは名札だけです。氏名、血液型、緊急連絡先（家族などの電話番号）、住所、持病やアレルギーがあればそれも。油性ペンで書き、汗で消えないようテープで覆ってください。ヘルメットの内側にも同じものを。",1],
     ["簡易トイレ","断水地域ではトイレが使えないことがあります。",0]
   ];
   var ONSITE=[
@@ -21184,13 +21193,17 @@ else qhHashBoot();
     ["写真を撮る前に許可を得る","被災した家や人を無断で撮影しないでください。SNSへの投稿も同様です。",1],
     ["「がんばって」と安易に言わない","もう十分がんばっている方に向ける言葉ではありません。黙って手を動かすほうが伝わることがあります。",0],
     ["自分の被災経験を押しつけない","似た経験でも、状況も感じ方も違います。",0],
+    ["食べる前に必ず手を消毒する","泥や汚水に触れた手で食べると、感染性胃腸炎になります。避難所で広がると止まりません。",1],
+    ["けがはその場で洗い、消毒する","「あとで」と思ううちに化膿します。汚水に触れた傷は、小さくても放置しないでください。",1],
+    ["汚れた手で顔や目を触らない","粉じんや汚水が目に入ると、結膜炎や角膜の傷につながります。",0],
     ["終了時刻を守る","延長は、翌日以降の人員配置を崩します。",0],
     ["気づいたことを報告して帰る","作業のコツ、危険箇所、追加のニーズ。次に来る人のために残してください。",1]
   ];
   var AFTER=[
     ["帰ったら、しっかり休む","被災地で見たものが、後から効いてくることがあります。眠れない、涙が出る、落ち着かない。これは異常ではありません。",0],
     ["つらいと感じたら相談する","こころの健康相談統一ダイヤル 0570-064-556。ボランティアも支援を受けていい立場です。",0],
-    ["体調の変化に注意する","泥や汚水に触れた後、発熱や傷の腫れがあれば受診してください。破傷風のおそれがあります。",1],
+    ["帰宅したら、まず手洗いとうがい","靴の泥は玄関の外で落としてください。作業着はほかの洗濯物と分けて洗います。",1],
+    ["2週間は体調の変化に注意する","泥や汚水に触れた後の発熱、傷の腫れ、下痢、筋肉痛、黄疸。破傷風は3日〜3週間、レプトスピラ症は3〜14日、レジオネラ症は2〜10日の潜伏期間があります。受診するときは「被災地でボランティア活動をした」と必ず伝えてください。診断が大きく変わります。",1],
     ["現地で得た情報を共有する","このツールの「現地レポート」から投稿できます。次に行く人の助けになります。",0]
   ];
 
@@ -21221,7 +21234,7 @@ else qhHashBoot();
     return '<p class="vol-lead">「行けば役に立つ」ではなく「受け入れ準備が整ってから」が原則です。準備不足のまま入ると、支援する側が支援される側になります。</p>'+
     '<div class="vol-warn"><b>まず、受け入れているかを確認してください。</b><br>'+
     'センターが開設されていても、ニーズ調査中で募集を始めていない場合があります。募集範囲を同一県内在住者などに限っている場合もあります。'+
-    '熊本県社会福祉協議会と、活動先の市町村社協の発表を、出発前に必ずご確認ください。</div>'+
+    '活動先の都道府県社会福祉協議会と市町村社協の発表を、出発前に必ずご確認ください。</div>'+
     '<h3>出発前のチェック</h3>'+cl('before',BEFORE)+
     '<div class="vol-key"><b>ボランティア保険は、前日までに。</b><br>'+
     '被災地の負担を減らすため、お住まいの地域の社会福祉協議会で加入してください。自宅からの往復も補償の対象になります。'+
@@ -21231,6 +21244,10 @@ else qhHashBoot();
     return '<p class="vol-lead">赤枠は、欠けると危険につながるものです。現地では手に入らないとお考えください。</p>'+
     '<p class="vc-sub">身を守るもの（最優先）</p>'+cl('gear1',GEAR1)+
     '<p class="vc-sub">活動を続けるもの</p>'+cl('gear2',GEAR2)+
+    '<div class="vol-key"><b>名札には、名前だけでなく情報を書いてください。</b><br>'+
+    '氏名／血液型／緊急連絡先（家族などの電話番号）／住所／持病・アレルギー。'+
+    'あなたが倒れて意識がないとき、救急隊と医療機関に伝えられるのは名札だけです。'+
+    '油性ペンで書いて透明テープで覆い、胸の見える位置に。ヘルメットの内側にも同じものを貼っておくと確実です。</div>'+
     '<div class="vol-warn"><b>釘の踏み抜きが、最も多いけがです。</b><br>'+
     'がれきや床材から出た釘を踏み抜く事故が繰り返し起きています。スニーカーの靴底は貫通します。'+
     '踏み抜き防止インソールか、安全靴をご用意ください。けがをしたら、小さくても必ず受診を。破傷風のおそれがあります。</div>';
@@ -21242,12 +21259,21 @@ else qhHashBoot();
     '手足がつる、立ちくらみ、めまい、生あくび、こむら返り。汗が止まらない、あるいは汗が出ない。'+
     '周りから見て、イライラしている、フラフラしている、呼びかけに反応しない、ぼーっとしている。'+
     'ひとつでもあれば、すぐ日陰へ。自力で水が飲めないときは、迷わず119番です。</div>'+
+    '<div class="vol-warn"><b>感染症は、あとから来ます。</b><br>'+
+    '被災地の土や水には、下水や動物の排泄物が混ざっています。'+
+    '傷口から入る破傷風やレプトスピラ症、口から入る感染性胃腸炎、粉じんから吸い込むレジオネラ症。'+
+    'いずれも数日から数週間後に発症します。現地で元気だったから大丈夫、ではありません。'+
+    '手指消毒、傷の即時処置、防塵マスク。この3つを守ってください。</div>'+
     '<div class="vol-key"><b>「これくらい大丈夫」と思う人ほど倒れます。</b><br>'+
     '慣れない作業、慣れない環境、慣れない装備。3つが重なっています。'+
     '体調を崩すと、自分が困るだけでなく、全体の活動が止まり、現地の医療機関の負担も増えます。</div>';
   }
   function paneAfter(){
     return '<p class="vol-lead">帰ってからが、もうひとつの山です。</p>'+cl('after',AFTER)+
+    '<div class="vol-warn"><b>受診するときは「被災地で活動した」と必ず伝えてください。</b><br>'+
+    'この一言があるかないかで、医師が疑う病気が変わります。'+
+    '破傷風、レプトスピラ症、レジオネラ症、感染性胃腸炎。'+
+    'どれも初期は風邪や疲れに似ていて、伝えなければ見逃されます。活動した日付と場所も控えておいてください。</div>'+
     '<div class="vol-key"><b>見たものが、後から効いてきます。</b><br>'+
     '眠れない、涙が出る、集中できない、被災地のことが頭から離れない。これは弱さではなく、自然な反応です。'+
     'ひとりで抱えず、話せる相手に話してください。こころの健康相談統一ダイヤル 0570-064-556 でも相談できます。</div>';
@@ -21259,7 +21285,10 @@ else qhHashBoot();
     '<label><span class="lb">種類</span><div class="kinds" id="volKinds">'+
       KINDS.map(function(k){ return '<button type="button" data-k="'+k+'" aria-pressed="'+(k===pickKind)+'" onclick="volPickKind(\''+k+'\')">'+k+'</button>'; }).join('')+
     '</div></label>'+
-    '<label><span class="lb">場所</span><input type="text" id="volPlace" maxlength="100" placeholder="例：八代市 松高コミュニティセンター 付近"></label>'+
+    '<label><span class="lb">災害発生地域 <span style="color:#FF9AA2">＊必須</span></span>'+
+      '<input type="text" id="volArea" maxlength="40" value="'+esc(AREA)+'" placeholder="例：熊本県八代市／能登半島／◯◯豪雨 △△市">'+
+      '<span class="hint">どの災害・どの地域の情報かを書いてください。都道府県と市町村が分かると探しやすくなります。次回から自動で入ります。</span></label>'+
+    '<label><span class="lb">場所（施設名など）</span><input type="text" id="volPlace" maxlength="100" placeholder="例：◯◯コミュニティセンター 付近／△△小学校 体育館"></label>'+
     '<div class="geo"><button type="button" onclick="volGeo()">📍 現在地を取得</button><span id="volGeoSt">位置情報は任意です</span></div>'+
     '<label><span class="lb">内容</span><textarea id="volBodyTx" maxlength="600" placeholder="例：給水は9時から並び始めます。容器は20リットルだと重くて運べないので10リットル2個がおすすめ。駐車場は west 側が空いています。"></textarea>'+
       '<span class="hint">具体的に書いてください。時刻、混雑、駐車場、必要な装備、通行止めの場所など。</span></label>'+
@@ -21328,11 +21357,22 @@ else qhHashBoot();
     });
   };
   function drawFilter(){
+    var el=document.getElementById('volFilter'); if(!el) return;
+    var areas=[]; reports.forEach(function(r){ if(r.a && areas.indexOf(r.a)<0) areas.push(r.a); });
     var ks=['',].concat(KINDS.filter(function(k){ return reports.some(function(r){ return r.k===k; }); }));
-    document.getElementById('volFilter').innerHTML=ks.map(function(k){
+    var html='';
+    if(areas.length>1){
+      html+='<div class="vr-row"><span class="vr-lb">地域</span>'+
+        [''].concat(areas).map(function(a){
+          return '<button type="button" aria-pressed="'+(a===filterArea)+'" onclick="volAreaBy('+JSON.stringify(a).replace(/"/g,'&quot;')+')">'+(a||'すべて')+'</button>';
+        }).join('')+'</div>';
+    }
+    html+='<div class="vr-row"><span class="vr-lb">種類</span>'+ks.map(function(k){
       return '<button type="button" aria-pressed="'+(k===filterKind)+'" onclick="volFilterBy(\''+k+'\')">'+(k||'すべて')+'</button>';
-    }).join('')+'<button type="button" onclick="volLoad()">↻ 更新</button>';
+    }).join('')+'<button type="button" onclick="volLoad()">↻ 更新</button></div>';
+    el.innerHTML=html;
   }
+  window.volAreaBy=function(a){ filterArea=a; drawFilter(); drawList(); };
   window.volFilterBy=function(k){ filterKind=k; drawFilter(); drawList(); };
   function ago(iso){
     var d=new Date(iso); if(isNaN(d)) return '';
@@ -21343,7 +21383,9 @@ else qhHashBoot();
   }
   function drawList(){
     var el=document.getElementById('volList'); if(!el) return;
-    var list=reports.filter(function(r){ return !filterKind||r.k===filterKind; });
+    var list=reports.filter(function(r){
+      return (!filterKind||r.k===filterKind) && (!filterArea||r.a===filterArea);
+    });
     if(!list.length){
       el.innerHTML='<div class="vr-empty">まだ投稿がありません。<br>現地で分かったことがあれば、「⑤ 投稿する」からお寄せください。</div>';
       drawFilter(); return;
@@ -21352,6 +21394,7 @@ else qhHashBoot();
       var dn=DANGER.indexOf(r.k)>=0;
       return '<div class="vr-item"><div class="hd">'+
         '<span class="kind'+(dn?' danger':'')+'">'+esc(r.k)+'</span>'+
+        (r.a?'<span class="area">'+esc(r.a)+'</span>':'')+
         '<span class="ago">'+esc(ago(r.t))+'</span>'+
         (r.s?'<span class="st'+(r.s==='解決済み'?' done':'')+'">'+esc(r.s)+'</span>':'')+
         '</div>'+
@@ -21370,9 +21413,13 @@ else qhHashBoot();
 
   window.volPost=function(){
     var b=(document.getElementById('volBodyTx')||{}).value||'';
+    var a=(document.getElementById('volArea')||{}).value||'';
+    if(!a.trim()){ toast('災害発生地域を入力してください',true);
+      var ae=document.getElementById('volArea'); if(ae) ae.focus(); return; }
     if(!b.trim()){ toast('内容を入力してください',true); return; }
+    setArea(a);
     var btn=document.getElementById('volSend'); btn.disabled=true; btn.textContent='送信しています…';
-    api({action:'post',k:pickKind,
+    api({action:'post',k:pickKind, a:a,
       p:(document.getElementById('volPlace')||{}).value||'',
       b:b, n:(document.getElementById('volName')||{}).value||'',
       c:(document.getElementById('volTel')||{}).value||'',
