@@ -22565,13 +22565,32 @@ else qhHashBoot();
     document.body.style.overflow = '';
     f.src = 'about:blank';
     if(history.replaceState) history.replaceState(null,'',location.pathname+location.search);
-    // クイズでスタンプを受け取った場合に備え、カードを取り直す
-    try{ if(typeof syncStampFromServer==='function') syncStampFromServer(); }catch(e){}
-    try{ if(typeof renderRankBar==='function') renderRankBar(); }catch(e){}
+    // クイズでスタンプを受け取った場合に備え、サーバーから取り直す
+    setTimeout(function(){
+      try{
+        if(typeof initStampCard === 'function'){
+          var p = initStampCard();
+          if(p && p.then) p.then(function(){
+            try{ if(typeof renderRankBar==='function') renderRankBar(); }catch(e){}
+          });
+        }
+      }catch(e){}
+      try{ if(typeof renderRankBar==='function') renderRankBar(); }catch(e){}
+    }, 400);
   };
   document.addEventListener('keydown', function(e){
     if(e.key==='Escape' && document.getElementById('quizOverlay').classList.contains('open')) window.closeQuiz();
   });
+  /* クイズ側からの合図を受け取り、カードを取り直す */
+  window.addEventListener('message', function(ev){
+    var d = ev && ev.data;
+    if(!d || d.dwa !== 'stamp-granted') return;
+    try{ if(typeof initStampCard === 'function') initStampCard(); }catch(e){}
+    setTimeout(function(){
+      try{ if(typeof renderRankBar === 'function') renderRankBar(); }catch(e){}
+    }, 900);
+  });
+
   function boot(){ if(location.hash === '#quiz') setTimeout(window.openQuiz, 500); }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
