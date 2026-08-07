@@ -6244,6 +6244,9 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
   </div>
 </div>
 
+<!-- ===== 称号バー ===== -->
+<button type="button" class="rk-bar" id="rankBar" data-tour="rank" onclick="openRank()" aria-label="あなたの称号"></button>
+
 
 <!-- ===== DISASTER INFO TABS ===== -->
 <button class="dtabs-toggle" id="dtabsToggle" onclick="toggleDtabs()"><span>📑</span>災害情報タブ<span class="dt-state">開く</span><span class="dt-arrow">▶</span></button>
@@ -6256,9 +6259,6 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
   <button type="button" class="d-tab kyusui" onclick="openKyusui()">
     <span class="tab-icon">💧</span>給水所・入浴
   </button>
-</div>
-<button type="button" class="rk-bar" id="rankBar" data-tour="rank" onclick="openRank()" aria-label="あなたの称号"></button>
-<div style="display:contents">
   <button type="button" class="d-tab vol" onclick="openVol()">
     <span class="tab-icon">🛠</span>ボランティア支援
   </button>
@@ -16226,12 +16226,16 @@ function placeDisasterTabsForSplit(isSplit){
   if(isSplit){
     // 2画面時：トグル→アンカー→タブの順をアンカー位置（本来の文書フロー）へ戻す
     if(anchor && anchor.parentNode){
+      var rkb2 = document.getElementById('rankBar');
+      if(rkb2) anchor.parentNode.insertBefore(rkb2, anchor);
       if(toggle) anchor.parentNode.insertBefore(toggle, anchor);
       anchor.parentNode.insertBefore(tabs, anchor);
     }
   } else {
     var bar = document.getElementById('topbar');
     if(bar){
+      var rkb = document.getElementById('rankBar');
+      if(rkb && rkb.parentNode !== bar) bar.appendChild(rkb);
       if(toggle && toggle.parentNode !== bar) bar.appendChild(toggle);
       if(anchor && anchor.parentNode !== bar) bar.appendChild(anchor);
       if(tabs.parentNode !== bar) bar.appendChild(tabs);
