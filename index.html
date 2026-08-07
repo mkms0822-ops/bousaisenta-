@@ -5116,6 +5116,44 @@ html.panel-light .rk-row.locked .tx b{ color:#8A94A0; }
 html.panel-light .rk-note{ color:#5A6672; border-top-color:#DDE3EA; }
 </style>
 
+<style id="drill-style">
+/* ===================== デジタル避難訓練 ===================== */
+.d-tab.drill:hover,.d-tab.drill.active{ color:#FF8A94; border-bottom-color:#FF8A94; }
+.drill-banner{
+  display:flex; align-items:center; gap:12px; width:100%; text-align:left; cursor:pointer;
+  margin:10px auto; max-width:1100px; padding:13px 16px; border-radius:12px;
+  background:linear-gradient(135deg,rgba(200,32,46,.18),rgba(255,138,148,.07));
+  border:1px solid rgba(200,32,46,.45); color:inherit; font-family:var(--user-font);
+}
+.drill-banner:hover{ border-color:rgba(255,138,148,.9); }
+.drill-banner .db-i{ font-size:24px; flex-shrink:0; }
+.drill-banner .db-t{ flex:1; min-width:0; }
+.drill-banner .db-title{ display:block; font-size:15px; font-weight:800; color:#FF8A94; }
+.drill-banner .db-sub{ display:block; font-size:12px; opacity:.85; margin-top:3px; line-height:1.65; }
+.drill-banner .db-a{ font-size:20px; color:#FF8A94; flex-shrink:0; }
+.drill-banner[data-state="off"]{ display:none; }
+
+#drillOverlay{
+  display:none; position:fixed; inset:0; z-index:99992; background:#0E1418;
+}
+#drillOverlay.open{ display:flex; flex-direction:column; }
+.dr-bar{
+  display:flex; align-items:center; gap:8px; flex-shrink:0;
+  padding:10px 14px; padding-top:calc(10px + env(safe-area-inset-top));
+  background:#12181E; border-bottom:1px solid #26333D;
+}
+.dr-bar .t{ flex:1; min-width:0; font-size:14px; font-weight:800; color:#FF8A94;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family:var(--user-font); }
+.dr-bar button, .dr-bar a{
+  flex-shrink:0; padding:8px 12px; border-radius:8px; cursor:pointer; white-space:nowrap;
+  font-family:var(--user-font); font-size:12.5px; font-weight:700; text-decoration:none;
+  background:rgba(255,138,148,.12); border:1px solid rgba(255,138,148,.4); color:#FF8A94;
+}
+.dr-bar button:hover, .dr-bar a:hover{ background:rgba(255,138,148,.22); }
+#drillFrame{ flex:1; width:100%; border:0; background:#0E1418; }
+@media (max-width:520px){ .dr-bar .tx{ display:none; } }
+</style>
+
 </head>
 
 <body>
@@ -6440,6 +6478,9 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
   <button type="button" class="d-tab kyusui" onclick="openKyusui()">
     <span class="tab-icon">💧</span>給水所・入浴
   </button>
+  <button type="button" class="d-tab drill" onclick="openDrill()" style="display:none">
+    <span class="tab-icon">🚨</span>避難訓練
+  </button>
   <button type="button" class="d-tab vol" onclick="openVol()">
     <span class="tab-icon">🛠</span>ボランティア支援
   </button>
@@ -6487,6 +6528,16 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     <span class="kb-sub">令和8年熊本地震の応急給水所　7自治体・34か所<br>地図・住所・電話番号をまとめて確認できます</span>
   </span>
   <span class="kb-arrow">›</span>
+</button>
+
+<!-- ===== デジタル避難訓練 バナー ===== -->
+<button type="button" class="drill-banner" id="drillBanner" data-state="off" onclick="openDrill()">
+  <span class="db-i">🚨</span>
+  <span class="db-t">
+    <span class="db-title">デジタル避難訓練</span>
+    <span class="db-sub">開催の予定を確かめています</span>
+  </span>
+  <span class="db-a">›</span>
 </button>
 
 <!-- ===== ボランティア支援 バナー ===== -->
@@ -14733,7 +14784,8 @@ function noticeLinkClick(ev, url){
         'open-near':    function(){ if(typeof openNear==='function') openNear(); },
         'open-pet':     function(){ if(typeof openPetGuide==='function') openPetGuide(); },
         'open-volunteer': function(){ if(typeof openVol==='function') openVol(); },
-        'open-rank':    function(){ if(typeof openRank==='function') openRank(); }
+        'open-rank':    function(){ if(typeof openRank==='function') openRank(); },
+        'open-drill':   function(){ if(typeof openDrill==='function') openDrill(); }
       };
 
       if(samePage || !target.pathname || target.pathname === '/'){
@@ -22355,6 +22407,81 @@ else qhHashBoot();
   else apply();
   // サイトのテーマを変えたときも追従（まだ自分で選んでいない場合のみ）
   setTimeout(apply, 1500);
+})();
+</script>
+
+
+<!-- ===== デジタル避難訓練 ===== -->
+<div id="drillOverlay" role="dialog" aria-modal="true" aria-label="デジタル避難訓練">
+  <div class="dr-bar">
+    <span class="t" id="drTitle">🚨 デジタル避難訓練</span>
+    <a id="drNewTab" href="drill.html" target="_blank" rel="noopener">別タブで開く</a>
+    <button type="button" onclick="closeDrill()">✕ 閉じる</button>
+  </div>
+  <iframe id="drillFrame" title="デジタル避難訓練" src="about:blank"
+          allow="autoplay; geolocation" referrerpolicy="no-referrer"></iframe>
+</div>
+
+<script>
+(function(){
+  var URL_ = 'drill.html';
+
+  window.openDrill = function(){
+    var f = document.getElementById('drillFrame');
+    if(!f.src || f.src === 'about:blank' || f.src.indexOf('drill.html') < 0){
+      f.src = URL_ + '?v=' + Date.now();
+    }
+    document.getElementById('drillOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if(history.replaceState) history.replaceState(null,'','#drill');
+    try{ if(window.dwaTrack) window.dwaTrack('button','デジタル避難訓練'); }catch(e){}
+  };
+  window.closeDrill = function(){
+    if(!confirm('訓練を閉じますか。\n進行中の場合、記録は失われます。')) return;
+    var f = document.getElementById('drillFrame');
+    document.getElementById('drillOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+    f.src = 'about:blank';
+    if(history.replaceState) history.replaceState(null,'',location.pathname+location.search);
+  };
+
+  /* 開催の予定を見て、バナーの文言を変える */
+  function refreshBanner(){
+    var el = document.getElementById('drillBanner');
+    if(!el) return;
+    var url = (typeof ARTICLES_URL!=='undefined' && ARTICLES_URL) ? ARTICLES_URL : '';
+    if(!url){ el.dataset.state='off'; return; }
+    fetch(url + '?type=drill&action=info&_=' + Date.now())
+      .then(function(r){ return r.text(); })
+      .then(function(t){
+        var d=null; try{ d=JSON.parse(t); }catch(e){}
+        if(!d || !d.ok){ el.dataset.state='off'; return; }
+        el.dataset.state = d.state;
+        var sub = el.querySelector('.db-sub');
+        var ttl = el.querySelector('.db-title');
+        var f = function(ms){ var x=new Date(ms);
+          return (x.getMonth()+1)+'月'+x.getDate()+'日 '+x.getHours()+':'+('0'+x.getMinutes()).slice(-2); };
+        if(d.title) ttl.textContent = d.title;
+        if(d.state==='before')      sub.textContent = f(d.openAt)+' から参加できます。発災は '+f(d.fireAt)+' の予定です';
+        else if(d.state==='waiting')sub.textContent = '受付中です。'+f(d.fireAt)+' に地震が起きます。いま入室してお待ちください';
+        else if(d.state==='fired')  sub.textContent = 'すでに始まっています。遅れてのご参加も受け付けています';
+        else if(d.state==='closed') sub.textContent = '受付は終了しました。ご参加ありがとうございました';
+        var tabs = document.querySelectorAll('.d-tab.drill');
+        for(var i=0;i<tabs.length;i++) tabs[i].style.display = (d.state==='off') ? 'none' : '';
+      })
+      .catch(function(){ el.dataset.state='off'; });
+  }
+  window.refreshDrillBanner = refreshBanner;
+
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Escape' && document.getElementById('drillOverlay').classList.contains('open')) window.closeDrill();
+  });
+  function boot(){
+    refreshBanner();
+    setInterval(refreshBanner, 60000);
+    if(location.hash === '#drill') setTimeout(window.openDrill, 500);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
 </script>
 

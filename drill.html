@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>デジタル避難訓練 ｜ 防災情報センター</title>
+<meta name="description" content="発災から避難所へ向かうまでを、実際に体を動かして確認する訓練ツールです。">
+<meta name="theme-color" content="#0E1418">
+<style>
+:root{
+  --exit:#00913A; --exit-lt:#3FBE74; --exit-dk:#006026;
+  --fire:#C8202E; --fire-lt:#FF8A94; --caution:#F2A900;
+  --bg:#0E1418; --bg2:#18222A; --line:#26333D;
+  --fg:#FFFFFF; --fg2:#C9D5DB; --mut:#7C8B93;
+  --sans:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+  --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,"Courier New",monospace;
+}
+html.light{
+  --bg:#F2F5F8; --bg2:#FFFFFF; --line:#D6DEE6;
+  --fg:#141C24; --fg2:#43525F; --mut:#7A8794;
+  --exit-lt:#0A7A38; --fire-lt:#C22030;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--fg);
+  font-size:16px;line-height:1.75;letter-spacing:.01em;transition:background .2s,color .2s;
+  padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--exit-lt);outline-offset:3px;border-radius:3px}
+.wrap{max-width:640px;margin:0 auto;padding:0 18px}
+.screen{display:none;animation:fade .3s ease}
+.screen.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* 右上の設定 */
+.tools{position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;z-index:80;display:flex;gap:7px}
+.tools button{display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;
+  font-size:12.5px;font-weight:700;line-height:1;white-space:nowrap;
+  background:var(--bg2);border:1px solid var(--line);color:var(--fg2)}
+.tools button:hover{border-color:var(--exit-lt);color:var(--exit-lt)}
+.tools .ic{font-size:15px}
+@media(max-width:480px){ .tools .tx{display:none} .tools button{padding:9px 11px} }
+
+.hero{padding:56px 0 26px}
+.hero .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--exit-lt);margin:0 0 18px;text-transform:uppercase}
+.hero h1{margin:0;font-size:clamp(26px,7vw,38px);font-weight:800;line-height:1.35}
+.hero .sub{margin:14px 0 0;font-size:15px;color:var(--fg2);line-height:1.95}
+.hero .sub b{color:var(--fg)}
+
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:0 0 14px}
+.card h2{margin:0 0 12px;font-size:17px;font-weight:800;display:flex;align-items:center;gap:9px}
+.card h2::after{content:"";flex:1;height:1px;background:var(--line)}
+.card p{margin:0 0 12px;font-size:14.5px;line-height:1.95;color:var(--fg2)}
+.card p:last-child{margin:0}
+.card ol{margin:0;padding-left:1.3em}
+.card li{font-size:14.5px;line-height:1.95;margin-bottom:9px;color:var(--fg2)}
+.card li b{color:var(--fg)}
+.warn{background:rgba(200,32,46,.1);border:1px solid rgba(200,32,46,.5);border-radius:10px;padding:16px 18px;margin:0 0 14px;font-size:14.5px;line-height:1.95;color:var(--fg2)}
+.key{background:rgba(0,145,58,.1);border:1px solid rgba(0,145,58,.4);border-left:3px solid var(--exit);border-radius:0 10px 10px 0;padding:16px 18px;margin:0 0 14px;font-size:14.5px;line-height:1.95;color:var(--fg2)}
+.warn b,.key b{color:var(--fg)}
+
+.f{margin:0 0 16px}
+.f .lb{display:block;font-size:13.5px;font-weight:700;margin-bottom:8px}
+.opts2{display:flex;gap:8px;flex-wrap:wrap}
+.opts2 button{padding:11px 16px;border-radius:999px;font-size:14px;font-weight:700;
+  background:var(--bg2);border:1px solid var(--line);color:var(--fg2)}
+.opts2 button[aria-pressed=true]{background:rgba(63,190,116,.18);border-color:var(--exit-lt);color:var(--exit-lt)}
+.f input{width:100%;padding:13px 15px;border-radius:9px;font:inherit;font-size:16px;
+  background:var(--bg2);border:1px solid var(--line);color:var(--fg)}
+
+.big{width:100%;padding:19px;border:0;border-radius:12px;background:var(--exit);color:#fff;
+  font-size:19px;font-weight:800;letter-spacing:.05em;margin-top:8px}
+.big:hover{background:var(--exit-dk)}
+.big.red{background:var(--fire)}
+.sub-btn{width:100%;padding:15px;border-radius:10px;background:none;border:1px solid var(--line);
+  color:var(--mut);font-size:15px;font-weight:700;margin-top:10px}
+
+/* ---------------- 訓練画面 ---------------- */
+.stage{min-height:100dvh;display:flex;flex-direction:column;padding:0 18px 30px}
+.st-bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;
+  padding:13px 18px;background:var(--bg);border-bottom:1px solid var(--line);margin:0 -18px}
+.st-bar .no{font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--exit-lt);white-space:nowrap}
+.st-bar .prog{flex:1;height:3px;background:var(--line);position:relative;overflow:hidden;border-radius:99px}
+.st-bar .prog i{position:absolute;inset:0 auto 0 0;background:var(--exit);transition:width .4s ease;border-radius:99px}
+.st-bar .clk{font-family:var(--mono);font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.st-bar.hot{border-bottom-color:var(--fire)}
+.st-bar.hot .clk{color:var(--fire-lt)}
+
+.scene{flex:1;display:flex;flex-direction:column;justify-content:center;padding:24px 0}
+.scene .phase{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--exit-lt);margin:0 0 12px}
+.scene .situ{margin:0 0 22px;padding:20px 22px;background:var(--bg2);border-left:3px solid var(--exit);
+  font-size:16px;line-height:2;border-radius:0 10px 10px 0;color:var(--fg2)}
+.scene .q{margin:0 0 18px;font-size:22px;font-weight:800;line-height:1.6}
+.opts{display:grid;gap:11px}
+.opt{display:flex;gap:14px;align-items:flex-start;width:100%;text-align:left;
+  border:1px solid var(--line);background:var(--bg2);border-radius:11px;padding:18px 20px;
+  font-size:16px;line-height:1.75;transition:border-color .16s,background .16s}
+.opt:hover:not(:disabled){border-color:var(--exit)}
+.opt .key{font-family:var(--mono);font-size:13px;color:var(--exit-lt);padding-top:2px;flex-shrink:0}
+.opt.wrong{border-color:var(--fire);background:rgba(200,32,46,.12);opacity:.55}
+.opt.wrong .key{color:var(--fire-lt)}
+.opt.right{border-color:var(--exit);background:rgba(0,145,58,.14)}
+.opt:disabled{cursor:default}
+@keyframes buzzShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.opt.buzz{animation:buzzShake .4s}
+
+.fb{margin:18px 0 0;border-radius:11px;padding:19px 21px;animation:fade .28s ease}
+.fb.good{background:rgba(0,145,58,.12);border:1px solid var(--exit)}
+.fb.bad{background:rgba(200,32,46,.12);border:1px solid var(--fire)}
+.fb .vd{font-size:13px;font-weight:800;letter-spacing:.1em;font-family:var(--mono);margin:0 0 10px}
+.fb.good .vd{color:var(--exit-lt)} .fb.bad .vd{color:var(--fire-lt)}
+.fb p{margin:0;font-size:15px;line-height:1.95;color:var(--fg2)}
+.fb .t{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-family:var(--mono);font-size:13px;color:var(--mut)}
+
+
+/* 揺れの最中 */
+.hold{text-align:center;padding:24px 0}
+.hold .ring{width:200px;height:200px;margin:0 auto 24px;position:relative}
+.hold .ring .n{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.hold .ring .n b{font-family:var(--mono);font-size:46px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1;
+  text-shadow:0 2px 16px var(--bg)}
+.hold .ring .n span{font-size:12px;color:var(--mut);margin-top:5px;letter-spacing:.1em}
+.hold h3{margin:0 0 12px;font-size:26px;font-weight:800;line-height:1.5;color:var(--fire-lt);
+  text-shadow:0 2px 14px var(--bg),0 0 30px var(--bg)}
+.hold p{margin:0 0 10px;font-size:15.5px;color:var(--fg2);line-height:2;
+  text-shadow:0 2px 12px var(--bg),0 0 24px var(--bg)}
+.hold .big{margin-top:22px}
+.calm h3{color:var(--exit-lt)}
+
+.alert{background:rgba(0,145,58,.16);border:2px solid var(--exit);border-radius:12px;padding:20px 22px;margin:0 0 18px;animation:pop .5s cubic-bezier(.2,1.3,.4,1)}
+@keyframes pop{0%{transform:scale(.9);opacity:0}100%{transform:scale(1);opacity:1}}
+.alert .h{font-size:12px;font-family:var(--mono);letter-spacing:.16em;color:var(--exit-lt);margin:0 0 8px}
+.alert h3{margin:0 0 8px;font-size:20px;font-weight:800}
+.alert p{margin:0;font-size:14.5px;line-height:1.9;color:var(--fg2)}
+
+/* 結果 */
+.res{padding:36px 0 60px}
+.res .grade{font-size:64px;font-weight:800;line-height:1;margin:0}
+.res .grade.a{color:var(--exit-lt)}.res .grade.b{color:#4FAF6E}
+.res .grade.c{color:var(--caution)}.res .grade.d{color:var(--fire-lt)}
+.res .gsub{margin:10px 0 0;font-size:18px;font-weight:800}
+.res .gmsg{margin:14px 0 0;font-size:15px;color:var(--fg2);line-height:1.95}
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:26px 0}
+.stat div{border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:var(--bg2)}
+.stat .l{font-size:12.5px;color:var(--mut)}
+.stat .v{font-family:var(--mono);font-size:30px;font-weight:700;margin-top:5px}
+.rows h3{font-size:16px;font-weight:800;margin:24px 0 12px;display:flex;align-items:center;gap:9px}
+.rows h3::after{content:"";flex:1;height:1px;background:var(--line)}
+.row{display:flex;gap:13px;align-items:center;border:1px solid var(--line);background:var(--bg2);
+  border-radius:10px;padding:14px 16px;margin-bottom:9px}
+.row.ok{border-color:var(--exit)}
+.row.ng{border-color:rgba(200,32,46,.5)}
+.row .ic{font-size:20px;flex-shrink:0}
+.row .tx{flex:1;min-width:0}
+.row .tx b{display:block;font-size:15px;font-weight:700}
+.row .tx span{display:block;font-size:12.5px;color:var(--mut);margin-top:4px;line-height:1.7}
+.row .sec{font-family:var(--mono);font-size:15px;font-weight:700;flex-shrink:0;white-space:nowrap}
+.row.ok .sec{color:var(--exit-lt)}.row.ng .sec{color:var(--fire-lt)}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(12px);z-index:999;
+  padding:13px 24px;border-radius:999px;opacity:0;pointer-events:none;max-width:90vw;text-align:center;
+  background:rgba(0,145,58,.2);border:1px solid var(--exit);color:var(--exit-lt);
+  font-size:14px;font-weight:700;transition:opacity .2s,transform .2s}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.ng{background:rgba(200,32,46,.2);border-color:var(--fire);color:var(--fire-lt)}
+
+/* ---------------- 揺れる部屋（背景） ---------------- */
+:root{
+  --rm-wall1:#243240; --rm-wall2:#1A242E; --rm-floor1:#38291D; --rm-floor2:#261C14;
+  --rm-line:#7E93A6; --rm-obj:#3A4854; --rm-obj2:#4A3B2E;
+  --rm-win:#101A24; --rm-glow:#F2A900; --rm-skin:#C99B76; --rm-cloth:#2F5F8A;
+}
+html.light{
+  --rm-wall1:#E8EEF4; --rm-wall2:#DCE4EC; --rm-floor1:#E4D5C4; --rm-floor2:#D6C4AF;
+  --rm-line:#8A9AA8; --rm-obj:#CBD6E0; --rm-obj2:#C9B49C;
+  --rm-win:#BBD8EE; --rm-glow:#FFD97A; --rm-skin:#E8C4A0; --rm-cloth:#6E9BC4;
+}
+.room{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;opacity:0;
+  transition:opacity .6s ease}
+.room.on{opacity:1}
+.room svg{width:100%;height:100%;display:block}
+
+/* 部屋そのものが揺れる。文字は揺らさない */
+@keyframes roomShake{
+  0%,100%{transform:translate(0,0) rotate(0deg)}
+  10%{transform:translate(-9px,5px) rotate(-.5deg)} 20%{transform:translate(8px,-6px) rotate(.5deg)}
+  30%{transform:translate(-7px,-5px) rotate(-.4deg)} 40%{transform:translate(9px,6px) rotate(.5deg)}
+  50%{transform:translate(-6px,7px) rotate(-.3deg)} 60%{transform:translate(8px,4px) rotate(.4deg)}
+  70%{transform:translate(-9px,-4px) rotate(-.5deg)} 80%{transform:translate(6px,-7px) rotate(.3deg)}
+  90%{transform:translate(-7px,5px) rotate(-.4deg)}
+}
+.room.shake svg{animation:roomShake .3s infinite}
+
+/* 家具ごとに揺れ方を変える */
+@keyframes swayA{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@keyframes swayB{0%,100%{transform:translateX(0)}25%{transform:translateX(5px)}75%{transform:translateX(-5px)}}
+@keyframes lampSwing{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+@keyframes tiltPic{0%{transform:rotate(0)}100%{transform:rotate(-11deg)}}
+@keyframes fallDown{0%,55%{transform:translate(0,0) rotate(0)}100%{transform:translate(14px,150px) rotate(84deg)}}
+@keyframes fallDown2{0%,70%{transform:translate(0,0) rotate(0)}100%{transform:translate(20px,78px) rotate(-70deg)}}
+@keyframes vaseTip{0%,60%{transform:rotate(0)}100%{transform:rotate(70deg) translate(10px,-8px)}}
+@keyframes duck{0%{transform:translateY(-16px)}100%{transform:translateY(0)}}
+
+.room.shake .rm-sway{animation:swayA .3s infinite}
+.room.shake .rm-sway2{animation:swayB .26s infinite}
+.room.shake .rm-lamp{animation:lampSwing 1.1s ease-in-out infinite}
+.room.shake .rm-tilt{animation:tiltPic 2.6s forwards}
+.room.shake .rm-fall1{animation:fallDown 3.2s forwards}
+.room.shake .rm-fall2{animation:fallDown2 4.4s forwards}
+.room.shake .rm-fall3{animation:vaseTip 3.8s forwards;transform-origin:62px 440px}
+.room .rm-person{animation:duck .5s ease-out forwards}
+
+/* 揺れが収まったあと */
+.room.calm svg{animation:none}
+.room.calm .rm-sway,.room.calm .rm-sway2{animation:none}
+.room.calm .rm-lamp{animation:lampSwing 2.6s ease-in-out infinite;opacity:.9}
+.room.calm .rm-tilt{transform:rotate(-11deg)}
+.room.calm .rm-fall1{transform:translate(14px,150px) rotate(84deg)}
+.room.calm .rm-fall2{transform:translate(20px,78px) rotate(-70deg)}
+.room.calm .rm-fall3{transform:rotate(70deg) translate(10px,-8px);transform-origin:62px 440px}
+
+/* 背景の上に文字を読みやすく重ねる */
+.room::after{content:"";position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 42%, rgba(14,20,24,.62) 0%, rgba(14,20,24,.74) 48%, rgba(14,20,24,.88) 100%)}
+html.light .room::after{
+  background:radial-gradient(ellipse at 50% 42%, rgba(242,245,248,.66) 0%, rgba(242,245,248,.78) 48%, rgba(242,245,248,.9) 100%)}
+#play .stage{position:relative;z-index:1}
+@media (prefers-reduced-motion:reduce){
+  .room.shake svg,.room.shake .rm-sway,.room.shake .rm-sway2,.room.shake .rm-lamp{animation:none}
+}
+@media print{.tools,.no-print,.room{display:none!important}}
+</style>
+</head>
+<body>
+<div class="room" id="room" aria-hidden="true">
+<svg id="roomSvg" viewBox="0 0 400 640" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="rmWall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--rm-wall1)"/><stop offset="100%" stop-color="var(--rm-wall2)"/>
+    </linearGradient>
+    <linearGradient id="rmFloor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--rm-floor1)"/><stop offset="100%" stop-color="var(--rm-floor2)"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 壁と床 -->
+  <rect width="400" height="440" fill="url(#rmWall)"/>
+  <rect y="440" width="400" height="200" fill="url(#rmFloor)"/>
+  <line x1="0" y1="440" x2="400" y2="440" stroke="var(--rm-line)" stroke-width="2"/>
+  <g stroke="var(--rm-line)" stroke-width="1" opacity=".5">
+    <line x1="60" y1="440" x2="0" y2="560"/><line x1="150" y1="440" x2="120" y2="640"/>
+    <line x1="250" y1="440" x2="280" y2="640"/><line x1="340" y1="440" x2="400" y2="560"/>
+  </g>
+
+  <!-- 窓（ゆれで揺れる） -->
+  <g class="rm-sway">
+    <rect x="34" y="86" width="126" height="104" rx="4" fill="var(--rm-win)" stroke="var(--rm-line)" stroke-width="3"/>
+    <line x1="97" y1="86" x2="97" y2="190" stroke="var(--rm-line)" stroke-width="3"/>
+    <line x1="34" y1="138" x2="160" y2="138" stroke="var(--rm-line)" stroke-width="3"/>
+  </g>
+
+  <!-- 額縁（傾く） -->
+  <g class="rm-tilt" style="transform-origin:262px 96px">
+    <rect x="228" y="96" width="68" height="52" rx="3" fill="var(--rm-obj)" stroke="var(--rm-line)" stroke-width="3"/>
+    <path d="M236 140 L256 116 L270 132 L282 120 L288 140 Z" fill="var(--rm-line)" opacity=".45"/>
+  </g>
+
+  <!-- 照明（大きく揺れる） -->
+  <g class="rm-lamp" style="transform-origin:200px 0">
+    <line x1="200" y1="0" x2="200" y2="58" stroke="var(--rm-line)" stroke-width="3"/>
+    <path d="M164 92 L200 58 L236 92 Z" fill="var(--rm-obj)" stroke="var(--rm-line)" stroke-width="3" stroke-linejoin="round"/>
+    <ellipse cx="200" cy="92" rx="36" ry="7" fill="var(--rm-glow)" opacity=".8"/>
+  </g>
+
+  <!-- 本棚（本が落ちる） -->
+  <g class="rm-sway2">
+    <rect x="300" y="214" width="80" height="226" fill="var(--rm-obj)" stroke="var(--rm-line)" stroke-width="3"/>
+    <line x1="300" y1="286" x2="380" y2="286" stroke="var(--rm-line)" stroke-width="3"/>
+    <line x1="300" y1="358" x2="380" y2="358" stroke="var(--rm-line)" stroke-width="3"/>
+    <g fill="var(--rm-line)" opacity=".55">
+      <rect x="308" y="240" width="10" height="46"/><rect x="322" y="246" width="10" height="40"/>
+      <rect x="336" y="238" width="10" height="48"/>
+      <rect x="308" y="316" width="10" height="42"/><rect x="322" y="312" width="10" height="46"/>
+    </g>
+    <!-- 落ちる本 -->
+    <rect class="rm-fall1" x="352" y="240" width="10" height="46" fill="var(--rm-line)" opacity=".55"/>
+    <rect class="rm-fall2" x="350" y="314" width="10" height="44" fill="var(--rm-line)" opacity=".55"/>
+  </g>
+
+  <!-- 机（ここに隠れる） -->
+  <g class="rm-sway">
+    <rect x="86" y="316" width="200" height="14" rx="3" fill="var(--rm-obj2)" stroke="var(--rm-line)" stroke-width="3"/>
+    <rect x="96" y="330" width="12" height="110" fill="var(--rm-obj2)" stroke="var(--rm-line)" stroke-width="3"/>
+    <rect x="264" y="330" width="12" height="110" fill="var(--rm-obj2)" stroke="var(--rm-line)" stroke-width="3"/>
+  </g>
+
+  <!-- 机の下の人 -->
+  <g class="rm-person">
+    <circle cx="186" cy="374" r="20" fill="var(--rm-skin)" stroke="var(--rm-line)" stroke-width="3"/>
+    <path d="M150 440 Q152 396 186 396 Q220 396 222 440 Z" fill="var(--rm-cloth)" stroke="var(--rm-line)" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M166 362 Q186 340 206 362" fill="none" stroke="var(--rm-line)" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <!-- 割れた花瓶 -->
+  <g class="rm-fall3">
+    <path d="M52 412 Q46 440 62 440 Q78 440 72 412 Z" fill="var(--rm-obj)" stroke="var(--rm-line)" stroke-width="3"/>
+  </g>
+</svg>
+
+</div>
+<div class="toast" id="toast" role="status"></div>
+<div class="tools no-print">
+  <button type="button" id="btnSound" onclick="toggleSound()"><span class="ic">🔊</span><span class="tx">音声オン</span></button>
+  <button type="button" id="btnTheme" onclick="toggleTheme()"><span class="ic">🌙</span><span class="tx">暗い</span></button>
+</div>
+
+<section class="screen on" id="intro">
+  <div class="wrap">
+    <div class="hero">
+      <p class="eyebrow" id="eyebrow">Digital Evacuation Drill</p>
+      <h1>デジタル<br>避難訓練</h1>
+      <p class="sub">地震が起きてから、避難所へ向かうまで。<br>
+      画面の指示に従って、<b>実際に体を動かしてください</b>。<br>
+      正しく行動できたか、どれだけ時間がかかったかを記録します。</p>
+    </div>
+    <div class="warn"><b>安全に行ってください。</b><br>
+    無理に走ったり、高いところに登ったりしないでください。ご高齢の方や足元に不安のある方は、
+    実際に動かず、頭の中で手順を確かめるだけでも構いません。訓練でけがをしては元も子もありません。</div>
+    <div class="card">
+      <h2>この訓練で行うこと</h2>
+      <ol>
+        <li><b>身を守る</b>　机の下に入るか、姿勢を低くして頭を守ります</li>
+        <li><b>動かない</b>　揺れが収まるまで、その場で待ちます（2分間）</li>
+        <li><b>火の始末</b>　ガスの元栓とブレーカーを落とします</li>
+        <li><b>情報の確認</b>　地震情報と避難所の開設を確かめます</li>
+        <li><b>避難</b>　避難袋を持って、玄関まで移動します</li>
+      </ol>
+    </div>
+    <div class="key"><b>実際に動いてください。</b><br>
+    画面で選ぶだけでなく、本当に机の下に入り、ブレーカーの前まで行き、玄関まで歩いてください。
+    <b>体が動くかどうかを確かめるのが、この訓練の目的です。</b>
+    どこで手間取るか、何が見つからないか。やってみて初めて分かります。</div>
+    <div class="key"><b>間違えても、先へは進めません。</b><br>
+    誤った行動を選ぶと音が鳴り、なぜ違うのかが表示されます。正しい行動を選ぶまで次に進みません。
+    間違えた回数も記録されますが、責めるためではなく、次に活かすためのものです。</div>
+    <div class="card">
+      <h2>ご参加の記録</h2>
+      <p>集計のために使わせていただきます。お名前は記録しません。</p>
+      <div class="f"><span class="lb">お住まいの地域</span>
+        <input type="text" id="fArea" maxlength="40" placeholder="例：◯◯町内会／△△市××地区"></div>
+      <div class="f"><span class="lb">年代</span><div class="opts2" id="fAge"></div></div>
+    </div>
+    <button class="big" onclick="askReady()">訓練をはじめる</button>
+    <button class="sub-btn no-print" onclick="window.print()">🖨 手順を印刷して確認する</button>
+  </div>
+</section>
+
+<section class="screen" id="ready">
+  <div class="wrap">
+    <div class="hero">
+      <p class="eyebrow">Ready</p>
+      <h1>いま、<br>ふだんの場所に<br>いてください</h1>
+      <p class="sub">居間でも、寝室でも構いません。<br>
+      <b>ふだん過ごしている場所</b>に立つか座ってください。<br>
+      準備ができたら、下のボタンを押します。<br>
+      押した数秒後に、地震が起きます。</p>
+    </div>
+    <div class="warn"><b>周りの安全をご確認ください。</b><br>急に動きます。周囲に人や物がないか確かめてから始めてください。</div>
+    <button class="big red" onclick="startDrill()">準備できました</button>
+    <button class="sub-btn" onclick="go('intro')">戻る</button>
+  </div>
+</section>
+
+<section class="screen" id="lobby">
+  <div class="wrap">
+    <div class="hero">
+      <p class="eyebrow" id="lbTag">Waiting</p>
+      <h1 id="lbTitle">まもなく<br>始まります</h1>
+      <p class="sub" id="lbSub"></p>
+    </div>
+    <div class="card" style="text-align:center;padding:28px 22px">
+      <p style="margin:0 0 10px;font-size:13px;color:var(--mut);letter-spacing:.14em;font-family:var(--mono)">START IN</p>
+      <p id="lbClock" style="margin:0;font-family:var(--mono);font-size:clamp(44px,14vw,72px);font-weight:700;line-height:1;font-variant-numeric:tabular-nums">--:--</p>
+      <p id="lbAt" style="margin:12px 0 0;font-size:13.5px;color:var(--mut)"></p>
+    </div>
+    <div class="key" id="lbNotice" style="display:none"></div>
+    <div class="card">
+      <h2>いま、していただきたいこと</h2>
+      <ol>
+        <li><b>ふだん過ごす場所へ</b>　居間でも寝室でも構いません</li>
+        <li><b>スマートフォンを手に持つ</b>　画面が消えない設定にしてください</li>
+        <li><b>周りの安全を確かめる</b>　急に動きます。人や物がないかご確認ください</li>
+        <li><b>そのままお待ちください</b>　時間になると、自動で地震が始まります</li>
+      </ol>
+    </div>
+    <div class="warn"><b>この画面を閉じないでください。</b><br>
+    閉じると、始まったことが分かりません。時間まで開いたままお待ちください。</div>
+    <button class="sub-btn" onclick="location.reload()">最初に戻る</button>
+  </div>
+</section>
+
+<section class="screen" id="gate">
+  <div class="wrap">
+    <div class="hero">
+      <p class="eyebrow" id="gtTag">Notice</p>
+      <h1 id="gtTitle">—</h1>
+      <p class="sub" id="gtSub"></p>
+    </div>
+    <div class="card" id="gtCard" style="display:none"></div>
+    <button class="sub-btn" onclick="location.reload()">読み込み直す</button>
+  </div>
+</section>
+
+<section class="screen" id="play">
+  <div class="stage" id="stage">
+    <div class="st-bar" id="stbar">
+      <span class="no" id="stNo">1 / 5</span>
+      <span class="prog"><i id="stProg" style="width:0%"></i></span>
+      <span class="clk" id="stClk">0.0</span>
+    </div>
+    <div class="scene" id="scene"></div>
+  </div>
+</section>
+
+<section class="screen" id="result"><div class="wrap"><div class="res" id="resBody"></div></div></section>
+<script>
+(function(){
+  var GAS_URL = 'https://script.google.com/macros/s/AKfycbzVC_aeGGOv4m7-CpKl2Z75muRwWrU6MZDj3sgaBcobw9mSq9jYDY95BsoxiZHkw1dimg/exec';
+  var AGES = ['10代以下','20代','30代','40代','50代','60代','70代以上'];
+  var UID = (function(){ try{ var k='dwa_drill_uid', v=localStorage.getItem(k);
+      if(!v){ v='d'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); localStorage.setItem(k,v); }
+      return v; }catch(e){ return 'd'+Date.now().toString(36); } })();
+
+  var area='', age='', steps=[], idx=0, t0=0, tStart=0, timer=null, misses=0, stepMiss=0;
+  var soundOn=true, lightOn=false;
+
+  /* ---------------- 音 ---------------- */
+  var AC=null;
+  function ac(){ if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } 
+    if(AC && AC.state==='suspended'){ try{ AC.resume(); }catch(e){} } return AC; }
+  function beep(freq,dur,type,vol){
+    if(!soundOn) return; var c=ac(); if(!c) return;
+    try{
+      var o=c.createOscillator(), g=c.createGain();
+      o.type=type||'sine'; o.frequency.value=freq;
+      g.gain.setValueAtTime(vol||0.18, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, c.currentTime+dur);
+      o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime+dur);
+    }catch(e){}
+  }
+  function buzz(){ beep(160,0.28,'square',0.22); setTimeout(function(){ beep(120,0.34,'square',0.22); },170); }
+  function ding(){ beep(880,0.16,'sine',0.16); setTimeout(function(){ beep(1320,0.28,'sine',0.14); },130); }
+  function alarm(){ beep(660,0.5,'sawtooth',0.14); setTimeout(function(){ beep(520,0.6,'sawtooth',0.14); },420); }
+
+  /* 音声案内 */
+  function say(text){
+    if(!soundOn || !text) return;
+    try{
+      if(!window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
+      var u=new SpeechSynthesisUtterance(text);
+      u.lang='ja-JP'; u.rate=1.0; u.pitch=1.0; u.volume=1.0;
+      window.speechSynthesis.speak(u);
+    }catch(e){}
+  }
+  function stopSay(){ try{ if(window.speechSynthesis) window.speechSynthesis.cancel(); }catch(e){} }
+
+  window.toggleSound=function(){
+    soundOn=!soundOn;
+    try{ localStorage.setItem('dwa_drill_sound', soundOn?'1':'0'); }catch(e){}
+    if(!soundOn) stopSay(); else { ac(); ding(); }
+    paintTools();
+  };
+  window.toggleTheme=function(){
+    lightOn=!lightOn;
+    document.documentElement.classList.toggle('light', lightOn);
+    try{ localStorage.setItem('dwa_drill_light', lightOn?'1':'0'); }catch(e){}
+    paintTools();
+  };
+  function paintTools(){
+    var b1=document.getElementById('btnSound'), b2=document.getElementById('btnTheme');
+    b1.innerHTML = soundOn ? '<span class="ic">🔊</span><span class="tx">音声オン</span>'
+                           : '<span class="ic">🔇</span><span class="tx">音声オフ</span>';
+    b1.setAttribute('aria-pressed', soundOn?'true':'false');
+    b2.innerHTML = lightOn ? '<span class="ic">☀️</span><span class="tx">明るい</span>'
+                           : '<span class="ic">🌙</span><span class="tx">暗い</span>';
+  }
+  (function showTestMode(){
+    if(QUAKE_SEC===120) return;
+    var el=document.getElementById('eyebrow');
+    if(el) el.innerHTML='⚠ 確認用モード（地震 '+QUAKE_SEC+'秒）';
+  })();
+
+  (function initPref(){
+    try{
+      var s=localStorage.getItem('dwa_drill_sound'); if(s==='0') soundOn=false;
+      var l=localStorage.getItem('dwa_drill_light');
+      if(l===null) lightOn = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+      else lightOn = (l==='1');
+    }catch(e){}
+    document.documentElement.classList.toggle('light', lightOn);
+    paintTools();
+  })();
+
+  /* ---------------- 場面 ---------------- */
+  var SC = [
+  { p:'地震が収まりました', goal:8,
+    voice:'揺れが収まりました。次の行動を選んでください。',
+    situ:'長い揺れが収まりました。棚の物が落ちています。まだ余震が続くかもしれません。',
+    q:'揺れている間、あなたは何をしましたか。',
+    o:[
+     {a:'机やテーブルの下に入り、頭を守った', ok:true,
+      f:'正しい行動です。机の脚をしっかり持ち、机ごと動くつもりでいてください。近くに机がなければ、姿勢を低くして頭を守るだけでも構いません。'},
+     {a:'すぐに玄関へ走り、外に出ようとした', ok:false,
+      f:'揺れている最中の移動が、最も危険です。転倒し、落ちてきた物に当たります。まず身を守ってください。'},
+     {a:'倒れそうな家具を押さえた', ok:false,
+      f:'家具の下敷きになります。物より身体です。'},
+     {a:'火を消しに台所へ向かった', ok:false,
+      f:'いまの機器の多くは、揺れを感じると自動で止まります。火の始末は、揺れが収まってからです。'}
+    ]},
+  { p:'安全を確かめました', goal:60,
+    voice:'次に、火の始末をします。行動を選んでください。',
+    situ:'周りに大きな損壊はなさそうです。停電はしていません。',
+    q:'次にすることは何ですか。',
+    o:[
+     {a:'ガスの元栓を閉め、ブレーカーを落とす（実際に行ってください）', ok:true,
+      f:'正しい行動です。停電から復旧したときの火災（通電火災）を防げます。移動のときは、足元のガラスにご注意ください。'},
+     {a:'散らばった物を片づける', ok:false,
+      f:'余震が来ます。片づけは後回しです。'},
+     {a:'すぐに避難所へ向かう', ok:false,
+      f:'火の始末をしないまま家を出ると、通電火災の原因になります。'},
+     {a:'家族に電話をかける', ok:false,
+      f:'安否の確認は大切ですが、火の始末が先です。電話は輻輳してつながりにくくなります。'}
+    ]},
+  { p:'火の始末が終わりました', goal:120,
+    voice:'情報を確認します。行動を選んでください。',
+    situ:'ガスとブレーカーを落としました。外から救急車の音が聞こえます。',
+    q:'次にすることは何ですか。',
+    o:[
+     {a:'地震の情報と、避難所が開いたかを確認する', ok:true,
+      f:'正しい行動です。震度、津波の有無、避難所の開設。この三つを確かめてください。避難所はすぐには開きません。'},
+     {a:'すぐに避難所へ向かう', ok:false,
+      f:'避難所は、市町村が開設を決めてから開きます。着いても閉まっていることがあります。まず確認してください。'},
+     {a:'家の中の被害を写真に撮る', ok:false,
+      f:'罹災証明のために必要ですが、いまではありません。安全が確認できてからです。'},
+     {a:'とりあえず家で様子を見る', ok:false,
+      f:'情報を得ないまま待つのは危険です。津波や火災が迫っているかもしれません。'}
+    ]},
+  { p:'避難所が開設されました', goal:300, evac:true,
+    voice:'避難所が開設されました。避難袋を持って、玄関まで移動してください。',
+    situ:'お住まいの地域の避難所が開設されました。自宅にも被害があり、避難することにします。',
+    q:'家を出るとき、どうしますか。',
+    o:[
+     {a:'避難袋を持ち、ブレーカーを確認して玄関へ（実際に玄関まで移動してください）', ok:true,
+      f:'正しい行動です。避難袋、常備薬、貴重品。そしてブレーカーが落ちていることを、もう一度確かめてください。'},
+     {a:'何も持たず、すぐに家を出る', ok:false,
+      f:'避難所に着いてから困ります。最低限、水・薬・貴重品は持ってください。'},
+     {a:'できるだけ多くの荷物を持って出る', ok:false,
+      f:'重すぎると歩けません。両手が空くリュックに、持てる量だけにしてください。'},
+     {a:'貴重品を家の中に隠してから出る', ok:false,
+      f:'時間の無駄です。貴重品は持って出てください。'}
+    ]}
+  ];
+
+  function esc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function toast(m,ng){ var t=document.getElementById('toast'); t.textContent=m;
+    t.className='toast show'+(ng?' ng':''); clearTimeout(t._t); t._t=setTimeout(function(){t.className='toast';},3200); }
+  function go(id){ document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');});
+    document.getElementById(id).classList.add('on'); window.scrollTo(0,0); }
+  window.go=go;
+
+  document.getElementById('fAge').innerHTML = AGES.map(function(a){
+    return '<button type="button" data-a="'+a+'" onclick="pickAge(\''+a+'\')">'+a+'</button>'; }).join('');
+  window.pickAge=function(a){ age=a;
+    document.querySelectorAll('#fAge button').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.a===a); }); };
+
+  /* ---------------- 開催の予定を確かめる ---------------- */
+  var CFG=null, offset=0, poll=null, joinKind='定刻', fired=false;
+  var TEST = (function(){ try{ return new URLSearchParams(location.search).get('test')==='1'; }catch(e){ return false; } })();
+
+  function fetchInfo(cb){
+    fetch(GAS_URL+'?type=drill&action=info&_='+Date.now())
+      .then(function(r){ return r.text(); })
+      .then(function(t){ var d=null; try{ d=JSON.parse(t); }catch(e){}
+        if(d&&d.ok){ CFG=d; offset = d.now - Date.now(); if(d.quakeSec) QUAKE_SEC=d.quakeSec; }
+        cb(d); })
+      .catch(function(){ cb(null); });
+  }
+  function serverNow(){ return Date.now() + offset; }
+  function fmt(ms){
+    var d=new Date(ms);
+    return (d.getMonth()+1)+'月'+d.getDate()+'日 '+d.getHours()+':'+('0'+d.getMinutes()).slice(-2);
+  }
+  function gate(tag,title,sub,card){
+    document.getElementById('gtTag').textContent=tag;
+    document.getElementById('gtTitle').innerHTML=title;
+    document.getElementById('gtSub').innerHTML=sub||'';
+    var c=document.getElementById('gtCard');
+    if(card){ c.innerHTML=card; c.style.display=''; } else c.style.display='none';
+    go('gate');
+  }
+
+  /* 最初に一度だけ、開催の状態を見て画面を決める */
+  function boot(){
+    if(TEST){ document.getElementById('eyebrow').innerHTML='⚠ 確認用モード'; return; }
+    fetchInfo(function(d){
+      if(!d||!d.ok){
+        gate('Error','いま、<br>ご案内できません',
+          '訓練の予定を確かめられませんでした。<br>通信の状態をご確認のうえ、しばらくしてからもう一度お試しください。');
+        return;
+      }
+      if(d.title){ document.querySelector('#intro h1').innerHTML=esc(d.title).replace(/\s+/,'<br>'); }
+      if(d.state==='off'){
+        gate('Closed','いまは<br>開催して<br>いません',
+          '次回の予定が決まりましたら、防災情報センターでお知らせします。');
+      } else if(d.state==='closed'){
+        gate('Closed','受付は<br>終了しました',
+          '今回の訓練は終了しました。<br>ご参加くださった方、ありがとうございました。',
+          '<h2>次回に向けて</h2><p>結果の総括は、後日あらためてお知らせします。</p>');
+      } else if(d.state==='before'){
+        gate('Coming','まだ<br>始まって<br>いません',
+          '入室できるのは <b>'+fmt(d.openAt)+'</b> からです。<br>地震が起きるのは <b>'+fmt(d.fireAt)+'</b> の予定です。',
+          '<h2>当日までにご準備ください</h2><ol>'+
+          '<li>ふだん過ごすお部屋で参加できるようにしておく</li>'+
+          '<li>避難袋の場所を確かめておく</li>'+
+          '<li>ガスの元栓とブレーカーの位置を確かめておく</li></ol>');
+      } else if(d.state==='fired' && !d.lateOk){
+        gate('Closed','すでに<br>始まって<br>います',
+          '発災の時刻を過ぎたため、参加を締め切りました。');
+      } else if(d.state==='fired'){
+        joinKind='遅参';
+      }
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+
+  window.askReady=function(){
+    area=(document.getElementById('fArea').value||'').trim();
+    if(!area){ toast('お住まいの地域をご記入ください',true); document.getElementById('fArea').focus(); return; }
+    if(!age){ toast('年代をお選びください',true); return; }
+    ac();   // 音を出せるようにしておく（利用者の操作が必要なため）
+    if(TEST || !CFG){ go('ready'); return; }
+    if(CFG.state==='waiting'){ lobby(); return; }
+    go('ready');   // すでに発災済み（遅参）はすぐ始められる
+  };
+
+  /* ---------------- 待機（時間になるまで） ---------------- */
+  function lobby(){
+    go('lobby');
+    document.getElementById('lbSub').innerHTML =
+      'ふだん過ごしているお部屋で、そのままお待ちください。<br>'+
+      '時間になると、<b>自動で地震が始まります</b>。';
+    document.getElementById('lbAt').textContent = '発災の予定 '+fmt(CFG.fireAt);
+    if(CFG.notice){
+      var n=document.getElementById('lbNotice');
+      n.innerHTML='<b>主催者からのお知らせ</b><br>'+esc(CFG.notice);
+      n.style.display='';
+    }
+    var spoke={};
+    clearInterval(poll);
+    poll=setInterval(function(){
+      var left=Math.max(0, Math.round((CFG.fireAt - serverNow())/1000));
+      var m=Math.floor(left/60), s=left%60;
+      document.getElementById('lbClock').textContent=m+':'+('0'+s).slice(-2);
+      if(left===60 && !spoke[60]){ spoke[60]=1; say('まもなく訓練が始まります。ふだんの場所でお待ちください。'); }
+      if(left===10 && !spoke[10]){ spoke[10]=1; say('あと10秒です。'); }
+      if(left<=5 && left>0) beep(700,0.09,'sine',0.1);
+      if(left<=0){ clearInterval(poll); poll=null; if(!fired){ fired=true; startDrill(); } }
+    },250);
+    // 主催者が「いま始める」を押した場合に備え、20秒おきに時刻を取り直す
+    clearInterval(lobby._sync);
+    lobby._sync=setInterval(function(){
+      if(fired){ clearInterval(lobby._sync); return; }
+      fetchInfo(function(d){
+        if(d&&d.ok){
+          document.getElementById('lbAt').textContent='発災の予定 '+fmt(d.fireAt);
+          if(d.state==='fired' && !fired){ fired=true; clearInterval(poll); clearInterval(lobby._sync); startDrill(); }
+        }
+      });
+    },20000);
+  }
+
+  /* ---------------- 開始 → 2分間の地震 ---------------- */
+  window.startDrill=function(){
+    steps=[]; idx=0; misses=0; tStart=Date.now();
+    go('play');
+    room('');   // 揺れる前の、ふだんの部屋
+    document.getElementById('stNo').textContent='まもなく';
+    document.getElementById('scene').innerHTML =
+      '<div class="hold"><h3 style="color:var(--fg2)">そのままお待ちください</h3>'+
+      '<p>まもなく訓練を始めます。<br>ふだんの姿勢でお待ちください。</p></div>';
+    setTimeout(quakePhase, 2600 + Math.random()*2400);
+  };
+
+  /* 地震発生中の長さ（秒）。既定は2分。
+     主催者が動きを確かめるときは ?quake=10 のように短くできます */
+  var QUAKE_SEC = 120;
+  try{
+    var q = Number(new URLSearchParams(location.search).get('quake'));
+    if(q >= 3 && q <= 300) QUAKE_SEC = Math.round(q);
+  }catch(e){}
+  var quakeTimer = null;
+
+  function quakePhase(){
+    var left=QUAKE_SEC;
+    room('shake');            // 背景の部屋だけを揺らす（文字は読めるまま）
+    document.getElementById('stbar').className='st-bar hot';
+    document.getElementById('stNo').textContent='地震発生中';
+    document.getElementById('stProg').style.width='0%';
+    document.getElementById('stClk').textContent='—';
+    alarm();
+    say('地震です。地震です。頭を守って、低い姿勢を取ってください。');
+    var spoke={};
+    function draw(){
+      var pct=left/QUAKE_SEC, R=88, C=2*Math.PI*R;
+      var m=Math.floor(left/60), s=left%60;
+      document.getElementById('scene').innerHTML=
+        '<div class="hold"><div class="ring">'+
+        '<svg width="200" height="200" style="transform:rotate(-90deg)">'+
+        '<circle cx="100" cy="100" r="'+R+'" fill="none" stroke="var(--line)" stroke-width="11"/>'+
+        '<circle cx="100" cy="100" r="'+R+'" fill="none" stroke="var(--fire)" stroke-width="11" stroke-linecap="round" '+
+        'stroke-dasharray="'+C+'" stroke-dashoffset="'+(C*(1-pct))+'"/></svg>'+
+        '<span class="n"><b>'+m+':'+(s<10?'0':'')+s+'</b><span>のこり</span></span></div>'+
+        '<h3>地震発生中</h3>'+
+        '<p><b>机の下に入り、頭を守ってください。</b><br>'+
+        '机がなければ、姿勢を低くして頭を守ります。<br>'+
+        '揺れが収まるまで、動かないでください。</p>'+
+        '<p style="color:var(--mut);font-size:13.5px">この2分間が、実際の地震では長く感じます。<br>'+
+        'いま守れている姿勢を、覚えておいてください。</p></div>';
+    }
+    draw();
+    clearInterval(quakeTimer);
+    quakeTimer=setInterval(function(){
+      left--;
+      if(left===90 && !spoke[90]){ spoke[90]=1; say('揺れが続いています。そのまま動かないでください。'); }
+      if(left===60 && !spoke[60]){ spoke[60]=1; say('のこり1分です。頭を守った姿勢を保ってください。'); }
+      if(left===30 && !spoke[30]){ spoke[30]=1; say('のこり30秒です。'); }
+      if(left<=5 && left>0){ beep(700,0.1,'sine',0.1); }
+      if(left<=0){ clearInterval(quakeTimer); quakeTimer=null; calmPhase(); return; }
+      draw();
+    },1000);
+  }
+
+  /* 地震が収まった、の表示 */
+  function calmPhase(){
+    room('calm');             // 揺れは止まり、傾いた額や落ちた本はそのまま残る
+    document.getElementById('stbar').className='st-bar';
+    document.getElementById('stNo').textContent='収まりました';
+    ding();
+    say('地震が収まりました。まだ余震に注意してください。');
+    document.getElementById('scene').innerHTML=
+      '<div class="hold calm">'+
+      '<div style="font-size:64px;line-height:1;margin-bottom:18px">🟢</div>'+
+      '<h3>地震が収まりました</h3>'+
+      '<p>ゆっくり体を起こしてください。<br>まだ余震が来るかもしれません。<br>'+
+      '足元にガラスが落ちていないか、確かめながら動いてください。</p>'+
+      '<button class="big" onclick="beginSteps()">次へ進む</button></div>';
+  }
+
+  /* 背景の部屋。文字は揺らさず、部屋だけを揺らす */
+  function room(state){
+    var el=document.getElementById('room'); if(!el) return;
+    el.className = 'room' + (state ? ' on ' + state : '');
+  }
+
+  window.beginSteps=function(){ clearInterval(quakeTimer); quakeTimer=null; idx=0; render(); };
+
+  function tick(){ var el=document.getElementById('stClk'); if(el) el.textContent=((Date.now()-t0)/1000).toFixed(1); }
+
+  function render(){
+    var s=SC[idx]; stepMiss=0; t0=Date.now();
+    clearInterval(timer); timer=setInterval(tick,100);
+    document.getElementById('stNo').textContent=(idx+1)+' / '+SC.length;
+    document.getElementById('stProg').style.width=(idx/SC.length*100)+'%';
+    document.getElementById('stbar').className='st-bar';
+    if(s.voice) setTimeout(function(){ say(s.voice); }, 250);
+    var keys=['A','B','C','D'], h='';
+    if(s.evac){
+      h+='<div class="alert"><p class="h">EMERGENCY INFO</p><h3>避難所が開設されました</h3>'+
+         '<p>お住まいの地域の避難所が開きました。自宅に被害があり、避難が必要です。</p></div>';
+    }
+    h+='<p class="phase">'+esc(s.p)+'</p>'+
+       '<div class="situ">'+esc(s.situ)+'</div>'+
+       '<p class="q">'+esc(s.q)+'</p><div class="opts">'+
+       s.o.map(function(o,i){
+         return '<button class="opt" id="op'+i+'" onclick="pick('+i+')"><span class="key">'+keys[i]+'</span><span>'+esc(o.a)+'</span></button>';
+       }).join('')+'</div><div id="fbBox"></div>';
+    document.getElementById('scene').innerHTML=h;
+    window.scrollTo(0,0);
+  }
+
+  /* 間違えたら音を鳴らし、正解を選ぶまで進めない */
+  window.pick=function(i){
+    var s=SC[idx], o=s.o[i], btn=document.getElementById('op'+i);
+    if(!btn || btn.disabled) return;
+
+    if(!o.ok){
+      misses++; stepMiss++;
+      buzz();
+      btn.classList.add('wrong','buzz');
+      btn.disabled=true;
+      setTimeout(function(){ btn.classList.remove('buzz'); }, 420);
+      say('違います。' + o.f);
+      document.getElementById('fbBox').innerHTML=
+        '<div class="fb bad"><p class="vd">その行動は危険です</p><p>'+esc(o.f)+'</p>'+
+        '<div class="t">正しい行動を選んでください（ここまでの誤り '+stepMiss+' 回）</div></div>';
+      document.querySelector('.fb').scrollIntoView({behavior:'smooth',block:'nearest'});
+      return;
+    }
+
+    // 正解
+    clearInterval(timer);
+    var sec=Math.round((Date.now()-t0)/100)/10;
+    steps.push({ ok:(stepMiss===0), sec:sec, miss:stepMiss, name:s.p });
+    ding();
+    document.querySelectorAll('.opt').forEach(function(b){ b.disabled=true; });
+    btn.classList.add('right');
+    var fast = sec<=s.goal;
+    var t='選ぶまでに '+sec.toFixed(1)+' 秒（目安 '+s.goal+' 秒以内）'+(fast?' ✓':' ／もう少し早く動けます');
+    if(stepMiss>0) t+='　誤り '+stepMiss+' 回';
+    document.getElementById('fbBox').innerHTML=
+      '<div class="fb good"><p class="vd">'+(stepMiss===0?'正しい行動です':'正解です')+'</p>'+
+      '<p>'+esc(o.f)+'</p><div class="t">'+esc(t)+'</div></div>'+
+      '<button class="big" onclick="next()">'+(idx+1<SC.length?'次へ進む':'玄関に着きました')+'</button>';
+    say(o.f);
+    document.querySelector('.fb').scrollIntoView({behavior:'smooth',block:'nearest'});
+  };
+
+  window.next=function(){ stopSay(); idx++; if(idx<SC.length) render(); else finish(); };
+
+  /* ---------------- 結果 ---------------- */
+  function finish(){
+    stopSay(); clearInterval(timer);
+    var door=Math.round((Date.now()-tStart)/1000);
+    var sum=steps.reduce(function(a,b){ return a+b.sec; },0);
+    var total=Math.round(sum*10)/10;
+    var perfect=steps.filter(function(x){ return x.ok; }).length;
+    // 得点：正答（誤りなし）60点＋速さ40点
+    var fastCnt=steps.filter(function(x,i){ return x.sec<=SC[i].goal; }).length;
+    var score=Math.round(perfect/SC.length*60 + fastCnt/SC.length*40);
+    var g,gc,gm;
+    if(score>=90){ g='A'; gc='a'; gm='迷いなく、正しく動けています。この行動を、ご家族にも伝えてください。'; }
+    else if(score>=70){ g='B'; gc='b'; gm='おおむね正しく動けています。時間がかかった場面を見直すと、さらに確実になります。'; }
+    else if(score>=50){ g='C'; gc='c'; gm='いくつかの場面で迷いがありました。誤った場面をもう一度お読みください。'; }
+    else { g='D'; gc='d'; gm='見直すところが多くあります。責められることではありません。いま気づけたことが収穫です。'; }
+    ding();
+    say('訓練が終わりました。判定は'+g+'です。');
+
+    var h='<p class="grade '+gc+'">'+g+'</p><p class="gsub">'+score+' 点</p><p class="gmsg">'+gm+'</p>'+
+      (joinKind==='遅参' ? '<div class="warn" style="margin-top:16px"><b>遅れてのご参加として記録します。</b><br>'+
+        '定刻に参加された方とは別に集計しますので、判定に不利になることはありません。</div>' : '')+
+      '<div class="stat">'+
+      '<div><div class="l">判断にかかった合計</div><div class="v">'+total.toFixed(1)+'<small style="font-size:14px"> 秒</small></div></div>'+
+      '<div><div class="l">玄関までの所要時間</div><div class="v">'+Math.floor(door/60)+':'+(door%60<10?'0':'')+(door%60)+'</div></div>'+
+      '<div><div class="l">一度で正しく選べた</div><div class="v">'+perfect+'<small style="font-size:14px"> / '+SC.length+'</small></div></div>'+
+      '<div><div class="l">誤った回数</div><div class="v">'+misses+'<small style="font-size:14px"> 回</small></div></div>'+
+      '</div><div class="rows"><h3>場面ごとの結果</h3>';
+    steps.forEach(function(x,i){
+      var fast=x.sec<=SC[i].goal;
+      h+='<div class="row '+(x.ok?'ok':'ng')+'"><span class="ic">'+(x.ok?'✅':'⚠️')+'</span>'+
+         '<span class="tx"><b>'+esc(SC[i].p)+'</b><span>'+
+         (x.ok?'一度で正しく選べました':'誤り '+x.miss+' 回のあと、正解しました')+
+         '／目安 '+SC[i].goal+'秒'+(fast?' 以内 ✓':' を超えました')+'</span></span>'+
+         '<span class="sec">'+x.sec.toFixed(1)+'秒</span></div>';
+    });
+    h+='</div>'+
+      '<div class="key" style="margin-top:22px"><b>この結果を送信してください。</b><br>'+
+      '参加者全体の集計を作り、訓練の総括として発表します。'+
+      'どの場面で時間がかかったか、どこで迷いが多かったか。次の備えに活かすためのものです。</div>'+
+      '<button class="big" id="sendBtn" onclick="send()">結果を送信する</button>'+
+      '<button class="sub-btn no-print" onclick="window.print()">🖨 結果を印刷する</button>'+
+      '<button class="sub-btn" onclick="location.reload()">もう一度おこなう</button>';
+    room(null);
+    document.getElementById('resBody').innerHTML=h;
+    go('result');
+    window.__res={ total:total, door:door, score:score, grade:g, steps:steps, misses:misses };
+  }
+
+  /* ---------------- 送信 ---------------- */
+  window.send=function(){
+    var r=window.__res; if(!r) return;
+    var btn=document.getElementById('sendBtn');
+    btn.disabled=true; btn.textContent='送信しています…';
+    var body={ type:'drill', action:'save', area:area, age:age,
+      join:joinKind, total:r.total, grade:r.grade, score:r.score, door:r.door, miss:r.misses,
+      steps:JSON.stringify(r.steps.map(function(x){ return {ok:x.ok, sec:x.sec, miss:x.miss}; })),
+      uid:UID, note:'誤り合計'+r.misses+'回' };
+    fetch(GAS_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(body) })
+      .then(function(res){ return res.text(); })
+      .then(function(t){ var d=null; try{ d=JSON.parse(t); }catch(e){}
+        if(d&&d.ok){ btn.textContent='送信しました'; toast(d.msg||'送信しました'); }
+        else { btn.disabled=false; btn.textContent='もう一度送信する'; toast((d&&d.msg)||'送信できませんでした',true); } })
+      .catch(function(){ btn.disabled=false; btn.textContent='もう一度送信する';
+        toast('送信できませんでした。通信の状態をご確認ください',true); });
+  };
+
+  document.addEventListener('keydown',function(e){
+    if(!document.getElementById('play').classList.contains('on')) return;
+    var m={'A':0,'B':1,'C':2,'D':3}, k=e.key.toUpperCase();
+    if(k in m){ e.preventDefault(); if(typeof pick==='function') pick(m[k]); }
+  });
+})();
+</script>
+</body>
+</html>
