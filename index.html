@@ -11662,9 +11662,19 @@ function maybeStartTourOnFirstVisit(){
         if(_seenNow && !_everyVisit){ return; }
         // 緊急モードが発動中（または発動した）ときはチュートリアルを始めない
         try{ if(typeof _emgActive !== 'undefined' && _emgActive){ return; } }catch(e){}
+        // すでにチュートリアル（設定内を含む）が動いていれば、割り込まない
+        try{
+          var _ovNow = document.getElementById('tourOverlay');
+          if(_ovNow && _ovNow.classList.contains('open')) return;
+        }catch(e){}
         setTimeout(function(){
           // 500ms待つ間に緊急モードへ移行した場合も開始しない
           try{ if(typeof _emgActive !== 'undefined' && _emgActive){ return; } }catch(e){}
+          // 待っている間にチュートリアルが始まっていたら、上書きしない
+          try{
+            var _ov2 = document.getElementById('tourOverlay');
+            if(_ov2 && _ov2.classList.contains('open')) return;
+          }catch(e){}
           startTour();
         }, 500);
       }
@@ -11683,7 +11693,14 @@ function trackTourPosition(){
   if(Date.now() < _tourTrackUntil) requestAnimationFrame(trackTourPosition);
 }
 
-function startTour(){
+function startTour(force){
+  // 設定内チュートリアルの最中は、上書きして壊さない
+  if(!force && _settingsTour){
+    try{
+      var _ov = document.getElementById('tourOverlay');
+      if(_ov && _ov.classList.contains('open')) return;
+    }catch(e){}
+  }
   _settingsTour = false;
   _activeSteps = tourSteps;
   _tourIndex = 0;
