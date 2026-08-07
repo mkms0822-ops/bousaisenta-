@@ -11441,7 +11441,7 @@ function scrollToColumnForTour(){
   try {
     const rect = target.getBoundingClientRect();
     // 対象を画面の上寄り（ヘッダー下）に置き、下側に説明ポップアップの空間を確保する
-    const y = window.scrollY + rect.top - 110;
+    const y = window.scrollY + rect.top - (tourHeaderH() + 28);
     window.scrollTo({ top: Math.max(0, y), behavior:'auto' });
   } catch(e){
     try { target.scrollIntoView(); } catch(_){}
@@ -11485,7 +11485,7 @@ function openHamburgerForTour(){
         var _step = (typeof _activeSteps !== 'undefined' && _activeSteps[_idx]) || tourSteps[_idx];
         var _sel = _step && _step.sel;
         const el = _sel ? document.querySelector(_sel) : null;
-        if(el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+        if(el) tourScrollTo(el);
       } catch(e){}
       if(typeof positionTour === 'function') positionTour();
     };
@@ -11531,7 +11531,18 @@ function openStampCardForTour(){
       if(_gen !== _tourGen) return;   // 前ステップ用の予約は破棄
       try {
         const el = document.getElementById('pwInput');
-        if(el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+        if(el){
+          // スタンプカードは自前でスクロールする箱なので、その中で位置を合わせる
+          const box = document.getElementById('stampOverlay');
+          if(box && box.scrollHeight > box.clientHeight + 4){
+            const br = box.getBoundingClientRect();
+            const er = el.getBoundingClientRect();
+            const want = br.top + (br.height / 2) - (er.height / 2);
+            box.scrollTop = Math.max(0, Math.round(box.scrollTop + (er.top - want)));
+          } else {
+            tourScrollTo(el);
+          }
+        }
       } catch(e){}
       if(typeof positionTour === 'function') positionTour();
     };
@@ -11803,6 +11814,58 @@ function _tourTargetEl(step){
   return el || (step.selAlt ? document.querySelector(step.selAlt) : null);
 }
 
+/* 固定ヘッダー（トップバー）の高さ。要素が隠れないよう、これだけ余白を取る */
+function tourHeaderH(){
+  var v = 0;
+  try {
+    v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--topbar-h')) || 0;
+  } catch(e){}
+  if(!v){
+    var bar = document.getElementById('topbar');
+    if(bar){
+      var r = bar.getBoundingClientRect();
+      if(r.height > 0 && r.top <= 1) v = r.height;
+    }
+  }
+  return Math.max(0, Math.round(v));
+}
+
+/* 対象がヘッダーに隠れず、説明文の場所も確保できる位置までスクロールする */
+function tourScrollTo(el, smooth){
+  if(!el) return;
+  try {
+    var head = tourHeaderH();
+    var top = head + 20;                          // ここより上はヘッダーに隠れる
+    var bottom = window.innerHeight - 40;
+    var usable = Math.max(80, bottom - top);
+    var r = el.getBoundingClientRect();
+    var y;
+    if(r.height >= usable){
+      y = window.scrollY + r.top - top;           // 画面に収まらない要素は上端を合わせる
+    } else {
+      var mid = top + usable / 2;                 // 収まる要素は使える範囲の中央へ
+      y = window.scrollY + r.top - (mid - r.height / 2);
+    }
+    window.scrollTo({ top: Math.max(0, Math.round(y)), behavior: (smooth===false?'auto':'smooth') });
+  } catch(e){
+    try { el.scrollIntoView({ behavior:'smooth', block:'center' }); } catch(_){}
+  }
+}
+
+/* スクロールが終わってから、まだ隠れていれば即時に補正する */
+function tourFixIfHidden(el){
+  if(!el) return;
+  try {
+    var head = tourHeaderH();
+    var r = el.getBoundingClientRect();
+    if(r.height < 1 && r.width < 1) return;
+    if(r.top < head + 8 || r.bottom > window.innerHeight - 8){
+      tourScrollTo(el, false);                    // 即時スクロールで確実に合わせる
+      if(typeof positionTour === 'function') positionTour();
+    }
+  } catch(e){}
+}
+
 function showTourStep(){
   const step = _activeSteps[_tourIndex];
   if(!step) return;
@@ -11846,12 +11909,20 @@ function showTourStep(){
   const el = _tourTargetEl(step);
   if(el && !_opensOverlay && !_selfScrolled){
     const r = el.getBoundingClientRect();
-    if(r.top < 80 || r.bottom > window.innerHeight - 80){
-      el.scrollIntoView({ behavior:'smooth', block:'center' });
+    const _hTop = tourHeaderH() + 16;   // ここより上はヘッダーに隠れる
+    if(r.top < _hTop || r.bottom > window.innerHeight - 60){
+      tourScrollTo(el);
     }
   }
   // スクロールが終わるまで毎フレーム枠を再計算（固定されていない要素でもズレない）。
   // オーバーレイを開くステップは描画完了が遅いので追従期間を長めに取る。
+  // スクロール完了後に、まだ隠れていれば補正する（遅れて動く要素にも追従）
+  if(el && !_opensOverlay){
+    var _fixGen = _tourGen, _fixEl = el;
+    [700, 1200, 1700].forEach(function(ms){
+      setTimeout(function(){ if(_fixGen === _tourGen) tourFixIfHidden(_fixEl); }, ms);
+    });
+  }
   _tourTrackUntil = Date.now() + (_opensOverlay ? 3200 : 1800);
   _tourTrackGen = _tourGen;   // このステップのループとして登録（古いループは自動終了）
   requestAnimationFrame(trackTourPosition);
@@ -11881,7 +11952,8 @@ function positionTour(){
     // 毎フレーム呼ばれるため、同じステップでの再スクロールは1回だけに制限する。
     if(!_opensOverlay && _tourRescrollFor !== _tourIndex){
       const _vh = window.innerHeight;
-      if(r.top < 60 || r.top > _vh - 80){
+      const _hh = (typeof tourHeaderH === 'function') ? tourHeaderH() + 16 : 60;
+      if(r.top < _hh || r.top > _vh - 80){
         _tourRescrollFor = _tourIndex;
         try {
           window.scrollTo({ top: Math.max(0, window.scrollY + r.top - 110), behavior:'auto' });
