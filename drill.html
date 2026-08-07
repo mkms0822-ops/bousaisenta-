@@ -432,6 +432,8 @@ html.light .room::after{
       return v; }catch(e){ return 'd'+Date.now().toString(36); } })();
 
   var area='', age='', steps=[], idx=0, t0=0, tStart=0, timer=null, misses=0, stepMiss=0;
+  /* 防災スタンプの引き継ぎコード。サイト本体と同じものを使います */
+  var CODE = (function(){ try{ return localStorage.getItem('stamp_code') || ''; }catch(e){ return ''; } })();
   var soundOn=true, lightOn=false;
 
   /* ---------------- 音 ---------------- */
@@ -865,6 +867,7 @@ html.light .room::after{
     });
     h+='</div>'+
       '<div class="key" style="margin-top:22px"><b>この結果を送信してください。</b><br>'+
+      '<b>送信すると、防災スタンプを差し上げます。</b><br>'+
       '参加者全体の集計を作り、訓練の総括として発表します。'+
       'どの場面で時間がかかったか、どこで迷いが多かったか。次の備えに活かすためのものです。</div>'+
       '<button class="big" id="sendBtn" onclick="send()">結果を送信する</button>'+
@@ -884,11 +887,29 @@ html.light .room::after{
     var body={ type:'drill', action:'save', area:area, age:age,
       join:joinKind, total:r.total, grade:r.grade, score:r.score, door:r.door, miss:r.misses,
       steps:JSON.stringify(r.steps.map(function(x){ return {ok:x.ok, sec:x.sec, miss:x.miss}; })),
-      uid:UID, note:'誤り合計'+r.misses+'回' };
+      code:CODE, uid:UID, note:'誤り合計'+r.misses+'回' };
     fetch(GAS_URL,{ method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(body) })
       .then(function(res){ return res.text(); })
       .then(function(t){ var d=null; try{ d=JSON.parse(t); }catch(e){}
-        if(d&&d.ok){ btn.textContent='送信しました'; toast(d.msg||'送信しました'); }
+        if(d&&d.ok){
+          btn.textContent='送信しました';
+          toast(d.msg||'送信しました');
+          if(d.stamp>0){
+            ding();
+            var box=document.createElement('div');
+            box.className='key';
+            box.style.cssText='margin-top:16px;text-align:center';
+            box.innerHTML='<div style="font-size:44px;line-height:1;margin-bottom:10px">🎖️</div>'+
+              '<b style="font-size:17px">防災スタンプを '+d.stamp+'個 差し上げました</b><br>'+
+              '訓練にご参加くださって、ありがとうございました。<br>'+
+              'スタンプはサイトのカードに反映されます。押した日数の累計に応じて、称号が上がります。';
+            btn.parentNode.insertBefore(box, btn);
+            box.scrollIntoView({behavior:'smooth',block:'center'});
+            try{ if(window.parent && window.parent!==window && window.parent.syncStampFromServer) window.parent.syncStampFromServer(); }catch(e){}
+          } else if(d.stampMsg){
+            toast(d.stampMsg);
+          }
+        }
         else { btn.disabled=false; btn.textContent='もう一度送信する'; toast((d&&d.msg)||'送信できませんでした',true); } })
       .catch(function(){ btn.disabled=false; btn.textContent='もう一度送信する';
         toast('送信できませんでした。通信の状態をご確認ください',true); });
