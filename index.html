@@ -4582,7 +4582,7 @@ html.pastel-yellow #supportModal, html.pastel-green #supportModal, html.pastel-p
 }
 .np-note{ margin:10px 0 0; font-size:12px; color:#8FA79B; line-height:1.75; }
 
-.np-body{ padding:16px 16px 44px; }
+.np-body{ padding:16px 16px 44px; color:#E8F0EC; }
 .np-grp{ margin:0 0 22px; }
 .np-grp h4{
   margin:0 0 11px; font-size:13px; font-weight:800; letter-spacing:.08em; color:#7CE0AC;
@@ -4933,6 +4933,187 @@ html.light .rk-bar .bar,html.pastel-pink .rk-bar .bar{ background:rgba(0,0,0,.1)
   background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.2); color:#fff; }
 #rkUp button.pri{ background:#E8C063; border-color:#E8C063; color:#1A1508; }
 @media (prefers-reduced-motion:reduce){ #rkUp img{animation:none} }
+</style>
+
+<style id="panel-light-style">
+/* ============================================================
+   新しいパネル（ボランティア支援・近くを探す・ペット・称号）の
+   明るい表示。ヘッダーの 🌙／☀️ で切り替える。
+   ============================================================ */
+.pl-toggle{
+  flex-shrink:0; display:inline-flex; align-items:center; gap:5px;
+  padding:8px 12px; border-radius:8px; cursor:pointer; white-space:nowrap; line-height:1;
+  font-family:var(--user-font); font-size:12.5px; font-weight:700;
+  background:rgba(255,214,120,.12); border:1px solid rgba(255,214,120,.42); color:#FFD678;
+  transition:background .16s, border-color .16s, transform .1s;
+}
+.pl-toggle:hover{ background:rgba(255,214,120,.24); border-color:rgba(255,214,120,.75); }
+.pl-toggle:active{ transform:scale(.96); }
+.pl-toggle .ic{ font-size:15px; line-height:1; }
+@media (max-width:520px){ .pl-toggle{ padding:8px 10px; gap:0; } .pl-toggle .tx{ display:none; } .pl-toggle .ic{ font-size:17px; } }
+
+html.panel-light .pl-toggle{ background:rgba(90,110,140,.12); border-color:rgba(90,110,140,.4); color:#4A5B72; }
+
+/* ボタンが増えたぶん、狭い画面では文字を省いて1行に収める */
+@media (max-width:560px){
+  .vol-bar, .np-bar, .pg-bar, .rk-bar2{ flex-wrap:nowrap; gap:6px; padding-left:11px; padding-right:11px; }
+  .vol-bar .t, .np-bar .np-t, .pg-bar .t, .rk-bar2 .t{
+    min-width:0; flex:1 1 auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px;
+  }
+  .vol-bar button, .np-bar button, .pg-bar button, .rk-bar2 button{ padding:8px 9px; font-size:12px; }
+  .vol-bar .vol-share, .np-bar button:not(.pl-toggle):not(.pc-btn),
+  .pg-bar .pg-share, .rk-bar2 .rk-share{ font-size:0; padding:8px 10px; }
+  .vol-bar .vol-share::before, .pg-bar .pg-share::before, .rk-bar2 .rk-share::before{ content:'🔗'; font-size:15px; }
+}
+html.panel-light .pl-toggle:hover{ background:rgba(90,110,140,.2); }
+
+/* ---------- 共通の下地 ---------- */
+html.panel-light #volModal,
+html.panel-light #nearPanel,
+html.panel-light #petGuide,
+html.panel-light #rankModal{ background:rgba(238,241,245,.97); }
+
+html.panel-light .vol-in,
+html.panel-light .np-in,
+html.panel-light .pg-in,
+html.panel-light .rk-in{ background:#FFFFFF; border-color:#DDE3EA; }
+
+html.panel-light .vol-body,
+html.panel-light .np-body,
+html.panel-light .pg-body,
+html.panel-light .rk-body{ color:#1E2833; }
+
+html.panel-light .vol-bar,
+html.panel-light .np-bar,
+html.panel-light .pg-bar,
+html.panel-light .rk-bar2{ background:rgba(255,255,255,.97); border-bottom-color:#DDE3EA; }
+
+html.panel-light .pc-btn{ background:rgba(60,75,95,.08); border-color:rgba(60,75,95,.28); color:#3C4B5F; }
+html.panel-light .pc-btn:hover{ background:rgba(60,75,95,.16); }
+
+/* ---------- ボランティア支援 ---------- */
+html.panel-light .vol-bar .t{ color:#B25E00; }
+html.panel-light .vol-bar button{ background:rgba(200,120,0,.1); border-color:rgba(200,120,0,.34); color:#B25E00; }
+html.panel-light .vol-bar button.vol-share{ background:rgba(0,150,140,.1); border-color:rgba(0,150,140,.4); color:#00807A; }
+html.panel-light .vol-tabs{ background:rgba(255,255,255,.97); border-bottom-color:#DDE3EA; }
+html.panel-light .vol-tab{ color:#6B7280; }
+html.panel-light .vol-tab[aria-selected=true]{ color:#B25E00; border-bottom-color:#B25E00; }
+html.panel-light .vol-body h3{ color:#101820; }
+html.panel-light .vol-body h3::after{ background:#DDE3EA; }
+html.panel-light .vol-lead{ color:#5A6672; }
+html.panel-light .vol-warn{ background:#FFF1F2; border-color:#F0A8B0; color:#1E2833; }
+html.panel-light .vol-key{ background:#FFF8E8; border-color:#E8C98A; border-left-color:#D98F00; color:#1E2833; }
+html.panel-light .vol-warn b,
+html.panel-light .vol-key b{ color:#101820; }
+html.panel-light .vc-h .cnt{ color:#B25E00; }
+html.panel-light .vc-h button{ border-color:#D3DAE2; color:#6B7280; }
+html.panel-light .vc-item{ background:#F7F9FB; border-color:#DDE3EA; }
+html.panel-light .vc-item:hover{ border-color:#D98F00; }
+html.panel-light .vc-item .tx b{ color:#101820; }
+html.panel-light .vc-item .tx span{ color:#5A6672; }
+html.panel-light .vc-item.done{ background:#EFF8EC; border-color:#A9CE96; }
+html.panel-light .vc-item.done .tx b{ color:#2F6B1E; }
+html.panel-light .vc-item.must{ border-color:#F0A8B0; }
+html.panel-light .vc-sub{ color:#B25E00; }
+html.panel-light .vf .lb{ color:#1E2833; }
+html.panel-light .vf input,
+html.panel-light .vf select,
+html.panel-light .vf textarea{ background:#FFFFFF; border-color:#CBD3DC; color:#1E2833; }
+html.panel-light .vf .hint{ color:#6B7280; }
+html.panel-light .vf .kinds button{ background:#F7F9FB; border-color:#D3DAE2; color:#4A5560; }
+html.panel-light .vf .kinds button[aria-pressed=true]{ background:#FFF0D6; border-color:#D98F00; color:#B25E00; }
+html.panel-light .vf .geo{ color:#5A6672; }
+html.panel-light .vf .geo button{ background:#F7F9FB; border-color:#D3DAE2; color:#B25E00; }
+html.panel-light .vr-tools button{ background:#F7F9FB; border-color:#D3DAE2; color:#4A5560; }
+html.panel-light .vr-tools button[aria-pressed=true]{ background:#FFF0D6; border-color:#D98F00; color:#B25E00; }
+html.panel-light .vr-lb{ color:#6B7280; }
+html.panel-light .vr-item{ background:#F7F9FB; border-color:#DDE3EA; }
+html.panel-light .vr-item .kind{ background:#FFF0D6; border-color:#E0B25E; color:#B25E00; }
+html.panel-light .vr-item .kind.danger{ background:#FFECEE; border-color:#E88A93; color:#B32334; }
+html.panel-light .vr-item .area{ background:#E9F1FC; border-color:#9CBBE0; color:#2C5C96; }
+html.panel-light .vr-item .ago{ color:#6B7280; }
+html.panel-light .vr-item .st{ border-color:#D3DAE2; color:#5A6672; }
+html.panel-light .vr-item .st.done{ border-color:#A9CE96; color:#2F6B1E; }
+html.panel-light .vr-item .pl{ color:#101820; }
+html.panel-light .vr-item .ft{ color:#6B7280; }
+html.panel-light .vr-item .ft a{ color:#B25E00; }
+html.panel-light .vr-item .ft button{ color:#6B7280; }
+html.panel-light .vr-empty{ color:#6B7280; }
+
+/* ---------- 近くを探す ---------- */
+html.panel-light .np-bar .np-t{ color:#0A6B3C; }
+html.panel-light .np-bar button{ background:rgba(0,145,58,.1); border-color:rgba(0,145,58,.34); color:#0A6B3C; }
+html.panel-light .np-loc .st{ color:#5A6672; }
+html.panel-light .np-loc .st b{ color:#101820; }
+html.panel-light .np-loc{ border-bottom-color:#DDE3EA; }
+html.panel-light .np-loc.ok{ background:#EFF8EC; }
+html.panel-light .np-loc.ng{ background:#FFF1F2; }
+html.panel-light .np-coord code{ background:#F2F5F8; border-color:#CBD3DC; color:#101820; }
+html.panel-light .np-coord button{ background:#F2F5F8; border-color:#CBD3DC; color:#0A6B3C; }
+html.panel-light .np-note{ color:#6B7280; }
+html.panel-light .np-grp h4{ color:#0A6B3C; }
+html.panel-light .np-grp h4::after{ background:#DDE3EA; }
+html.panel-light .np-btn{ background:#F7F9FB; border-color:#DDE3EA; color:#101820; }
+html.panel-light .np-btn:hover{ background:#EDF3F0; border-color:#0A6B3C; }
+html.panel-light .np-btn small{ color:#5A6672; }
+html.panel-light .np-btn.tel{ background:#EFF8EC; border-color:#A9CE96; }
+html.panel-light .np-btn.urgent{ background:#FFF1F2; border-color:#E88A93; }
+html.panel-light .np-foot{ color:#5A6672; }
+
+/* ---------- ペット同行避難ガイド ---------- */
+html.panel-light .pg-bar .t{ color:#0A6B3C; }
+html.panel-light .pg-bar button{ background:rgba(0,145,58,.1); border-color:rgba(0,145,58,.34); color:#0A6B3C; }
+html.panel-light .pg-bar button.pg-share{ background:rgba(0,150,140,.1); border-color:rgba(0,150,140,.4); color:#00807A; }
+html.panel-light .pg-body h2{ color:#101820; }
+html.panel-light .pg-body .lead{ color:#5A6672; }
+html.panel-light .pg-body h3{ color:#101820; }
+html.panel-light .pg-body h3::after{ background:#DDE3EA; }
+html.panel-light .pg-key{ background:#EFF8EC; border-color:#A9CE96; border-left-color:#0A6B3C; color:#1E2833; }
+html.panel-light .pg-warn{ background:#FFF1F2; border-color:#E88A93; color:#1E2833; }
+html.panel-light .pg-warn b,
+html.panel-light .pg-key b{ color:#101820; }
+html.panel-light .pg-cl .cl-h .cnt{ color:#0A6B3C; }
+html.panel-light .pg-cl .cl-h button{ border-color:#D3DAE2; color:#6B7280; }
+html.panel-light .pg-item{ background:#F7F9FB; border-color:#DDE3EA; }
+html.panel-light .pg-item:hover{ border-color:#0A6B3C; }
+html.panel-light .pg-item .tx b{ color:#101820; }
+html.panel-light .pg-item .tx span{ color:#5A6672; }
+html.panel-light .pg-item.done{ background:#EFF8EC; border-color:#A9CE96; }
+html.panel-light .pg-item.done .tx b{ color:#2F6B1E; }
+html.panel-light .pg-sub{ color:#0A6B3C; }
+html.panel-light .pg-tel{ background:#EFF8EC; border-color:#A9CE96; }
+html.panel-light .pg-tel .tx b{ color:#101820; }
+html.panel-light .pg-tel .tx span{ color:#5A6672; }
+html.panel-light .pg-link{ background:#E9F1FC; border-color:#9CBBE0; color:#2C5C96; }
+html.panel-light .pg-foot{ color:#5A6672; border-top-color:#DDE3EA; }
+
+/* ---------- 称号 ---------- */
+html.panel-light .rk-bar2 .t{ color:#9A6A00; }
+html.panel-light .rk-bar2 button{ background:rgba(180,130,0,.1); border-color:rgba(180,130,0,.36); color:#9A6A00; }
+html.panel-light .rk-bar2 button.rk-share{ background:rgba(0,150,140,.1); border-color:rgba(0,150,140,.4); color:#00807A; }
+html.panel-light .rk-hero .en{ color:#101820; }
+html.panel-light .rk-hero .ja{ color:#4A5560; }
+html.panel-light .rk-hero .desc{ color:#5A6672; }
+html.panel-light .rk-hero .cnt{ color:#101820; }
+html.panel-light .rk-hero .cnt small{ color:#6B7280; }
+html.panel-light .rk-next{ background:#F7F9FB; border-color:#DDE3EA; }
+html.panel-light .rk-next .h b{ color:#101820; }
+html.panel-light .rk-next .h span{ color:#6B7280; }
+html.panel-light .rk-next .bar{ background:#E2E8EE; }
+html.panel-light .rk-next .msg{ color:#5A6672; }
+html.panel-light .rk-list h3{ color:#101820; }
+html.panel-light .rk-list h3::after{ background:#DDE3EA; }
+html.panel-light .rk-row{ background:#F7F9FB; border-color:#DDE3EA; }
+html.panel-light .rk-row .tx b{ color:#101820; }
+html.panel-light .rk-row .tx span{ color:#5A6672; }
+html.panel-light .rk-row.got{ background:#EFF8EC; border-color:#A9CE96; }
+html.panel-light .rk-row.got .st{ background:#DFF0D8; border-color:#A9CE96; color:#2F6B1E; }
+html.panel-light .rk-row.now{ background:#FFF8E8; border-color:#D9A441; }
+html.panel-light .rk-row.now .st{ background:#FFF0D6; border-color:#D9A441; color:#9A6A00; }
+html.panel-light .rk-row.locked{ background:#F2F4F7; }
+html.panel-light .rk-row.locked .st{ background:#EAEEF3; border-color:#D3DAE2; color:#8A94A0; }
+html.panel-light .rk-row.locked .tx b{ color:#8A94A0; }
+html.panel-light .rk-note{ color:#5A6672; border-top-color:#DDE3EA; }
 </style>
 
 </head>
@@ -20874,6 +21055,7 @@ else qhHashBoot();
       <span class="np-t">📍 いまいる場所から探す</span>
       <button type="button" class="pc-btn" onclick="printPanel('nearPanel')"><span class="ic">🖨</span><span class="tx">印刷</span></button>
       <button type="button" class="pc-btn" onclick="copyPanel('nearPanel')"><span class="ic">📋</span><span class="tx">コピー</span></button>
+      <button type="button" class="pl-toggle" onclick="togglePanelLight()" aria-pressed="false"><span class="ic">🌙</span><span class="tx">暗い</span></button>
       <button type="button" onclick="nearLocate(true)">再取得</button>
       <button type="button" onclick="closeNear()" aria-label="閉じる">✕</button>
     </div>
@@ -21027,6 +21209,7 @@ else qhHashBoot();
   }
 
   window.openNear = function(){
+    try{ if(window.refreshPanelLight) window.refreshPanelLight(); }catch(e){}
     document.getElementById('nearPanel').classList.add('open');
     document.body.style.overflow='hidden';
     draw();
@@ -21099,6 +21282,7 @@ else qhHashBoot();
   <div class="pg-in">
     <div class="pg-bar">
       <span class="t">🐾 ペットと一緒に逃げる</span>
+      <button type="button" class="pl-toggle" onclick="togglePanelLight()" aria-pressed="false"><span class="ic">🌙</span><span class="tx">暗い</span></button>
       <button type="button" class="pg-share" onclick="sharePetGuide()">🔗 共有</button>
       <button type="button" class="pc-btn" onclick="printPanel('petGuide')"><span class="ic">🖨</span><span class="tx">印刷</span></button>
       <button type="button" class="pc-btn" onclick="copyPanel('petGuide')"><span class="ic">📋</span><span class="tx">コピー</span></button>
@@ -21239,6 +21423,7 @@ else qhHashBoot();
 
   var built=false;
   window.openPetGuide = function(){
+    try{ if(window.refreshPanelLight) window.refreshPanelLight(); }catch(e){}
     if(!built){ build(); built=true; }
     document.getElementById('petGuide').classList.add('open');
     document.body.style.overflow='hidden';
@@ -21417,6 +21602,7 @@ else qhHashBoot();
   <div class="vol-in">
     <div class="vol-bar">
       <span class="t">🛠 ボランティア支援</span>
+      <button type="button" class="pl-toggle" onclick="togglePanelLight()" aria-pressed="false"><span class="ic">🌙</span><span class="tx">暗い</span></button>
       <button type="button" class="vol-share" onclick="shareVol()">🔗 共有</button>
       <button type="button" class="pc-btn" onclick="printPanel('volModal')"><span class="ic">🖨</span><span class="tx">印刷</span></button>
       <button type="button" class="pc-btn" onclick="copyPanel('volModal')"><span class="ic">📋</span><span class="tx">コピー</span></button>
@@ -21914,6 +22100,7 @@ else qhHashBoot();
   };
 
   window.openVol=function(tab){
+    try{ if(window.refreshPanelLight) window.refreshPanelLight(); }catch(e){}
     if(tab) cur=tab;
     document.getElementById('volModal').classList.add('open');
     document.body.style.overflow='hidden';
@@ -21951,6 +22138,7 @@ else qhHashBoot();
   <div class="rk-in">
     <div class="rk-bar2">
       <span class="t">🏅 あなたの称号</span>
+      <button type="button" class="pl-toggle" onclick="togglePanelLight()" aria-pressed="false"><span class="ic">🌙</span><span class="tx">暗い</span></button>
       <button type="button" class="rk-share" onclick="shareRank()">🔗 共有</button>
       <button type="button" class="pc-btn" onclick="printPanel('rankModal')"><span class="ic">🖨</span><span class="tx">印刷</span></button>
       <button type="button" onclick="closeRank()" aria-label="閉じる">✕</button>
@@ -22042,6 +22230,7 @@ else qhHashBoot();
   }
 
   window.openRank = function(){
+    try{ if(window.refreshPanelLight) window.refreshPanelLight(); }catch(e){}
     build();
     document.getElementById('rankModal').classList.add('open');
     document.body.style.overflow='hidden';
@@ -22104,6 +22293,68 @@ else qhHashBoot();
     if(location.hash==='#rank') setTimeout(window.openRank,400);
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+})();
+</script>
+
+
+<script>
+/* ============================================================
+   新しいパネルの明暗切替（🌙／☀️）
+   ・4つのパネル（ボランティア支援・近くを探す・ペット・称号）に効く
+   ・選んだ状態は次回も引き継がれる
+   ・サイト本体のテーマが明るい場合は、初回から明るい表示にする
+   ============================================================ */
+(function(){
+  var KEY = 'dwa_panel_light';
+  var LIGHT_THEMES = ['light','pastel-pink','pastel-sky','pastel-yellow','pastel-green','pastel-purple'];
+
+  function siteIsLight(){
+    try{
+      var c = document.documentElement.classList;
+      for(var i=0;i<LIGHT_THEMES.length;i++) if(c.contains(LIGHT_THEMES[i])) return true;
+    }catch(e){}
+    return false;
+  }
+  function saved(){
+    try{
+      var v = localStorage.getItem(KEY);
+      if(v === '1') return true;
+      if(v === '0') return false;
+    }catch(e){}
+    return null;                 // まだ選んでいない
+  }
+  function isLight(){
+    var s = saved();
+    return (s === null) ? siteIsLight() : s;
+  }
+  function apply(){
+    document.documentElement.classList.toggle('panel-light', isLight());
+    paintButtons();
+  }
+  function paintButtons(){
+    var on = isLight();
+    var list = document.querySelectorAll('.pl-toggle');
+    for(var i=0;i<list.length;i++){
+      var b = list[i];
+      b.innerHTML = on
+        ? '<span class="ic">☀️</span><span class="tx">明るい</span>'
+        : '<span class="ic">🌙</span><span class="tx">暗い</span>';
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      b.setAttribute('title', on ? '暗い表示に切り替える' : '明るい表示に切り替える');
+    }
+  }
+  window.togglePanelLight = function(){
+    var next = !isLight();
+    try{ localStorage.setItem(KEY, next ? '1' : '0'); }catch(e){}
+    apply();
+    try{ if(window.dwaTrack) window.dwaTrack('button','パネルの表示：'+(next?'明るい':'暗い')); }catch(e){}
+  };
+  window.refreshPanelLight = apply;
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
+  else apply();
+  // サイトのテーマを変えたときも追従（まだ自分で選んでいない場合のみ）
+  setTimeout(apply, 1500);
 })();
 </script>
 
