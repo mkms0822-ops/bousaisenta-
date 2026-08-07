@@ -5154,6 +5154,41 @@ html.panel-light .rk-note{ color:#5A6672; border-top-color:#DDE3EA; }
 @media (max-width:520px){ .dr-bar .tx{ display:none; } }
 </style>
 
+<style id="quiz-style">
+/* ===================== 防災クイズ ===================== */
+.d-tab.quiz:hover,.d-tab.quiz.active{ color:#7EC8E3; border-bottom-color:#7EC8E3; }
+.quiz-banner{
+  display:flex; align-items:center; gap:12px; width:100%; text-align:left; cursor:pointer;
+  margin:10px auto; max-width:1100px; padding:13px 16px; border-radius:12px;
+  background:linear-gradient(135deg,rgba(60,150,200,.18),rgba(126,200,227,.07));
+  border:1px solid rgba(60,150,200,.45); color:inherit; font-family:var(--user-font);
+}
+.quiz-banner:hover{ border-color:rgba(126,200,227,.9); }
+.quiz-banner .qb-i{ font-size:24px; flex-shrink:0; }
+.quiz-banner .qb-t{ flex:1; min-width:0; }
+.quiz-banner .qb-title{ display:block; font-size:15px; font-weight:800; color:#7EC8E3; }
+.quiz-banner .qb-sub{ display:block; font-size:12px; opacity:.85; margin-top:3px; line-height:1.65; }
+.quiz-banner .qb-a{ font-size:20px; color:#7EC8E3; flex-shrink:0; }
+
+#quizOverlay{ display:none; position:fixed; inset:0; z-index:99991; background:#F4F7F9; }
+#quizOverlay.open{ display:flex; flex-direction:column; }
+.qz-bar{
+  display:flex; align-items:center; gap:8px; flex-shrink:0;
+  padding:10px 14px; padding-top:calc(10px + env(safe-area-inset-top));
+  background:#fff; border-bottom:1px solid #D8E2E8;
+}
+.qz-bar .t{ flex:1; min-width:0; font-size:14px; font-weight:800; color:#2C7A9E;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family:var(--user-font); }
+.qz-bar button, .qz-bar a{
+  flex-shrink:0; padding:8px 12px; border-radius:8px; cursor:pointer; white-space:nowrap;
+  font-family:var(--user-font); font-size:12.5px; font-weight:700; text-decoration:none;
+  background:rgba(44,122,158,.1); border:1px solid rgba(44,122,158,.34); color:#2C7A9E;
+}
+.qz-bar button:hover, .qz-bar a:hover{ background:rgba(44,122,158,.2); }
+#quizFrame{ flex:1; width:100%; border:0; background:#F4F7F9; }
+@media (max-width:520px){ .qz-bar .tx{ display:none; } }
+</style>
+
 </head>
 
 <body>
@@ -6478,6 +6513,9 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
   <button type="button" class="d-tab kyusui" onclick="openKyusui()">
     <span class="tab-icon">💧</span>給水所・入浴
   </button>
+  <button type="button" class="d-tab quiz" onclick="openQuiz()">
+    <span class="tab-icon">🧠</span>防災クイズ
+  </button>
   <button type="button" class="d-tab drill" onclick="openDrill()" style="display:none">
     <span class="tab-icon">🚨</span>避難訓練
   </button>
@@ -6528,6 +6566,16 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     <span class="kb-sub">令和8年熊本地震の応急給水所　7自治体・34か所<br>地図・住所・電話番号をまとめて確認できます</span>
   </span>
   <span class="kb-arrow">›</span>
+</button>
+
+<!-- ===== 防災クイズ バナー ===== -->
+<button type="button" class="quiz-banner" onclick="openQuiz()">
+  <span class="qb-i">🧠</span>
+  <span class="qb-t">
+    <span class="qb-title">防災診断・防災クイズ</span>
+    <span class="qb-sub">年代に合わせた5段階。全問正解で防災スタンプを差し上げます</span>
+  </span>
+  <span class="qb-a">›</span>
 </button>
 
 <!-- ===== デジタル避難訓練 バナー ===== -->
@@ -14785,7 +14833,8 @@ function noticeLinkClick(ev, url){
         'open-pet':     function(){ if(typeof openPetGuide==='function') openPetGuide(); },
         'open-volunteer': function(){ if(typeof openVol==='function') openVol(); },
         'open-rank':    function(){ if(typeof openRank==='function') openRank(); },
-        'open-drill':   function(){ if(typeof openDrill==='function') openDrill(); }
+        'open-drill':   function(){ if(typeof openDrill==='function') openDrill(); },
+        'open-quiz':    function(){ if(typeof openQuiz==='function') openQuiz(); }
       };
 
       if(samePage || !target.pathname || target.pathname === '/'){
@@ -22481,6 +22530,49 @@ else qhHashBoot();
     setInterval(refreshBanner, 60000);
     if(location.hash === '#drill') setTimeout(window.openDrill, 500);
   }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+</script>
+
+
+<!-- ===== 防災クイズ ===== -->
+<div id="quizOverlay" role="dialog" aria-modal="true" aria-label="防災診断・防災クイズ">
+  <div class="qz-bar">
+    <span class="t" id="qzTitle">🧠 防災診断・防災クイズ</span>
+    <a id="qzNewTab" href="quiz.html" target="_blank" rel="noopener">別タブで開く</a>
+    <button type="button" onclick="closeQuiz()">✕ 閉じる</button>
+  </div>
+  <iframe id="quizFrame" title="防災診断・防災クイズ" src="about:blank"
+          allow="autoplay" referrerpolicy="no-referrer"></iframe>
+</div>
+
+<script>
+(function(){
+  var URL_ = 'quiz.html';
+  window.openQuiz = function(){
+    var f = document.getElementById('quizFrame');
+    if(!f.src || f.src === 'about:blank' || f.src.indexOf('quiz.html') < 0){
+      f.src = URL_ + '?v=' + Date.now();
+    }
+    document.getElementById('quizOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if(history.replaceState) history.replaceState(null,'','#quiz');
+    try{ if(window.dwaTrack) window.dwaTrack('button','防災クイズ'); }catch(e){}
+  };
+  window.closeQuiz = function(){
+    var f = document.getElementById('quizFrame');
+    document.getElementById('quizOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+    f.src = 'about:blank';
+    if(history.replaceState) history.replaceState(null,'',location.pathname+location.search);
+    // クイズでスタンプを受け取った場合に備え、カードを取り直す
+    try{ if(typeof syncStampFromServer==='function') syncStampFromServer(); }catch(e){}
+    try{ if(typeof renderRankBar==='function') renderRankBar(); }catch(e){}
+  };
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Escape' && document.getElementById('quizOverlay').classList.contains('open')) window.closeQuiz();
+  });
+  function boot(){ if(location.hash === '#quiz') setTimeout(window.openQuiz, 500); }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
 </script>
