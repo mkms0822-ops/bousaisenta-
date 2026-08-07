@@ -11404,7 +11404,7 @@ const tourSteps = [
   { sel:'[data-tour="review"]', title:'⭐ 口コミ・レビュー', text:'このサイトの感想や評価を投稿できるコーナーです。星の数と一言コメントで、使ってみての感想をぜひ聞かせてください。みんなの口コミも読めます。', fallbackToTop:true },
   { sel:'[data-tour="chat"]', title:'📨 災害用伝言板', text:'災害時の安否や連絡を書き残せる「災害用伝言板」です。ボタンから専用ページが開きます。閲覧は誰でもでき、書き込みには「引き継ぎコード」での参加が必要です。', fallbackToTop:true },
   { sel:'[data-tour="share"]', title:'📤 友達紹介リンク', text:'あなた専用の紹介リンクで、このサイトを友達に教えられます。紹介リンクから友達がアクセスすると、あなたと友達の両方にスタンプを1つずつプレゼント。LINEやXでかんたんに共有できます。', fallbackToTop:true },
-  { sel:'[data-tour="near"]', title:'📍 近くを探す', text:'いまいる場所から、交番・消防署・救急病院・避難所・AED・公衆電話などを探せます。<br><br>画面上部に出る<b>緯度・経度</b>も便利です。119番で場所を説明できないとき、この数字を読み上げれば位置が伝わります。', fallbackToTop:true },
+  { sel:'[data-tour="near"]', title:'📍 近くを探す', text:'「災害情報タブ」の中にあります（いまチュートリアル用に開いています）。<br>いまいる場所から、交番・消防署・救急病院・避難所・AED・公衆電話などを探せます。<br><br>画面上部に出る<b>緯度・経度</b>も便利です。119番で場所を説明できないとき、この数字を読み上げれば位置が伝わります。', onShow:openDtabsForTour, fallbackToTop:true },
   { sel:'[data-tour="volunteer"]', title:'🛠 ボランティア後方支援ツール', text:'被災地へ向かう方のためのツールです。行く前の準備、持ち物、現地での安全、熱中症、帰ってからのケア。<br><br>過去の災害で実際に起きた失敗をもとにした49項目です。現地の情報を投稿して共有もできます。', fallbackToTop:true },
   { sel:'[data-tour="rank"]', title:'🏅 あなたの称号', text:'スタンプを押した日数に応じて称号が上がります。初級・中級・上級・熟練・最高峰の5段階。<br><br>タップすると詳しい画面が開き、XやLINEで共有できます。<b>一度得た称号は、なくなりません。</b>', fallbackToTop:true },
   { sel:'#stampFab', title:'📅 防災スタンプカード', text:'毎日サイトを開くと、画面右下のこのボタンから1日1個スタンプを押せます。押した日数がそのまま称号になります。<br><br>備えは、一度そろえて終わりではありません。水の期限、電池の残量、家族の連絡先。日々確認することに意味があります。さっそく押してみましょう。', showStamp:true, fallbackToCorner:true, onShow:closeDtabsForTour },
@@ -11833,6 +11833,9 @@ function tourHeaderH(){
 /* 対象がヘッダーに隠れず、説明文の場所も確保できる位置までスクロールする */
 function tourScrollTo(el, smooth){
   if(!el) return;
+  // メニューやカードなど、自分でスクロールする箱の中にある要素は、その箱を動かす
+  var box = tourScrollParent(el);
+  if(box && tourScrollInBox(box, el, smooth)) return;
   try {
     var head = tourHeaderH();
     var top = head + 20;                          // ここより上はヘッダーに隠れる
@@ -11852,15 +11855,52 @@ function tourScrollTo(el, smooth){
   }
 }
 
+/* 要素を包む「自分でスクロールする箱」を探す（メニューやカードの内部など） */
+function tourScrollParent(el){
+  var n = el && el.parentElement;
+  while(n && n !== document.body && n !== document.documentElement){
+    var cs = getComputedStyle(n);
+    var oy = cs.overflowY;
+    if((oy === 'auto' || oy === 'scroll') && n.scrollHeight > n.clientHeight + 4) return n;
+    n = n.parentElement;
+  }
+  return null;
+}
+
+/* 箱の中でスクロールして、対象を箱の中央付近に置く */
+function tourScrollInBox(box, el, smooth){
+  try {
+    var br = box.getBoundingClientRect();
+    var er = el.getBoundingClientRect();
+    var want = br.top + (br.height / 2) - (er.height / 2);
+    if(er.height >= br.height - 24) want = br.top + 16;   // 箱より大きいときは上端寄せ
+    var to = Math.max(0, Math.round(box.scrollTop + (er.top - want)));
+    if(typeof box.scrollTo === 'function'){
+      box.scrollTo({ top: to, behavior: (smooth === false ? 'auto' : 'smooth') });
+    } else {
+      box.scrollTop = to;
+    }
+    return true;
+  } catch(e){ return false; }
+}
+
 /* スクロールが終わってから、まだ隠れていれば即時に補正する */
 function tourFixIfHidden(el){
   if(!el) return;
   try {
-    var head = tourHeaderH();
     var r = el.getBoundingClientRect();
     if(r.height < 1 && r.width < 1) return;
-    if(r.top < head + 8 || r.bottom > window.innerHeight - 8){
-      tourScrollTo(el, false);                    // 即時スクロールで確実に合わせる
+    var box = tourScrollParent(el);
+    var bad;
+    if(box){
+      var br = box.getBoundingClientRect();       // 箱からはみ出していないか
+      bad = (r.top < br.top + 4 || r.bottom > br.bottom - 4);
+    } else {
+      var head = tourHeaderH();                   // ヘッダーに隠れていないか
+      bad = (r.top < head + 8 || r.bottom > window.innerHeight - 8);
+    }
+    if(bad){
+      tourScrollTo(el, false);
       if(typeof positionTour === 'function') positionTour();
     }
   } catch(e){}
@@ -11881,10 +11921,19 @@ function showTourStep(){
   if(step.onShow !== openHamburgerForTour){
     try { resetHamburgerLift(); } catch(e){}
   }
+  // 災害情報タブを開くステップ以外に移ったら、元どおり閉じる
+  if(step.onShow !== openDtabsForTour){
+    try { closeDtabsForTour(); } catch(e){}
+  }
   if(typeof step.onShow === 'function'){ try { step.onShow(); } catch(e){} }
   // スタンプBOXは、専用ステップになったときだけ表示（それ以外は隠す）
   const fabEl = document.getElementById('stampFab');
-  if(fabEl) fabEl.style.display = step.showStamp ? 'block' : 'none';
+  if(fabEl){
+    fabEl.style.display = step.showStamp ? 'block' : 'none';
+    // 拡大縮小のアニメが動いたままだと枠がズレるため、説明中は止める
+    if(step.showStamp){ fabEl.classList.remove('pulse'); fabEl.style.animation = 'none'; }
+    else { fabEl.style.animation = ''; }
+  }
   document.getElementById('tourStepNo').textContent = `STEP ${_tourIndex+1} / ${_activeSteps.length}`;
   document.getElementById('tourTitle').textContent = step.title;
   // 説明文では <br> と <b> のみ使えるようにする（値は自前の定数のみ）
@@ -11917,9 +11966,9 @@ function showTourStep(){
   // スクロールが終わるまで毎フレーム枠を再計算（固定されていない要素でもズレない）。
   // オーバーレイを開くステップは描画完了が遅いので追従期間を長めに取る。
   // スクロール完了後に、まだ隠れていれば補正する（遅れて動く要素にも追従）
-  if(el && !_opensOverlay){
+  if(el){
     var _fixGen = _tourGen, _fixEl = el;
-    [700, 1200, 1700].forEach(function(ms){
+    (_opensOverlay ? [900, 1500, 2200, 3000] : [700, 1200, 1700]).forEach(function(ms){
       setTimeout(function(){ if(_fixGen === _tourGen) tourFixIfHidden(_fixEl); }, ms);
     });
   }
@@ -11968,8 +12017,11 @@ function positionTour(){
   } else {
     r = { top:window.innerHeight/2-40, left:window.innerWidth/2-120, right:window.innerWidth/2+120, bottom:window.innerHeight/2+40, width:240, height:80 };
   }
+  const _W = window.innerWidth, _H = window.innerHeight;
   const hx = Math.max(0, r.left - pad), hy = Math.max(0, r.top - pad);
-  const hw = r.width + pad*2, hh = r.height + pad*2;
+  // 枠が画面からはみ出すと、線が切れて不格好になる。画面内に収める。
+  const hw = Math.min(r.width + pad*2, Math.max(8, _W - hx));
+  const hh = Math.min(r.height + pad*2, Math.max(8, _H - hy));
   hole.style.left = hx + 'px';
   hole.style.top = hy + 'px';
   hole.style.width = hw + 'px';
