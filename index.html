@@ -1941,18 +1941,18 @@ html.pastel-sky #jmaWarningBanner .jmaw-lv4 .jmaw-label,
 html.pastel-yellow #jmaWarningBanner .jmaw-lv4 .jmaw-label,
 html.pastel-green #jmaWarningBanner .jmaw-lv4 .jmaw-label,
 html.pastel-purple #jmaWarningBanner .jmaw-lv4 .jmaw-label{ color:#333; }
-/* 特別警報 レベル5：黒ベース・文字は明るく読みやすく */
+/* 特別警報 レベル5：暗い赤ベース・文字は白で読みやすく */
 #jmaWarningBanner .jmaw-lv5{
-  background:linear-gradient(135deg,rgba(20,20,24,0.95),rgba(8,8,10,0.98));
-  border-color:rgba(255,70,70,0.85); color:#f4f4f6;
+  background:linear-gradient(135deg,rgba(120,10,10,0.95),rgba(70,4,4,0.98));
+  border-color:rgba(255,70,70,0.85); color:#ffffff;
   animation:jmaRedPulse 0.7s ease-in-out infinite alternate;
 }
-#jmaWarningBanner .jmaw-lv5 .jmaw-title{ color:#ff6b6b; text-shadow:0 0 18px rgba(255,50,50,0.7); }
-#jmaWarningBanner .jmaw-lv5 .jmaw-label{ color:rgba(255,180,180,0.9); }
+#jmaWarningBanner .jmaw-lv5 .jmaw-title{ color:#ffffff; text-shadow:0 0 18px rgba(255,50,50,0.7); }
+#jmaWarningBanner .jmaw-lv5 .jmaw-label{ color:#ffffff; }
 #jmaWarningBanner .jmaw-lv5 .jmaw-badge{ background:#e02020; color:#fff; border:none; }
 #jmaWarningBanner .jmaw-lv5 .jmaw-list,
 #jmaWarningBanner .jmaw-lv5 .jmaw-kinds,
-#jmaWarningBanner .jmaw-lv5 .jmaw-action{ color:#eaeaec; }
+#jmaWarningBanner .jmaw-lv5 .jmaw-action{ color:#ffffff; }
 /* 平常：緑 */
 #jmaWarningBanner .jmaw-clear{
   background:linear-gradient(135deg,rgba(40,180,110,0.14),rgba(20,120,80,0.20));
@@ -3903,10 +3903,10 @@ button.dwa-plate{ padding:0; }
      スレートグレーなどダーク系は明るい紫のまま。 */
   #modeKioskScreen[data-ktheme="daylight"] .k-jmawarn.lv4 .kjw-title,
   #modeKioskScreen[data-ktheme="sepia"] .k-jmawarn.lv4 .kjw-title{ color:#1a1a1a; }
-  /* 特別警報 lv5：黒ベース・文字明るく */
-  #modeKioskScreen .k-jmawarn.lv5{ background:linear-gradient(90deg,rgba(18,18,22,0.96),rgba(8,8,10,0.98)); border-color:rgba(255,70,70,0.8); }
-  #modeKioskScreen .k-jmawarn.lv5 .kjw-title{ color:#ff6b6b; }
-  #modeKioskScreen .k-jmawarn.lv5 .kjw-area{ color:#eaeaec; }
+  /* 特別警報 lv5：暗い赤ベース・文字は白 */
+  #modeKioskScreen .k-jmawarn.lv5{ background:linear-gradient(90deg,rgba(120,10,10,0.96),rgba(70,4,4,0.98)); border-color:rgba(255,70,70,0.8); }
+  #modeKioskScreen .k-jmawarn.lv5 .kjw-title{ color:#ffffff; }
+  #modeKioskScreen .k-jmawarn.lv5 .kjw-area{ color:#ffffff; }
   #modeKioskScreen .k-jmawarn.lv5 .kjw-badge{ background:#e02020; color:#fff; }
   /* 平常 clear：緑 */
   #modeKioskScreen .k-jmawarn.clear{ background:linear-gradient(90deg,rgba(61,220,151,0.14),rgba(61,220,151,0.06)); border-color:rgba(61,220,151,0.4); }
