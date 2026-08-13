@@ -122,7 +122,7 @@
     .toolbar,.hotline,.crumbs,.back,.restart,.app-footer,
     .search-wrap,
     .speak-cta,.speak-hint,.metro-cta,.metro-rate,.video-cta,.video-wrap,.video-note,
-    .aed-cta,.call-cta,.link-cta,.area-cta,.toast{display:none !important;}
+    .aed-cta,.call-cta,.link-cta,.area-cta,.shelter-cta,.toast{display:none !important;}
     .wrap{zoom:1 !important;max-width:100% !important;padding:0 !important;}
     .result{box-shadow:none !important;border:1px solid #999 !important;background:#fff !important;color:#000 !important;}
     .result h2,.result .sub,.steps .h,.steps .d,.steps .n,.badge{color:#000 !important;}
@@ -436,6 +436,15 @@
   }
   .area-cta svg{width:20px;height:20px;color:#4da8ff;}
 
+  /* 結果画面：避難所・一時避難所を探すボタン */
+  .shelter-cta{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    margin-top:12px;border:1px solid var(--safe);cursor:pointer;font:inherit;width:100%;
+    color:var(--safe);font-weight:700;font-size:15px;
+    background:rgba(61,220,151,.08);border-radius:14px;padding:13px;
+  }
+  .shelter-cta svg{width:20px;height:20px;color:var(--safe);}
+
   /* フッター（プライバシーポリシー） */
   .app-footer{
     margin-top:26px;padding-top:16px;border-top:1px solid var(--line);
@@ -556,6 +565,34 @@
   </div>
 </div>
 
+<!-- ===== 避難所・一時避難所検索モーダル ===== -->
+<div class="aed-overlay" id="shelterOverlay" onclick="if(event.target===this)closeShelterModal()">
+  <div class="aed-panel" role="dialog" aria-modal="true" aria-label="避難所・一時避難所を探す">
+    <h2 id="shelterTitle"></h2>
+    <p class="aed-desc">近くの指定緊急避難場所・避難所を、地図で探せます。まずは命を守るための「避難場所」へ。落ち着いたら、必要に応じて生活のための「避難所」の開設状況も確認してください。</p>
+
+    <a class="aed-link" id="shelterLink1" href="https://www.gsi.go.jp/bousaichiri/hinanbasho.html" target="_blank" rel="noopener">
+      <span class="a-ico" id="shelterIco1"></span>
+      <span class="a-body">
+        <span class="a-name">指定緊急避難場所マップ（国土地理院）</span>
+        <span class="a-sub">市区町村が指定した避難場所を、災害の種類（地震・津波など）ごとに地図で確認できる公的なサービスです。</span>
+      </span>
+    </a>
+
+    <a class="aed-link" id="shelterLink2" href="https://crisis.yahoo.co.jp/map/" target="_blank" rel="noopener">
+      <span class="a-ico" id="shelterIco2"></span>
+      <span class="a-body">
+        <span class="a-name">避難場所マップ（Yahoo!天気・災害）</span>
+        <span class="a-sub">現在地から近い避難場所を検索できます。開設中の避難所情報もあわせて確認できます。</span>
+      </span>
+    </a>
+
+    <p class="aed-note">⚠ 避難場所・避難所の情報は自治体の登録に基づくもので、統廃合や災害の状況により変わることがあります。最新の状況は各自治体の発表もあわせてご確認ください。</p>
+
+    <button type="button" class="aed-close" onclick="closeShelterModal()">✕ 閉じる</button>
+  </div>
+</div>
+
 <!-- ===== #7119 対応地域・受付時間 オーバーレイ ===== -->
 <div class="aed-overlay" id="areaOverlay" onclick="if(event.target===this)closeAreaModal()">
   <div class="aed-panel area-panel" role="dialog" aria-modal="true" aria-label="#7119 対応地域・受付時間">
@@ -585,7 +622,7 @@
       <p>「119番」「110番」「#7119」「#8000」「#9910」などの電話ボタンを押すと、お使いの端末の電話アプリが起動します。発信や通話は各電話会社・相談窓口の管理下で行われ、本ツールが通話内容を取得することはありません。</p>
 
       <div class="pv-h">5. 外部サイト・外部コンテンツについて</div>
-      <p>本ツールには、外部サイトへのリンクや外部コンテンツの埋め込みが含まれます。具体的には、AED設置場所の検索サイト（日本救急医療財団「全国AEDマップ」、AED財団「AED N@VI」）へのリンク、および胸骨圧迫の解説動画（YouTube）の埋め込み表示です。</p>
+      <p>本ツールには、外部サイトへのリンクや外部コンテンツの埋め込みが含まれます。具体的には、AED設置場所の検索サイト（日本救急医療財団「全国AEDマップ」、AED財団「AED N@VI」）、避難所・避難場所の検索サイト（国土地理院「指定緊急避難場所マップ」、Yahoo!天気・災害「避難場所マップ」）へのリンク、および胸骨圧迫の解説動画（YouTube）の埋め込み表示です。</p>
       <p>これらのリンク先・埋め込み先では、それぞれの事業者により、Cookie等を用いた情報取得が行われる場合があります。特にYouTube動画を再生した場合、Google社のプライバシーポリシーに基づき情報が取得されることがあります。外部サイト・外部サービスにおける情報の取り扱いについては、各事業者のプライバシーポリシーをご確認ください。</p>
 
       <div class="pv-h">6. 免責事項</div>
@@ -649,6 +686,7 @@ const ICON = {
   print: S('<path d="M14 18V8h20v10"/><rect x="8" y="18" width="32" height="16" rx="2"/><path d="M14 30v10h20V30"/><path d="M18 24h4"/>'),
   share: S('<circle cx="12" cy="24" r="5"/><circle cx="36" cy="10" r="5"/><circle cx="36" cy="38" r="5"/><path d="M16.5 21.5 31.5 12.5M16.5 26.5 31.5 35.5"/>'),
   search: S('<circle cx="20" cy="20" r="13"/><path d="M30 30l11 11"/>'),
+  shelter: S('<path d="M6 24 24 8l18 16"/><path d="M11 20v20h26V20"/><path d="M19 40V28h10v12"/>'),
 };
 
 /* =========================================================
@@ -679,7 +717,8 @@ const TREE = {
           {icon:'door', head:'あわてて外に出ない', desc:'落下物が一番危険。揺れの間は無理に避難しない。', type:'crit'},
           {icon:'off', head:'火は揺れが収まってから', desc:'無理に火を消しに行かない。まず自分の安全を優先。'},
         ],
-        note:{type:'',text:'エレベーター内なら全階のボタンを押し、止まった階で降りる。'}
+        note:{type:'',text:'エレベーター内なら全階のボタンを押し、止まった階で降りる。'},
+        shelter:true
       }),
       after: r({
         level:'warn', badge:'揺れが収まったら', title:'収まった直後の確認',
@@ -691,7 +730,8 @@ const TREE = {
           {icon:'ear', head:'情報を集める', desc:'ラジオ・スマホで正しい情報を確認。余震に備える。'},
           {icon:'bag', head:'避難の準備', desc:'危険を感じたら非常持ち出し袋を持ち、ブレーカーを落として避難。'},
         ],
-        note:{type:'danger',text:'ガス臭がするときは火気・電気スイッチに触れない（火花で引火の危険）。'}
+        note:{type:'danger',text:'ガス臭がするときは火気・電気スイッチに触れない（火花で引火の危険）。'},
+        shelter:true
       }),
       tsunami: r({
         level:'crit', badge:'ただちに高台へ', title:'津波からの避難',
@@ -702,7 +742,8 @@ const TREE = {
           {icon:'warn', head:'戻らない', desc:'一度逃げたら、警報解除まで絶対に戻らない。第二波以降の方が大きいことも。', type:'crit'},
           {icon:'ear', head:'情報より行動', desc:'「来ないだろう」と思わず、まず逃げてから情報を確認する。'},
         ],
-        note:{type:'danger',text:'強い揺れ・長い揺れを感じたら、警報がなくても自主的に避難を。'}
+        note:{type:'danger',text:'強い揺れ・長い揺れを感じたら、警報がなくても自主的に避難を。'},
+        shelter:true
       }),
     }
   },
@@ -1270,6 +1311,7 @@ function renderResult(catKey, res){
     }).join('');
   }
   const aedCta = res.aed ? `<button type="button" class="aed-cta" onclick="openAedModal()">${ICON.heart}<span>近くのAEDを探す</span></button>` : '';
+  const shelterCta = res.shelter ? `<button type="button" class="shelter-cta" onclick="openShelterModal()">${ICON.shelter}<span>避難所・一時避難所を探す</span></button>` : '';
   const note = res.note ? `
     <div class="note ${res.note.type==='danger'?'danger':''}">
       ${ICON.warn}<span>${res.note.text}</span>
@@ -1326,6 +1368,7 @@ function renderResult(catKey, res){
       ${areaBtn}
       ${cta}
       ${aedCta}
+      ${shelterCta}
     </div>
     <button class="restart" onclick="renderHome()">↺ 最初の画面にもどる</button>`;
   window.scrollTo({top:0,behavior:'smooth'});
@@ -1768,9 +1811,18 @@ function closeAedModal(){
   const ov = document.getElementById('aedOverlay');
   if(ov){ ov.classList.remove('open'); }
 }
+/* ===== 避難所・一時避難所検索モーダル ===== */
+function openShelterModal(){
+  const ov = document.getElementById('shelterOverlay');
+  if(ov){ ov.classList.add('open'); }
+}
+function closeShelterModal(){
+  const ov = document.getElementById('shelterOverlay');
+  if(ov){ ov.classList.remove('open'); }
+}
 /* Escキーで閉じる */
 document.addEventListener('keydown', function(e){
-  if(e.key === 'Escape'){ closeAedModal(); closeAreaModal(); closePrivacyModal(); }
+  if(e.key === 'Escape'){ closeAedModal(); closeShelterModal(); closeAreaModal(); closePrivacyModal(); }
 });
 /* ハートアイコンを各所に流し込む */
 (function initAedIcons(){
@@ -1778,6 +1830,13 @@ document.addEventListener('keydown', function(e){
   set('aedBtnIcon'); set('aedIco1'); set('aedIco2');
   const t = document.getElementById('aedTitle');
   if(t) t.innerHTML = ICON.heart + '<span>近くのAEDを探す</span>';
+})();
+/* 避難所アイコンを各所に流し込む */
+(function initShelterIcons(){
+  const set = (id)=>{ const el = document.getElementById(id); if(el) el.innerHTML = ICON.shelter; };
+  set('shelterIco1'); set('shelterIco2');
+  const t = document.getElementById('shelterTitle');
+  if(t) t.innerHTML = ICON.shelter + '<span>避難所・一時避難所を探す</span>';
 })();
 /* 表示設定ツールバー（コピー・印刷・共有）のアイコンを流し込む */
 (function initToolbarIcons(){
