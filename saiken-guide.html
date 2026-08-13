@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>生活再建ガイド｜防災情報センター</title>
+<meta name="description" content="熊本地震の被災者向け。いま困っていることを選ぶだけで、使える支援制度と手続き先がわかります。">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Orbitron:wght@700;900&family=Shippori+Mincho:wght@600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#04080f;
+  --surface:#080f1e;
+  --surface2:#0c1628;
+  --surface3:#101d30;
+  --accent:#ff2d2d;
+  --accent2:#ff8c00;
+  --blue:#00b4ff;
+  --cyan:#00ffe0;
+  --pink:#ff5a8c;
+  --purple:#b06cff;
+  --text:#d8eaf8;
+  --muted:#6d8bab;
+  --border:rgba(0,180,255,0.14);
+  --glow-blue:0 0 24px rgba(0,180,255,0.20);
+}
+
+/* ---------- ライトテーマ ---------- */
+html[data-theme="light"]{
+  --bg:#f7f5f0;
+  --surface:#ffffff;
+  --surface2:#ffffff;
+  --surface3:#eeeae0;
+  --accent:#c0392b;
+  --accent2:#c46a00;
+  --blue:#0077b8;
+  --cyan:#00847a;
+  --pink:#c2185b;
+  --purple:#7b3fc4;
+  --text:#23262e;
+  --muted:#5a5f6b;
+  --border:rgba(0,0,0,0.14);
+  --glow-blue:0 0 24px rgba(0,119,184,0.15);
+}
+html[data-theme="light"] body{
+  background:
+    radial-gradient(ellipse at 20% -10%, rgba(0,119,184,0.06), transparent 55%),
+    radial-gradient(ellipse at 90% 0%, rgba(192,57,43,0.05), transparent 45%),
+    var(--bg);
+}
+html[data-theme="light"] .cat-card,
+html[data-theme="light"] .issue-card,
+html[data-theme="light"] .gate-card,
+html[data-theme="light"] .result-card{
+  box-shadow:0 1px 3px rgba(0,0,0,0.06);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
+html{ transition:background-color .2s ease; }
+body{
+  font-family:'Noto Sans JP',sans-serif;
+  background:
+    radial-gradient(ellipse at 20% -10%, rgba(0,180,255,0.10), transparent 55%),
+    radial-gradient(ellipse at 90% 0%, rgba(255,45,45,0.07), transparent 45%),
+    var(--bg);
+  color:var(--text);
+  min-height:100%;
+  line-height:1.75;
+  padding-bottom:60px;
+  transition:background-color .2s ease, color .2s ease;
+}
+body.fs-s .wrap{ zoom:0.88; }
+body.fs-l .wrap{ zoom:1.2; }
+.wrap{max-width:640px;margin:0 auto;padding:0 16px;}
+
+/* ---------- header ---------- */
+header.top{
+  border-bottom:1px solid var(--border);
+  padding:22px 0 18px;
+  margin-bottom:22px;
+  background:linear-gradient(180deg, rgba(0,180,255,0.06), transparent);
+}
+.brand{
+  font-family:'Orbitron',monospace;
+  font-size:11px;
+  letter-spacing:.18em;
+  color:var(--blue);
+  font-weight:700;
+}
+h1{
+  font-family:'Shippori Mincho',serif;
+  font-size:clamp(22px,6vw,28px);
+  font-weight:700;
+  margin-top:8px;
+  letter-spacing:.02em;
+}
+.lead{
+  font-size:13px;
+  color:var(--muted);
+  margin-top:10px;
+}
+
+/* ---------- progress ---------- */
+.progress{
+  display:flex; align-items:center; gap:6px;
+  margin-bottom:22px;
+  font-family:'Orbitron',monospace;
+  font-size:10px;
+  letter-spacing:.08em;
+  color:var(--muted);
+}
+.progress .seg{
+  flex:1; height:3px; background:var(--surface3); border-radius:3px; overflow:hidden;
+}
+.progress .seg i{ display:block; height:100%; width:0%; background:var(--blue); transition:width .35s ease; }
+.progress .seg.done i{ width:100%; }
+.progress .seg.now i{ width:55%; background:var(--accent2); }
+
+/* ---------- breadcrumb / back ---------- */
+.crumbrow{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:14px; min-height:30px;
+}
+.backbtn{
+  display:none;
+  align-items:center; gap:6px;
+  font-size:12px; font-weight:700; color:var(--blue);
+  background:transparent; border:1px solid var(--border); border-radius:999px;
+  padding:7px 14px; cursor:pointer; font-family:inherit;
+}
+.backbtn:hover{ border-color:var(--blue); background:rgba(0,180,255,0.08); }
+.crumb{ font-size:11px; color:var(--muted); letter-spacing:.03em; }
+.crumb b{ color:var(--text); }
+
+/* ---------- screens ---------- */
+.screen{ display:none; animation:fadeIn .3s ease; }
+.screen.active{ display:block; }
+@keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+/* ---------- gate card (罹災証明書) ---------- */
+.gate-card{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:20px 18px;
+  margin-bottom:22px;
+}
+.gate-card .tag{
+  display:inline-block;
+  font-family:'Orbitron',monospace;
+  font-size:10px; font-weight:700; letter-spacing:.1em;
+  color:#1a1206; background:var(--accent2);
+  padding:3px 9px; border-radius:5px; margin-bottom:10px;
+}
+.gate-card h2{
+  font-family:'Shippori Mincho',serif;
+  font-size:17px; margin-bottom:8px; line-height:1.5;
+}
+.gate-card p{ font-size:13px; color:var(--muted); margin-bottom:16px; }
+.gate-choices{ display:flex; flex-direction:column; gap:8px; }
+.gate-choice{
+  display:flex; align-items:center; justify-content:space-between;
+  width:100%; text-align:left;
+  background:var(--surface3); border:1px solid var(--border); border-radius:10px;
+  padding:13px 15px; color:var(--text); font-family:inherit; font-size:13.5px; font-weight:500;
+  cursor:pointer; transition:.15s;
+}
+.gate-choice:hover{ border-color:var(--blue); background:rgba(0,180,255,0.08); }
+.gate-choice .arrow{ color:var(--blue); font-weight:700; }
+
+.gate-answer{
+  display:none;
+  margin-top:14px; padding-top:14px; border-top:1px dashed var(--border);
+  font-size:13px; color:var(--text);
+}
+.gate-answer.show{ display:block; }
+.gate-answer .steps{ margin:10px 0 12px; padding-left:0; list-style:none; }
+.gate-answer .steps li{
+  position:relative; padding-left:22px; margin-bottom:8px; font-size:13px; color:var(--text);
+}
+.gate-answer .steps li::before{
+  content:"→"; position:absolute; left:0; color:var(--blue); font-weight:700;
+}
+
+/* ---------- category grid ---------- */
+.cat-intro{ margin-bottom:16px; }
+.cat-intro h2{
+  font-family:'Shippori Mincho',serif; font-size:19px; margin-bottom:6px;
+}
+.cat-intro p{ font-size:13px; color:var(--muted); }
+
+.cat-grid{ display:flex; flex-direction:column; gap:10px; }
+.cat-card{
+  display:flex; align-items:center; gap:14px;
+  background:var(--surface2); border:1px solid var(--border); border-left:4px solid var(--cat-color,var(--blue));
+  border-radius:12px; padding:16px; cursor:pointer; transition:.15s; text-align:left;
+  font-family:inherit; color:var(--text); width:100%;
+}
+.cat-card:hover{ background:var(--surface3); transform:translateX(2px); }
+.cat-card .ico{
+  flex:0 0 44px; width:44px; height:44px; border-radius:11px;
+  background:rgba(255,255,255,0.04); border:1px solid var(--border);
+  display:grid; place-items:center; font-size:21px;
+}
+.cat-card .body{ flex:1; min-width:0; }
+.cat-card .body .t{ font-size:14.5px; font-weight:700; margin-bottom:3px; }
+.cat-card .body .s{ font-size:11.5px; color:var(--muted); }
+.cat-card .go{ color:var(--cat-color,var(--blue)); font-weight:700; font-size:18px; flex:0 0 auto; }
+
+/* ---------- issue list ---------- */
+.issue-list{ display:flex; flex-direction:column; gap:9px; }
+.issue-card{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:11px; padding:14px 16px; cursor:pointer; transition:.15s;
+  font-family:inherit; color:var(--text); width:100%; text-align:left;
+}
+.issue-card:hover{ border-color:var(--cat-color,var(--blue)); background:var(--surface3); }
+.issue-card .t{ font-size:13.5px; font-weight:500; line-height:1.5; }
+.issue-card .go{ color:var(--cat-color,var(--blue)); font-weight:700; flex:0 0 auto; }
+
+/* ---------- result card ---------- */
+.result-card{
+  background:var(--surface2); border:1px solid var(--border);
+  border-top:4px solid var(--cat-color,var(--blue));
+  border-radius:16px; padding:22px 20px; margin-bottom:16px;
+}
+.result-card .kicker{
+  font-family:'Orbitron',monospace; font-size:10px; font-weight:700; letter-spacing:.12em;
+  color:var(--cat-color,var(--blue)); margin-bottom:8px;
+}
+.result-card h3{
+  font-family:'Shippori Mincho',serif; font-size:19px; line-height:1.5; margin-bottom:12px;
+}
+.result-card .desc{ font-size:13.5px; color:var(--text); margin-bottom:16px; }
+.result-card .block-title{
+  font-size:11px; font-weight:700; letter-spacing:.05em; color:var(--muted);
+  margin-bottom:8px; margin-top:16px;
+}
+.result-card .steps{ list-style:none; }
+.result-card .steps li{
+  position:relative; padding-left:22px; margin-bottom:9px; font-size:13.5px;
+}
+.result-card .steps li::before{
+  content:"✓"; position:absolute; left:0; color:var(--cat-color,var(--blue)); font-weight:700;
+}
+.contact-box{
+  margin-top:16px; background:var(--surface3); border:1px solid var(--border);
+  border-radius:10px; padding:13px 15px; font-size:12.5px; color:var(--muted);
+}
+.contact-box b{ color:var(--text); }
+.ext-link{
+  display:inline-flex; align-items:center; gap:6px;
+  margin-top:14px; font-size:12.5px; font-weight:700; color:var(--cat-color,var(--blue));
+  text-decoration:none; border:1px solid var(--border); border-radius:999px; padding:9px 16px;
+}
+.ext-link:hover{ background:rgba(255,255,255,0.05); }
+
+.result-actions{ display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+.result-actions button{ min-width:100px; }
+.result-actions button{
+  flex:1; font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer;
+  padding:11px 10px; border-radius:10px; border:1px solid var(--border);
+  background:transparent; color:var(--text);
+}
+.result-actions button.primary{ background:var(--blue); border-color:var(--blue); color:#04121e; }
+.result-actions button:hover{ filter:brightness(1.1); }
+
+/* ---------- toolbar (テーマ / 文字サイズ / 印刷 / コピー) ---------- */
+.toolbar{
+  display:flex; flex-wrap:wrap; gap:8px 10px;
+  align-items:center; justify-content:space-between;
+  margin-bottom:20px; padding:12px 14px;
+  background:var(--surface2); border:1px solid var(--border); border-radius:12px;
+}
+.tool-group{ display:flex; align-items:center; gap:4px; }
+.tool-label{
+  font-size:10px; color:var(--muted); font-weight:700; letter-spacing:.04em;
+  margin-right:2px; white-space:nowrap;
+}
+.tool-btn{
+  font-family:inherit; font-size:12px; font-weight:700; cursor:pointer;
+  color:var(--muted); background:transparent; border:1px solid var(--border);
+  border-radius:8px; padding:6px 10px; transition:.15s; line-height:1.2;
+}
+.tool-btn:hover{ border-color:var(--blue); color:var(--text); }
+.tool-btn.active{ background:var(--blue); border-color:var(--blue); color:#04121e; }
+.tool-btn.icon-btn{ font-size:13px; padding:6px 11px; }
+@media(max-width:400px){
+  .toolbar{ justify-content:flex-start; }
+  .tool-label{ display:none; }
+}
+
+/* ---------- toast ---------- */
+.toast{
+  position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(10px);
+  background:var(--surface3); border:1px solid var(--border); color:var(--text);
+  padding:11px 20px; border-radius:999px; font-size:12.5px; font-weight:700;
+  box-shadow:0 8px 24px rgba(0,0,0,.35);
+  opacity:0; pointer-events:none; transition:opacity .22s ease, transform .22s ease;
+  z-index:80; white-space:nowrap;
+}
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ---------- print ---------- */
+@media print{
+  .toolbar, .progress, .crumbrow, .backbtn,
+  .gate-choices, .cat-grid, .issue-list, .result-actions, .toast{
+    display:none !important;
+  }
+  body{ background:#fff !important; color:#111 !important; padding:0; }
+  .wrap{ max-width:100% !important; zoom:1 !important; }
+  header.top{ border-bottom:2px solid #111; background:none; }
+  .brand{ color:#111 !important; }
+  .gate-card, .result-card{
+    background:#fff !important; border:1px solid #999 !important;
+    box-shadow:none !important; color:#111 !important;
+  }
+  .gate-card *, .result-card *{ color:#111 !important; }
+  .gate-answer{ display:block !important; }
+  .contact-box{ background:#f2f2f2 !important; border-color:#999 !important; }
+  .ext-link{ border-color:#999 !important; color:#111 !important; }
+  .footnote a{ color:#111 !important; }
+}
+
+/* ---------- footer note ---------- */
+.footnote{
+  margin-top:30px; padding-top:16px; border-top:1px solid var(--border);
+  font-size:11px; color:var(--muted); text-align:center; line-height:1.8;
+}
+.footnote a{ color:var(--blue); text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">DWA防災情報センター</div>
+    <h1>生活再建ガイド</h1>
+    <p class="lead">いま困っていることを選ぶだけで、使える支援制度と相談先がわかります。</p>
+  </header>
+
+  <div class="toolbar" role="toolbar" aria-label="表示設定">
+    <div class="tool-group">
+      <span class="tool-label">表示</span>
+      <button class="tool-btn" id="themeBtnDark" onclick="setTheme('dark')">🌙 ダーク</button>
+      <button class="tool-btn" id="themeBtnLight" onclick="setTheme('light')">☀️ ライト</button>
+    </div>
+    <div class="tool-group">
+      <span class="tool-label">文字</span>
+      <button class="tool-btn" id="fsBtnS" onclick="setFontSize('s')">小</button>
+      <button class="tool-btn" id="fsBtnM" onclick="setFontSize('m')">中</button>
+      <button class="tool-btn" id="fsBtnL" onclick="setFontSize('l')">大</button>
+    </div>
+    <div class="tool-group">
+      <button class="tool-btn icon-btn" onclick="copyActiveText()" title="今の画面の内容をコピー">📋 コピー</button>
+      <button class="tool-btn icon-btn" onclick="shareActive()" title="共有する">🔗 共有</button>
+      <button class="tool-btn icon-btn" onclick="printPage()" title="印刷する">🖨 印刷</button>
+    </div>
+  </div>
+
+  <div class="progress">
+    <div class="seg" id="pg0"><i></i></div>
+    <div class="seg" id="pg1"><i></i></div>
+    <div class="seg" id="pg2"><i></i></div>
+    <div class="seg" id="pg3"><i></i></div>
+  </div>
+
+  <div class="crumbrow">
+    <button class="backbtn" id="backBtn" onclick="goBack()">← もどる</button>
+    <div class="crumb" id="crumbText"></div>
+  </div>
+
+  <!-- ============ Screen 0: 罹災証明書ゲート ============ -->
+  <div class="screen active" id="screen-gate">
+    <div class="gate-card">
+      <span class="tag">まず最初に</span>
+      <h2>罹災証明書は申請しましたか？</h2>
+      <p>これから紹介する支援制度の多くは、罹災証明書の被害区分をもとに利用できるかが決まります。まずは申請状況を確認しましょう。</p>
+      <div class="gate-choices" id="gateChoices">
+        <button class="gate-choice" data-a="done">申請・取得した <span class="arrow">→</span></button>
+        <button class="gate-choice" data-a="not">まだ申請していない <span class="arrow">→</span></button>
+        <button class="gate-choice" data-a="unknown">何のことか分からない <span class="arrow">→</span></button>
+      </div>
+
+      <div class="gate-answer" id="gateAnswerNot">
+        <b>罹災証明書の申請方法</b>
+        <ul class="steps">
+          <li>お住まいの市町村の窓口、またはオンライン(マイナポータル)から申請できます</li>
+          <li>被害状況の写真があるとスムーズですが、無理に危険な建物へ撮影に行く必要はありません</li>
+          <li>申請後、市町村の調査を経て被害区分(全壊・大規模半壊・中規模半壊・半壊・一部損壊)が判定されます</li>
+        </ul>
+        <a class="ext-link" href="https://www.digital.go.jp/news/f83a8d24-4c79-4c47-b768-6a2435c3d350" target="_blank" rel="noopener">オンライン申請について(デジタル庁) ↗</a>
+      </div>
+
+      <div class="gate-answer" id="gateAnswerUnknown">
+        <b>罹災証明書とは</b>
+        <p style="margin-top:8px;">市町村が住宅の被害程度を調査し、証明する書類です。被災者生活再建支援金の受給や、税・保険料の減免、応急修理制度など、ほとんどの支援制度で提出を求められる、いちばん最初に必要な書類です。</p>
+        <ul class="steps" style="margin-top:12px;">
+          <li>お住まいの市町村の窓口へ、被害を受けた住宅について申請してください</li>
+          <li>判定結果に納得できない場合は、再調査を依頼することもできます</li>
+        </ul>
+        <a class="ext-link" href="https://www.digital.go.jp/news/f83a8d24-4c79-4c47-b768-6a2435c3d350" target="_blank" rel="noopener">オンライン申請について(デジタル庁) ↗</a>
+      </div>
+
+      <div style="margin-top:16px;">
+        <button class="ext-link" id="gateNext" style="display:none; cursor:pointer; font-family:inherit; background:var(--blue); color:#04121e; border-color:var(--blue);" onclick="goTo('cat')">この内容を確認した → 次へ進む</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Screen 1: カテゴリ選択 ============ -->
+  <div class="screen" id="screen-cat">
+    <div class="cat-intro">
+      <h2>いま、何にお困りですか？</h2>
+      <p>あてはまるものを選んでください。</p>
+    </div>
+    <div class="cat-grid" id="catGrid"></div>
+  </div>
+
+  <!-- ============ Screen 2: 困りごと選択 ============ -->
+  <div class="screen" id="screen-issue">
+    <div class="cat-intro">
+      <h2 id="issueHeading"></h2>
+      <p>具体的な困りごとを選んでください。</p>
+    </div>
+    <div class="issue-list" id="issueList"></div>
+  </div>
+
+  <!-- ============ Screen 3: 結果 ============ -->
+  <div class="screen" id="screen-result">
+    <div class="result-card" id="resultCard"></div>
+    <div class="result-actions">
+      <button onclick="copyActiveText()">📋 この内容をコピー</button>
+      <button onclick="shareActive()">🔗 共有する</button>
+      <button onclick="printPage()">🖨 印刷する</button>
+    </div>
+    <div class="result-actions">
+      <button onclick="goTo('issue')">他の困りごとを見る</button>
+      <button class="primary" onclick="resetAll()">最初からやり直す</button>
+    </div>
+  </div>
+
+  <div class="footnote">
+    記事内容は2026年8月13日時点の情報です。制度は追加・変更される場合がありますので、最新情報は各窓口・自治体公式サイトで必ずご確認ください。<br>
+    <a href="index.html">DWA防災情報センター トップへ</a>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   データ定義
+   ------------------------------------------------------------
+   後日、GAS側で管理する「支援制度」シートからJSONを書き出して
+   このDATAオブジェクトを差し替えれば、シート更新だけで
+   このツールの内容も更新できる構成にしてあります。
+   （現状は静的データとして埋め込み）
+   ============================================================ */
+var DATA = {
+  categories: [
+    {
+      id:"home", color:"var(--blue)", icon:"🏠",
+      title:"住まいの再建・住居確保",
+      sub:"住む場所・修理・解体・がれき",
+      issues:[
+        {
+          q:"住む場所がない",
+          title:"応急仮設住宅(建設型・賃貸型)",
+          desc:"自宅に住めなくなった方が一時的に入居できる仮設住宅です。プレハブ等を新たに建てる「建設型」と、民間賃貸住宅を借り上げる「賃貸型(みなし仮設)」があります。",
+          steps:["市町村の住宅担当窓口に相談する","罹災証明書(全壊・大規模半壊等)の提示を求められる場合があります","入居できる期間や条件は市町村ごとに案内されます"],
+          contact:"お住まいの市町村 住宅担当窓口"
+        },
+        {
+          q:"修理費用が足りない",
+          title:"住宅の応急修理制度",
+          desc:"日常生活に必要な部分の修理費用を、一定額を上限に市町村が負担する制度です。",
+          steps:["市町村の窓口で対象になるか確認する","業者の見積もりが必要になる場合があります","応急仮設住宅への入居と原則併用できない点に注意"],
+          contact:"お住まいの市町村 住宅担当窓口"
+        },
+        {
+          q:"再建・引っ越し費用が足りない",
+          title:"被災者生活再建支援金",
+          desc:"全壊・大規模半壊等の世帯に、基礎支援金と加算支援金を合わせて最大300万円(単身世帯はその4分の3)が支給される可能性がある制度です。",
+          steps:["罹災証明書の被害区分を確認する","申請書に住民票・罹災証明書等を添えて市町村へ申請する","再建方法(建設・購入・修理・賃貸)によって加算支援金の額が変わります"],
+          contact:"お住まいの市町村 窓口",
+          link:{label:"熊本県の制度詳細を見る ↗", url:"https://www.pref.kumamoto.jp/soshiki/27/276299.html"}
+        },
+        {
+          q:"解体すべきか迷っている",
+          title:"解体世帯支援(半壊解体・敷地被害解体)",
+          desc:"半壊・大規模半壊の判定を受けた住宅、または敷地被害でやむを得ず解体した場合、「解体世帯」として全壊世帯と同等の支援が受けられることがあります。",
+          steps:["解体前に必ず罹災証明書を取得・写真記録をしておく","公費解体の対象になるか市町村に確認する","解体後の再建方針(再建・賃貸移行等)も合わせて相談する"],
+          contact:"お住まいの市町村 窓口"
+        },
+        {
+          q:"建物や擁壁が危険かどうか分からない",
+          title:"応急危険度判定・被災宅地危険度判定",
+          desc:"専門家が建物の倒壊・落下物の危険性(赤・黄・緑)、宅地の擁壁等の危険性(青)を調査し、立ち入りの可否を判定します。",
+          steps:["ステッカーの色(赤=危険/黄=要注意/緑=調査済)を確認する","赤の場合は絶対に立ち入らない","再調査が必要な場合は市町村に相談する"],
+          contact:"お住まいの市町村 建築・土木担当窓口"
+        },
+        {
+          q:"がれきの片付け・処分に困っている",
+          title:"公費解体・災害廃棄物の受入れ",
+          desc:"倒壊家屋の解体や、災害で生じたがれき・廃棄物の処分について、市町村が受入れ制度を設けています。",
+          steps:["分別方法や受入れ場所を市町村の案内で確認する","個人での搬出が難しい場合はボランティアセンターにも相談できます"],
+          contact:"お住まいの市町村 環境・清掃担当窓口"
+        }
+      ]
+    },
+    {
+      id:"money", color:"var(--accent2)", icon:"💴",
+      title:"お金・生活費まわり",
+      sub:"生活費・二重ローン・税金・詐欺対策",
+      issues:[
+        {
+          q:"当座の生活費がない",
+          title:"生活福祉資金貸付(緊急小口資金・総合支援資金)",
+          desc:"緊急かつ一時的に生活費が必要な世帯向けの貸付制度です。無利子・低利子で借りられる場合があります。",
+          steps:["お住まいの市区町村社会福祉協議会に相談する","必要書類(罹災証明書等)を確認する"],
+          contact:"市区町村 社会福祉協議会"
+        },
+        {
+          q:"住宅ローンが残ったまま、二重ローンが心配",
+          title:"自然災害債務整理ガイドライン",
+          desc:"信用情報(いわゆるブラックリスト)に登録されずに、既存のローンの減免を金融機関と協議できる制度です。",
+          steps:["借入先の金融機関、または弁護士等の専門家相談窓口に相談する","無料の専門家支援を受けながら手続きを進められます"],
+          contact:"借入先金融機関 / 自然災害債務整理ガイドライン運営機関",
+          link:{label:"法テラスで無料相談を探す ↗", url:"https://www.houterasu.or.jp/"}
+        },
+        {
+          q:"税金・保険料が払えない",
+          title:"市税等の減免・支払猶予",
+          desc:"被害の程度に応じて、市税・国民健康保険料・介護保険料などの減免や支払猶予を受けられる制度です。",
+          steps:["罹災証明書を用意する","市町村の税務担当窓口に相談する"],
+          contact:"お住まいの市町村 税務担当窓口"
+        },
+        {
+          q:"詐欺やトラブルが心配",
+          title:"法テラス(無料法律相談)",
+          desc:"災害に便乗した悪質商法や契約トラブルなど、法的な問題について無料で相談・案内が受けられます。",
+          steps:["少しでも不安に思ったら契約前に相談する","法テラスの窓口・電話で無料案内が受けられます"],
+          contact:"法テラス(日本司法支援センター)",
+          link:{label:"法テラス公式サイト ↗", url:"https://www.houterasu.or.jp/"}
+        }
+      ]
+    },
+    {
+      id:"work", color:"var(--cyan)", icon:"🏢",
+      title:"仕事・事業の再建",
+      sub:"事業資金・借入返済・雇用",
+      issues:[
+        {
+          q:"事業を続けられるか不安",
+          title:"特別相談窓口(商工会・商工会議所等)",
+          desc:"被災した中小企業・小規模事業者向けに、経済産業省の要請を受けて設置されている相談窓口です。",
+          steps:["最寄りの商工会・商工会議所・よろず支援拠点に相談する","資金繰り、設備復旧など幅広く相談できます"],
+          contact:"商工会・商工会議所・よろず支援拠点"
+        },
+        {
+          q:"事業資金が足りない",
+          title:"災害復旧貸付・セーフティネット保証4号",
+          desc:"日本政策金融公庫等による災害復旧貸付、信用保証枠を広げるセーフティネット保証4号などが利用できます。",
+          steps:["日本政策金融公庫や取引金融機関に相談する","信用保証協会のセーフティネット保証についても確認する"],
+          contact:"日本政策金融公庫 / 取引金融機関",
+          link:{label:"日本政策金融公庫 公式サイト ↗", url:"https://www.jfc.go.jp/"}
+        },
+        {
+          q:"既存の借入の返済が苦しい",
+          title:"既往債務の返済条件緩和",
+          desc:"既に借りている事業資金について、返済猶予や条件変更の相談に応じてもらえる措置です。",
+          steps:["借入先の金融機関に早めに相談する","延滞する前に相談することが重要です"],
+          contact:"取引金融機関"
+        },
+        {
+          q:"雇用が不安、収入が途絶えた",
+          title:"雇用保険の特例措置",
+          desc:"事業所の休止等により実際には離職していなくても、一定の条件で失業給付に相当する支援を受けられる特例があります。",
+          steps:["最寄りのハローワークに相談する","事業主側からの届出が必要な場合もあります"],
+          contact:"ハローワーク",
+          link:{label:"ハローワークインターネットサービス ↗", url:"https://www.hellowork.mhlw.go.jp/"}
+        }
+      ]
+    },
+    {
+      id:"kids", color:"var(--pink)", icon:"🎒",
+      title:"子ども・教育まわり",
+      sub:"学費・転校・こころのケア",
+      issues:[
+        {
+          q:"学費や学用品の費用が厳しい",
+          title:"就学援助制度・授業料等の減額免除",
+          desc:"経済的理由で学費や給食費、学用品費の支払いが困難な場合に、減額・免除や援助が受けられる制度です。",
+          steps:["在籍する学校、または市町村教育委員会に相談する","罹災証明書が必要な場合があります"],
+          contact:"在籍校 または 市町村教育委員会"
+        },
+        {
+          q:"転校・転園の手続きが分からない",
+          title:"一時避難先での柔軟な受け入れ制度",
+          desc:"避難先の自治体でも、一時的に転校・転園を受け入れる柔軟な対応が取られています。",
+          steps:["避難先の教育委員会・学校に直接相談する","もとの学校に籍を残したまま転校できる場合もあります"],
+          contact:"避難先の市町村教育委員会"
+        },
+        {
+          q:"子どもの心の様子が心配",
+          title:"スクールカウンセラー・こころの相談",
+          desc:"年齢によって不調のサインの出方は異なります。体の不調、行動の変化、感情の起伏など、いつもと違う様子に気づいたら相談を。",
+          steps:["学校のスクールカウンセラーに相談する","強い症状が2週間以上続く場合は専門機関へ"],
+          contact:"在籍校のスクールカウンセラー / 教育委員会相談窓口"
+        }
+      ]
+    },
+    {
+      id:"heart", color:"var(--purple)", icon:"💭",
+      title:"こころと暮らしの見守り",
+      sub:"不安・孤立・多言語相談・医療",
+      issues:[
+        {
+          q:"不安で眠れない、気持ちが落ち込む",
+          title:"こころの健康相談",
+          desc:"都道府県・指定都市の精神保健福祉センターで、医師・保健師・精神保健福祉士などの専門職に相談できます。",
+          steps:["お住まいの精神保健福祉センターに電話・来所で相談する","家族や周囲の方からの相談も可能です"],
+          contact:"都道府県・指定都市 精神保健福祉センター"
+        },
+        {
+          q:"仮設住宅などでの孤立が心配",
+          title:"見守り・相談支援",
+          desc:"応急仮設住宅入居期間中の孤立防止と日常生活相談を行う支援員による見守り制度です。",
+          steps:["市町村の福祉担当、または地域の見守り支援員に相談する"],
+          contact:"お住まいの市町村 福祉担当窓口"
+        },
+        {
+          q:"外国人住民で情報が分からない",
+          title:"多言語相談窓口",
+          desc:"やさしい日本語、英語、中国語、韓国語など多数の言語に対応した生活相談窓口があります。",
+          steps:["市町村の国際交流協会・多文化共生窓口に相談する"],
+          contact:"市町村 国際交流協会 等"
+        },
+        {
+          q:"保険証を失くした、家に置いてきた",
+          title:"保険証なしでも受診できます",
+          desc:"氏名・生年月日・連絡先・加入している医療保険の情報を医療機関に伝えれば、保険証がなくても保険診療を受けられます。",
+          steps:["受診時に上記の情報を医療機関の窓口に伝える","事業所名(被用者保険)や住所・組合名(国保)がわかるとスムーズです"],
+          contact:"受診先の医療機関窓口"
+        }
+      ]
+    }
+  ]
+};
+
+/* ============================================================
+   ウィザード制御
+   ============================================================ */
+var state = { catIndex:null, issueIndex:null, history:["gate"] };
+
+function $(id){ return document.getElementById(id); }
+
+function showScreen(name){
+  document.querySelectorAll(".screen").forEach(function(s){ s.classList.remove("active"); });
+  $("screen-"+name).classList.add("active");
+  updateProgress(name);
+  updateCrumb(name);
+  $("backBtn").style.display = (name === "gate") ? "none" : "inline-flex";
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function updateProgress(name){
+  var map = {gate:0, cat:1, issue:2, result:3};
+  var cur = map[name];
+  ["pg0","pg1","pg2","pg3"].forEach(function(id, i){
+    var el = $(id);
+    el.classList.remove("done","now");
+    if(i < cur) el.classList.add("done");
+    else if(i === cur) el.classList.add("now");
+  });
+}
+
+function updateCrumb(name){
+  var txt = "";
+  if(name === "cat") txt = "ステップ 1 / カテゴリ選択";
+  if(name === "issue" && state.catIndex !== null){
+    txt = "<b>" + DATA.categories[state.catIndex].title + "</b> を選択中";
+  }
+  if(name === "result") txt = "結果";
+  $("crumbText").innerHTML = txt;
+}
+
+function goTo(name){
+  state.history.push(name);
+  showScreen(name);
+  if(name === "cat") renderCategories();
+  if(name === "issue") renderIssues();
+  if(name === "result") renderResult();
+}
+
+function goBack(){
+  if(state.history.length <= 1) return;
+  state.history.pop();
+  var prev = state.history[state.history.length - 1];
+  showScreen(prev);
+  if(prev === "cat") renderCategories();
+  if(prev === "issue") renderIssues();
+}
+
+function resetAll(){
+  state = { catIndex:null, issueIndex:null, history:["gate"] };
+  document.querySelectorAll(".gate-answer").forEach(function(el){ el.classList.remove("show"); });
+  $("gateNext").style.display = "none";
+  showScreen("gate");
+}
+
+/* ---- gate ---- */
+document.querySelectorAll(".gate-choice").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    var a = btn.getAttribute("data-a");
+    document.querySelectorAll(".gate-answer").forEach(function(el){ el.classList.remove("show"); });
+    if(a === "not") $("gateAnswerNot").classList.add("show");
+    if(a === "unknown") $("gateAnswerUnknown").classList.add("show");
+    $("gateNext").style.display = "inline-flex";
+    if(a === "done") goTo("cat");
+  });
+});
+
+/* ---- category list ---- */
+function renderCategories(){
+  var grid = $("catGrid");
+  grid.innerHTML = "";
+  DATA.categories.forEach(function(cat, i){
+    var b = document.createElement("button");
+    b.className = "cat-card";
+    b.style.setProperty("--cat-color", cat.color);
+    b.innerHTML =
+      '<div class="ico">' + cat.icon + '</div>' +
+      '<div class="body"><div class="t">' + cat.title + '</div><div class="s">' + cat.sub + '</div></div>' +
+      '<div class="go">→</div>';
+    b.addEventListener("click", function(){
+      state.catIndex = i;
+      goTo("issue");
+    });
+    grid.appendChild(b);
+  });
+}
+
+/* ---- issue list ---- */
+function renderIssues(){
+  var cat = DATA.categories[state.catIndex];
+  $("issueHeading").textContent = cat.icon + " " + cat.title;
+  var list = $("issueList");
+  list.innerHTML = "";
+  cat.issues.forEach(function(issue, i){
+    var b = document.createElement("button");
+    b.className = "issue-card";
+    b.style.setProperty("--cat-color", cat.color);
+    b.innerHTML = '<span class="t">' + issue.q + '</span><span class="go">→</span>';
+    b.addEventListener("click", function(){
+      state.issueIndex = i;
+      goTo("result");
+    });
+    list.appendChild(b);
+  });
+}
+
+/* ---- result ---- */
+function renderResult(){
+  var cat = DATA.categories[state.catIndex];
+  var issue = cat.issues[state.issueIndex];
+  var card = $("resultCard");
+  card.style.setProperty("--cat-color", cat.color);
+
+  var stepsHtml = issue.steps.map(function(s){ return "<li>" + s + "</li>"; }).join("");
+  var linkHtml = issue.link ? '<a class="ext-link" href="' + issue.link.url + '" target="_blank" rel="noopener">' + issue.link.label + '</a>' : "";
+
+  card.innerHTML =
+    '<div class="kicker">' + cat.title + ' ／ ' + issue.q + '</div>' +
+    '<h3>' + issue.title + '</h3>' +
+    '<div class="desc">' + issue.desc + '</div>' +
+    '<div class="block-title">次にすること</div>' +
+    '<ul class="steps">' + stepsHtml + '</ul>' +
+    '<div class="contact-box">📍 相談先：<b>' + issue.contact + '</b></div>' +
+    linkHtml;
+}
+
+/* ============================================================
+   表示設定：テーマ / 文字サイズ
+   ============================================================ */
+function setTheme(t){
+  document.documentElement.setAttribute("data-theme", t);
+  try{ localStorage.setItem("saikenTheme", t); }catch(e){}
+  syncToolbarUI();
+}
+function setFontSize(s){
+  document.body.classList.remove("fs-s","fs-m","fs-l");
+  document.body.classList.add("fs-" + s);
+  try{ localStorage.setItem("saikenFontSize", s); }catch(e){}
+  syncToolbarUI();
+}
+function syncToolbarUI(){
+  var theme = document.documentElement.getAttribute("data-theme") || "dark";
+  $("themeBtnDark").classList.toggle("active", theme === "dark");
+  $("themeBtnLight").classList.toggle("active", theme === "light");
+
+  var fs = "m";
+  if(document.body.classList.contains("fs-s")) fs = "s";
+  if(document.body.classList.contains("fs-l")) fs = "l";
+  $("fsBtnS").classList.toggle("active", fs === "s");
+  $("fsBtnM").classList.toggle("active", fs === "m");
+  $("fsBtnL").classList.toggle("active", fs === "l");
+}
+function loadSavedPrefs(){
+  var theme = "dark", fs = "m";
+  try{
+    theme = localStorage.getItem("saikenTheme") || "dark";
+    fs = localStorage.getItem("saikenFontSize") || "m";
+  }catch(e){}
+  document.documentElement.setAttribute("data-theme", theme);
+  document.body.classList.add("fs-" + fs);
+  syncToolbarUI();
+}
+
+/* ============================================================
+   コピー機能：現在アクティブな画面のテキストをクリップボードへ
+   ============================================================ */
+function showToast(msg){
+  var t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(showToast._timer);
+  showToast._timer = setTimeout(function(){ t.classList.remove("show"); }, 2200);
+}
+function fallbackCopy_(text){
+  var ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.left = "-9999px";
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  var ok = false;
+  try{ ok = document.execCommand("copy"); }catch(e){ ok = false; }
+  document.body.removeChild(ta);
+  showToast(ok ? "コピーしました" : "コピーに失敗しました");
+}
+function copyActiveText(){
+  var active = document.querySelector(".screen.active");
+  if(!active){ return; }
+  var text = (active.innerText || active.textContent || "")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+  if(!text){ showToast("コピーできる内容がありません"); return; }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){
+      showToast("コピーしました");
+    }).catch(function(){ fallbackCopy_(text); });
+  } else {
+    fallbackCopy_(text);
+  }
+}
+
+/* ============================================================
+   印刷機能
+   ============================================================ */
+function printPage(){
+  window.print();
+}
+
+/* ============================================================
+   共有機能：Web Share APIが使えればネイティブ共有、
+   使えない環境ではURLをクリップボードにコピー
+   ============================================================ */
+function shareActive(){
+  var active = document.querySelector(".screen.active");
+  var titleText = "生活再建ガイド｜DWA防災情報センター";
+  var bodyText = "";
+
+  if(active && active.id === "screen-result" && state.catIndex !== null && state.issueIndex !== null){
+    var cat = DATA.categories[state.catIndex];
+    var issue = cat.issues[state.issueIndex];
+    titleText = issue.title + "｜生活再建ガイド";
+    bodyText = issue.q + " → " + issue.title + "\n" + issue.desc;
+  } else if(active){
+    bodyText = (active.innerText || "").replace(/\n{3,}/g, "\n\n").trim().slice(0, 200);
+  }
+
+  var shareUrl = location.href;
+
+  if(navigator.share){
+    navigator.share({ title: titleText, text: bodyText, url: shareUrl })
+      .catch(function(err){
+        if(err && err.name === "AbortError") return; // ユーザーがキャンセルした場合は何もしない
+        shareFallback_(shareUrl);
+      });
+  } else {
+    shareFallback_(shareUrl);
+  }
+}
+function shareFallback_(url){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(function(){
+      showToast("リンクをコピーしました");
+    }).catch(function(){ fallbackCopy_(url); });
+  } else {
+    fallbackCopy_(url);
+  }
+}
+
+/* init */
+loadSavedPrefs();
+showScreen("gate");
+</script>
+</body>
+</html>
