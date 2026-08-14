@@ -5693,6 +5693,100 @@ function openHeaderBar(){ document.documentElement.classList.remove('header-clos
 try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.classList.add('header-closed'); } }catch(e){}
 </script>
 
+<!-- ===== ヘッダー ユーティリティバー（ダーク/ライト・コピー・印刷・共有） ===== -->
+<div class="header-util-bar" id="headerUtilBar" role="toolbar" aria-label="表示・共有ツール">
+  <button type="button" class="hu-btn" id="huDarkBtn" onclick="if(window.setTheme)setTheme('dark');headerUtilRefresh();" title="ダークモード" aria-label="ダークモード">
+    <span class="hu-ic">🌙</span><span class="hu-tx">ダーク</span>
+  </button>
+  <button type="button" class="hu-btn" id="huLightBtn" onclick="if(window.setTheme)setTheme('light');headerUtilRefresh();" title="ライトモード" aria-label="ライトモード">
+    <span class="hu-ic">☀️</span><span class="hu-tx">ライト</span>
+  </button>
+  <button type="button" class="hu-btn" onclick="headerCopyLink()" title="ページのリンクをコピー" aria-label="リンクをコピー">
+    <span class="hu-ic">📋</span><span class="hu-tx">コピー</span>
+  </button>
+  <button type="button" class="hu-btn" onclick="window.print()" title="このページを印刷" aria-label="印刷">
+    <span class="hu-ic">🖨️</span><span class="hu-tx">印刷</span>
+  </button>
+  <button type="button" class="hu-btn" onclick="headerShare()" title="このページを共有" aria-label="共有">
+    <span class="hu-ic">🔗</span><span class="hu-tx">共有</span>
+  </button>
+</div>
+
+<style>
+.header-util-bar{
+  display:flex; gap:6px; flex-wrap:wrap; align-items:center;
+  padding:8px 14px; background:var(--tab-bg);
+  border-bottom:1px solid rgba(0,180,255,0.15);
+  position:relative; z-index:88;
+}
+.hu-btn{
+  display:flex; align-items:center; gap:5px;
+  padding:7px 12px; border-radius:20px;
+  background:rgba(0,180,255,0.06); border:1px solid var(--border);
+  color:var(--muted); font-size:11.5px; font-family:'Noto Sans JP',sans-serif;
+  cursor:pointer; transition:all .15s ease; white-space:nowrap;
+}
+.hu-btn:hover{ color:var(--text); border-color:rgba(0,180,255,0.4); background:rgba(0,180,255,0.12); }
+.hu-btn:active{ transform:scale(.95); }
+.hu-btn .hu-ic{ font-size:14px; line-height:1; }
+.hu-btn.active{ color:#00e5ff; border-color:rgba(0,180,255,0.6); background:rgba(0,180,255,0.16); }
+html.light .header-util-bar{ background:rgba(255,255,255,0.92); border-bottom-color:rgba(0,100,180,0.15); }
+html.light .hu-btn{ background:#eef4fa; border-color:rgba(0,100,180,0.15); color:#5a7280; }
+html.light .hu-btn:hover{ background:rgba(0,120,220,0.08); color:#1a3a55; }
+html.light .hu-btn.active{ color:#0077cc; border-color:rgba(0,120,220,0.45); background:rgba(0,120,220,0.12); }
+@media(max-width:480px){
+  .header-util-bar{ padding:7px 10px; gap:5px; justify-content:center; }
+  .hu-btn{ padding:6px 9px; font-size:10.5px; }
+  .hu-btn .hu-ic{ font-size:13px; }
+}
+@media print{
+  .header-util-bar, .disaster-tabs, .header-reopen-btn, .header-close-btn{ display:none !important; }
+}
+</style>
+
+<script>
+function headerUtilRefresh(){
+  try{
+    var isLight = document.documentElement.classList.contains('light');
+    var d = document.getElementById('huDarkBtn');
+    var l = document.getElementById('huLightBtn');
+    if(d) d.classList.toggle('active', !isLight);
+    if(l) l.classList.toggle('active', isLight);
+  }catch(e){}
+}
+function headerCopyLink(){
+  var url = location.href;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(function(){
+      if(typeof _toastShare==='function') _toastShare('リンクをコピーしました'); else alert('リンクをコピーしました');
+    }).catch(function(){ headerFallbackCopy(url); });
+  } else {
+    headerFallbackCopy(url);
+  }
+}
+function headerFallbackCopy(text){
+  try{
+    var ta=document.createElement('textarea');
+    ta.value=text; ta.style.cssText='position:fixed;left:-9999px';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    if(typeof _toastShare==='function') _toastShare('リンクをコピーしました'); else alert('リンクをコピーしました');
+  }catch(e){
+    if(typeof _toastShare==='function') _toastShare('コピーに失敗しました'); else alert('コピーに失敗しました');
+  }
+}
+function headerShare(){
+  var data = { title: document.title, url: location.href };
+  if(navigator.share){
+    navigator.share(data).catch(function(){});
+  } else {
+    headerCopyLink();
+  }
+}
+document.addEventListener('DOMContentLoaded', headerUtilRefresh);
+setTimeout(headerUtilRefresh, 800);
+</script>
+
 <!-- ===== 生活再建ガイド 導線バナー ===== -->
 <style>
 .srg-banner{
