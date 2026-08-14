@@ -116,6 +116,9 @@
     text-anchor: middle;
     dominant-baseline: central;
   }
+  @media (max-width: 640px) {
+    .quake-label { font-size: 18px; }
+  }
   #info {
     margin-top: 20px;
     width: 100%;
@@ -255,7 +258,12 @@ d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(w
 
   quakeSel.append('circle')
     .attr('class','quake-dot')
-    .attr('r', d => 5 + (d.mag - 7) * 5);
+    .attr('r', d => {
+      const isMobile = window.innerWidth <= 640;
+      const base = isMobile ? 10 : 5;
+      const step = isMobile ? 10 : 5;
+      return base + (d.mag - 7) * step;
+    });
 
   quakeSel.append('text')
     .attr('class','quake-label')
