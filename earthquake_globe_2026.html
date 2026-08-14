@@ -116,9 +116,6 @@
     text-anchor: middle;
     dominant-baseline: central;
   }
-  @media (max-width: 640px) {
-    .quake-label { font-size: 18px; }
-  }
   #info {
     margin-top: 20px;
     width: 100%;
@@ -169,7 +166,7 @@
   <button type="button" class="hbtn" onclick="shareGlobe()" title="共有">🔗 共有</button>
 </div>
 
-<h1>2026年 マグニチュード7.0以上の地震（11件）</h1>
+<h1>2026年 マグニチュード7.0以上の地震（12件）</h1>
 <p class="sub">ドラッグで地球儀を回転、丸印をクリックすると詳細が表示されます</p>
 
 <div id="wrap">
@@ -217,7 +214,10 @@ const quakes = [
     damage:"死者39人・負傷165人、住家被害7,820棟超（8月14日時点）。激甚災害・特定非常災害に指定"},
   {n:11, name:"コロンビア西部",                 date:"2026年8月10日", mag:7.4, depth:110,  lat:4.0,  lon:-76.0,
     intensity:"深発地震のため揺れは広範囲だが比較的マイルド",
-    damage:"死者181人、建物1,500棟以上損壊（8月11日時点）。非常事態を宣言"}
+    damage:"死者181人、建物1,500棟以上損壊（8月11日時点）。非常事態を宣言"},
+  {n:12, name:"インドネシア（フローレス沖）",   date:"2026年8月15日 6時58分ごろ", mag:7.7, depth:null, lat:-8.3, lon:121.4,
+    intensity:"震度情報の公式発表なし（現地）",
+    damage:"太平洋で津波発生の可能性あり。この地震による日本への津波の影響はなし"}
 ];
 
 const width = 600, height = 600;
@@ -258,12 +258,7 @@ d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(w
 
   quakeSel.append('circle')
     .attr('class','quake-dot')
-    .attr('r', d => {
-      const isMobile = window.innerWidth <= 640;
-      const base = isMobile ? 10 : 5;
-      const step = isMobile ? 10 : 5;
-      return base + (d.mag - 7) * step;
-    });
+    .attr('r', d => 5 + (d.mag - 7) * 5);
 
   quakeSel.append('text')
     .attr('class','quake-label')
@@ -297,7 +292,7 @@ function showInfo(d) {
     <h2>${d.n}. ${d.name}</h2>
     <div class="row"><span>日時</span><span>${d.date}</span></div>
     <div class="row"><span>マグニチュード</span><span>M${d.mag}</span></div>
-    <div class="row"><span>深さ</span><span>約${d.depth}km</span></div>
+    <div class="row"><span>深さ</span><span>${d.depth ? '約' + d.depth + 'km' : '不明（速報）'}</span></div>
     <div class="row"><span>震度</span><span>${d.intensity}</span></div>
     <div class="row"><span>被害内容</span><span>${d.damage}</span></div>
   `;
