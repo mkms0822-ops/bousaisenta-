@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>2026年 M7.0以上の地震マップ（回転式地球儀）</title>
+<style>
+  :root {
+    --bg: #0e1117;
+    --surface: #1a1f2b;
+    --border: #2c3242;
+    --text-primary: #f0efec;
+    --text-secondary: #a9b0c0;
+    --accent: #ff8a4c;
+    --accent-dark: #d9642a;
+    --ocean: #141a24;
+    --land: #2b3242;
+    --land-hover: #3a4358;
+    --btn-bg: rgba(255,255,255,0.06);
+    --btn-bg-hover: rgba(255,255,255,0.12);
+  }
+  html.light {
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --border: #d8dce3;
+    --text-primary: #1c1f26;
+    --text-secondary: #6b7280;
+    --accent: #d9642a;
+    --accent-dark: #b74f1c;
+    --ocean: #dbe6f0;
+    --land: #c9cfd9;
+    --land-hover: #b3bac6;
+    --btn-bg: rgba(0,0,0,0.05);
+    --btn-bg-hover: rgba(0,0,0,0.09);
+  }
+  #headerBar {
+    width: 100%;
+    max-width: 620px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .hbtn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 11px;
+    border-radius: 16px;
+    background: var(--btn-bg);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 11.5px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all .15s ease;
+    white-space: nowrap;
+  }
+  .hbtn:hover { background: var(--btn-bg-hover); color: var(--text-primary); }
+  .hbtn:active { transform: scale(.95); }
+  .hbtn.active { color: var(--accent); border-color: var(--accent); background: var(--btn-bg-hover); }
+  @media print {
+    #headerBar, #hint { display: none !important; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Hiragino Sans", "Yu Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 40px;
+  }
+  h1 {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 0 0 4px;
+  }
+  p.sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0 0 20px;
+  }
+  #wrap {
+    position: relative;
+    width: 100%;
+    max-width: 620px;
+  }
+  svg {
+    width: 100%;
+    height: auto;
+    cursor: grab;
+    touch-action: none;
+  }
+  svg:active { cursor: grabbing; }
+  .land { fill: var(--land); stroke: var(--border); stroke-width: 0.5px; }
+  .land:hover { fill: var(--land-hover); }
+  .sphere { fill: var(--ocean); }
+  .graticule { fill: none; stroke: #232838; stroke-width: 0.5px; }
+  .quake-dot {
+    fill: var(--accent);
+    fill-opacity: 0.85;
+    stroke: var(--bg);
+    stroke-width: 1px;
+    cursor: pointer;
+  }
+  .quake-dot:hover { fill-opacity: 1; }
+  .quake-dot.selected { fill: #ffd24c; stroke: #ffd24c; }
+  .quake-label {
+    font-size: 9px;
+    font-weight: 600;
+    fill: #14181f;
+    pointer-events: none;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+  #info {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 620px;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    min-height: 90px;
+  }
+  #info .placeholder {
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+  #info h2 {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0 0 8px;
+  }
+  #info .row {
+    display: flex;
+    gap: 16px;
+    font-size: 13px;
+    padding: 8px 0;
+    border-top: 0.5px solid var(--border);
+    line-height: 1.6;
+  }
+  #info .row:first-of-type { border-top: none; }
+  #info .row span:first-child {
+    color: var(--text-secondary);
+    flex: 0 0 72px;
+  }
+  #info .row span:last-child { flex: 1; text-align: right; }
+  #hint {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<div id="headerBar">
+  <button type="button" class="hbtn" id="darkBtn" onclick="setGlobeTheme('dark')" title="ダークモード">🌙 ダーク</button>
+  <button type="button" class="hbtn" id="lightBtn" onclick="setGlobeTheme('light')" title="ライトモード">☀️ ライト</button>
+  <button type="button" class="hbtn" onclick="copyGlobeLink()" title="リンクをコピー">📋 コピー</button>
+  <button type="button" class="hbtn" onclick="window.print()" title="印刷">🖨️ 印刷</button>
+  <button type="button" class="hbtn" onclick="shareGlobe()" title="共有">🔗 共有</button>
+</div>
+
+<h1>2026年 マグニチュード7.0以上の地震（11件）</h1>
+<p class="sub">ドラッグで地球儀を回転、丸印をクリックすると詳細が表示されます</p>
+
+<div id="wrap">
+  <svg id="globe" viewBox="0 0 600 600"></svg>
+</div>
+
+<div id="info">
+  <p class="placeholder">丸印をクリックすると、ここに地震の詳細が表示されます</p>
+</div>
+<p id="hint">スクロール／ピンチで拡大縮小もできます</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script>
+const quakes = [
+  {n:1,  name:"マレーシア（サバ州）",           date:"2026年2月22日", mag:7.1, depth:620, lat:5.9,  lon:116.1,
+    intensity:"深発地震のため現地の揺れは比較的小さく、震度の公式発表なし",
+    damage:"被害・負傷者の報告なし。津波の脅威もなし"},
+  {n:2,  name:"トンガ周辺",                     date:"2026年3月24日", mag:7.5, depth:238, lat:-20.0,lon:-175.0,
+    intensity:"震度情報の発表なし（震源が深く揺れは局地的）",
+    damage:"沿岸部に一時津波警報も、大きな被害報告なし"},
+  {n:3,  name:"バヌアツ",                       date:"2026年3月30日", mag:7.3, depth:120, lat:-15.0,lon:167.0,
+    intensity:"震央付近で改正メルカリ震度階級VII相当（日本の震度5弱程度）",
+    damage:"津波の心配なし。大きな被害報告なし"},
+  {n:4,  name:"インドネシア（北マルク沖）",     date:"2026年4月1日(日本時間4/2)",  mag:7.4, depth:35,  lat:-2.5, lon:120.0,
+    intensity:"震度情報の公式発表なし",
+    damage:"マナドで建物倒壊、死者1人・負傷1人。最大75cmの津波を観測"},
+  {n:5,  name:"日本（岩手県沖・三陸沖近海）",   date:"2026年4月20日", mag:7.4, depth:20,  lat:39.5, lon:143.0,
+    intensity:"最大震度5強（岩手県）",
+    damage:"岩手県久慈港で約80cmの津波を観測。人的被害の大きな報告なし。「北海道・三陸沖後発地震注意情報」が発表された"},
+  {n:6,  name:"フィリピン（ミンダナオ島）",     date:"2026年6月7日(日本時間6/8)",  mag:7.8, depth:55,  lat:7.0,  lon:126.0,
+    intensity:"現地PHIVOLCS震度階級で最大VIII（非常に破壊的）",
+    damage:"死者65人・行方不明36人、避難者7万人超。日本にも津波注意報（最大20cm観測）"},
+  {n:7,  name:"ベネズエラ（1回目）",            date:"2026年6月24日", mag:7.2, depth:10,  lat:8.0,  lon:-66.0,
+    intensity:"首都カラカス、ラ・グアイラ州などで激しい揺れ",
+    damage:"直後に本震（M7.5）が連続発生したため被害は合算で計上"},
+  {n:8,  name:"ベネズエラ（2回目・本震）",      date:"2026年6月24日", mag:7.5, depth:10,  lat:8.3,  lon:-66.3,
+    intensity:"ラ・グアイラ州で建物の約8割が倒壊するなど激甚な揺れ",
+    damage:"死者6,301人・負傷6万人超（2026年8月11日時点）。国家非常事態を宣言"},
+  {n:9,  name:"メキシコ（チアパス州）",         date:"2026年7月17日", mag:7.3, depth:19,  lat:16.5, lon:-93.0,
+    intensity:"州都トゥストラ・グティエレスなどで強い揺れ",
+    damage:"数人が負傷、死者なし。一時津波警報も解除"},
+  {n:10, name:"日本（熊本県熊本地方 令和8年熊本地震）", date:"2026年7月28日", mag:7.1, depth:16, lat:32.8, lon:130.7,
+    intensity:"最大震度7（宇城市・氷川町）",
+    damage:"死者39人・負傷165人、住家被害7,820棟超（8月14日時点）。激甚災害・特定非常災害に指定"},
+  {n:11, name:"コロンビア西部",                 date:"2026年8月10日", mag:7.4, depth:110,  lat:4.0,  lon:-76.0,
+    intensity:"深発地震のため揺れは広範囲だが比較的マイルド",
+    damage:"死者181人、建物1,500棟以上損壊（8月11日時点）。非常事態を宣言"}
+];
+
+const width = 600, height = 600;
+const svg = d3.select('#globe').attr('viewBox', `0 0 ${width} ${height}`);
+let scale0 = 260;
+const projection = d3.geoOrthographic()
+  .scale(scale0)
+  .translate([width/2, height/2])
+  .rotate([-140, -20, 0])
+  .clipAngle(90);
+const path = d3.geoPath(projection);
+const graticule = d3.geoGraticule10();
+
+svg.append('circle')
+  .attr('class','sphere')
+  .attr('cx', width/2).attr('cy', height/2).attr('r', scale0);
+
+const gGrat = svg.append('path').datum(graticule).attr('class','graticule');
+const gLand = svg.append('g');
+const gQuakes = svg.append('g');
+
+let landFeatures = [];
+let quakeSel = null;
+
+d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(world => {
+  landFeatures = topojson.feature(world, world.objects.countries).features;
+  gLand.selectAll('path')
+    .data(landFeatures)
+    .join('path')
+    .attr('class','land');
+
+  quakeSel = gQuakes.selectAll('g.q')
+    .data(quakes)
+    .join('g')
+    .attr('class','q')
+    .style('cursor','pointer')
+    .on('click', (event, d) => showInfo(d));
+
+  quakeSel.append('circle')
+    .attr('class','quake-dot')
+    .attr('r', d => 5 + (d.mag - 7) * 5);
+
+  quakeSel.append('text')
+    .attr('class','quake-label')
+    .text(d => d.n);
+
+  render();
+});
+
+function render() {
+  gGrat.attr('d', path);
+  gLand.selectAll('path').attr('d', path);
+
+  if (quakeSel) {
+    quakeSel.each(function(d) {
+      const rot = projection.rotate();
+      const coord = [d.lon, d.lat];
+      const visible = d3.geoDistance(coord, [-rot[0], -rot[1]]) < Math.PI/2;
+      const p = projection(coord);
+      d3.select(this)
+        .style('display', visible && p ? null : 'none')
+        .attr('transform', p ? `translate(${p[0]},${p[1]})` : null);
+    });
+  }
+}
+
+function showInfo(d) {
+  gQuakes.selectAll('.quake-dot').classed('selected', false);
+  gQuakes.selectAll('g.q').filter(q => q.n === d.n).select('.quake-dot').classed('selected', true);
+
+  document.getElementById('info').innerHTML = `
+    <h2>${d.n}. ${d.name}</h2>
+    <div class="row"><span>日時</span><span>${d.date}</span></div>
+    <div class="row"><span>マグニチュード</span><span>M${d.mag}</span></div>
+    <div class="row"><span>深さ</span><span>約${d.depth}km</span></div>
+    <div class="row"><span>震度</span><span>${d.intensity}</span></div>
+    <div class="row"><span>被害内容</span><span>${d.damage}</span></div>
+  `;
+}
+
+// Drag to rotate: cursor right -> globe rotates left, cursor left -> rotates right
+let r0, x0, y0;
+const ROTATE_SPEED = 0.3; // degrees per pixel
+const drag = d3.drag()
+  .on('start', (event) => {
+    r0 = projection.rotate();
+    x0 = event.x;
+    y0 = event.y;
+  })
+  .on('drag', (event) => {
+    const dx = event.x - x0;
+    const dy = event.y - y0;
+    const lambda = r0[0] + dx * ROTATE_SPEED;
+    let phi = r0[1] - dy * ROTATE_SPEED;
+    phi = Math.max(-90, Math.min(90, phi));
+    projection.rotate([lambda, phi, r0[2]]);
+    render();
+  });
+
+svg.call(drag);
+
+// Zoom with wheel / pinch
+svg.call(d3.zoom()
+  .scaleExtent([0.5, 4])
+  .on('zoom', (event) => {
+    const k = event.transform.k;
+    projection.scale(scale0 * k);
+    render();
+  })
+);
+
+// ===== Header controls: theme / copy / print / share =====
+function setGlobeTheme(t) {
+  document.documentElement.classList.toggle('light', t === 'light');
+  try { localStorage.setItem('globeTheme', t); } catch(e) {}
+  updateThemeButtons();
+}
+function updateThemeButtons() {
+  const isLight = document.documentElement.classList.contains('light');
+  document.getElementById('darkBtn').classList.toggle('active', !isLight);
+  document.getElementById('lightBtn').classList.toggle('active', isLight);
+}
+(function initTheme() {
+  let saved = 'dark';
+  try { saved = localStorage.getItem('globeTheme') || 'dark'; } catch(e) {}
+  document.documentElement.classList.toggle('light', saved === 'light');
+  updateThemeButtons();
+})();
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:rgba(20,24,32,0.95);color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.3);';
+  document.body.appendChild(t);
+  setTimeout(() => { try { document.body.removeChild(t); } catch(e){} }, 2000);
+}
+function copyGlobeLink() {
+  const url = location.href;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => showToast('リンクをコピーしました')).catch(() => fallbackCopyGlobe(url));
+  } else {
+    fallbackCopyGlobe(url);
+  }
+}
+function fallbackCopyGlobe(text) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;left:-9999px';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('リンクをコピーしました');
+  } catch(e) { showToast('コピーに失敗しました'); }
+}
+function shareGlobe() {
+  const data = { title: document.title, url: location.href };
+  if (navigator.share) {
+    navigator.share(data).catch(() => {});
+  } else {
+    copyGlobeLink();
+  }
+}
+
+</script>
+</body>
+</html>
