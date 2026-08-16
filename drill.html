@@ -596,7 +596,11 @@ html.light .room::after{
       }
       if(d.title){ document.querySelector('#intro h1').innerHTML=esc(d.title).replace(/\s+/,'<br>'); }
       if(d.state==='off'){
-        gate('Closed','いまは<br>開催して<br>いません','次回の予定が決まりましたら、防災情報センターでお知らせします。');
+        if(d.nextAt){
+          gate('Closed','いまは<br>開催して<br>いません','次回の開催予定は <b>'+fmt(d.nextAt)+'</b> です。<br>受付が始まりましたら、防災情報センターでお知らせします。');
+        } else {
+          gate('Closed','いまは<br>開催して<br>いません','次回の予定が決まりましたら、防災情報センターでお知らせします。');
+        }
       } else if(d.state==='closed'){
         gate('Closed','受付は<br>終了しました','今回の訓練は終了しました。<br>ご参加くださった方、ありがとうございました。',
           '<h2>次回に向けて</h2><p>結果の総括は、後日あらためてお知らせします。</p>');
@@ -606,7 +610,9 @@ html.light .room::after{
           '<h2>当日までにご準備ください</h2><ol>'+
           '<li>ふだん過ごすお部屋で参加できるようにしておく</li>'+
           '<li>避難袋の場所を確かめておく</li>'+
-          '<li>ガスの元栓とブレーカーの位置を確かめておく</li></ol>');
+          '<li>ガスの元栓とブレーカーの位置を確かめておく</li></ol>'+
+          '<button class="sub-btn" style="margin-top:14px" onclick="location.reload()">🔄 再読み込みする</button>'+
+          '<p style="margin-top:8px;font-size:12.5px;color:var(--mut)">受付が始まっているか確かめたいときは、こちらを押してください。</p>');
       } else if(d.state==='fired' && !d.lateOk){
         gate('Closed','すでに<br>始まって<br>います','発災の時刻を過ぎたため、参加を締め切りました。');
       } else if(d.state==='fired'){
