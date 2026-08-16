@@ -419,6 +419,18 @@ html.light .room::after{
   var area='', age='', steps=[], idx=0, t0=0, tStart=0, timer=null, misses=0, stepMiss=0;
   var soundOn=true, lightOn=false;
 
+  /* ---------------- アクセス集計（ページ訪問ログ） ---------------- */
+  (function(){
+    try{
+      var q='type=visit&site=drill&uid='+encodeURIComponent(UID)
+        +'&page='+encodeURIComponent(location.href)
+        +'&ref='+encodeURIComponent(document.referrer||'')
+        +'&ua='+encodeURIComponent(navigator.userAgent||'')
+        +'&_='+Date.now();
+      fetch(GAS_URL+'?'+q).catch(function(){});
+    }catch(e){}
+  })();
+
   /* ---------------- 音 ---------------- */
   var AC=null;
   function ac(){ if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } 
