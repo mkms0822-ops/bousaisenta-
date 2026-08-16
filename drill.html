@@ -597,9 +597,9 @@ html.light .room::after{
       if(d.title){ document.querySelector('#intro h1').innerHTML=esc(d.title).replace(/\s+/,'<br>'); }
       if(d.state==='off'){
         if(d.nextAt){
-          gate('Closed','いまは<br>開催して<br>いません','次回の開催予定は <b>'+fmt(d.nextAt)+'</b> です。<br>受付が始まりましたら、防災情報センターでお知らせします。');
+          gate('Closed','いまは<br>開催して<br>いません','次回の開催予定は <b>'+fmt(d.nextAt)+'</b> です。<br>受付が始まりましたら、防災情報センターと公式LINEでお知らせします。');
         } else {
-          gate('Closed','いまは<br>開催して<br>いません','次回の予定が決まりましたら、防災情報センターでお知らせします。');
+          gate('Closed','いまは<br>開催して<br>いません','次回の予定が決まりましたら、防災情報センターと公式LINEでお知らせします。');
         }
       } else if(d.state==='closed'){
         gate('Closed','受付は<br>終了しました','今回の訓練は終了しました。<br>ご参加くださった方、ありがとうございました。',
