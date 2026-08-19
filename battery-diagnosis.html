@@ -478,6 +478,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         プライバシー
       </button>
+      <button class="icon-btn" id="shareToolBtn" title="このツールを共有する" aria-label="このツールを共有する" style="width:auto;padding:0 13px;gap:7px;font-family:var(--mono);font-size:12.5px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        共有
+      </button>
       <button class="icon-btn" id="themeBtn" title="ダーク/ライト切替" aria-label="テーマ切替">
         <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
@@ -1570,6 +1574,41 @@
       }catch(e){
         showToast('共有に失敗しました');
       }
+    }
+  });
+
+  // ---------------- このツール自体を共有（ヘッダー） ----------------
+  var shareToolBtn = $('shareToolBtn');
+  if (shareToolBtn) shareToolBtn.addEventListener('click', async function(){
+    // 共有するURLを決める。iframe内で開かれている場合は親ページのURLを優先する。
+    var shareUrl = '';
+    try {
+      if (window.parent && window.parent !== window && document.referrer) {
+        shareUrl = document.referrer;        // 親サイト（防災情報センター）のURL
+      }
+    } catch(e){}
+    if (!shareUrl) {
+      // スタンドアロンで開かれている場合は自分のURL（?gas= などのパラメータは外す）
+      shareUrl = location.origin + location.pathname;
+    }
+    var shareData = {
+      title: 'バッテリー診断計 — モバイルバッテリー発火リスク診断',
+      text: 'お使いのモバイルバッテリーが発火事故で回収（リコール）されていないか、その場で確認できます。電車内や住宅での発火が増えているいま、手元の製品をチェックしてみてください。',
+      url: shareUrl
+    };
+    if (navigator.share){
+      try{
+        await navigator.share(shareData);
+      }catch(e){ /* キャンセルは無視 */ }
+    } else if (navigator.clipboard && navigator.clipboard.writeText){
+      try{
+        await navigator.clipboard.writeText(shareData.text + '\n' + shareUrl);
+        showToast('共有機能が使えないため、リンクをコピーしました');
+      }catch(e){
+        window.prompt('このリンクをコピーしてください', shareUrl);
+      }
+    } else {
+      window.prompt('このリンクをコピーしてください', shareUrl);
     }
   });
 
