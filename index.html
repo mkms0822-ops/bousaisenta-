@@ -170,6 +170,13 @@
   background:rgba(8,14,22,.94); overflow-y:auto; -webkit-overflow-scrolling:touch;
 }
 #tempMapModal.open{ display:block; }
+
+/* モバイルバッテリー発火リスク診断計 モーダル */
+#batteryModal{
+  display:none; position:fixed; inset:0; z-index:99990;
+  background:rgba(8,14,22,.94); overflow-y:auto; -webkit-overflow-scrolling:touch;
+}
+#batteryModal.open{ display:block; }
 .tempmap-modal-inner{ max-width:820px; margin:0 auto; min-height:100%; padding:14px 12px 40px; display:flex; flex-direction:column; }
 .tempmap-modal-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; padding-top:4px; }
 .tempmap-modal-title{ font-size:16px; font-weight:800; color:#ffb27a; letter-spacing:.5px; }
@@ -5874,6 +5881,19 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
   </div><!-- /sdm-inner -->
 </div><!-- /shindanModal -->
 
+<!-- モバイルバッテリー発火リスク診断計 モーダル -->
+<div id="batteryModal" role="dialog" aria-modal="true" aria-label="モバイルバッテリー発火リスク診断計" onclick="if(event.target===this)closeBatteryModal()">
+  <div class="tempmap-modal-inner">
+    <div class="tempmap-modal-head">
+      <span class="tempmap-modal-title" style="color:#ff9d3c;">🔋 モバイルバッテリー発火リスク診断計</span>
+      <button class="tempmap-modal-close" onclick="closeBatteryModal()">✕ 閉じる</button>
+    </div>
+    <div class="tempmap-modal-body" style="border-color:#5a3a1a;background:#12171d;">
+      <iframe id="batteryFrame" title="モバイルバッテリー発火リスク診断計" loading="lazy" referrerpolicy="no-referrer" style="width:100%;height:calc(100vh - 90px);min-height:520px;border:0;display:block;"></iframe>
+    </div>
+  </div>
+</div><!-- /batteryModal -->
+
 <!-- ===== 最高気温予測マップ モーダル ===== -->
 <div id="tempMapModal" role="dialog" aria-modal="true" aria-label="全国最高気温予測マップ" onclick="if(event.target===this)closeTempMapModal()">
   <div class="tempmap-modal-inner">
@@ -5920,6 +5940,9 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       </a>
       <button class="hamburger-link" onclick="openShindanModal();closeHamburger();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:none;width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">🗾</span>地震リスク・被害想定<br>診断ツール
+      </button>
+      <button class="hamburger-link" data-tour="battery-shindan" onclick="openBatteryModal();closeHamburger();" style="color:#ff9d3c;border-color:rgba(255,140,40,0.3);background:rgba(255,140,40,0.07);width:100%;text-align:left;cursor:pointer;">
+        <span class="h-link-icon">🔋</span>モバイルバッテリー<br>発火リスク診断計
       </button>
       <a class="hamburger-link" href="https://mkms0822-ops.github.io/bousai-quiz/" target="_blank">
         <span class="h-link-icon">🛡️</span>防災診断・防災クイズ
@@ -11773,6 +11796,7 @@ const tourSteps = [
   { sel:'[data-tour="menu"]', title:'☰ メニュー（リンク集）', text:'同じ三本線メニューの中には、防災クイズや気象庁の各種情報ページへのリンクもまとめてあります。', fallbackToTop:true },
   { sel:'[data-tour="usage-guide"]', title:'📖 取扱説明書（ご利用ガイド）', text:'メニューの一番上にある「取扱説明書」です。このサイトの全機能の使い方を、ひとつずつ丁寧に解説したガイドブックがサイト内でそのまま開きます。SOSビーコンの使い方、引き継ぎコードの説明、よくある質問まで揃っているので、使い方に迷ったらまずここを開いてください。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="bousai-shindan"]', title:'🧭 あなたの防災意識診断', text:'メニューの「防災情報」最上段にある「あなたの防災意識診断」ボタンです。いくつかの質問に答えるだけで、あなたの防災意識のレベルや弱点を診断できます。日頃の備えを見直すきっかけとして、ぜひ一度チェックしてみましょう。', onShow:openHamburgerForTour, fallbackToTop:true },
+  { sel:'[data-tour="battery-shindan"]', title:'🔋 モバイルバッテリー発火リスク診断計', text:'メニューの「防災情報」にある「モバイルバッテリー発火リスク診断計」です。お使いのモバイルバッテリーの<b>メーカーと型番</b>を入力すると、公表されているリコール情報と照合し、発火リスクの目安を表示します。電車内や住宅での発火事故が増えているいま、手元の製品が対象になっていないか確認できます。正しい使い方・厳禁事項・発火時の対処法もまとまっています。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="lang"]', title:'🌐 English / 多言語表示', text:'メニューの中の「English / 言語」ボタンです。お使いのブラウザの翻訳機能を使うと、このサイトを英語など多言語で読めます。ボタンを押すと、スマホ・パソコン別の翻訳手順を日本語と英語で案内します。海外の方や、英語で読みたい方はこちらをご利用ください。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="line-stamp"]', title:'🎟️ LINEスタンプ', text:'メニューの「公式アカウント」にある「LINEスタンプ」ボタンです。タップするとQRコードが表示され、スマホのカメラで読み取るとLINE公式アカウントのショップカードが開きます。スタンプを貯めると特典がもらえるので、ぜひ友だち追加して貯めてみてください。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="tabs"]', title:'気象情報タブ（収納式）', text:'台風・雨雲レーダー・警報・注意報・危険警報など、気象・災害情報へのリンク集です。ふだんは「災害情報タブ」ボタンに収納されていて、タップすると開きます（いまチュートリアル用に開いています）。目的の情報にすぐアクセスできます。', onShow:openDtabsForTour },
@@ -17554,6 +17578,28 @@ function openTempMapModal(){
   m.scrollTop = 0;
   document.body.style.overflow = 'hidden';
 }
+function openBatteryModal(){
+  const m = document.getElementById('batteryModal');
+  const f = document.getElementById('batteryFrame');
+  // 初回のみ読み込み（毎回リロードしない）。リコール情報をGASから取得させるため、
+  // 診断計のiframeに ?gas=（このサイトのGAS URL）を渡す。
+  if(!f.getAttribute('src')){
+    var src = 'battery-diagnosis.html';
+    try {
+      if (typeof ARTICLES_URL === 'string' && ARTICLES_URL.indexOf('http') === 0) {
+        src += '?gas=' + encodeURIComponent(ARTICLES_URL);
+      }
+    } catch(e){}
+    f.setAttribute('src', src);
+  }
+  m.classList.add('open');
+  m.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+}
+function closeBatteryModal(){
+  document.getElementById('batteryModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
 function closeTempMapModal(){
   document.getElementById('tempMapModal').classList.remove('open');
   document.body.style.overflow = '';
@@ -18120,6 +18166,7 @@ document.addEventListener('keydown', function(e){
     'splitPane',          // 2画面表示（その他リンク）
     'stampOverlay',       // スタンプカード
     'shindanModal',       // 診断モーダル
+    'batteryModal',       // モバイルバッテリー発火リスク診断計
     'tempMapModal',       // 最高気温予測マップ
     'versionModal'        // バージョン情報
   ];
