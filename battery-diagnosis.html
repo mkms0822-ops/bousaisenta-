@@ -442,6 +442,23 @@
   .tut-btn.primary{ background:var(--warn); border-color:var(--warn); color:#1a1400; }
   .tut-btn.primary:hover{ filter:brightness(1.08); color:#1a1400; }
   .tut-skip{ display:block; margin:14px auto 0; background:none; border:none; color:var(--text-faint); font-size:12px; cursor:pointer; text-decoration:underline; }
+  /* カタログ検索結果カード */
+  .cat-item{
+    background:var(--bg-panel-2); border:1px solid var(--line);
+    border-radius:10px; padding:13px 15px; margin-bottom:10px;
+  }
+  .cat-item-name{ font-weight:600; color:var(--text); font-size:14.5px; margin-bottom:4px; }
+  .cat-item-maker{ font-family:var(--mono); font-size:11px; color:var(--warn); letter-spacing:.04em; }
+  .cat-item-specs{ display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:8px; }
+  .cat-spec{ font-size:12px; color:var(--text-dim); }
+  .cat-spec b{ color:var(--text); font-weight:600; }
+  .cat-item-models{ font-family:var(--mono); font-size:11px; color:var(--text-faint); margin-top:6px; word-break:break-all; }
+  .cat-item-note{ font-size:11.5px; color:var(--text-faint); margin-top:6px; line-height:1.6; }
+  .cat-diag-btn{
+    margin-top:9px; font-size:12px; padding:6px 12px; border-radius:7px;
+    background:var(--bg-panel); border:1px solid var(--line); color:var(--text-dim); cursor:pointer;
+  }
+  .cat-diag-btn:hover{ border-color:var(--warn); color:var(--warn); }
 </style>
 </head>
 <body>
@@ -626,6 +643,10 @@
     <div id="findResult" style="display:none;margin-top:18px;">
       <div class="section-label">検索クエリ</div>
       <div class="find-query" id="findQuery"></div>
+      <div id="findCatalogWrap" style="display:none;margin-top:16px;">
+        <div class="section-label">カタログの該当製品 <span id="findCatalogCount" style="color:var(--text-dim);font-weight:normal;"></span></div>
+        <div id="findCatalogList"></div>
+      </div>
       <div class="section-label" style="margin-top:16px;">各サイトで探す</div>
       <div class="official-links" id="findLinks"></div>
       <div class="find-hint" id="findHint"></div>
@@ -663,6 +684,11 @@
       <div class="body-text" id="basisText">—</div>
 
       <div class="meta-grid" id="metaGrid"></div>
+
+      <div id="catInfoWrap" style="display:none;margin-top:18px;">
+        <div class="section-label">この製品の仕様（カタログ）</div>
+        <div id="catInfo"></div>
+      </div>
 
       <div id="chemWrap" style="display:none;margin-top:16px;">
         <div class="section-label">セル種別による傾向</div>
@@ -1133,6 +1159,86 @@
     } catch(e){}
   })();
 
+  // ---------------- 製品カタログ（スプレッドシート連携） ----------------
+  // GASの「製品カタログ」シートから読み込む製品一覧。条件検索・型番診断で使う。
+  // GAS未設定・オフライン・通信失敗のときは空のまま（外部検索リンクは従来どおり動作）。
+  var CATALOG = [];
+
+  function applyCatalogData(list){
+    if (!list || !list.length) return;
+    CATALOG = list.map(function(r){
+      return {
+        maker: String(r.maker||''),
+        models: Array.isArray(r.models) ? r.models : String(r.models||'').split(/[,、\n]+/).map(function(s){return s.replace(/\s+/g,'');}).filter(Boolean),
+        name: String(r.name||''),
+        capacity: String(r.capacity||''),
+        output: String(r.output||''),
+        chem: String(r.chem||''),
+        pse: String(r.pse||''),
+        year: String(r.year||''),
+        note: String(r.note||'')
+      };
+    }).filter(function(r){ return r.maker || r.name; });
+    // すでに検索結果が表示されている場合は、取り込み後に反映し直す
+    try { if (typeof refreshFindIfShown === 'function') refreshFindIfShown(); } catch(e){}
+  }
+
+  // 起動時に一度だけ、カタログの取得を試みる（リコールと同じGAS URLを使う）
+  (function loadCatalogFromGas(){
+    if (!RECALL_GAS_URL) return;
+    try {
+      var cbName = 'catalogCb' + Date.now();
+      var done = false;
+      window[cbName] = function(data){
+        done = true;
+        try { applyCatalogData(data && data.catalog); } catch(e){}
+        try { delete window[cbName]; } catch(e){ window[cbName] = undefined; }
+        if (s && s.parentNode) s.parentNode.removeChild(s);
+      };
+      var s = document.createElement('script');
+      var sep = RECALL_GAS_URL.indexOf('?')>=0 ? '&' : '?';
+      s.src = RECALL_GAS_URL + sep + 'type=catalog&callback=' + cbName + '&_=' + Date.now();
+      s.onerror = function(){ if (s && s.parentNode) s.parentNode.removeChild(s); };
+      document.head.appendChild(s);
+      setTimeout(function(){ if (!done && s && s.parentNode) s.parentNode.removeChild(s); }, 8000);
+    } catch(e){}
+  })();
+
+  // カタログを条件で絞り込む（メーカー・電池種別・キーワード）
+  function searchCatalog(opt){
+    opt = opt || {};
+    var mk = (opt.maker||'').toLowerCase();
+    var chem = (opt.chem||'');
+    var kw = (opt.keyword||'').trim().toLowerCase();
+    return CATALOG.filter(function(p){
+      if (mk && p.maker.toLowerCase() !== mk) return false;
+      if (chem && p.chem.indexOf(chem) < 0) return false;
+      if (kw){
+        var hay = (p.maker+' '+p.name+' '+p.models.join(' ')+' '+p.capacity+' '+p.output+' '+p.chem+' '+p.note).toLowerCase();
+        if (hay.indexOf(kw) < 0) return false;
+      }
+      return true;
+    });
+  }
+
+  // 型番からカタログの該当製品を探す（型番診断タブで使う）
+  function findCatalogByModel(maker, model){
+    var m = (model||'').replace(/\s+/g,'').toLowerCase();
+    if (!m) return null;
+    var mk = (maker||'').toLowerCase();
+    var hit = null;
+    CATALOG.forEach(function(p){
+      if (mk && p.maker.toLowerCase() !== mk) return;
+      p.models.forEach(function(code){
+        var c = code.replace(/\s+/g,'').toLowerCase();
+        if (c && (c === m || m.indexOf(c) >= 0 || c.indexOf(m) >= 0)){
+          if (!hit) hit = p;
+        }
+      });
+    });
+    return hit;
+  }
+
   // ---------------- セル種別（化学種）の定義 ----------------
   var CHEM_INFO = {
     lfp: {
@@ -1289,6 +1395,28 @@
     wrap.style.display='block';
   }
 
+  // 型番診断の結果に、カタログの製品仕様を表示する
+  function setCatalogInfo(maker, model){
+    var wrap = $('catInfoWrap'), box = $('catInfo');
+    if (!wrap || !box) return;
+    var p = findCatalogByModel(maker, model);
+    if (!p){ wrap.style.display='none'; box.innerHTML=''; return; }
+    var specs = [];
+    if (p.capacity) specs.push('<span class="cat-spec"><b>容量</b> '+esc(p.capacity)+'</span>');
+    if (p.output)   specs.push('<span class="cat-spec"><b>出力</b> '+esc(p.output)+'</span>');
+    if (p.chem)     specs.push('<span class="cat-spec"><b>電池</b> '+esc(p.chem)+'</span>');
+    if (p.pse)      specs.push('<span class="cat-spec"><b>PSE</b> '+esc(p.pse)+'</span>');
+    if (p.year)     specs.push('<span class="cat-spec"><b>発売</b> '+esc(p.year)+'</span>');
+    box.innerHTML =
+      '<div class="cat-item">' +
+        '<div class="cat-item-maker">'+esc(p.maker)+'</div>' +
+        '<div class="cat-item-name">'+esc(p.name||'')+'</div>' +
+        (specs.length ? '<div class="cat-item-specs">'+specs.join('')+'</div>' : '') +
+        (p.note ? '<div class="cat-item-note">'+esc(p.note)+'</div>' : '') +
+      '</div>';
+    wrap.style.display='block';
+  }
+
   function renderResult(opts){
     // opts: { level, title, sub, basis, meta, chemKey, matched, showLinks }
     var level = opts.level, chemKey = opts.chemKey || 'unknown';
@@ -1309,6 +1437,9 @@
     // 公式リンクは「DB非該当」時に必ず表示。該当時も確認用に表示。
     setOfficialLinks(makerSel.value, modelInput.value.trim());
     setSources(null); // 参照元リストは使わない（オフライン化）
+
+    // カタログに該当製品があれば仕様を表示する
+    setCatalogInfo(makerSel.value, modelInput.value.trim());
 
     var tagEl = $('sourceTag');
     tagEl.className = 'source-tag ' + (opts.matched ? 'live' : 'local');
@@ -1453,8 +1584,71 @@
     });
 
     $('findHint').innerHTML = '検索結果は各サイトの最新の掲載内容です。気になる製品が見つかったら、その型番を「型番で診断」タブに入れると、リコール情報との照合とリスクの目安を確認できます。';
+
+    // カタログ（スプレッドシート）から該当製品を表示
+    renderFindCatalog();
+
     $('findResult').style.display = 'block';
     $('findResult').scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  // 直近の条件でカタログを検索して一覧表示する
+  function renderFindCatalog(){
+    var wrap = $('findCatalogWrap'), list = $('findCatalogList'), cnt = $('findCatalogCount');
+    if (!wrap || !list) return;
+    var mk = (findMaker.value && findMaker.value!=='その他') ? findMaker.value : '';
+    var hits = searchCatalog({ maker:mk, chem:findChem.value, keyword:findKeyword.value.trim() });
+
+    if (!hits.length){
+      wrap.style.display = 'none';
+      list.innerHTML = '';
+      return;
+    }
+    wrap.style.display = 'block';
+    if (cnt) cnt.textContent = '（' + hits.length + '件）';
+    list.innerHTML = '';
+    hits.forEach(function(p){
+      var el = document.createElement('div');
+      el.className = 'cat-item';
+      var specs = [];
+      if (p.capacity) specs.push('<span class="cat-spec"><b>容量</b> '+esc(p.capacity)+'</span>');
+      if (p.output)   specs.push('<span class="cat-spec"><b>出力</b> '+esc(p.output)+'</span>');
+      if (p.chem)     specs.push('<span class="cat-spec"><b>電池</b> '+esc(p.chem)+'</span>');
+      if (p.pse)      specs.push('<span class="cat-spec"><b>PSE</b> '+esc(p.pse)+'</span>');
+      if (p.year)     specs.push('<span class="cat-spec"><b>発売</b> '+esc(p.year)+'</span>');
+      var modelStr = p.models && p.models.length ? p.models.join(' / ') : '';
+      el.innerHTML =
+        '<div class="cat-item-maker">'+esc(p.maker)+'</div>' +
+        '<div class="cat-item-name">'+esc(p.name||'（製品名未登録）')+'</div>' +
+        (specs.length ? '<div class="cat-item-specs">'+specs.join('')+'</div>' : '') +
+        (modelStr ? '<div class="cat-item-models">型番: '+esc(modelStr)+'</div>' : '') +
+        (p.note ? '<div class="cat-item-note">'+esc(p.note)+'</div>' : '');
+      // 型番診断へ送るボタン
+      if (modelStr){
+        var btn = document.createElement('button');
+        btn.className = 'cat-diag-btn';
+        btn.textContent = 'この製品を型番で診断 →';
+        btn.addEventListener('click', function(){
+          switchTab(false);
+          makerSel.value = p.maker;
+          modelInput.value = (p.models && p.models[0]) ? p.models[0] : (p.name||'');
+          runDiagnosis();
+        });
+        el.appendChild(btn);
+      }
+      list.appendChild(el);
+    });
+  }
+
+  // カタログが後から届いたとき、検索結果が表示中なら再描画する
+  function refreshFindIfShown(){
+    var fr = $('findResult');
+    if (fr && fr.style.display === 'block') renderFindCatalog();
+  }
+
+  // HTMLエスケープ（カタログ表示用）
+  function esc(s){
+    return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
   findBtn.addEventListener('click', runFind);
   findKeyword.addEventListener('keydown', function(e){ if (e.key==='Enter') runFind(); });
