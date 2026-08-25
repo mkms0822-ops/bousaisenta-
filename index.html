@@ -9406,10 +9406,19 @@ async function fetchWithRetry(url, { retries = 2, timeout = 12000, backoff = 800
     try{
       const r = await fetch(url, { signal: ctrl.signal, cache: 'no-store' });
       clearTimeout(tid);
+      // 429（レート制限超過）はリトライしても無駄に叩くだけで逆効果なので、
+      // 専用エラーとして即座に投げ、上位でクールダウン処理に回す。
+      if(r.status === 429){
+        const err = new Error('アクセスが集中しています（レート制限）');
+        err.isRateLimit = true;
+        throw err;
+      }
       if(!r.ok) throw new Error('HTTP '+r.status);
       return r;
     }catch(e){
       clearTimeout(tid);
+      // レート制限は即時中断（このループでの再試行はしない）。
+      if(e && e.isRateLimit){ throw e; }
       // 中断がタイムアウト由来なら、分かりやすいエラーに置き換える。
       lastErr = (timedOut || e?.name === 'AbortError' || e?.name === 'TimeoutError')
         ? new Error('応答がありません（タイムアウト）')
@@ -9443,6 +9452,9 @@ async function fetchP2P(path, opts = {}){
       return r;
     }catch(e){
       lastErr = e;
+      // レート制限(429)は「どのホストでも同じIP制限に当たる」ため、
+      // 別ホストへ切り替えても無意味。切り替えず即座に投げる。
+      if(e && e.isRateLimit){ throw e; }
       // まだ試していないホストが残っていれば、そちらへ切り替えて再挑戦。
       if(k < P2P_HOSTS.length - 1){
         try{ document.getElementById('updateBar').textContent =
@@ -9893,6 +9905,14 @@ async function fetchQuakes(){
       'オフライン中 — 接続が戻り次第、自動で更新します'; }catch(_e){}
     return;
   }
+  // レート制限(429)を受けた直後は、クールダウン中はAPIを叩かない。
+  // 制限中に叩き続けると解除が遅れるため、静かに待つのが正解。
+  if(window._p2pCooldownUntil && Date.now() < window._p2pCooldownUntil){
+    const sec = Math.ceil((window._p2pCooldownUntil - Date.now()) / 1000);
+    try{ document.getElementById('updateBar').textContent =
+      `アクセスが集中しています — あと約${sec}秒で自動再開します`; }catch(_e){}
+    return;
+  }
   const btn = document.getElementById('refreshBtn');
   btn.disabled = true; btn.textContent = '取得中...';
   document.getElementById('updateBar').textContent = 'P2P地震情報APIからデータを取得中...';
@@ -9948,8 +9968,23 @@ async function fetchQuakes(){
     renderTsunamiBanner(qs, tsunamiApiData);
 
     document.getElementById('updateBar').textContent =
-      '最終更新: '+new Date().toLocaleTimeString('ja-JP')+' (P2P地震情報API / 30秒ごと自動更新)';
+      '最終更新: '+new Date().toLocaleTimeString('ja-JP')+' (P2P地震情報API / 60秒ごと自動更新)';
   } catch(e){
+    // レート制限(429)を受けたら、60秒間のクールダウンを設定。
+    // この間は自動更新も手動更新もAPIを叩かず、静かに待って解除を早める。
+    if(e && e.isRateLimit){
+      window._p2pCooldownUntil = Date.now() + 60000;
+      document.getElementById('quakeList').innerHTML = `
+        <div class="error-msg">
+          ⏳ アクセスが集中しています<br>
+          <small style="color:var(--muted);">P2P地震情報APIのレート制限（429）に達しました。<br>約60秒後に自動で再取得します。</small><br><br>
+          <a href="https://www.jma.go.jp/bosai/map.html#elem=int&contents=earthquake_map" target="_blank" style="color:var(--blue);font-size:12px;">→ 気象庁公式へ</a>
+        </div>`;
+      try{ const b=document.getElementById('refreshBtn'); b.disabled=false; b.textContent='↻ 更新'; }catch(_e){}
+      try{ document.getElementById('updateBar').textContent =
+        'アクセス集中のため一時停止中 — 約60秒後に自動再開します'; }catch(_e){}
+      return;
+    }
     document.getElementById('quakeList').innerHTML = `
       <div class="error-msg">
         ⚠️ データを取得できませんでした<br>
@@ -14069,7 +14104,7 @@ document.addEventListener('keydown', function(e){
   }
 });
 
-setInterval(fetchQuakes, 30000);
+setInterval(fetchQuakes, 60000);
 
 // オフラインから復帰したら、次回の定期更新を待たずに即座に再取得する。
 // (スリープ復帰やトンネル通過後などに、すぐ最新の地震情報へ追いつくため)
