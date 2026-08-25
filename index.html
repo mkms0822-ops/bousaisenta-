@@ -7202,7 +7202,7 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     <div class="swidget">
       <div class="sw-title">// データソース</div>
       <p style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);line-height:1.9;">
-        P2P地震情報API<br>(api.p2pquake.net)<br>気象庁データを元に集計<br><br>
+        P2P地震情報API<br>(api.p2pquake.com)<br>気象庁データを元に集計<br><br>
         ※ 情報は参考値です。<br>　正式情報は気象庁へ。
       </p>
     </div>
@@ -9382,8 +9382,11 @@ function doHardReload(){
 //                earthquake.maxScale (10=震度1, 20=2, 30=3, 40=4, 45=5弱, 50=5強, 55=6弱, 60=6強, 70=7)
 //                earthquake.time (発生時刻文字列)
 
-const P2P_API        = 'https://api.p2pquake.net/v2/jma/quake?limit=50';
-const P2P_TSUNAMI_API = 'https://api.p2pquake.net/v2/jma/tsunami?limit=1';
+// P2P地震情報APIのドメイン。現行は .com、.net は旧系統（フォールバック用）。
+// まず .com を試し、ドメイン解決失敗や通信エラーのときだけ .net を試す。
+const P2P_HOSTS      = ['https://api.p2pquake.com', 'https://api.p2pquake.net'];
+const P2P_API        = P2P_HOSTS[0] + '/v2/jma/quake?limit=50';
+const P2P_TSUNAMI_API = P2P_HOSTS[0] + '/v2/jma/tsunami?limit=1';
 // 海外地震: USGS（過去1日・M4.5以上, 全世界）。震度(shindo)は存在しないためマグニチュード主体。
 const USGS_API       = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_day.geojson';
 let _lastQs = null;  // 直近の取得データ（バナー再描画用）
@@ -9417,6 +9420,33 @@ async function fetchWithRetry(url, { retries = 2, timeout = 12000, backoff = 800
         try{ document.getElementById('updateBar').textContent =
           `取得に失敗。再試行中... (${attempt+2}/${retries+1})`; }catch(_e){}
         await new Promise(res => setTimeout(res, wait));
+      }
+    }
+  }
+  throw lastErr;
+}
+
+// P2P地震情報API専用の取得ヘルパー。
+// path は '/v2/jma/quake?limit=50' のようなパス部分。
+// P2P_HOSTS を順に試し、最初に成功したホストを以後も優先的に使う。
+// .com がダメになった／.net しか無い環境の双方に自動対応するのが狙い。
+let _p2pHostIndex = 0;  // 直近で成功したホストの番号を覚えておく
+async function fetchP2P(path, opts = {}){
+  let lastErr;
+  // 成功実績のあるホストから順に、全ホストを一巡する。
+  for(let k = 0; k < P2P_HOSTS.length; k++){
+    const idx  = (_p2pHostIndex + k) % P2P_HOSTS.length;
+    const host = P2P_HOSTS[idx];
+    try{
+      const r = await fetchWithRetry(host + path, opts);
+      _p2pHostIndex = idx;  // このホストを次回も最優先にする
+      return r;
+    }catch(e){
+      lastErr = e;
+      // まだ試していないホストが残っていれば、そちらへ切り替えて再挑戦。
+      if(k < P2P_HOSTS.length - 1){
+        try{ document.getElementById('updateBar').textContent =
+          '接続先を切り替えて再試行中...'; }catch(_e){}
       }
     }
   }
@@ -9872,9 +9902,9 @@ async function fetchQuakes(){
     // メインの地震APIはリトライ付き(最大3回)。津波/USGSは補助情報なので
     // 失敗しても null で握りつぶし、本体表示を止めない。
     const [rQuake, rTsunami, rUsgs] = await Promise.all([
-      fetchWithRetry(P2P_API,        { retries: 2, timeout: 12000 }),
-      fetchWithRetry(P2P_TSUNAMI_API,{ retries: 1, timeout: 12000 }).catch(()=>null),
-      fetchWithRetry(USGS_API,       { retries: 1, timeout: 12000 }).catch(()=>null)
+      fetchP2P('/v2/jma/quake?limit=50',  { retries: 2, timeout: 12000 }),
+      fetchP2P('/v2/jma/tsunami?limit=1', { retries: 1, timeout: 12000 }).catch(()=>null),
+      fetchWithRetry(USGS_API,            { retries: 1, timeout: 12000 }).catch(()=>null)
     ]);
 
     if(!rQuake.ok) throw new Error('HTTP '+rQuake.status);
