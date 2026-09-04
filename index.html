@@ -4262,6 +4262,21 @@ button.dwa-plate{ padding:0; }
 .qh-head{ padding:16px 16px 4px; }
 .qh-head h3{ margin:0; font-size:21px; font-weight:900; color:var(--text); }
 .qh-head p{ margin:7px 0 0; font-size:12.5px; color:var(--muted); line-height:1.65; }
+.qh-gov-link{
+  display:flex; align-items:center; gap:12px; margin:12px 0 4px;
+  padding:13px 15px; border-radius:12px; text-decoration:none;
+  background:linear-gradient(135deg,#1a3a6b,#25508f); color:#fff;
+  border:1px solid #3d6bb0; box-shadow:0 3px 10px rgba(0,0,0,.18);
+  transition:filter .15s, transform .1s;
+}
+.qh-gov-link:hover{ filter:brightness(1.08); }
+.qh-gov-link:active{ transform:scale(.99); }
+.qh-gov-ic{ font-size:26px; flex-shrink:0; }
+.qh-gov-tx{ flex:1; min-width:0; }
+.qh-gov-t{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:15px; font-weight:900; }
+.qh-gov-tag{ font-size:10.5px; font-weight:800; background:#ffcf33; color:#3a2b00; padding:1px 7px; border-radius:999px; }
+.qh-gov-s{ display:block; font-size:12px; opacity:.92; margin-top:3px; line-height:1.5; }
+.qh-gov-arrow{ font-size:20px; opacity:.9; flex-shrink:0; }
 
 /* セクションタブ */
 .qh-tabswrap{ position:sticky; top:52px; z-index:25; display:flex; align-items:stretch;
@@ -5934,6 +5949,14 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
         <span class="h-link-icon">📨</span>災害用伝言板
       </a>
 
+      <div class="hamburger-section-label">// 令和8年熊本地震</div>
+      <button class="hamburger-link" onclick="closeHamburger();openQuakeHub();" style="color:#ff6b6b;border-color:rgba(255,80,80,0.35);background:rgba(255,80,80,0.07);width:100%;text-align:left;cursor:pointer;">
+        <span class="h-link-icon">🔴</span>熊本地震 情報センター<br><span style="font-size:11px;opacity:.75;">相談窓口・支援制度・生活情報</span>
+      </button>
+      <button class="hamburger-link" onclick="closeHamburger();openKyusui();" style="color:#00c8ff;border-color:rgba(0,200,255,0.3);background:rgba(0,200,255,0.06);width:100%;text-align:left;cursor:pointer;">
+        <span class="h-link-icon">💧</span>熊本 給水・断水情報<br><span style="font-size:11px;opacity:.75;">各自治体の公式ページへ</span>
+      </button>
+
       <div class="hamburger-section-label">// 防災情報</div>
       <a class="hamburger-link" data-tour="bousai-shindan" href="https://mkms0822-ops.github.io/anatano-bousai-shindan/" target="_blank" rel="noopener" style="color:#00ffe0;border-color:rgba(0,255,224,0.3);background:rgba(0,255,224,0.07);">
         <span class="h-link-icon">🧭</span>あなたの防災意識診断
@@ -6611,12 +6634,6 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
 <!-- split-open 時に disaster-tabs をここへ戻すためのアンカー -->
 <span id="dtabsAnchor" style="display:none"></span>
 <div class="disaster-tabs" data-tour="tabs">
-  <button type="button" class="d-tab qhub" onclick="openQuakeHub()">
-    <span class="tab-icon">🔴</span>熊本地震情報
-  </button>
-  <button type="button" class="d-tab kyusui" onclick="openKyusui()">
-    <span class="tab-icon">💧</span>給水所・入浴
-  </button>
   <button type="button" class="d-tab quiz" onclick="openQuiz()">
     <span class="tab-icon">🧠</span>防災クイズ
   </button>
@@ -6652,25 +6669,8 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
   </a>
 </div>
 
-<!-- ===== 熊本地震 情報センター バナー ===== -->
-<button type="button" class="qh-banner" onclick="openQuakeHub()">
-  <span class="qb-i">🔴</span>
-  <span class="qb-t">
-    <span class="qb-title">令和8年熊本地震 情報センター<span class="qb-tag">LIVE</span></span>
-    <span class="qb-sub">被害状況・ライフライン・交通・避難所・医療・医薬品・罹災証明・相談窓口<br>15セクションを１日２回更新でまとめています</span>
-  </span>
-  <span class="qb-a">›</span>
-</button>
+<!-- 熊本地震 情報センター／給水バナーは「メニュー内」に移動しました -->
 
-<!-- ===== 熊本給水所 バナー ===== -->
-<button type="button" class="kyusui-banner" onclick="openKyusui()">
-  <span class="kb-icon">💧</span>
-  <span class="kb-text">
-    <span class="kb-title">熊本 給水所・入浴・災害ごみ仮置き場<span class="kb-tag">WATER</span></span>
-    <span class="kb-sub">令和8年熊本地震の応急給水所　7自治体・34か所<br>地図・住所・電話番号をまとめて確認できます</span>
-  </span>
-  <span class="kb-arrow">›</span>
-</button>
 
 <!-- ===== 防災クイズ バナー ===== -->
 <button type="button" class="quiz-banner" onclick="openQuiz()">
@@ -20329,41 +20329,81 @@ render();
       <button type="button" onclick="closeKyusui()" aria-label="閉じる">✕</button>
     </div>
 
-    <div class="ky-fresh" id="kyFresh" role="status">
-      <span class="age" id="kyAge">--</span><span class="msg" id="kyAgeMsg"></span>
-    </div>
-    <div class="qh-loading" id="kyLoading" style="display:none;">最新の給水情報を取得しています…</div>
-
     <div class="ky-head">
-      <h3>熊本 給水所・入浴・災害ごみ仮置き場マップ</h3>
-      <p>令和8年熊本地震（2026年7月28日）の応急給水所と、無料入浴支援の協力施設。場所や時間は日ごとに変わります。出発する前に、必ず各自治体の発表で最新の状況を確認してください。</p>
+      <h3>熊本 給水・断水情報（各自治体の公式ページ）</h3>
+      <p>給水所の場所・時間・断水の状況は日ごとに変わります。ここでは各自治体の公式ページへの入口をまとめています。最新の情報は、必ず下のリンク先（自治体公式）でご確認ください。</p>
     </div>
 
-    <div class="ky-chips" id="kyChips" role="group" aria-label="自治体で絞り込み"></div>
-    <div class="ky-tools">
-      <button type="button" id="kyNearBtn" aria-pressed="false" onclick="kyToggleNear(this)">📍 現在地から近い順</button>
+    <div class="ky-govlist">
+      <a class="ky-gov" href="https://www.kumamoto-waterworks.jp/" target="_blank" rel="noopener">
+        <span class="ky-gov-ic">💧</span>
+        <span class="ky-gov-tx"><span class="ky-gov-t">熊本市上下水道局</span><span class="ky-gov-s">応急給水・断水・濁水の最新情報（第◯報）</span></span>
+        <span class="ky-gov-ar">→</span>
+      </a>
+      <a class="ky-gov" href="https://www.city.uki.kumamoto.jp/kurashi/sumai/jogesuido/2606682" target="_blank" rel="noopener">
+        <span class="ky-gov-ic">💧</span>
+        <span class="ky-gov-tx"><span class="ky-gov-t">宇城市 上下水道</span><span class="ky-gov-s">給水所・断水情報</span></span>
+        <span class="ky-gov-ar">→</span>
+      </a>
+      <a class="ky-gov" href="https://www.city.uto.lg.jp/category/list/1301.html" target="_blank" rel="noopener">
+        <span class="ky-gov-ic">💧</span>
+        <span class="ky-gov-tx"><span class="ky-gov-t">宇土市</span><span class="ky-gov-s">上下水道・くらしの情報</span></span>
+        <span class="ky-gov-ar">→</span>
+      </a>
+      <a class="ky-gov" href="https://www.city.yatsushiro.lg.jp/kinkyu.html" target="_blank" rel="noopener">
+        <span class="ky-gov-ic">💧</span>
+        <span class="ky-gov-tx"><span class="ky-gov-t">八代市 緊急情報</span><span class="ky-gov-s">断水・給水などの緊急のお知らせ</span></span>
+        <span class="ky-gov-ar">→</span>
+      </a>
+      <a class="ky-gov" href="https://www.town.kosa.lg.jp/q/aview/51/13513.html" target="_blank" rel="noopener">
+        <span class="ky-gov-ic">💧</span>
+        <span class="ky-gov-tx"><span class="ky-gov-t">甲佐町</span><span class="ky-gov-s">給水・くらしの情報</span></span>
+        <span class="ky-gov-ar">→</span>
+      </a>
+      <a class="ky-gov" href="https://www.town.ozu.kumamoto.jp/page/26590.html" target="_blank" rel="noopener">
+        <span class="ky-gov-ic">💧</span>
+        <span class="ky-gov-tx"><span class="ky-gov-t">大津町</span><span class="ky-gov-s">給水・断水情報</span></span>
+        <span class="ky-gov-ar">→</span>
+      </a>
+      <a class="ky-gov" href="https://www.city.hitoyoshi.lg.jp/toppage/bosaimusen/2500362" target="_blank" rel="noopener">
+        <span class="ky-gov-ic">💧</span>
+        <span class="ky-gov-tx"><span class="ky-gov-t">人吉市 防災無線</span><span class="ky-gov-s">給水・防災のお知らせ</span></span>
+        <span class="ky-gov-ar">→</span>
+      </a>
+      <a class="ky-gov ky-gov-main" href="https://www.bousai.go.jp/updates/r8kumamoto_jishin/index.html" target="_blank" rel="noopener">
+        <span class="ky-gov-ic">🏛️</span>
+        <span class="ky-gov-tx"><span class="ky-gov-t">内閣府 防災情報のページ<span class="qh-gov-tag">最新</span></span><span class="ky-gov-s">政府の被害状況・被災者支援のまとめ</span></span>
+        <span class="ky-gov-ar">→</span>
+      </a>
     </div>
-    <div class="ky-search">
-      <label class="ky-vh" for="kyQ" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">施設名や住所で探す</label>
-      <input id="kyQ" type="search" inputmode="search" autocomplete="off" placeholder="施設名・町名で探す（例：松橋、小学校）">
-    </div>
-
-    <div id="kyMap"></div>
-    <p class="ky-mapfail" id="kyMapFail">地図を読み込めませんでした。通信が不安定な可能性があります。下の一覧はそのまま使えます。</p>
-
-    <div class="ky-list" id="kyList"></div>
 
     <div class="ky-foot">
       <button type="button" class="ky-home-big" onclick="kyusuiGoHome()">🏠 ホームに戻る</button>
-      <p><b>情報の出どころ：</b>給水所の一覧と時間は各自治体の公式発表（各項目のリンク先）および報道。住所・電話番号・緯度経度は施設情報データベースから取得し、施設ごとに突き合わせています。7自治体・34か所。</p>
-      <p><b>位置の精度：</b>31か所は実測座標です。「位置は目安」と表示された施設は、必ず電話で確認してから向かってください。</p>
-      <p><b>電話番号について：</b>施設の番号は代表番号です。給水の実施状況は自治体の担当課のほうが確実に答えられます。学校への問い合わせは避けてください。</p>
-      <p>地図：地理院タイル（国土地理院）</p>
+      <p><b>なぜリンクだけにしているの？：</b>給水所の場所や時間は毎日のように変わります。当サイトで固定の一覧を載せると古い情報が残ってしまうため、いつでも最新が見られる各自治体の公式ページへご案内しています。</p>
+      <p><b>お願い：</b>学校など施設への直接のお問い合わせはお控えください。給水の実施状況は、各自治体の水道局・担当課へご確認ください。</p>
     </div>
 
   </div>
 </div>
 <div class="ky-toast" id="kyToast"></div>
+
+<!-- ===== 熊本給水所 リンク集スタイル ===== -->
+<style>
+.ky-govlist{ display:flex; flex-direction:column; gap:10px; padding:8px 16px 4px; }
+.ky-gov{ display:flex; align-items:center; gap:12px; padding:13px 15px; border-radius:12px;
+  text-decoration:none; background:var(--card,#12325a); color:var(--text,#eaf1f8);
+  border:1px solid rgba(120,160,220,.35); transition:filter .15s, transform .1s; }
+.ky-gov:hover{ filter:brightness(1.08); }
+.ky-gov:active{ transform:scale(.99); }
+.ky-gov-ic{ font-size:24px; flex-shrink:0; }
+.ky-gov-tx{ flex:1; min-width:0; }
+.ky-gov-t{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:15px; font-weight:800; }
+.ky-gov-s{ display:block; font-size:12px; opacity:.85; margin-top:2px; line-height:1.5; }
+.ky-gov-ar{ font-size:18px; opacity:.85; flex-shrink:0; }
+.ky-gov-main{ background:linear-gradient(135deg,#1a3a6b,#25508f); border-color:#3d6bb0; }
+html.light .ky-gov{ background:#f0f5ff; color:#183055; border-color:#c2d4ef; }
+html.light .ky-gov-main{ background:linear-gradient(135deg,#2b5aa0,#3f74c0); color:#fff; }
+</style>
 
 <!-- ===== 熊本給水所 スクリプト ===== -->
 <script>
@@ -20673,18 +20713,8 @@ window.openKyusui=function(group){
   var el=document.getElementById('kyusuiModal');
   el.classList.add('open');
   document.body.style.overflow='hidden';
-  if(!kyBooted){
-    kyBooted=true;
-    document.getElementById('kyQ').addEventListener('input', kyRender);
-    kyLoad(function(){
-      kyChips(); kyRender(); initKyMap();
-      kyFresh(); setInterval(kyFresh, 60000);
-      if(typeof group==='string') kyApplyFilter(group);
-    });
-  } else {
-    if(typeof group==='string') kyApplyFilter(group);
-    if(kyMap) setTimeout(function(){ kyMap.invalidateSize(); },120);
-  }
+  // 給水情報は各自治体の公式ページへのリンク集（静的）に変更したため、
+  // 地図・検索・データ読み込みの初期化は不要。
   if(history.replaceState) history.replaceState(null,'','#kyusui');
 };
 window.closeKyusui=function(){
@@ -20751,7 +20781,15 @@ else kyHashBoot();
     <div class="qh-loading" id="qhLoading" style="display:none;">最新情報を取得しています…</div>
     <div class="qh-head">
       <h3>令和8年熊本地震 情報センター</h3>
-      <p id="qhLead">2026年7月28日16時27分、熊本県熊本地方でM7.1の地震。宇城市と氷川町で最大震度7を観測しました。情報は1日2回（朝・夕）を目安に更新しています。行動の前に、必ず各自治体の公式発表で最新の状況をご確認ください。</p>
+      <p id="qhLead">2026年7月28日16時27分、熊本県熊本地方でM7.1の地震。宇城市と氷川町で最大震度7を観測しました。このページでは、時間が経っても役立つ相談窓口・支援制度・生活情報をまとめています。被害状況・給水・避難所・ライフラインなど日々変わる最新情報は、下の内閣府防災および各自治体の公式発表でご確認ください。</p>
+      <a class="qh-gov-link" href="https://www.bousai.go.jp/updates/r8kumamoto_jishin/index.html" target="_blank" rel="noopener">
+        <span class="qh-gov-ic">🏛️</span>
+        <span class="qh-gov-tx">
+          <span class="qh-gov-t">内閣府 防災情報のページ（令和8年熊本地震）<span class="qh-gov-tag">最新</span></span>
+          <span class="qh-gov-s">政府の被害状況まとめ・被災者支援の最新情報はこちら</span>
+        </span>
+        <span class="qh-gov-arrow">→</span>
+      </a>
     </div>
     <div class="qh-tabswrap">
       <div class="qh-tabsbox">
@@ -20784,92 +20822,6 @@ else kyHashBoot();
 var QH_FALLBACK = {
   updated: "2026-07-31T07:00:00+09:00",
   sections: [
-    { key:"概況", icon:"📊", title:"概況・人的被害",
-      note:"7月28日16時27分、熊本県熊本地方でM7.1の地震。宇城市と氷川町で最大震度7を観測しました。真夏に震度7が発生したのは観測史上初めてです。",
-      stats:[
-        {l:"死者", v:"34", u:"人", s:"災害との関連を調査中の方を含む／うち25人は市町村が地震が原因と認定（30日16時・県災害対策本部）", tone:"alert"},
-        {l:"負傷者", v:"64", u:"人以上", s:"29日16時・県発表。精査中", tone:"warn"},
-        {l:"最大震度", v:"7", u:"", s:"宇城市・氷川町", tone:"alert"},
-        {l:"震度3以上の地震", v:"58", u:"回", s:"30日正午まで。震度6弱以上も複数回", tone:"warn"}
-      ],
-      rows:[
-        {t:"イオンモール熊本（嘉島町）", d:"地震後に爆発が発生。7人が死亡、5人がけが、捜索が続いています。", tone:"alert", src:"30日21時・報道"},
-        {t:"日本製紙八代工場（八代市）", d:"煙突の一部が折れて倒壊。閉じ込められた11人のうち8人の死亡を確認、2人負傷、1人が安否不明です。", tone:"alert", src:"30日・報道"}
-      ] },
-
-    { key:"建物", icon:"🏚️", title:"建物被害",
-      note:"被害認定調査が進行中です。数値は今後大きく増える可能性があります。",
-      stats:[
-        {l:"氷川町 全壊", v:"125", u:"棟", s:"800棟以上に被害（30日）", tone:"alert"},
-        {l:"県全体の住家被害", v:"調査中", u:"", s:"罹災証明の申請受付とあわせて集計中", tone:"pending"}
-      ],
-      rows:[
-        {t:"熊本城", d:"天守閣近くの石垣が崩落しました。2016年の地震からの復旧途上での再被災です。", tone:"warn"},
-        {t:"エレベーター閉じ込め", d:"31件（熊本県28件、鹿児島県2件相当、福岡県2件）発生し、全て救出済みです。", tone:"ok", src:"29日6時・国交省"},
-        {t:"港湾", d:"熊本県や八代市などが管理する9港で、液状化や亀裂などの被害を確認しています。", tone:"warn", src:"30日・国交省"}
-      ] },
-
-    { key:"給水", icon:"💧", title:"給水の実施状況",
-      note:"給水所の場所・時間・住所・電話番号は、専用の地図から確認できます。",
-      stats:[
-        {l:"収録している給水所", v:"34", u:"か所", s:"7自治体", tone:"ok"}
-      ],
-      rows:[
-        {t:"実施中の自治体", d:"熊本市南区／宇城市／宇土市／八代市／甲佐町／大津町／人吉市", tone:"ok"},
-        {t:"容器の持参が必要です", d:"宇城市では当面、1日1回・1人4リットルまでの制限があります。自治体によって条件が異なります。", tone:"warn"}
-      ],
-      buttons:[ {label:"💧 給水所マップを開く", act:"kyusui"} ] },
-
-    { key:"避難所", icon:"🏫", title:"避難所・避難者",
-      note:"避難所の開設状況は市町村ごとに変わります。最新の一覧は各市町村の公式サイトでご確認ください。",
-      stats:[
-        {l:"避難者数", v:"確認中", u:"", s:"各市町村が集計中", tone:"pending"},
-        {l:"開設避難所", v:"確認中", u:"", s:"開設・閉鎖が随時発生します", tone:"pending"}
-      ],
-      rows:[
-        {t:"暑さ対策が進んでいます", d:"避難所向けにスポットクーラー300台が入間基地から輸送されました。段ボールベッドや電源車のプッシュ型支援も実施されています。", tone:"ok"},
-        {t:"自衛隊駐屯地の開放", d:"津波注意報の発表に伴い、別府駐屯地と北熊本駐屯地が一時避難所として開放されました。", tone:"ok"}
-      ],
-      links:[
-        {i:"🏛️", t:"熊本県 令和8年熊本地震に関する情報", s:"県内の避難情報・支援情報の入口", url:"https://www.pref.kumamoto.jp/soshiki/1/274517.html"}
-      ] },
-
-    { key:"ライフライン", icon:"⚡", title:"電気・ガス・水道・通信",
-      note:"復旧見込みは変更されることがあります。各事業者の発表をあわせてご確認ください。",
-      stats:[
-        {l:"断水", v:"約95,200", u:"戸", s:"11市町（30日9時半・国交省）", tone:"alert"},
-        {l:"停電", v:"約22,940", u:"戸", s:"30日5時時点。31日夕に全域復旧見込み（九州電力）", tone:"warn"},
-        {l:"ガス", v:"確認中", u:"", s:"事業者の発表を確認中", tone:"pending"},
-        {l:"通信", v:"確認中", u:"", s:"各キャリアの発表を確認中", tone:"pending"}
-      ],
-      rows:[
-        {t:"断水の内訳", d:"八代市 約25,300戸（市内全域）／宇城市 約18,000戸（市内全域）／宇土市 約12,200戸／熊本市 約8,700戸／人吉市 地下水の濁りにより新たに15,000戸。福岡・長崎・佐賀の一部で発生した断水は復旧済みです。", tone:"alert", src:"30日9時半・国交省"},
-        {t:"停電の復旧見込み", d:"九州電力と九州電力送配電は、31日夕に県内全域で復旧する見込みと発表しました。ただし各家庭への引き込み線が断線している場合は、個別に時間がかかります。", tone:"warn", src:"30日・九州電力"},
-        {t:"給水支援", d:"自衛隊が八代市1か所・宇城市5か所で給水を開始し、宇土市・御船町にも拡大。海上保安庁も巡視船2隻で給水活動を行っています。", tone:"ok"}
-      ] },
-
-    { key:"医療", icon:"🚑", title:"医療の状況",
-      note:"急性期の医療支援が全国から入っています。",
-      stats:[
-        {l:"転院した患者", v:"約120", u:"人", s:"国立病院機構熊本南病院（宇城市）入院126人のうち", tone:"warn"}
-      ],
-      rows:[
-        {t:"DMATの派遣", d:"厚生労働省DMAT事務局の要請により、全国から災害派遣医療チームが参集しています。宮崎県は7チームとコーディネーションチーム2、鹿児島県は11隊が出動しました。", tone:"ok"},
-        {t:"熊本南病院（宇城市）", d:"診療の継続が困難となり、入院患者126人のうち約120人が熊本市内などの病院へ転院しました。一部はヘリコプターで搬送されています。", tone:"warn"},
-        {t:"避難所での医療相談", d:"八代市の太田郷コミュニティセンターに医療相談ブースが特設され、住民への医療支援と物資支援が行われています。", tone:"ok"},
-        {t:"受診できるか迷ったら、まず電話相談を", d:"被災で通院先が変わっている場合があります。「開いている病院が分からない」「行くべきか判断できない」というときは、看護師が電話で相談に応じ、受診の必要性の判断と、受診できる医療機関の案内をしてくれます。", tone:"ok"},
-        {t:"明らかに緊急のときは、迷わず119番へ", d:"意識がおかしい、呼吸が苦しい、強い胸の痛み、けいれんが続く、大量の出血。こうした場合は電話相談を挟まず、すぐに119番通報してください。", tone:"alert"},
-        {t:"休日・夜間の当番医は市町村の発表で", d:"休日在宅当番医は市町村ごとに決まっています。被災により通常と異なる場合があるため、各市町のホームページか#7119でご確認ください。", tone:"normal"},
-        {t:"熱中症に注意してください", d:"停電でエアコンが使えない地域は、屋内でも熱中症の危険があります。断水中でも水分を惜しまないでください。睡眠不足もリスクを上げます。", tone:"alert"},
-        {t:"保険証や処方箋がなくても受診・調剤できます", d:"マイナ保険証や資格確認書を持ち出せなかった場合でも、窓口で氏名・生年月日・連絡先などを伝えれば保険診療で受診できます。薬も特例の取り扱いが出ています。詳しくは💊「医薬品・薬の相談」をご覧ください。", tone:"ok"}
-      ],
-      links:[
-        {i:"🚑", t:"熊本県救急安心センター（おおむね15歳以上）", s:"#7119／24時間365日。受診の判断と医療機関の案内が受けられます", tel:"#7119"},
-        {i:"👶", t:"熊本県子ども医療電話相談（15歳未満）", s:"#8000／平日19時〜翌8時、土曜15時〜翌8時、日祝8時〜翌8時", tel:"#8000"},
-        {i:"☎️", t:"IP電話・ダイヤル回線からは", s:"15歳以上 03-6456-3290／15歳未満 096-364-9999", tel:"03-6456-3290"},
-        {i:"🏥", t:"熊本県 救急安心センターの案内", s:"対象や利用方法の詳細", url:"https://www.pref.kumamoto.jp/soshiki/13/231068.html"}
-      ] },
-
     { key:"医薬品", icon:"💊", title:"医薬品・薬の相談",
       note:"持病の薬が手元にない方へ。いま、通常とは異なる特例の取り扱いが行われています。あきらめる前に、まず薬局か医療機関にご相談ください。",
       stats:[
@@ -20894,21 +20846,6 @@ var QH_FALLBACK = {
       links:[
         {i:"🏥", t:"厚生労働省 令和8年熊本地震", s:"医療・薬事に関する事務連絡と被害状況", url:"https://www.mhlw.go.jp/stf/newpage_75017.html"},
         {i:"🏛️", t:"熊本県 令和8年熊本地震に関する情報", s:"県内の医療・保健の窓口", url:"https://www.pref.kumamoto.jp/soshiki/1/274517.html"}
-      ] },
-
-    { key:"交通", icon:"🚗", title:"道路・鉄道・空港",
-      note:"緊急車両と物資輸送のため、不要不急の高速道路のご利用はお控えください。",
-      rows:[
-        {t:"【鉄道】九州新幹線 筑後船小屋〜熊本", d:"31日始発から運転再開。上りは熊本6時08分発博多行き、下りは博多6時42分発熊本行きから。おおむね1時間に1〜2本、すべて各駅停車です。山陽新幹線との相互直通運転は行いません。", tone:"ok", src:"JR九州"},
-        {t:"【鉄道】九州新幹線 熊本〜鹿児島中央", d:"終日運転取りやめ。復旧には時間がかかる見込みです。", tone:"alert", src:"JR九州"},
-        {t:"【鉄道】西九州新幹線・在来線", d:"西九州新幹線は28日中に全線再開済み。在来線は安全を確認できた区間から順次再開しています。", tone:"ok"},
-        {t:"【高速】通行止め継続", d:"E3九州自動車道 松橋IC〜えびのIC（上下線）／E3A南九州自動車道 八代JCT〜日奈久IC（上下線）。南九州道の妙見第一橋では道路が上下にずれる損傷が見つかっています。", tone:"alert", src:"NEXCO西日本"},
-        {t:"【高速】解除済み", d:"益城熊本空港IC〜松橋IC、九州中央道 嘉島JCT〜益城TB（30日9時4分解除）、植木IC〜益城熊本空港IC、えびのIC〜栗野IC、宮崎道 えびのJCT〜高原IC。一部区間で復旧作業のための車線規制があります。", tone:"ok", src:"NEXCO西日本"},
-        {t:"【空港】阿蘇くまもと空港", d:"30日から平常運航。余震により変更となる可能性があるため、航空各社のサイトで最新の運航情報をご確認ください。JALは九州新幹線の運休に伴い福岡〜鹿児島に臨時便を運航しています。", tone:"ok"}
-      ],
-      links:[
-        {i:"🛣️", t:"NEXCO西日本 交通情報", s:"通行止め・規制の最新状況", url:"https://www.w-nexco.co.jp/"},
-        {i:"✈️", t:"阿蘇くまもと空港 公式サイト", s:"運航への影響のお知らせ", url:"https://www.kumamoto-airport.co.jp/"}
       ] },
 
     { key:"罹災証明", icon:"📄", title:"罹災証明・支援制度",
@@ -20957,22 +20894,6 @@ var QH_FALLBACK = {
         {i:"🏛️", t:"大津町役場", s:"代表番号", tel:"096-293-3111"},
         {i:"🏛️", t:"人吉市役所", s:"代表番号", tel:"0966-22-2111"},
         {i:"💚", t:"こころの健康相談統一ダイヤル", s:"0570-064-556", tel:"0570-064-556"}
-      ] },
-
-    { key:"天気", icon:"🌡️", title:"天気・暑さ指数",
-      note:"復旧作業と避難生活のうえで、いまは暑さが最大のリスクです。",
-      stats:[
-        {l:"熱中症警戒アラート", v:"28", u:"都府県", s:"関東〜九州（31日対象）。熊本県は対象外です", tone:"warn"},
-        {l:"県内の予想最高気温", v:"35", u:"℃以上", s:"猛暑日となる所が多い見込み", tone:"alert"}
-      ],
-      rows:[
-        {t:"31日の熊本県内", d:"各地で夏空が広がり、朝から強い日差しが照りつけます。急な雨や雷雨はない見込みです。最高気温は30日と同じか、さらに高くなる予想です。", tone:"warn"},
-        {t:"30日の実況", d:"八代市35.2℃（午前8時前に30℃超、午後6時でも31.8℃）、熊本市34.9℃、甲佐町35℃以上。八代市では1日のうち30℃を超えた時間が約11時間に達しました。", tone:"alert"},
-        {t:"来週はさらに危険な暑さに", d:"8月2日頃から熊本市で39℃前後、5日頃には宇城市・氷川町・八代市でも39℃近くまで上がる予想です。酷暑日（40℃以上）一歩手前の危険な暑さになります。", tone:"alert"},
-        {t:"雨が降ったときの土砂災害", d:"当面は晴れの予報ですが、震度7と58回を超える揺れで地盤が緩んでいます。雨の予報が出たら、平時より一段早く動いてください。", tone:"warn"}
-      ],
-      links:[
-        {i:"🌡️", t:"環境省 熱中症予防情報サイト", s:"地点別の暑さ指数（WBGT）", url:"https://www.wbgt.env.go.jp/"}
       ] },
 
     { key:"ボランティア", icon:"🤝", title:"ボランティア・支援",
@@ -21028,6 +20949,8 @@ var QH = null, qhTab = 0, qhBooted = false;
    → 運用初日から破綻せず、埋めたところから順に反映されていく。 */
 function qhMerge(sheet){
   var base = JSON.parse(JSON.stringify(QH_FALLBACK));
+  // 常時更新が必要なため削除したセクション。シート側にデータが残っていても表示しない。
+  var QH_BLOCK = {"概況":1,"建物":1,"給水":1,"避難所":1,"ライフライン":1,"医療":1,"交通":1,"天気":1};
   if(!sheet) return base;
   if(sheet.updated) base.updated = sheet.updated;
   if(sheet.lead){ var el=document.getElementById('qhLead'); if(el) el.textContent = sheet.lead; }
@@ -21036,6 +20959,7 @@ function qhMerge(sheet){
   base.sections.forEach(function(s,i){ idx[s.key] = i; });
   sheet.sections.forEach(function(s){
     if(!s || !s.key) return;
+    if(QH_BLOCK[s.key]) return;           // 削除済みセクションは復活させない
     var has = (s.stats&&s.stats.length)||(s.rows&&s.rows.length)||(s.links&&s.links.length)||s.note;
     if(!has) return;                      // 空セクションはスナップショットを残す
     var keep = base.sections[idx[s.key]];
