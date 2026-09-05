@@ -579,14 +579,34 @@ html.light .room::after{
       .catch(function(){ cb(null); });
   }
   function serverNow(){ return Date.now() + offset; }
-  /* 訓練ごとの目印。開催日が変われば、また参加できます */
+  /* 訓練ごとの目印。開催が変われば（日付・時刻・版が変われば）、また参加できます。
+     テスト運用（?test=1 または サーバーが mode:'test' を返す）は本番とは別の目印にするので、
+     テストで一度実施しても、本番はあらためて参加できます。 */
   function doneKey(d){
     if(!d || !d.fireAt) return '';
     var x=new Date(d.fireAt);
-    return 'dwa_drill_done_'+x.getFullYear()+('0'+(x.getMonth()+1)).slice(-2)+('0'+x.getDate()).slice(-2);
+    // 開催を一意に表す印。サーバーが round / version / drillId を返せばそれを使い、
+    // なければ発災の「日付＋時刻（時分）」まで見て区別する（同じ日に版だけ変えた再開催も別扱い）。
+    var stamp = (d.round || d.version || d.drillId || '');
+    var ymd = x.getFullYear()+('0'+(x.getMonth()+1)).slice(-2)+('0'+x.getDate()).slice(-2);
+    var hm  = ('0'+x.getHours()).slice(-2)+('0'+x.getMinutes()).slice(-2);
+    var base = ymd + '_' + hm + (stamp ? ('_r'+stamp) : '');
+    // テスト運用は本番と混ざらないよう接頭辞を分ける
+    var isTest = TEST || d.mode==='test' || d.test===true;
+    return (isTest ? 'dwa_drill_done_test_' : 'dwa_drill_done_') + base;
   }
-  function isDone(d){ try{ return localStorage.getItem(doneKey(d))==='1'; }catch(e){ return false; } }
+  function isDone(d){ try{ var k=doneKey(d); return !!k && localStorage.getItem(k)==='1'; }catch(e){ return false; } }
   function markDone(){ try{ var k=doneKey(CFG); if(k) localStorage.setItem(k,'1'); }catch(e){} }
+  /* この端末に残っている「終わった」の目印をすべて消す（再参加できるようにする） */
+  function clearAllDone(){
+    try{
+      Object.keys(localStorage)
+        .filter(function(k){ return k.indexOf('dwa_drill_done_')===0; })
+        .forEach(function(k){ localStorage.removeItem(k); });
+      return true;
+    }catch(e){ return false; }
+  }
+  window.clearAllDone = clearAllDone;
   function fmt(ms){ var d=new Date(ms);
     return (d.getMonth()+1)+'月'+d.getDate()+'日 '+d.getHours()+':'+('0'+d.getMinutes()).slice(-2); }
   function gate(tag,title,sub,card){
@@ -637,7 +657,13 @@ html.light .room::after{
           'ご参加ありがとうございました。<br>同じ訓練に、もう一度は参加できません。',
           '<h2>結果について</h2><p>全体の集計は、あらためて総括としてお知らせします。</p>'+
           '<p>もう一度手順を確かめたい場合は、防災情報センターの「ボランティア後方支援ツール」に'+
-          '同じ内容のチェックリストがありますので、そちらをご覧ください。</p>');
+          '同じ内容のチェックリストがありますので、そちらをご覧ください。</p>'+
+          '<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)">'+
+          '<p style="font-size:12.5px;color:var(--mut);margin-bottom:10px">'+
+          'テストや訓練のやり直しで、この端末からもう一度参加する必要があるときは、下のボタンを押してください。'+
+          'この端末に残っている参加済みの記録を消して、最初からやり直せます。</p>'+
+          '<button class="sub-btn" onclick="if(clearAllDone()){location.reload();}">'+
+          '🔄 この端末で、もう一度参加できるようにする</button></div>');
       }
     });
   }
