@@ -22860,6 +22860,17 @@ else qhHashBoot();
 .t25-power-sub{ font-size:12px; color:var(--muted,#4a6a8a); line-height:1.5; }
 .t25-power-go{ flex:0 0 auto; font-size:12px; font-weight:800; color:#04121b; background:var(--yellow,#ffe600); padding:8px 12px; border-radius:8px; white-space:nowrap; }
 @media (max-width:480px){ .t25-power{ flex-wrap:wrap; } .t25-power-go{ width:100%; text-align:center; } }
+.t25-rail{ display:flex; align-items:center; gap:12px; text-decoration:none;
+  background:linear-gradient(100deg,rgba(0,192,96,0.12),rgba(0,180,255,0.08));
+  border:1px solid rgba(0,192,96,0.35); border-left:4px solid var(--safe,#00c060);
+  border-radius:11px; padding:13px 14px; margin-bottom:14px; color:var(--text,#d8eaf8); }
+.t25-rail:hover{ border-color:var(--safe,#00c060); background:linear-gradient(100deg,rgba(0,192,96,0.18),rgba(0,180,255,0.12)); }
+.t25-rail-i{ flex:0 0 40px; width:40px; height:40px; border-radius:10px; background:rgba(0,192,96,0.18); display:grid; place-items:center; font-size:22px; }
+.t25-rail-t{ flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+.t25-rail-ttl{ font-weight:800; font-size:15px; }
+.t25-rail-sub{ font-size:12px; color:var(--muted,#4a6a8a); line-height:1.5; }
+.t25-rail-go{ flex:0 0 auto; font-size:12px; font-weight:800; color:#04121b; background:var(--safe,#00c060); padding:8px 12px; border-radius:8px; white-space:nowrap; }
+@media (max-width:480px){ .t25-rail{ flex-wrap:wrap; } .t25-rail-go{ width:100%; text-align:center; } }
 .t25-finder .t25-lead{ font-size:13px; color:var(--muted,#4a6a8a); margin:0 0 8px; }
 .t25-search{ position:relative; }
 .t25-search input{ width:100%; box-sizing:border-box; font:inherit; font-size:16px; color:var(--text,#d8eaf8);
@@ -22931,6 +22942,14 @@ else qhHashBoot();
           <span class="t25-power-sub">関東エリアの停電件数・発生状況・復旧見込みをリアルタイムで確認</span>
         </span>
         <span class="t25-power-go">停電マップを開く</span>
+      </a>
+      <a class="t25-rail" href="https://transit.yahoo.co.jp/diainfo/area/4" target="_blank" rel="noopener">
+        <span class="t25-rail-i">🚃</span>
+        <span class="t25-rail-t">
+          <span class="t25-rail-ttl">鉄道運行情報（関東）</span>
+          <span class="t25-rail-sub">JR・私鉄・地下鉄の遅延・運転見合わせ・運休情報</span>
+        </span>
+        <span class="t25-rail-go">運行情報を開く</span>
       </a>
       <div class="t25-finder">
         <p class="t25-lead">市区町村名で検索（例：市原市、いちはら）。下の県別一覧からも開けます。</p>
