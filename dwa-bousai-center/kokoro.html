@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<script>(function(){try{var t=localStorage.getItem("kokoro-theme");if(t==="dark"||(!t&&window.matchMedia&&matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.classList.add("kk-dark");}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>こころのチェック ― 災害のあとの心を support するツール</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -271,9 +272,50 @@
     font-size:12px;color:var(--ink-soft);line-height:1.9;
     border-top:1px solid var(--line);padding-top:20px;
   }
+
+  /* ===== controls (theme toggle + share) ===== */
+  .kk-controls{ position:fixed; top:calc(env(safe-area-inset-top,0px) + 12px); right:14px; z-index:50; display:flex; gap:8px; }
+  .kk-ctrl{ width:42px; height:42px; border-radius:50%; border:1px solid rgba(255,255,255,0.55);
+    background:rgba(34,59,51,0.38); color:#fff; font-size:18px; line-height:1; cursor:pointer;
+    display:grid; place-items:center; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+    box-shadow:0 4px 14px rgba(0,0,0,0.25); transition:background .15s, transform .15s; }
+  .kk-ctrl:hover{ background:rgba(34,59,51,0.58); }
+  .kk-ctrl:active{ transform:scale(0.94); }
+  .kk-ctrl:focus-visible{ outline:3px solid var(--gold); outline-offset:2px; }
+  .kk-toast{ position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom,0px) + 20px);
+    transform:translateX(-50%) translateY(10px); max-width:88vw;
+    background:#223B33; color:#F6F3E8; padding:11px 18px; border-radius:999px;
+    font-size:13px; font-weight:600; box-shadow:0 8px 24px rgba(0,0,0,0.3);
+    opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease; z-index:60;
+    word-break:break-all; text-align:center; }
+  .kk-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* ===== dark mode ===== */
+  html.kk-dark{
+    --bg:#131e1a; --surface:#1c2a24; --ink:#e8ede7; --ink-soft:#a7b5ac;
+    --pine:#5aa88f; --pine-deep:#a9d8c8; --gold:#d9a45a; --gold-soft:#6f5d33;
+    --dusk:#4B5A78; --dusk-deep:#28324a; --brick:#d08066; --line:#2b3a33;
+    --shadow:0 6px 24px rgba(0,0,0,0.42);
+  }
+  html.kk-dark .hero{ background:linear-gradient(165deg,#0f1f1a 0%,#204339 55%,#5b4e2f 100%); }
+  html.kk-dark h2{ color:var(--pine-deep); }
+  html.kk-dark .opt{ background:#223029; color:var(--ink-soft); border-color:var(--line); }
+  html.kk-dark .opt:hover{ border-color:var(--pine); }
+  html.kk-dark .opt.selected{ background:var(--pine); border-color:var(--pine); color:#0e1a16; }
+  html.kk-dark .q-card.crisis-q{ background:#20281d; border-color:var(--gold-soft); }
+  html.kk-dark .crisis-alert{ background:#2c1c17; border-color:var(--brick); }
+  html.kk-dark .crisis-alert p{ color:#f0cbbd; }
+  html.kk-dark .phone-btn{ background:#223029; border-color:#3d332e; color:var(--ink); }
+  html.kk-dark .result-tag{ color:#f6f3e8 !important; }
+  @media (prefers-reduced-motion:reduce){ .kk-ctrl,.kk-toast{ transition:none; } }
 </style>
 </head>
 <body>
+<div class="kk-controls">
+  <button type="button" class="kk-ctrl" id="kkThemeBtn" onclick="kkToggleTheme()" aria-label="ダーク／ライト切替" title="ダーク／ライト切替">🌙</button>
+  <button type="button" class="kk-ctrl" id="kkShareBtn" onclick="kkShare()" aria-label="共有" title="共有">🔗</button>
+</div>
+<div class="kk-toast" id="kkToast" role="status" aria-live="polite"></div>
 <div class="app">
 
   <!-- HERO -->
@@ -566,6 +608,22 @@ document.getElementById('revealBtn').addEventListener('click', ()=>{
   resultSection.style.display = 'block';
   resultSection.scrollIntoView({behavior:'smooth', block:'start'});
 });
+</script>
+<script>
+(function(){
+  function setIcon(){ var b=document.getElementById('kkThemeBtn'); if(b) b.textContent=document.documentElement.classList.contains('kk-dark')?'\u2600\ufe0f':'\ud83c\udf19'; }
+  setIcon();
+  window.kkToggleTheme=function(){ var d=document.documentElement.classList.toggle('kk-dark'); try{localStorage.setItem('kokoro-theme',d?'dark':'light');}catch(e){} setIcon(); };
+  var toast;
+  function showToast(msg){ toast=toast||document.getElementById('kkToast'); if(!toast)return; toast.textContent=msg; toast.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(function(){toast.classList.remove('show');},2400); }
+  window.kkShare=function(){
+    var url=location.href.split('#')[0];
+    var data={title:'\u3053\u3053\u308d\u306e\u30c1\u30a7\u30c3\u30af', text:'\u707d\u5bb3\u306e\u3042\u3068\u3001\u5fc3\u306e\u72b6\u614b\u3092\u632f\u308a\u8fd4\u308b\u30bb\u30eb\u30d5\u30c1\u30a7\u30c3\u30af', url:url};
+    if(navigator.share){ navigator.share(data).catch(function(){}); return; }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(function(){showToast('URL\u3092\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f');}).catch(function(){showToast(url);}); return; }
+    showToast(url);
+  };
+})();
 </script>
 </body>
 </html>
