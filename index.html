@@ -22876,6 +22876,17 @@ else qhHashBoot();
 .t25-rail-sub{ font-size:12px; color:var(--muted,#4a6a8a); line-height:1.5; }
 .t25-rail-go{ flex:0 0 auto; font-size:12px; font-weight:800; color:#04121b; background:var(--safe,#00c060); padding:8px 12px; border-radius:8px; white-space:nowrap; }
 @media (max-width:480px){ .t25-rail{ flex-wrap:wrap; } .t25-rail-go{ width:100%; text-align:center; } }
+.t25-kb{ display:flex; align-items:center; gap:12px; text-decoration:none;
+  background:linear-gradient(100deg,rgba(0,180,255,0.14),rgba(0,120,255,0.10));
+  border:1px solid rgba(0,180,255,0.4); border-left:4px solid var(--blue,#00b4ff);
+  border-radius:11px; padding:13px 14px; margin-bottom:14px; color:var(--text,#d8eaf8); }
+.t25-kb:hover{ border-color:var(--blue,#00b4ff); background:linear-gradient(100deg,rgba(0,180,255,0.22),rgba(0,120,255,0.16)); }
+.t25-kb-i{ flex:0 0 40px; width:40px; height:40px; border-radius:10px; background:rgba(0,180,255,0.2); display:grid; place-items:center; font-size:22px; }
+.t25-kb-t{ flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+.t25-kb-ttl{ font-weight:800; font-size:15px; }
+.t25-kb-sub{ font-size:12px; color:var(--muted,#4a6a8a); line-height:1.5; }
+.t25-kb-go{ flex:0 0 auto; font-size:12px; font-weight:800; color:#04121b; background:var(--blue,#00b4ff); padding:8px 12px; border-radius:8px; white-space:nowrap; }
+@media (max-width:480px){ .t25-kb{ flex-wrap:wrap; } .t25-kb-go{ width:100%; text-align:center; } }
 .t25-finder .t25-lead{ font-size:13px; color:var(--muted,#4a6a8a); margin:0 0 8px; }
 .t25-search{ position:relative; }
 .t25-search input{ width:100%; box-sizing:border-box; font:inherit; font-size:16px; color:var(--text,#d8eaf8);
@@ -22940,6 +22951,14 @@ else qhHashBoot();
     </div>
     <div class="t25-body">
       <div class="t25-alert">台風25号は温帯低気圧に変わりつつありますが、大雨で地盤が緩み<b>河川氾濫・土砂災害の危険が継続</b>しています。避難情報が出た地域は命を守る行動を。命に危険が迫るときは <b>119／110</b>。</div>
+      <a class="t25-kb" href="teiden-tips.html" target="_blank" rel="noopener">
+        <span class="t25-kb-i">💡</span>
+        <span class="t25-kb-t">
+          <span class="t25-kb-ttl">停電対応 知恵袋</span>
+          <span class="t25-kb-sub">寝る・食事・トイレ・スマホ・電源など、停電時の暮らしの工夫を140項目（各項目タップで解説）</span>
+        </span>
+        <span class="t25-kb-go">開く</span>
+      </a>
       <a class="t25-power" href="https://teideninfo.tepco.co.jp/" target="_blank" rel="noopener">
         <span class="t25-power-i">⚡</span>
         <span class="t25-power-t">

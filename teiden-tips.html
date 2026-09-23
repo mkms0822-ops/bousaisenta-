@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{var t=localStorage.getItem("teiden-theme");if(t==="dark"||(!t&&window.matchMedia&&matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.classList.add("dk");}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>停電対策 知恵袋ポータル</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eaeef1; --surface:#ffffff; --surface2:#f3f6f8; --ink:#16222c; --muted:#5b6b76;
+  --line:#d8e0e6; --accent:#c07c00; --accent-ink:#fff; --accent-soft:#fbf0da;
+  --warn:#b3271c; --warn-bg:#fbecea; --warn-line:#e7b8b2; --chip:#eef2f5;
+  --radius:15px; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html.dk{
+  --bg:#0d151d; --surface:#152029; --surface2:#1b2a34; --ink:#e7eef3; --muted:#9cadb8;
+  --line:#26333d; --accent:#ffb42e; --accent-ink:#1a1305; --accent-soft:#2a2010;
+  --warn:#ff6f5e; --warn-bg:#2c1613; --warn-line:#5a2822; --chip:#1b2a34;
+}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 76px); -webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Noto Sans JP",system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+  line-height:1.72;font-size:16px;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px 72px}
+
+/* top controls */
+.controls{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);right:14px;z-index:60;display:flex;gap:8px}
+.ctrl{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surface);
+  color:var(--ink);font-size:18px;cursor:pointer;display:grid;place-items:center;
+  box-shadow:0 3px 12px rgba(0,0,0,.16)}
+.ctrl:hover{border-color:var(--accent)}
+.ctrl:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+header{padding:30px 0 12px}
+h1{font-weight:900;font-size:clamp(1.55rem,5.4vw,2.4rem);line-height:1.24;margin:0 0 8px;letter-spacing:.01em}
+.lede{color:var(--muted);font-size:.96rem;margin:0 0 6px;max-width:62ch}
+.count{font-size:.8rem;color:var(--muted)}
+
+/* safety banner */
+.safety{background:var(--warn-bg);border:1px solid var(--warn-line);border-left:5px solid var(--warn);
+  border-radius:12px;padding:13px 16px;margin:16px 0 22px}
+.safety b{color:var(--warn)}
+.safety p{margin:0;font-size:.9rem;line-height:1.75}
+
+/* search */
+.search{position:relative;margin:0 0 14px}
+.search svg{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--muted)}
+#q{width:100%;font:inherit;font-size:1.05rem;color:var(--ink);padding:15px 16px 15px 46px;
+  background:var(--surface);border:1.5px solid var(--line);border-radius:12px;outline:none}
+#q:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+#q::placeholder{color:var(--muted)}
+
+/* category nav */
+.nav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 26px}
+.nav a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:.85rem;font-weight:700;
+  background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:7px 13px;color:var(--ink)}
+.nav a:hover{border-color:var(--accent);color:var(--accent)}
+
+section.cat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:6px 4px 8px;margin:0 0 16px;scroll-margin-top:76px}
+.cat-head{display:flex;align-items:center;gap:12px;padding:14px 16px 8px}
+.cat-ic{flex:none;width:44px;height:44px;border-radius:12px;background:var(--accent-soft);
+  display:grid;place-items:center;font-size:23px}
+.cat-name{font-weight:800;font-size:1.18rem}
+.cat-num{font-size:.76rem;color:var(--muted)}
+.tip-t .badge{font-size:.66rem;font-weight:800;color:#fff;background:var(--warn);border-radius:5px;padding:2px 6px;margin-right:4px;letter-spacing:.02em;white-space:nowrap}
+.no-hit{display:none;color:var(--muted);font-size:.92rem;padding:20px 6px}
+.tips{counter-reset:t;list-style:none;margin:0;padding:2px 10px 8px}
+.tip{counter-increment:t;border-top:1px solid var(--line)}
+.tip:first-child{border-top:none}
+.tip.warn{background:var(--warn-bg);border-radius:9px;border-top-color:transparent}
+.tip-head{width:100%;display:flex;align-items:flex-start;gap:12px;background:none;border:none;text-align:left;cursor:pointer;padding:12px 8px;font:inherit;color:var(--ink)}
+.tip-head::before{content:counter(t);flex:none;width:26px;height:26px;margin-top:1px;border-radius:50%;background:var(--surface2);color:var(--muted);font-size:.8rem;font-weight:700;display:grid;place-items:center}
+.tip.warn .tip-head::before{background:var(--warn);color:#fff}
+.tip-t{flex:1;min-width:0;font-size:.96rem;line-height:1.65}
+.tip-caret{flex:none;color:var(--muted);transition:transform .2s;margin-top:3px;font-size:.9rem}
+.tip.open .tip-caret{transform:rotate(180deg)}
+.tip-head:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+.tip-body{padding:0 10px 14px 46px}
+.tip-desc{margin:0;font-size:.9rem;color:var(--muted);line-height:1.85}
+.tip-body img{max-width:100%;height:auto;border-radius:10px;margin-top:12px;display:block;border:1px solid var(--line)}
+
+
+footer{border-top:1px solid var(--line);padding-top:18px;color:var(--muted);font-size:.8rem;line-height:1.7}
+footer b{color:var(--ink)}
+
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);
+  transform:translateX(-50%) translateY(10px);background:#16222c;color:#fff;padding:11px 18px;border-radius:999px;
+  font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.3);opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .25s;z-index:80;max-width:88vw;text-align:center;word-break:break-all}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+html.dk .toast{background:#2a3947}
+
+@media (max-width:480px){ ol.tips li{font-size:.93rem} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.subtitle{display:inline-block;font-weight:800;font-size:clamp(1rem,3.8vw,1.28rem);color:var(--accent);margin:0 0 12px;padding:4px 13px;background:var(--accent-soft);border-radius:9px;border:1px solid var(--line)}
+.ticker{display:flex;align-items:stretch;background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:2px 0 20px;overflow:hidden;border-radius:10px}
+.tk-label{flex:none;display:flex;align-items:center;font-size:.76rem;font-weight:800;padding:0 13px;background:var(--accent);color:var(--accent-ink);white-space:nowrap}
+.tk-view{flex:1;min-width:0;overflow:hidden}
+.tk-track{display:inline-flex;white-space:nowrap;will-change:transform}
+.tk-set{display:inline-flex;align-items:center}
+.tk-item{display:inline-flex;align-items:center;gap:8px;padding:9px 26px;font-size:.92rem;border-right:1px solid var(--line)}
+.tk-ic{flex:none;width:26px;height:26px;border-radius:50%;display:inline-grid;place-items:center;font-size:15px}
+.tk-msg{white-space:nowrap}
+.tk-name{color:var(--muted);font-size:.82rem;white-space:nowrap}
+@keyframes tkscroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ticker:hover .tk-track{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){ .tk-track{animation:none!important} .tk-view{overflow-x:auto} }
+section.board{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:6px 4px 8px;margin:28px 0 16px;scroll-margin-top:76px}
+.board-inner{padding:6px 16px 18px}
+.board-note{background:var(--accent-soft);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:.82rem;line-height:1.7;margin:0 0 18px}
+.field{margin:0 0 15px}
+.field>label{display:block;font-size:.86rem;font-weight:700;margin:0 0 6px}
+.field input[type=text],.field textarea{width:100%;font:inherit;font-size:1rem;color:var(--ink);background:var(--surface2);border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;resize:vertical}
+.field input[type=text]:focus,.field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.counter{text-align:right;font-size:.76rem;color:var(--muted);margin-top:4px}
+.pick-sub{font-size:.74rem;color:var(--muted);font-weight:700;margin:8px 2px 5px}
+.picker{display:flex;flex-wrap:wrap;gap:8px}
+.picker .ic{width:44px;height:44px;font-size:24px;line-height:1;border:1.5px solid var(--line);border-radius:10px;background:var(--surface2);cursor:pointer;display:grid;place-items:center;padding:0}
+.picker .ic.sel{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 2px var(--accent)}
+.picker .co{width:34px;height:34px;border-radius:50%;border:2px solid var(--surface);cursor:pointer;box-shadow:0 0 0 1px var(--line);padding:0}
+.picker .co.sel{box-shadow:0 0 0 3px var(--accent)}
+.submit-btn{width:100%;font:inherit;font-size:1.02rem;font-weight:800;cursor:pointer;color:var(--accent-ink);background:var(--accent);border:none;border-radius:11px;padding:14px;margin-top:6px}
+.submit-btn:disabled{opacity:.6;cursor:default}
+.board-msg{margin:12px 0 0;font-size:.88rem;border-radius:9px;padding:10px 12px;line-height:1.7}
+.board-msg.ok{background:var(--accent-soft)}
+.board-msg.err{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-line)}
+.board-list-head{display:flex;align-items:center;gap:10px;margin:28px 0 10px}
+.board-list-head h3{margin:0;font-size:1.05rem}
+.reload{margin-left:auto;font:inherit;font-size:.8rem;font-weight:700;cursor:pointer;background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:7px 12px;color:var(--ink)}
+.posts{display:flex;flex-direction:column;gap:10px}
+.post{background:var(--surface2);border:1px solid var(--line);border-left:4px solid var(--muted);border-radius:11px;padding:12px 14px}
+.post-h{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.post-ic{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:19px}
+.post-name{font-weight:700;font-size:.92rem}
+.post-time{margin-left:auto;font-size:.72rem;color:var(--muted)}
+.post-idea{font-size:.9rem;margin:0 0 6px;white-space:pre-wrap;word-break:break-word}
+.post-msg{font-size:.92rem;background:var(--surface);border-radius:8px;padding:8px 10px;white-space:pre-wrap;word-break:break-word}
+.posts-empty{color:var(--muted);font-size:.88rem;padding:10px 2px}
+.menu-btn{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);left:14px;z-index:60;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:19px;cursor:pointer;display:grid;place-items:center;box-shadow:0 3px 12px rgba(0,0,0,.16)}
+.menu-btn:hover{border-color:var(--accent)}
+.menu-btn:focus-visible,.mclose:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.ov{position:fixed;inset:0;z-index:90;background:rgba(3,8,13,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:none}
+.ov.open{display:block}
+.drawer{position:absolute;top:0;right:0;height:100%;width:min(92vw,400px);background:var(--surface);border-left:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden;box-shadow:-12px 0 40px rgba(0,0,0,.3)}
+.dhead{flex:none;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 12px;border-bottom:1px solid var(--line);font-size:1.05rem;font-weight:800}
+.mclose{margin-left:auto;width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);font-size:16px;cursor:pointer}
+.dbody{flex:1;overflow-y:auto;padding:12px 14px calc(env(safe-area-inset-bottom,0px) + 24px)}
+.mlabel{font-size:.72rem;font-weight:700;color:var(--muted);letter-spacing:.04em;margin:10px 4px 6px}
+.mitem{display:flex;gap:12px;align-items:flex-start;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:11px;padding:12px 13px;margin-bottom:8px;background:var(--surface)}
+.mitem:hover{border-color:var(--accent);background:var(--accent-soft)}
+.mitem .mi{flex:none;width:34px;height:34px;border-radius:9px;background:var(--surface2);display:grid;place-items:center;font-size:18px}
+.mitem .mt{flex:1;min-width:0}
+.mitem .mn{font-weight:700;font-size:.96rem;display:block}
+.mitem .md{font-size:.78rem;color:var(--muted);line-height:1.5;display:block}
+.modal{position:fixed;inset:0;z-index:95;background:rgba(3,8,13,.6);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:18px}
+.modal.open{display:flex}
+.mcard{background:var(--surface);border:1px solid var(--line);border-radius:15px;max-width:640px;width:100%;max-height:86vh;overflow-y:auto;padding:22px 22px calc(env(safe-area-inset-bottom,0px) + 22px)}
+.mcard h2{margin:0 0 4px;font-size:1.2rem}
+.mcard h3{font-size:.98rem;margin:18px 0 4px}
+.mcard p{font-size:.9rem;margin:0 0 8px;line-height:1.75}
+.mcard .upd{color:var(--muted);font-size:.78rem;margin-bottom:14px}
+.mcard a{color:var(--accent)}
+.mcard .close-row{text-align:right;margin-top:16px}
+.mcard .close-row button{font:inherit;font-weight:700;cursor:pointer;background:var(--accent);color:var(--accent-ink);border:none;border-radius:9px;padding:9px 18px}
+@media print{ .controls,.search,.nav{display:none} section.cat{break-inside:avoid} }
+</style>
+</head>
+<body>
+<button type="button" class="menu-btn" id="menuBtn" onclick="openMenu()" aria-label="メニュー" title="メニュー">☰</button>
+<div class="controls">
+  <button type="button" class="ctrl" id="themeBtn" onclick="toggleTheme()" aria-label="ダーク／ライト切替" title="ダーク／ライト切替">🌙</button>
+  <button type="button" class="ctrl" id="shareBtn" onclick="sharePage()" aria-label="共有" title="共有">🔗</button>
+</div>
+
+<div class="wrap">
+  <header>
+    <h1>停電対策 知恵袋ポータル</h1>
+    <p class="subtitle">被災地応援掲示板</p>
+    <p class="lede">寝る・食事・食料・情報・入浴・トイレ・スマホ・電源など、暮らしのカテゴリー別に停電時の工夫を集めました。</p>
+    <p class="count">全140項目・14カテゴリー／キーワード検索できます</p>
+    <p class="count">提供：DWA防災情報センター</p>
+  </header>
+
+  <div class="ticker" id="ticker" style="display:none" aria-label="被災地応援メッセージ">
+    <span class="tk-label">💛 応援メッセージ</span>
+    <div class="tk-view"><div class="tk-track" id="tickerTrack"></div></div>
+  </div>
+
+
+  <div class="safety" role="note">
+    <p><b>安全のために必ず：</b>発電機・炭火・ガス機器を室内で使わない（<b>一酸化炭素中毒</b>の危険）。長期停電や避難時は<b>ブレーカーを落とす</b>（<b>通電火災</b>の防止）。<b>ろうそくは就寝時に使わない</b>。赤い項目は特に命に関わる注意点です。</p>
+  </div>
+
+  <div class="search">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="キーワードで探す（例：スマホ、トイレ、寒い）" aria-label="キーワードで探す">
+  </div>
+
+  <nav class="nav" id="nav" aria-label="カテゴリー"></nav>
+  <div id="list"></div>
+  <p class="no-hit" id="noHit">該当する工夫が見つかりません。別のキーワードでお試しください。</p>
+
+  <section class="board" id="board">
+    <div class="cat-head"><span class="cat-ic">💬</span><span><div class="cat-name">防災アイデア・被災地応援掲示板</div><div class="cat-num">みんなの声</div></span></div>
+    <div class="board-inner">
+      <p class="board-note">📌 投稿は管理者が内容を確認し、<b>承認したもののみ公開</b>されます（すぐには表示されません）。個人情報・誹謗中傷は書かないでください。</p>
+
+      <div class="field">
+        <label for="bName">お名前（自由・未入力なら「匿名」）</label>
+        <input id="bName" type="text" maxlength="30" placeholder="例：ぼうさい太郎">
+      </div>
+
+      <div class="field">
+        <label>アイコンを選ぶ</label>
+        <div class="pick-sub">男性</div>
+        <div class="picker icons" id="bIconsM" role="radiogroup" aria-label="アイコン（男性）"></div>
+        <div class="pick-sub">女性</div>
+        <div class="picker icons" id="bIconsF" role="radiogroup" aria-label="アイコン（女性）"></div>
+      </div>
+
+      <div class="field">
+        <label>ベース色を選ぶ</label>
+        <div class="picker colors" id="bColors" role="radiogroup" aria-label="ベース色"></div>
+      </div>
+
+      <div class="field">
+        <label for="bIdea">防災アイデア・ひとこと（任意・300文字まで）</label>
+        <textarea id="bIdea" maxlength="300" rows="3" placeholder="停電・災害時に役立つ工夫やアイデアなど"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="bMsg">被災地の方への応援メッセージ（200文字まで）</label>
+        <textarea id="bMsg" maxlength="200" rows="4" placeholder="被災された方々へ、応援のメッセージをどうぞ"></textarea>
+        <div class="counter"><span id="bCount">0</span> / 200</div>
+      </div>
+
+      <button type="button" class="submit-btn" id="bSubmit" onclick="submitPost()">送信する</button>
+      <p class="board-msg" id="bResult" hidden></p>
+
+      <div class="board-list-head">
+        <h3>みんなの投稿</h3>
+        <button type="button" class="reload" onclick="loadPosts()" aria-label="更新">↻ 更新</button>
+      </div>
+      <div id="bPosts" class="posts"></div>
+      <p class="posts-empty" id="bEmpty" hidden>まだ公開された投稿はありません。</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>本ページは停電・災害への備えに関する一般的な工夫をまとめたものです。<b>安全に関わる判断は、消防・自治体・電力会社・製品メーカーの公式情報を優先</b>してください。医療機器の利用や持病のある方は、事前に主治医・関係機関にご相談ください。</p>
+    <p><b>提供・作成：DWA防災情報センター</b>（<a href="https://bousai0111.info">bousai0111.info</a>）　／　<a href="#" onclick="openPP();return false;">プライバシーポリシー</a></p>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="ov" id="menuOv" onclick="if(event.target===this)closeMenu()">
+  <nav class="drawer" aria-label="ツールメニュー">
+    <div class="dhead"><span>🧰</span><span>ツールメニュー</span><button class="mclose" onclick="closeMenu()" aria-label="閉じる">✕</button></div>
+    <div class="dbody">
+      <div class="mlabel">DWA防災情報センターのツール</div>
+      <a class="mitem" href="https://bousai0111.info/Manual.html"><span class="mi">🚨</span><span class="mt"><span class="mn">緊急対応マニュアル</span><span class="md">様々な災害・事件・事故の対応方法をテキストと音声でサポート</span></span></a>
+      <a class="mitem" href="https://bousai0111.info/#sos"><span class="mi">📢</span><span class="mt"><span class="mn">SOSビーコン</span><span class="md">音と光で現在位置を救助隊に知らせる</span></span></a>
+      <a class="mitem" href="https://bousai0111.info/#near"><span class="mi">📍</span><span class="mt"><span class="mn">近くを探す</span></span></a>
+      <a class="mitem" href="https://bousai0111.info"><span class="mi">🏠</span><span class="mt"><span class="mn">DWA防災情報センター</span><span class="md">トップページ</span></span></a>
+      <a class="mitem" href="https://bousai0111.info/index.html#saigai25"><span class="mi">🌀</span><span class="mt"><span class="mn">台風25号 災害後方支援</span></span></a>
+      <a class="mitem" href="https://bousai0111.info/saiken-guide.html"><span class="mi">🔧</span><span class="mt"><span class="mn">生活再建ガイド</span></span></a>
+      <a class="mitem" href="https://bousai0111.info/index.html#volunteer"><span class="mi">🤝</span><span class="mt"><span class="mn">ボランティア後方支援ツール</span></span></a>
+      <a class="mitem" href="https://bousai0111.info/guide.html"><span class="mi">📖</span><span class="mt"><span class="mn">防災ガイド</span></span></a>
+      <div class="mlabel">その他</div>
+      <a class="mitem" href="#" onclick="openPP();return false;"><span class="mi">🔒</span><span class="mt"><span class="mn">プライバシーポリシー</span></span></a>
+    </div>
+  </nav>
+</div>
+<div class="modal" id="ppModal" onclick="if(event.target===this)closePP()">
+  <div class="mcard" role="dialog" aria-modal="true" aria-label="プライバシーポリシー">
+    <h2>プライバシーポリシー</h2>
+    <p class="upd">最終更新：2026年9月／提供：DWA防災情報センター</p>
+    <p>DWA防災情報センター（以下「当センター」）が提供する本ツール「停電対策 知恵袋ポータル」における情報の取り扱いについて、以下のとおり定めます。</p>
+    <h3>1. 収集する情報</h3>
+    <p>本ツールは、氏名・住所・連絡先などの個人情報を収集・送信しません。検索キーワード等の入力内容は、お使いの端末内で処理され、外部に送信されません。</p>
+    <h3>2. 端末内への保存（ローカルストレージ）</h3>
+    <p>表示テーマ（ダーク／ライト）の設定のみ、次回以降も保持するためにお使いのブラウザ内に保存します。この情報が当センターや第三者へ送信されることはありません。ブラウザの設定からいつでも削除できます。</p>
+    <h3>3. Cookie・アクセス解析</h3>
+    <p>本ツール自体は、追跡目的のCookieを使用しません。DWA防災情報センター全体でアクセス解析等を行う場合は、サイト全体の方針に従います。</p>
+    <h3>4. 外部サービス・外部リンク</h3>
+    <p>本ツールは表示のためWebフォント（Google Fonts）を読み込みます。その際、技術的情報（IPアドレス等）が提供元へ送信される場合があります。メニューから外部のページ・ツールへ移動した場合、移動先での取り扱いは各提供元の方針によります。</p>
+    <h3>5. 免責</h3>
+    <p>本ツールは防災・減災に関する一般的な情報提供を目的としています。安全に関わる最終的な判断は、消防・自治体・電力会社等の公式情報を優先してください。</p>
+    <h3>6. 改定・お問い合わせ</h3>
+    <p>本ポリシーは予告なく改定されることがあります。お問い合わせは DWA防災情報センター（https://bousai0111.info）までお願いします。</p>
+    <div class="close-row"><button onclick="closePP()">閉じる</button></div>
+  </div>
+</div>
+<script>
+const DATA=[{"id": "power", "icon": "⚡", "name": "電源・充電", "tips": [{"t": "モバイルバッテリーは日頃から満充電に。大容量（20000mAh級）ならスマホを数回充電できる。", "d": "スマホ1回のフル充電に必要なのは約3000〜4000mAh。20000mAh級なら4〜5回分の計算です。月1回は残量を確認し、使ったら補充する習慣を。", "w": 0}, {"t": "車のシガーソケット／USBやAC電源は非常用電源になる。ただしエンジンは屋外・換気で（排気ガスに注意）。", "d": "車は走らなくても大きな電源になります。ただし雪や車庫でマフラーがふさがれた状態のアイドリングは一酸化炭素中毒で死亡の危険。必ず屋外・換気のよい場所で。", "w": 1}, {"t": "ポータブル電源があれば家電も動かせる。容量（Wh）と使いたい家電のW数を事前に確認。", "d": "『Wh（ワットアワー）』が使える電力量の目安。〈家電のW数×使いたい時間〉より大きい容量を選びます。冷蔵庫や医療機器のバックアップにも有効。", "w": 0}, {"t": "乾電池式充電器＋予備の乾電池を常備。長引いても電池交換で使い続けられる。", "d": "コンビニでも手に入る乾電池で動くので、停電が長期化しても電池を替えるだけで復活します。単3・単4を多めに。", "w": 0}, {"t": "ノートPCの大きなバッテリーからスマホへ給電できる（USB出力）。", "d": "ノートPCは数万mAh級の大容量バッテリー。USBポート経由でスマホを充電できる機種が多く、眠っている非常用電源になります。", "w": 0}, {"t": "手回し充電は補助と割り切る。数分回して数％程度なので緊急連絡用に。", "d": "手回しは1分回して通話が数十秒〜数分できる程度。メイン電源にはならないので、他に手段がない時の最後の手段と考えて。", "w": 0}, {"t": "使わない機器の電源はこまめに切り、必要な機器へ電力を集中させる。", "d": "停電中は電力が有限。待機電力も塵も積もれば大きいので、使わない機器は主電源から切って必要な機器へ回します。", "w": 0}, {"t": "「昼ためて夜使う」。日中に太陽光や車で充電し、夜の照明・情報に回す。", "d": "太陽光や車での充電は日中しかできません。停電が数日続く前提で『昼にため、夜に使う』サイクルを意識すると電力が尽きにくい。", "w": 0}, {"t": "ソーラーチャージャーは晴天時の日中に。曇天では出力が大きく落ちる。", "d": "直射日光でこそ本領を発揮します。曇りや窓ガラス越しでは発電量が大きく下がるので、屋外の日なたに正面を太陽へ向けて置きます。", "w": 0}, {"t": "充電の優先順位を決める：スマホ→ラジオ／ライト→その他。家族分をまとめて管理。", "d": "連絡と情報が命綱です。まずスマホ、次に情報・明かりの機器を確保。家族の端末をまとめて管理すると充電の無駄が減ります。", "w": 0}]}, {"id": "phone", "icon": "📱", "name": "スマホ・通信", "tips": [{"t": "省電力モードをオンに。画面を暗くし、使わないアプリは終了する。", "d": "省電力モードは画面の明るさや通信・処理を自動で抑え、電池もちを大きく伸ばします。停電に気づいたらまず設定を。", "w": 0}, {"t": "圏外や電波が不安定な場所では機内モードを活用。電波を探し続けると急速に消耗する。", "d": "スマホは電波が弱いほど強い電波を探して電池を激しく消費します。使わない間は機内モードにし、必要な時だけ通信するのが節電のコツ。", "w": 0}, {"t": "連絡は通話より通信量の少ないメッセージ（SMS／チャット）で。混雑時もつながりやすい。", "d": "災害時は通話が集中して規制がかかります。文字メッセージはデータ量が小さく、混雑時でも届きやすいので安否連絡に向いています。", "w": 0}, {"t": "災害用伝言板（web171）などで安否を共有する。", "d": "電話がつながらなくても、web171や各社の災害用伝言板に伝言を残せば家族が確認できます。使い方を平時に一度試しておくと安心。", "w": 0}, {"t": "家族の集合場所・連絡ルールを事前に決めておく（電気が無くても迷わない）。", "d": "『つながらない前提』で、集合場所・安否の伝え方・遠方の中継役などを決めておけば、通信が途絶えても行動できます。", "w": 0}, {"t": "避難所・連絡先・地図はスクリーンショットで保存し、オフラインで見られるように。", "d": "通信できなくても画像なら見られます。避難所・家族の電話番号・周辺地図をスクショしておくと、電波が無くても確認できます。", "w": 0}, {"t": "位置情報・Bluetooth・Wi‑Fi探索はオフにして消費を抑える。", "d": "これらは常に周囲を探して電池を消費します。必要な時だけオンにすると、停電中の貴重なバッテリーを節約できます。", "w": 0}, {"t": "公衆電話の場所を把握。災害時は通信規制の影響を受けにくい。小銭・テレホンカードも。", "d": "公衆電話は災害時に優先的につながる『災害時優先電話』。近所の設置場所を確認し、10円玉やテレホンカードを備えておくといざという時に使えます。", "w": 0}, {"t": "災害時無料Wi‑Fi「00000JAPAN」が開放されることがある。", "d": "大規模災害時、通信各社が誰でも使える無料Wi‑Fi『00000JAPAN（ファイブゼロ・ジャパン）』を開放することがあります。暗号化はされないため個人情報のやり取りは控えめに。", "w": 0}, {"t": "スマホは温度に弱い。夏の高温・冬の冷えすぎでバッテリーが弱る。極端な温度を避ける。", "d": "リチウム電池は高温・低温で性能が落ちます。真夏の車内放置や真冬の屋外で急に電池が減るのはこのため。極端な温度を避けて携帯を。", "w": 0}]}, {"id": "info", "icon": "📻", "name": "情報収集", "tips": [{"t": "電池式・手回しラジオを1台。停電・通信途絶でも情報が得られる最後の砦。", "d": "停電でテレビが消え、スマホの電池も切れた時、頼れるのがラジオ。電池式や手回し式を1台備え、地域のFM局を聞けるようにしておきます。", "w": 0}, {"t": "NHKと地元局の周波数をメモしてラジオ本体に貼っておく。", "d": "いざという時に周波数が分からず慌てないよう、NHKと地元のコミュニティFM等の数字を本体に貼っておくとすぐ合わせられます。", "w": 0}, {"t": "停電・復旧情報は電力会社の停電情報サイト／SNSで確認（スマホの電池と相談しつつ）。", "d": "電力会社は停電の範囲や復旧見込みをサイトやSNSで公開します。復旧時刻の目安が分かると、食料や充電の計画が立てやすくなります。", "w": 0}, {"t": "気象・河川・避難情報は自治体の防災アプリ／メール、通電時はテレビのdボタンで。", "d": "自治体の防災メール・アプリは避難情報をいち早く届けます。テレビが使える時はdボタンで地域の詳細情報を確認できます。", "w": 0}, {"t": "デマに注意。発信元が公式か、日時はいつかを確認し、複数の信頼できる情報源で裏取り。", "d": "災害時はデマや古い情報が拡散しがち。発信元が公式か、いつの情報かを確かめ、複数の信頼できる情報源で確認してから行動・拡散を。", "w": 0}, {"t": "車のカーラジオも情報源。充電しながら聞ける（換気に注意）。", "d": "車のラジオは音質もよく、スマホを充電しながら情報を聞けます。ただし車庫など換気の悪い場所での長時間アイドリングは一酸化炭素中毒に注意。", "w": 1}, {"t": "近所・自治会の声かけも情報網。高齢者宅の安否確認も兼ねる。", "d": "ご近所同士の声かけは、通信に頼らない貴重な情報網。給水や物資の情報が回ってくることも。高齢者宅の安否確認も兼ねられます。", "w": 0}, {"t": "停電が自宅だけか地域全体かを切り分ける（ブレーカー／契約か、電力会社情報か）。", "d": "まず自宅だけの問題（ブレーカー落ち・契約）か地域全体の停電かを見極めます。ブレーカーやご近所の様子、電力会社の停電情報で判断できます。", "w": 0}, {"t": "復旧見込み時間がわかると、食料・充電・行動の計画が立てやすい。", "d": "『あと数時間』か『丸一日以上』かで取るべき行動は変わります。復旧の目安が分かれば、冷蔵庫の中身や充電の使い方を計画できます。", "w": 0}, {"t": "情報を得る時間を決め「ながら受信」をやめると電池が長持ちする。", "d": "ラジオやスマホをつけっぱなしにすると電池を消耗します。『毎正時に確認』などと時間を決めて受信すれば、機器が長持ちします。", "w": 0}]}, {"id": "light", "icon": "💡", "name": "あかり・照明", "tips": [{"t": "LEDランタン・懐中電灯・ヘッドライトを部屋ごとに。両手が空くヘッドライトが便利。", "d": "停電は突然。各部屋やトイレ動線に明かりを分散配置しておくと安心です。両手が空くヘッドライトは調理や作業に特に便利。", "w": 0}, {"t": "ろうそくは転倒・引火の火災リスクが高い。就寝時や子ども・ペットのそばでは使わない。", "d": "停電時の火災原因で多いのがろうそく。倒れて燃え移る事故が起きやすく、特に就寝中や子ども・ペットがいる場所では使わずLEDライトを。", "w": 1}, {"t": "懐中電灯に水入りペットボトルやレジ袋をかぶせると光が拡散し、部屋がほんのり明るくなる。", "d": "点の光を面の光に変える裏ワザ。懐中電灯の上に水を入れたペットボトルを立てると、光が拡散して部屋全体がやわらかく明るくなります。", "w": 0}, {"t": "ランタンは天井や高い位置に吊るすと広く照らせる。", "d": "光源は高い位置ほど広範囲を照らします。ランタンを鴨居やS字フックで吊るすと、部屋全体が明るくなり手元も見やすくなります。", "w": 0}, {"t": "スマホのライトは非常用に温存する。常用すると電池を消耗する。", "d": "スマホのライトは明るいですが電池を激しく消費します。連絡・情報の命綱であるスマホは温存し、明かりは専用ライトを使いましょう。", "w": 0}, {"t": "予備電池はライトと同じ場所に、種類・本数をまとめて保管。", "d": "いざという時に『電池が無い・サイズが違う』を防ぐため、ライトと同じ場所に対応する電池を種類ごとにまとめて備えておきます。", "w": 0}, {"t": "玄関・階段・トイレへの動線に明かりを確保し、暗所での転倒を防ぐ。", "d": "停電時のけがで多いのが暗がりでの転倒。玄関・階段・トイレなど移動する場所に足元灯やライトを置くと安全です。", "w": 0}, {"t": "ソーラーランタンは昼に窓際で充電しておく。", "d": "電池不要で繰り返し使えるソーラーランタンは、日中に窓辺で充電しておけば夜に活躍。庭やベランダに出しておくとより効率的です。", "w": 0}, {"t": "暗くなる前に、懐中電灯の位置を家族で共有しておく。", "d": "日没後の停電に備え、明るいうちに『ライトはここ』と家族で確認。暗闇で探し回らずに済み、パニックも防げます。", "w": 0}, {"t": "蓄光テープ・反射材を段差やスイッチに貼ると、暗闇でも位置がわかる。", "d": "光を蓄えて暗所で光る蓄光テープを段差・スイッチ・ドアノブに貼っておくと、真っ暗でも位置が分かり移動が安全になります。", "w": 0}]}, {"id": "sleep", "icon": "😴", "name": "寝る・睡眠", "tips": [{"t": "冬は「着て寝る」。一枚多く重ね、湯たんぽや温水ペットボトルを布団へ（低温やけどに注意）。", "d": "暖房が止まる冬の夜は着込んで寝るのが基本。湯たんぽやお湯入りペットボトルをタオルで包んで布団に入れると暖かい。直接肌に当てると低温やけどに注意。", "w": 0}, {"t": "寝袋・毛布を重ね、床の冷えを断つためマットや段ボールを敷く。", "d": "冷えは床から伝わります。体の下にマットや段ボール、新聞紙を敷いて断熱すると、同じ毛布でも暖かさが段違いになります。", "w": 0}, {"t": "夏は熱がこもらない場所で。窓を対角に開け風の通り道をつくる。", "d": "エアコンが使えない夏は熱中症に注意。対角線上の窓を開けて風の通り道をつくり、風通しのよい場所で休みます。", "w": 0}, {"t": "凍らせたペットボトルをタオルで巻いて枕元に置くと寝苦しさが和らぐ。", "d": "保冷剤代わりに凍らせたペットボトルをタオルで巻いて枕元や首元に置くと、寝苦しい熱帯夜も少し楽になります。結露対策にタオルは必須。", "w": 0}, {"t": "停電中は防犯にも注意。戸締まりを確認し、貴重品は手元に。", "d": "停電で街灯も消え、防犯上のリスクが高まります。就寝前に戸締まりを確認し、貴重品やスマホ・ライトは手元にまとめておきます。", "w": 0}, {"t": "就寝前に火の元・暖房を必ず消す（CO中毒・火災予防）。", "d": "寝ている間の火災・一酸化炭素中毒は非常に危険。石油・ガスストーブやろうそくは就寝前に必ず消し、電気系統も確認してから休みます。", "w": 1}, {"t": "枕元にライト・スマホ・靴／スリッパ・ホイッスルをまとめて置く。", "d": "夜間の停電や地震にすぐ対応できるよう、明かり・連絡手段・足を守る靴・助けを呼ぶ笛を枕元に。暗闇でも手が届く場所にまとめます。", "w": 0}, {"t": "家族はできるだけ同じ部屋で。体温を分け合え、安否確認もしやすい。", "d": "一部屋に集まれば暖房効率が上がり体温を分け合え、子どもや高齢者の様子もすぐ分かります。不安の軽減にもつながります。", "w": 0}, {"t": "新聞紙を服と毛布の間に挟むと断熱材代わりになり暖かい。", "d": "新聞紙は空気の層をつくる優秀な断熱材。服の中や毛布の間に挟む、体に巻くだけでも暖かさが増します。丸めて隙間に詰めても効果的。", "w": 0}, {"t": "睡眠を確保して体力を守ることが、停電生活を乗り切る土台になる。", "d": "不便な環境でも睡眠は体力と判断力を保つ土台。寒さ・暑さ・不安をできるだけ減らし、少しでも休める環境を整えることが大切です。", "w": 0}]}, {"id": "cook", "icon": "🍳", "name": "食事・調理", "tips": [{"t": "カセットコンロ＋ボンベが調理の主役。ボンベは1人1週間で約6本が目安。", "d": "電気・ガスが止まっても使えるカセットコンロは停電時の調理の要。ボンベは1人あたり1週間で約6本が目安。多めに備蓄を。", "w": 0}, {"t": "ボンベは直射日光・高温を避けて保管。コンロの周りに燃えるものを置かない。", "d": "カセットボンベは高温で破裂の危険があります。直射日光や暖房のそばを避けて保管し、使用中はコンロ周りに紙や布など燃えるものを置かないこと。", "w": 1}, {"t": "ポリ袋湯せん（パッククッキング）：高密度ポリ袋に食材を入れ湯せん。水と洗い物を節約。", "d": "耐熱ポリ袋に食材を入れて鍋で湯せんする調理法。鍋の湯は汚れず繰り返し使え、洗い物もほぼ出ないので、貴重な水と燃料を節約できます。", "w": 0}, {"t": "一つの鍋の湯で複数のポリ袋を同時調理でき、燃料も節約できる。", "d": "パッククッキングなら、ご飯・おかず・汁物を別々の袋で同じ鍋に入れて一度に調理可能。燃料も時間も節約でき、味も混ざりません。", "w": 0}, {"t": "火を使わず食べられるもの（缶詰・レトルト・パン・シリアル）から消費する。", "d": "停電直後は無理に火を使わず、そのまま食べられる物から消費するのが安全。体力を消耗せず、燃料も温存できます。", "w": 0}, {"t": "温かい汁物・飲み物は体温と気力を保つ。少量の湯で作れるスープを常備。", "d": "温かい一杯は体を温め、心も落ち着かせます。少量のお湯で作れるスープやみそ汁、しょうが湯などを備えておくと、非常時の支えになります。", "w": 0}, {"t": "まな板にラップを敷けば洗わずに済み、水を節約できる。", "d": "まな板や皿にラップを敷いて使えば、使用後はラップを捨てるだけ。洗い物が減り、断水時の貴重な水を守れます。", "w": 0}, {"t": "缶詰はそのまま、または湯せんで温める。", "d": "缶詰は加熱不要でそのまま食べられ、袋のまま湯せんすれば温かい一品に。プルトップ式を選ぶと停電時に缶切り不要で便利です。", "w": 0}, {"t": "生もの・傷みやすい食材から先に、必ず加熱して食べる。", "d": "停電で冷蔵が効かない時は、肉・魚・乳製品など傷みやすい物から加熱して食べます。少しでもにおいや違和感があれば口にしないこと。", "w": 0}, {"t": "使い捨て食器・割り箸・ラップで、貴重な水を洗い物に使わずに済ませる。", "d": "断水時は洗い物に水を使う余裕がありません。紙皿・紙コップ・割り箸を備え、皿にはラップを敷けば、飲み水を守れます。", "w": 0}]}, {"id": "food", "icon": "🥫", "name": "食料・備蓄", "tips": [{"t": "ローリングストック：普段の食品を少し多めに買い、食べた分を補充して常に備蓄。", "d": "特別な非常食をため込むより、普段食べる物を少し多めに買い、使った分を補充する方法。鮮度を保ちながら常に一定量を備蓄できます。", "w": 0}, {"t": "最低3日、できれば1週間分を家族の人数分そろえる。", "d": "大規模災害では支援が届くまで時間がかかります。最低3日、できれば1週間分の食料・水を家族の人数分そろえておくと安心です。", "w": 0}, {"t": "加熱不要でそのまま食べられる非常食も一定量確保する。", "d": "停電・断水・ケガなどで調理できない状況に備え、封を開けるだけで食べられる物（缶詰・栄養補助食品・乾パン等）も用意しておきます。", "w": 0}, {"t": "賞味期限を定期チェックし、近いものから食べて入れ替える。", "d": "備蓄は『置きっぱなし』にすると期限切れに。半年に一度など日を決めて点検し、期限が近い物から食べて買い足す習慣を。", "w": 0}, {"t": "主食＋たんぱく質（缶詰）＋野菜（ジュース／フリーズドライ）で栄養の偏りを防ぐ。", "d": "炭水化物ばかりだと体調を崩しがち。主食に加え、魚・肉の缶詰でたんぱく質、野菜ジュースやフリーズドライ野菜でビタミンを補いましょう。", "w": 0}, {"t": "食べ慣れた好きな味を備える。ストレス下でも食べやすい。", "d": "非常時は食欲も落ちがち。食べ慣れた好きな味の物を備えておくと、ストレスの中でも食が進み、気持ちの支えにもなります。", "w": 0}, {"t": "チョコ・ようかんなど高カロリーの嗜好品は、手軽なエネルギー源＆気分転換に。", "d": "チョコやようかん、あめは高カロリーで日持ちし、すぐエネルギーになります。甘い物は疲れた心のリフレッシュにも役立ちます。", "w": 0}, {"t": "液体ミルク・離乳食・やわらか食など、家族に合わせた備蓄を。", "d": "赤ちゃんや高齢者は普通の非常食を食べられないことも。液体ミルク・離乳食・やわらか食など、家族構成に合わせた備えが欠かせません。", "w": 0}, {"t": "アレルギー対応食・常備薬・持病用の食事も忘れずに。", "d": "食物アレルギーや持病がある人は、支援物資が体に合わないことがあります。対応食や常備薬は自分で最低1週間分を確保しておきます。", "w": 0}, {"t": "保管場所を家族で共有。分散して置くと被災時のリスクも分散できる。", "d": "備蓄の場所を家族全員が把握しておくこと。一か所に集中させず数か所に分散すると、家具の転倒などで取り出せなくなるリスクを減らせます。", "w": 0}]}, {"id": "water", "icon": "💧", "name": "水・飲料", "tips": [{"t": "飲料水は1人1日3Lが目安。3日〜1週間分を備蓄。", "d": "飲料・調理用として1人1日3Lが目安。家族の人数×日数で計算し、3日〜1週間分を確保します。ペットボトルなら管理も簡単です。", "w": 0}, {"t": "停電＝断水ではないが、マンションはポンプ停止で断水することがある。早めに汲み置きを。", "d": "マンションは電動ポンプで各戸へ給水するため、停電すると高層階を中心に断水します。停電に気づいたら早めに水を汲み置きしておきましょう。", "w": 0}, {"t": "停電直後に浴槽・鍋・ボトルへ水を貯めておく（生活用水）。", "d": "断水に備え、水が出るうちに浴槽や鍋・ボトルへ貯水を。トイレや手洗いに使える生活用水があるだけで、その後の暮らしが大きく変わります。", "w": 0}, {"t": "給水拠点の場所を自治体サイトで確認。運搬用のポリタンク・給水袋を用意。", "d": "断水が長引くと給水車が拠点に来ます。近所の給水拠点を平時に確認し、水を運ぶポリタンクや給水袋（リュック型が便利）を備えておきます。", "w": 0}, {"t": "飲用と生活用（手洗い・トイレ）の水を分けて管理し、無駄遣いを防ぐ。", "d": "きれいな飲用水を洗い物やトイレに使うのはもったいない。用途で分けて管理し、風呂の残り湯などは生活用水として最後まで活用します。", "w": 0}, {"t": "水は直射日光を避けて保管。開封後は早めに使い切る。", "d": "ペットボトルの水は直射日光・高温を避けて保管すると長持ちします。開封後は雑菌が繁殖するため、早めに飲み切りましょう。", "w": 0}, {"t": "ウォーターサーバーのボトルや製氷機の氷も貴重な水源。", "d": "見落としがちですが、ウォーターサーバーの予備ボトル、冷蔵庫の製氷機の氷、水道管に残った水なども非常時の貴重な水源になります。", "w": 0}, {"t": "節水：食器はラップ、手はウェットティッシュ／アルコールで代用。", "d": "水が限られる時は『使わない工夫』が大切。食器はラップで覆い、手指はウェットティッシュやアルコールで清潔を保てば水を大幅に節約できます。", "w": 0}, {"t": "段ボール箱にポリ袋を広げて水を注げば、即席タンクになる。", "d": "給水袋やタンクが足りない時は、丈夫な段ボール箱に大きなポリ袋を二重に広げて水を注げば即席の貯水容器に。運搬は台車があると安全です。", "w": 0}, {"t": "赤ちゃん・高齢者・体調不良者は脱水しやすい。水分補給を優先。", "d": "乳幼児・高齢者・発熱時などは脱水を起こしやすく重症化も早い。限られた水はまずこうした人の水分補給を優先して確保します。", "w": 0}]}, {"id": "bath", "icon": "🛁", "name": "入浴・衛生", "tips": [{"t": "入浴できない時はボディシートや蒸しタオルで。首・脇・股関節など汗をかく部位を重点的に。", "d": "お風呂に入れなくても、体を拭くだけで爽快感と衛生を保てます。汗や皮脂のたまりやすい首・脇・股関節を重点的に拭くと、においも抑えられます。", "w": 0}, {"t": "ドライシャンプー／水のいらないシャンプーで頭皮のべたつき・においを軽減。", "d": "水なしで使えるドライシャンプーは、頭皮のべたつきやにおいを抑えてくれます。避難生活のストレス軽減にも役立つので備えておくと便利。", "w": 0}, {"t": "カセットコンロで湯を沸かし、洗面器で「かけ湯」だけでもさっぱりする。", "d": "少量のお湯を沸かして洗面器でかけ湯するだけでも体は温まり、清潔になります。冬は体を温める効果もあり、体力の維持に役立ちます。", "w": 0}, {"t": "手指衛生はアルコール消毒・ウェットティッシュで。食事前・トイレ後は特に丁寧に。", "d": "断水時の感染症予防の要は手指衛生。アルコール消毒やウェットティッシュを常備し、食事前とトイレ後は特に丁寧に手をきれいにします。", "w": 0}, {"t": "口腔ケアは少量の水や歯みがきシートで。誤嚥性肺炎の予防にも重要。", "d": "口の中を清潔に保つことは、避難生活で増える誤嚥性肺炎の予防に重要。少量の水でのうがいや歯みがきシートで、こまめにケアを。", "w": 0}, {"t": "汗をかいたら着替える。清潔な衣類は感染症・皮膚トラブルを防ぐ。", "d": "汗や汚れのついた衣類は、においだけでなく皮膚トラブルや感染症の原因に。着替えを備え、こまめに替えて清潔を保ちましょう。", "w": 0}, {"t": "生理用品、乳幼児のおむつ・おしりふきは多めに備蓄。", "d": "生理用品やおむつは代替が難しく、支援も遅れがち。ふだんより多めに備蓄し、おしりふきは体拭きにも使えるので重宝します。", "w": 0}, {"t": "ゴミは分別し、ふた付き容器やポリ袋で密閉してにおい・衛生対策を。", "d": "収集が止まるとゴミがたまります。生ゴミは密閉して においと虫・衛生悪化を防止。新聞紙で包む、消臭袋を使うなどの工夫も有効です。", "w": 0}, {"t": "マスク・消毒液で、避難生活での感染症（胃腸炎・かぜ）を防ぐ。", "d": "人が密集する避難生活では感染症が広がりやすいもの。マスク・消毒液を備え、換気や手洗いと合わせて、体調を崩さない対策を心がけます。", "w": 0}, {"t": "爪を切り手を清潔に保つなど、小さな衛生習慣が体調を守る。", "d": "爪を短く清潔に保つ、傷はすぐ手当てするなど、小さな衛生習慣の積み重ねが、非常時の感染症や体調悪化を防ぎます。", "w": 0}]}, {"id": "toilet", "icon": "🚽", "name": "トイレ", "tips": [{"t": "携帯トイレ・簡易トイレを備蓄（1人1日5回×日数が目安）。停電・断水で真っ先に困る。", "d": "停電・断水でまず困るのがトイレ。人は1日約5回使うので〈5回×人数×日数〉分の携帯トイレを。がまんは体調悪化につながるため必需品です。", "w": 0}, {"t": "断水時はむやみに流さない。マンションは配管破損の恐れがあり、流してよいか管理者に確認。", "d": "地震後などは排水管が壊れていることがあり、流すと下の階へ汚水があふれる恐れがあります。安全が確認できるまで流さず、携帯トイレを使います。", "w": 1}, {"t": "便器にポリ袋を二重にかぶせ、凝固剤や新聞紙・ペットシートで固めて処理する。", "d": "便器に袋を二重にかぶせ、用を足したら凝固剤や新聞紙・ペットシートで吸収・固化。内側の袋だけ縛って捨てれば、便器を汚さず繰り返し使えます。", "w": 0}, {"t": "使用後は袋の口をしっかり縛り、ふた付き容器／防臭袋でにおいを封じる。", "d": "使用済みの袋はしっかり縛り、防臭袋やふた付き容器へ。においと衛生問題は避難生活の大きなストレスになるため、密閉が肝心です。", "w": 0}, {"t": "消臭・防臭袋、凝固剤、トイレットペーパーを多めに備える。", "d": "トイレ関連の消耗品は不足しがち。凝固剤・防臭袋・トイレットペーパーは多めに備蓄を。ペーパーは水に流せないため別途ゴミ処理も想定します。", "w": 0}, {"t": "バケツ流しは、配管の安全が確認できる戸建てなどに限る。", "d": "バケツで水を流す方法は、排水管が無事な戸建てなどに限ります。集合住宅や地震後は配管破損の恐れがあるため避け、携帯トイレを使います。", "w": 0}, {"t": "手指消毒（アルコール／ウェットティッシュ）をトイレのそばに常備。", "d": "トイレ後の手指消毒は感染症予防の基本。水が使えなくても済むよう、アルコールやウェットティッシュをトイレのそばに常備しておきます。", "w": 0}, {"t": "夜間・高齢者・子ども用に、ライトと動線を確保（暗所での転倒防止）。", "d": "暗い中でのトイレは転倒の危険大。足元灯や動線の明かりを確保し、高齢者・子どもが安全に行けるように整えておきます。", "w": 0}, {"t": "排せつを我慢しない。水分の控えすぎはエコノミークラス症候群や膀胱炎の原因に。", "d": "トイレを嫌って水分を控えると、血栓（エコノミークラス症候群）や膀胱炎・便秘を招きます。トイレ環境を整え、水分と排せつを我慢しないことが健康を守ります。", "w": 0}, {"t": "使用済み携帯トイレの保管場所（直射日光を避けた屋外など）を決めておく。", "d": "収集再開まで使用済み袋を保管する必要があります。直射日光の当たらない屋外など、においがこもらず安全な保管場所をあらかじめ決めておきます。", "w": 0}]}, {"id": "fridge", "icon": "❄️", "name": "冷蔵庫・食品保存", "tips": [{"t": "停電したら扉を開けない。冷蔵は2〜3時間、冷凍は満杯で約48時間・半分で約24時間が目安。", "d": "扉を閉めたままなら庫内の冷気はしばらく保たれます。冷蔵で2〜3時間、冷凍は満杯で約2日が目安。開けるほど早く温まるので開閉は最小限に。", "w": 0}, {"t": "開ける時はまとめて手早く。取り出す物を決めてから開ける。", "d": "冷気を逃さないため、何をどこから取るか決めてから、短時間でまとめて取り出します。ダラダラ開けないのが庫内を長持ちさせるコツ。", "w": 0}, {"t": "保冷剤・凍った食品・氷をクーラーボックスへ移して延命する。", "d": "停電が長引きそうなら、保冷剤や凍った食品をクーラーボックスへ集約。小さな空間の方が冷気を保ちやすく、大事な食材を長持ちさせられます。", "w": 0}, {"t": "日頃から冷凍庫の隙間を凍らせたペットボトルで埋めると保冷力が上がる。", "d": "冷凍庫は物が詰まっているほど互いを冷やし合い、停電時も冷気が長持ちします。空きスペースは水を入れたペットボトルを凍らせて埋めておくと安心。", "w": 0}, {"t": "傷みやすい要冷蔵品（肉・魚・乳製品）から先に、加熱して食べる。", "d": "停電したら、傷みやすい生鮮品から順に消費します。肉・魚・乳製品はしっかり加熱して早めに食べ、常温保存できる物は後回しにします。", "w": 0}, {"t": "一度解けた冷凍品の再冷凍は避ける（品質・衛生の低下）。", "d": "解けた冷凍食品を再び凍らせると、細菌が増えやすく品質も落ちます。解けた物はその日のうちに加熱して食べ切るのが安全です。", "w": 0}, {"t": "常温で溶けた乳製品、においや変色があるものは処分する。", "d": "溶けたアイスや生クリーム、酸っぱいにおい・変色・ぬめりのある食品は迷わず処分。見た目やにおいの異変は、食中毒を避ける大事なサインです。", "w": 0}, {"t": "迷ったら食べない。食中毒のリスクを冒すより処分を。", "d": "『もったいない』より安全優先。少しでも怪しいと感じたら口にせず処分します。非常時の食中毒は脱水や重症化を招き、命に関わることもあります。", "w": 1}, {"t": "クーラーボックスは日陰・涼しい場所に置き、開閉を最小限に。", "d": "クーラーボックスも直射日光下では急速に温まります。日陰や家の中の涼しい場所に置き、開閉回数を減らすと保冷が長持ちします。", "w": 0}, {"t": "復旧後は冷蔵庫をしばらく待ってから通電し、庫内を確認してから食品を戻す。", "d": "停電復旧直後は電圧が不安定なことも。少し待ってから通電し、庫内が十分冷えてから食品を戻します。傷んだ物は戻さず処分を。", "w": 0}]}, {"id": "safety", "icon": "🔥", "name": "安全・火災予防", "tips": [{"t": "発電機・炭火・ガス機器を室内で使わない。一酸化炭素中毒で死亡の危険。必ず屋外・換気で。", "d": "発電機・練炭・炭火・カセットガス機器を屋内や換気の悪い場所で使うと、一酸化炭素が充満し短時間で死に至ります。必ず屋外の風通しのよい場所で使用を。", "w": 1}, {"t": "一酸化炭素は無色無臭。頭痛・吐き気・めまいを感じたらすぐ外の空気を吸い、換気する。", "d": "一酸化炭素は色もにおいもなく、気づかぬうちに中毒に。頭痛・吐き気・めまい・眠気を感じたら中毒の初期症状。すぐ屋外へ出て新鮮な空気を吸い、換気を。", "w": 1}, {"t": "長期停電や避難で家を空ける時はブレーカーを落とし、復旧時の「通電火災」を防ぐ。", "d": "停電中に倒れた電気製品や傷んだ配線に、復旧時いきなり電気が流れて火災になるのが『通電火災』。避難や長期停電の際はブレーカーを落としておきます。", "w": 1}, {"t": "復旧後は、家電の破損・こぼれた可燃物・配線の異常がないか確認してから通電する。", "d": "電気が戻ったら、家電の転倒・破損、こぼれた油や燃えやすい物、配線の傷みが無いか確認。異常が無いことを確かめてから、一つずつ通電します。", "w": 1}, {"t": "暖房・ストーブの近くに燃えやすい物を置かない。就寝時・外出時は必ず消す。", "d": "ストーブの近くの洗濯物やカーテンへの引火は火災の定番原因。周囲に燃える物を置かず、寝るときや外出時は必ず消火を確認します。", "w": 1}, {"t": "ろうそくは極力使わない。使うなら不燃の受け皿・安定した場所で、その場を離れない。", "d": "停電時の火災原因の上位がろうそく。できればLEDライトを使い、どうしても使う場合は不燃の皿・安定した場所で、火から目を離さないこと。", "w": 1}, {"t": "消火器や水を手の届く所に置き、初期消火に備える。", "d": "火災は初期消火が肝心。消火器やバケツの水を手の届く場所に用意しておけば、小さな火のうちに消し止められる可能性が高まります。", "w": 0}, {"t": "停電時のエレベーターは閉じ込めの恐れ。階段を使う。", "d": "停電や地震の後はエレベーターが停止し閉じ込められる危険があります。停電時・災害時は階段を使い、乗っている時に停電したら全階のボタンを押します。", "w": 0}, {"t": "在宅酸素・人工呼吸器など医療機器の利用者は、非常用電源と連絡先を必ず確保。", "d": "電気で動く在宅医療機器の利用者にとって停電は命に直結します。予備バッテリー・非常用電源を備え、医療機関・電力会社の連絡先をすぐ使える所に。", "w": 1}, {"t": "ガス臭がしたら火気厳禁・換気・元栓を閉め、電気スイッチも触らない（火花で引火）。", "d": "ガス漏れ時は、火はもちろん電気スイッチや換気扇のオン・オフも厳禁（火花で引火）。窓を開けて換気し、元栓を閉め、ガス会社へ連絡します。", "w": 1}]}, {"id": "temp", "icon": "🌡️", "name": "暑さ・寒さ対策", "tips": [{"t": "【夏】窓を対角に開け風の通り道を。すだれ・カーテンで直射日光を遮る。", "d": "エアコンが止まる夏は、対角の窓を開けて風を通し、すだれ・遮光カーテンで日ざしを遮るのが基本。室温の上昇をかなり抑えられます。", "w": 0}, {"t": "【夏】濡れタオル＋うちわで気化熱を利用。首・脇・脚の付け根を冷やすと効率的。", "d": "濡れタオルを体に当てて扇ぐと、水分が蒸発する時の気化熱で体温が下がります。太い血管が通る首・脇・脚の付け根を冷やすと効率的です。", "w": 0}, {"t": "【夏】乾電池式・充電式の扇風機やハンディファンが役立つ。", "d": "停電で扇風機やエアコンが使えない時、乾電池式・充電式のファンがあると体感温度を下げられます。日中に充電しておくと夜も使えます。", "w": 0}, {"t": "【夏】熱中症に注意。こまめな水分＋塩分をとり、無理せず涼しい場所へ。", "d": "停電時の熱中症は命に関わります。のどが渇く前にこまめに水分と塩分を補給し、体調が悪ければ無理せず涼しい公共施設などへ避難を。", "w": 0}, {"t": "【夏】冷房が使えない日中は、涼しい公共施設・避難所への一時避難も選択肢。", "d": "無理に自宅で耐えず、日中の暑い時間帯だけでも図書館や涼しい避難所へ移るのは有効な熱中症対策。特に高齢者・子どもは早めの判断を。", "w": 0}, {"t": "【冬】重ね着＋「3つの首（首・手首・足首）」の保温で体感が大きく変わる。", "d": "太い血管が皮膚の近くを通る首・手首・足首を温めると、効率よく全身が暖まります。マフラー・手袋・レッグウォーマーで『3つの首』を守りましょう。", "w": 0}, {"t": "【冬】湯たんぽ・カイロ・毛布で局所を温め、ニット帽で頭からの放熱を防ぐ。", "d": "体は頭から多くの熱を逃がします。ニット帽で放熱を防ぎ、湯たんぽやカイロでおなか・腰・背中を温めると、少ない燃料でも暖かく過ごせます。", "w": 0}, {"t": "【冬】石油／カセットガスストーブは換気必須、就寝時は必ず消火する。", "d": "燃焼式のストーブは一酸化炭素中毒を防ぐため1時間に1〜2回の換気が必須。就寝時は必ず消火し、寝ている間はつけっぱなしにしないこと。", "w": 1}, {"t": "【冬】窓に断熱シート、床にマットを敷いて底冷えを防ぐ。", "d": "熱の多くは窓から逃げ、冷えは床から伝わります。窓に断熱シートや段ボール、床にマットやラグを敷くだけで、室温の低下をかなり抑えられます。", "w": 0}, {"t": "【共通】体温調整が難しい高齢者・乳幼児は特に注意し、こまめに様子を確認する。", "d": "高齢者や乳幼児は暑さ・寒さを感じにくく、体温調整も苦手。本人が訴えなくても、周りがこまめに顔色・体温・汗の様子を確認することが大切です。", "w": 0}]}, {"id": "care", "icon": "👶", "name": "赤ちゃん・高齢者・ペット", "tips": [{"t": "【乳児】常温で飲める液体ミルク＋使い捨て哺乳ボトルなら、湯が沸かせなくても授乳できる。", "d": "停電でお湯が沸かせなくても、液体ミルクなら常温でそのまま飲ませられます。使い捨ての哺乳ボトルや乳首と合わせて備えると、断水時も安心です。", "w": 0}, {"t": "【乳児】おむつ・おしりふき・離乳食を多めに。暗所用に授乳・おむつ替えのライトを確保。", "d": "おむつ・おしりふき・離乳食は代替が難しく、支援も遅れがち。多めに備蓄を。夜間の授乳・おむつ替え用に、手元を照らすライトも用意しておきます。", "w": 0}, {"t": "【子ども】お気に入りのおもちゃ・絵本や声かけで不安を和らげ、明かりで暗闇の怖さを減らす。", "d": "停電の暗闇や非日常は子どもに強い不安を与えます。お気に入りの物やスキンシップ、やさしい声かけで安心させ、明かりで暗さの怖さを和らげましょう。", "w": 0}, {"t": "【高齢者】常備薬・お薬手帳の写し・予備の眼鏡や補聴器の電池を備える。", "d": "持病のある高齢者は薬が切れると命に関わることも。数日〜1週間分の常備薬とお薬手帳の写し、眼鏡・補聴器の電池など生活必需品を備えます。", "w": 0}, {"t": "【高齢者】室温変化に弱い。夏の熱中症・冬の低体温に特に注意し、水分と保温を。", "d": "高齢者は暑さ・寒さを感じにくく、体温調整も苦手。夏は熱中症、冬は低体温症になりやすいため、周囲がこまめに水分補給と室温・保温に気を配ります。", "w": 0}, {"t": "【医療】在宅医療機器の利用者は非常用電源・予備バッテリーと連絡先を確保する。", "d": "在宅酸素・人工呼吸器・たん吸引器などは停電で止まると命に関わります。予備バッテリー・非常用電源を備え、医療機関と電力会社の連絡先を手元に。", "w": 1}, {"t": "【共通】要配慮者の避難は早めに。停電で暗くなる前に安全な場所へ。", "d": "高齢者・乳幼児・病気の人などは避難に時間がかかります。暗くなる前、危険が迫る前の早めの行動が安全。無理せず周囲の助けも借りましょう。", "w": 0}, {"t": "【ペット】水・フード・トイレ用品を最低数日分。ケージ／キャリーに慣らしておく。", "d": "ペットの分の水・フード・ペットシーツも人と同じく備蓄を。避難の際に必要なケージやキャリーに普段から慣らしておくと、いざという時スムーズです。", "w": 0}, {"t": "【ペット】夏は熱中症、冬は冷えに注意。人と同じく温度管理を。", "d": "ペットも暑さ・寒さに弱く、特に短頭種や小動物は熱中症・低体温になりやすい。人と同じように水分・室温に気を配り、様子を観察しましょう。", "w": 0}, {"t": "【共通】ご近所と声をかけ合い、要配慮者の安否を地域で見守る。", "d": "停電時は地域の支え合いが力になります。高齢者や体の不自由な方など、支援が必要な人にご近所で声をかけ合い、安否を見守ることが命を守ります。", "w": 0}]}];
+const list=document.getElementById('list');
+const nav=document.getElementById('nav');
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+DATA.forEach(c=>{
+  const a=document.createElement('a');a.href='#'+c.id;a.innerHTML='<span>'+c.icon+'</span>'+esc(c.name);
+  nav.appendChild(a);
+  const sec=document.createElement('section');sec.className='cat';sec.id=c.id;sec.dataset.name=c.name;
+  const items=c.tips.map(function(t){
+    var badge = t.w ? '<span class="badge">注意</span>' : '';
+    var img = t.img ? '<img src="'+esc(t.img)+'" alt="" loading="lazy">' : '';
+    return '<li class="tip '+(t.w?'warn':'')+'">'
+      + '<button type="button" class="tip-head" aria-expanded="false" onclick="toggleTip(this)">'
+      +   '<span class="tip-t">'+badge+esc(t.t)+'</span><span class="tip-caret">▾</span>'
+      + '</button>'
+      + '<div class="tip-body" hidden><p class="tip-desc">'+esc(t.d||'')+'</p>'+img+'</div>'
+      + '</li>';
+  }).join('');
+  sec.innerHTML='<div class="cat-head"><span class="cat-ic">'+c.icon+'</span><span><div class="cat-name">'+esc(c.name)+'</div><div class="cat-num">'+c.tips.length+'項目・タップで解説</div></span></div><ol class="tips">'+items+'</ol>';
+  list.appendChild(sec);
+});
+
+const q=document.getElementById('q'), noHit=document.getElementById('noHit');
+q.addEventListener('input',()=>{
+  const t=q.value.trim().toLowerCase();
+  let shown=0;
+  document.querySelectorAll('section.cat').forEach(sec=>{
+    let vis=0;
+    sec.querySelectorAll('ol.tips li').forEach(li=>{
+      const hit=!t || li.textContent.toLowerCase().includes(t) || sec.dataset.name.toLowerCase().includes(t);
+      li.style.display=hit?'':'none'; if(hit)vis++;
+    });
+    sec.style.display=vis?'':'none'; if(vis)shown++;
+  });
+  nav.style.display=t?'none':'';
+  noHit.style.display=shown?'none':'block';
+});
+
+function toggleTheme(){
+  const d=document.documentElement.classList.toggle('dk');
+  try{localStorage.setItem('teiden-theme',d?'dark':'light');}catch(e){}
+  setIcon();
+}
+function setIcon(){const b=document.getElementById('themeBtn');if(b)b.textContent=document.documentElement.classList.contains('dk')?'☀️':'🌙';}
+setIcon();
+
+let toast;
+function showToast(m){toast=toast||document.getElementById('toast');toast.textContent=m;toast.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>toast.classList.remove('show'),2400);}
+function sharePage(){
+  const url=location.href.split('#')[0];
+  const data={title:'停電対策 知恵袋ポータル',text:'停電時の暮らしの工夫まとめ',url:url};
+  if(navigator.share){navigator.share(data).catch(()=>{});return;}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(()=>showToast('URLをコピーしました')).catch(()=>showToast(url));return;}
+  showToast(url);
+}
+/* ===== 防災アイデア・被災地応援掲示板 ===== */
+/* ▼▼ 管理者設定：GASウェブアプリのURLを貼り付けてください ▼▼ */
+const BOARD_API = 'https://script.google.com/macros/s/AKfycbzM-fw1VcQ0Xz1GmdZ7XySoIRBwSICjoChlY-GY-Z3rRL6WHrj6940dRPJBKaesC03j/exec';
+const BOARD_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT-X3he8ocUy0VXJ5PKwJmRc6ZNQLfUjyU1tztn6o-xDYohcS6j_FAANYrfMXfvdEEwAP_re9a59M8F/pub?gid=1641559153&single=true&output=csv'; /* ← スプレッドシートの「ウェブに公開(CSV)」URLをここに貼ると、掲示板の読み込みが確実になります */
+/* ▲▲ 例）const BOARD_API = 'https://script.google.com/macros/s/xxxxx/exec'; ▲▲ */
+
+const ICONS_M = ['👨','🧔','👨‍🦰','👨‍🦱','👨‍🦳','👨‍🦲','👴','👨‍💼','👨‍🌾','👨‍🚒'];
+const ICONS_F = ['👩','👩‍🦰','👩‍🦱','👩‍🦳','👩‍🦲','👵','👧','👩‍💼','👩‍🌾','👩‍🚒'];
+const COLORS  = ['#e2564d','#e8863b','#e6b23a','#4fa06a','#2f9ba1','#3f79c9','#7a5fd0','#c85fa8','#6b7785','#7a8a3f'];
+let selIcon = ICONS_M[0], selColor = COLORS[0];
+
+(function(){
+  function buildIcons(hostId, arr, isFirstGroup){
+    var host=document.getElementById(hostId); if(!host) return;
+    arr.forEach(function(ic,idx){
+      var b=document.createElement('button'); b.type='button'; b.className='ic'+(isFirstGroup&&idx===0?' sel':'');
+      b.textContent=ic; b.setAttribute('aria-label','アイコン');
+      b.onclick=function(){ selIcon=ic; document.querySelectorAll('#bIconsM .ic, #bIconsF .ic').forEach(function(x){x.classList.remove('sel');}); b.classList.add('sel'); };
+      host.appendChild(b);
+    });
+  }
+  buildIcons('bIconsM', ICONS_M, true);
+  buildIcons('bIconsF', ICONS_F, false);
+  var cg=document.getElementById('bColors');
+  if(cg){ COLORS.forEach(function(co,idx){
+    var b=document.createElement('button'); b.type='button'; b.className='co'+(idx===0?' sel':''); b.style.background=co; b.setAttribute('aria-label','色');
+    b.onclick=function(){ selColor=co; cg.querySelectorAll('.co').forEach(function(x){x.classList.remove('sel');}); b.classList.add('sel'); };
+    cg.appendChild(b);
+  }); }
+  var bMsg=document.getElementById('bMsg'), bCount=document.getElementById('bCount');
+  if(bMsg&&bCount) bMsg.addEventListener('input', function(){ bCount.textContent=bMsg.value.length; });
+  var nav=document.getElementById('nav');
+  if(nav){ var a=document.createElement('a'); a.href='#board'; a.innerHTML='<span>💬</span>掲示板'; nav.appendChild(a); }
+})();
+
+function submitPost(){
+  var name=document.getElementById('bName').value.trim().slice(0,30);
+  var idea=document.getElementById('bIdea').value.trim().slice(0,300);
+  var message=document.getElementById('bMsg').value.trim().slice(0,200);
+  var res=document.getElementById('bResult');
+  function show(cls,msg){ res.hidden=false; res.className='board-msg '+cls; res.textContent=msg; }
+  if(!idea && !message){ show('err','防災アイデアか応援メッセージのどちらかを入力してください。'); return; }
+  if(!BOARD_API){ show('err','掲示板は準備中です（管理者へ：スクリプト内の BOARD_API にGASのURLを設定してください）。'); return; }
+  var btn=document.getElementById('bSubmit'); btn.disabled=true; btn.textContent='送信中…';
+
+  // 動作実績のある方式：Content-Type text/plain でJSON本文をPOST（プリフライト回避）
+  var payload = { action:'post', name:(name||'匿名'), icon:selIcon, color:selColor, idea:idea, message:message };
+  var done=false;
+  function ok(){
+    if(done) return; done=true;
+    show('ok','送信しました。管理者の承認後に掲示板へ公開されます。ありがとうございました。');
+    document.getElementById('bName').value=''; document.getElementById('bIdea').value=''; document.getElementById('bMsg').value=''; document.getElementById('bCount').textContent='0';
+    btn.disabled=false; btn.textContent='送信する';
+    setTimeout(function(){ try{ loadPosts(); }catch(e){} }, 1500);
+  }
+  function ng(msg){
+    if(done) return; done=true;
+    show('err', msg||'送信に失敗しました。時間をおいて再度お試しください。');
+    btn.disabled=false; btn.textContent='送信する';
+  }
+  fetch(BOARD_API + (BOARD_API.indexOf('?')>=0?'&':'?') + '_=' + Date.now(), {
+    method:'POST',
+    headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  }).then(function(r){
+    return r.json().then(function(d){ return d; }).catch(function(){ return {ok:true}; });
+  }).then(function(d){
+    if(d && d.ok===false){ ng('送信エラー：'+(d.error||'不明')); } else { ok(); }
+  }).catch(function(){
+    // レスポンスが読めない環境でも保存自体は完了しているため成功扱い
+    ok();
+  });
+}
+
+var TICKER_SPEED = 70; /* px/秒：見やすい一定速度 */
+var _tickerPosts = [];
+function buildTicker(posts){
+  _tickerPosts = posts || [];
+  var wrap = document.getElementById('ticker');
+  var view = wrap ? wrap.querySelector('.tk-view') : null;
+  var track = document.getElementById('tickerTrack');
+  if(!wrap || !view || !track) return;
+  var msgs = _tickerPosts.filter(function(p){ return p && p.message && String(p.message).trim(); });
+  if(!msgs.length){ wrap.style.display='none'; track.style.animation='none'; track.innerHTML=''; return; }
+  wrap.style.display='';
+  var items = msgs.map(function(p){
+    var col = /^#[0-9a-fA-F]{6}$/.test(p.color||'') ? p.color : '#6b7785';
+    return '<span class="tk-item"><span class="tk-ic" style="background:'+col+'22">'+esc(p.icon||'🙂')+'</span><span class="tk-msg">'+esc(p.message)+'</span><span class="tk-name">— '+esc(p.name||'匿名')+'</span></span>';
+  }).join('');
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  track.style.animation='none';
+  track.innerHTML = '<div class="tk-set">'+items+'</div>';
+  if(reduce){ view.style.overflowX='auto'; return; }
+  requestAnimationFrame(function(){
+    var viewW = view.getBoundingClientRect().width || 0;
+    var setW = track.querySelector('.tk-set').getBoundingClientRect().width || 0;
+    var reps = 1; while(setW>0 && setW*reps < viewW && reps<30){ reps++; }
+    var unit=''; for(var k=0;k<reps;k++){ unit+=items; }
+    track.innerHTML = '<div class="tk-set">'+unit+'</div><div class="tk-set" aria-hidden="true">'+unit+'</div>';
+    requestAnimationFrame(function(){
+      var w = track.querySelector('.tk-set').getBoundingClientRect().width || setW;
+      var dur = Math.max(14, w / TICKER_SPEED);
+      track.style.animation = 'tkscroll '+dur+'s linear infinite';
+    });
+  });
+}
+var _tkRz; window.addEventListener('resize', function(){ clearTimeout(_tkRz); _tkRz=setTimeout(function(){ buildTicker(_tickerPosts); }, 300); });
+
+function toggleTip(btn){
+  var li=btn.parentNode, body=li.querySelector('.tip-body');
+  var open=li.classList.toggle('open');
+  btn.setAttribute('aria-expanded', open?'true':'false');
+  if(body) body.hidden=!open;
+}
+
+function renderPosts_(posts){
+  var host=document.getElementById('bPosts'), empty=document.getElementById('bEmpty');
+  if(!host) return;
+  buildTicker(posts);
+  if(!posts.length){ host.innerHTML=''; empty.hidden=false; empty.textContent='まだ公開された投稿はありません。'; return; }
+  empty.hidden=true;
+  host.innerHTML=posts.map(function(p){
+    var col=/^#[0-9a-fA-F]{6}$/.test(p.color||'')?p.color:'#6b7785';
+    return '<div class="post" style="border-left-color:'+col+'">'+
+      '<div class="post-h"><span class="post-ic" style="background:'+col+'22">'+esc(p.icon||'🙂')+'</span>'+
+      '<span class="post-name">'+esc(p.name||'匿名')+'</span><span class="post-time">'+esc(p.time||'')+'</span></div>'+
+      (p.idea?'<div class="post-idea">'+esc(p.idea)+'</div>':'')+
+      (p.message?'<div class="post-msg">'+esc(p.message)+'</div>':'')+
+    '</div>';
+  }).join('');
+}
+
+function loadPosts(){
+  var host=document.getElementById('bPosts'), empty=document.getElementById('bEmpty');
+  if(!host) return;
+  if(BOARD_CSV){ loadPostsCSV_(); return; }
+  if(!BOARD_API){ empty.hidden=false; empty.textContent='掲示板は準備中です。'; return; }
+  // まず fetch(CORS) で取得。失敗（リダイレクト403等）したら JSONP に自動フォールバック
+  fetch(BOARD_API+(BOARD_API.indexOf('?')>=0?'&':'?')+'action=list&t='+Date.now(), {method:'GET'})
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(data){ renderPosts_((data&&data.posts)||[]); })
+    .catch(function(){ loadPostsJSONP_(); });
+}
+
+function loadPostsJSONP_(){
+  var empty=document.getElementById('bEmpty');
+  var cb='__bcb'+Date.now();
+  var sc=document.createElement('script');
+  window[cb]=function(data){
+    try{ delete window[cb]; }catch(e){ window[cb]=undefined; }
+    if(sc.parentNode) sc.parentNode.removeChild(sc);
+    renderPosts_((data&&data.posts)||[]);
+  };
+  sc.onerror=function(){ try{delete window[cb];}catch(e){} if(sc.parentNode)sc.parentNode.removeChild(sc); if(empty){ empty.hidden=false; empty.textContent='読み込みに失敗しました。時間をおいて更新してください。'; } };
+  sc.src=BOARD_API+(BOARD_API.indexOf('?')>=0?'&':'?')+'action=list&callback='+cb+'&t='+Date.now();
+  document.body.appendChild(sc);
+}
+
+function loadPostsCSV_(){
+  var empty=document.getElementById('bEmpty');
+  fetch(BOARD_CSV+(BOARD_CSV.indexOf('?')>=0?'&':'?')+'t='+Date.now())
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
+    .then(function(txt){
+      var rows=parseCSV_(txt);
+      if(rows.length && /icon|アイコン/i.test(String(rows[0][0]||''))) rows.shift();
+      var posts=rows.map(function(c){
+        return {icon:(c[0]||'').trim(), name:(c[1]||'').trim(), color:(c[2]||'').trim(), idea:(c[3]||'').trim(), message:(c[4]||'').trim(), time:(c[5]||'').trim()};
+      }).filter(function(p){ return p.name||p.idea||p.message; });
+      posts.reverse();
+      renderPosts_(posts);
+    })
+    .catch(function(){ if(empty){ empty.hidden=false; empty.textContent='読み込みに失敗しました。公開URL(CSV)の設定をご確認ください。'; } });
+}
+
+function parseCSV_(text){
+  var NL=String.fromCharCode(10), CR=String.fromCharCode(13), QT=String.fromCharCode(34);
+  var rows=[], row=[], cur='', q=false, i=0, c;
+  text=String(text);
+  while(i<text.length){
+    c=text.charAt(i);
+    if(q){
+      if(c===QT){ if(text.charAt(i+1)===QT){ cur+=QT; i++; } else { q=false; } }
+      else { cur+=c; }
+    } else {
+      if(c===QT){ q=true; }
+      else if(c===','){ row.push(cur); cur=''; }
+      else if(c===NL){ row.push(cur); rows.push(row); row=[]; cur=''; }
+      else if(c===CR){ /* skip */ }
+      else { cur+=c; }
+    }
+    i++;
+  }
+  if(cur!=='' || row.length){ row.push(cur); rows.push(row); }
+  return rows;
+}
+loadPosts();
+
+function openMenu(){document.getElementById('menuOv').classList.add('open');document.body.style.overflow='hidden';}
+function closeMenu(){document.getElementById('menuOv').classList.remove('open');document.body.style.overflow='';}
+function openPP(){closeMenu();document.getElementById('ppModal').classList.add('open');document.body.style.overflow='hidden';}
+function closePP(){document.getElementById('ppModal').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closePP();closeMenu();}});
+</script>
+</body>
+</html>
