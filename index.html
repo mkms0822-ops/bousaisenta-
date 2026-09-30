@@ -11592,11 +11592,51 @@ function closeSettings(){
 
 // ===================== ホーム画面に追加 (A2HS) =====================
 // Service Worker 登録（PWAインストール要件を満たす）
+/* このHTMLの版。sw.js の CACHE_NAME と揃えておくと管理しやすい */
+var SITE_BUILD = '2026-10-01-menu-reorg';
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function(){
-    navigator.serviceWorker.register('sw.js').catch(function(err){
+    navigator.serviceWorker.register('sw.js').then(function(reg){
+
+      /* 起動のたびに新しい sw.js があるか確認しに行く */
+      try { reg.update(); } catch(e){}
+
+      /* 新しい版が見つかったら、待機させずすぐ有効化する */
+      reg.addEventListener('updatefound', function(){
+        var nw = reg.installing;
+        if(!nw) return;
+        nw.addEventListener('statechange', function(){
+          if(nw.state === 'installed' && navigator.serviceWorker.controller){
+            /* 旧版のキャッシュを捨ててから新しいSWに交代させる */
+            try { nw.postMessage({ type:'SKIP_WAITING' }); } catch(e){}
+          }
+        });
+      });
+
+      /* すでに待機中の版があれば、それも起こす */
+      if(reg.waiting){
+        try { reg.waiting.postMessage({ type:'SKIP_WAITING' }); } catch(e){}
+      }
+    }).catch(function(err){
       console.warn('SW登録に失敗:', err);
     });
+
+    /* SWが交代したら一度だけ読み込み直して、新しい画面に差し替える */
+    var _swReloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function(){
+      if(_swReloaded) return;
+      _swReloaded = true;
+      location.reload();
+    });
+  });
+
+  /* アプリに戻ってきたときも更新を見に行く（ホーム画面起動での取りこぼし対策） */
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState !== 'visible') return;
+    navigator.serviceWorker.getRegistration().then(function(reg){
+      if(reg){ try { reg.update(); } catch(e){} }
+    }).catch(function(){});
   });
 }
 
@@ -11716,8 +11756,15 @@ async function clearCache(){
       await Promise.all(regs.map(r => r.unregister()));
     }
   } catch(e){ console.warn('cache clear error:', e); }
-  alert('キャッシュを削除しました。ページを再読み込みします。');
-  location.reload(true);
+  /* ブラウザ本体のHTMLキャッシュも確実に外すため、問い合わせ文字列を付けて開き直す */
+  alert('キャッシュを削除しました。最新の状態で開き直します。');
+  try {
+    var u = new URL(location.href);
+    u.searchParams.set('_r', Date.now());
+    location.replace(u.toString());
+  } catch(e){
+    location.reload(true);
+  }
 }
 
 function updateSettingsUI(){
