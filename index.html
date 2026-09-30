@@ -5958,6 +5958,12 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       </button>
 
       <div class="hamburger-section-label">// 防災情報</div>
+      <a class="hamburger-link" data-tour="quake-map" href="earthquake-map.html" target="_blank" rel="noopener" onclick="closeHamburger();" style="color:#ff9d3c;border-color:rgba(255,157,60,0.35);background:rgba(255,157,60,0.08);width:100%;text-align:left;text-decoration:none;display:flex;align-items:center;">
+        <span class="h-link-icon">🌍</span>グローバル地震マップ<br><span style="font-size:11px;opacity:.75;">1902〜2026年 世界737件・活断層・宇宙天気</span>
+      </a>
+      <button class="hamburger-link" onclick="shareQuakeMap();" style="color:#7ee0c0;border-color:rgba(126,224,192,0.3);background:rgba(126,224,192,0.06);width:100%;text-align:left;cursor:pointer;">
+        <span class="h-link-icon">📤</span>地震マップを共有する
+      </button>
       <a class="hamburger-link" data-tour="bousai-shindan" href="https://mkms0822-ops.github.io/anatano-bousai-shindan/" target="_blank" rel="noopener" style="color:#00ffe0;border-color:rgba(0,255,224,0.3);background:rgba(0,255,224,0.07);">
         <span class="h-link-icon">🧭</span>あなたの防災意識診断
       </a>
@@ -16237,6 +16243,59 @@ function buildShareText(){
 }
 
 // 「友達に共有」ボタンの処理
+
+/* ===================== グローバル地震マップの共有 ===================== */
+function quakeMapUrl(){
+  try{
+    return new URL('earthquake-map.html', location.href).href;
+  }catch(e){
+    return location.origin + location.pathname.replace(/[^/]*$/, '') + 'earthquake-map.html';
+  }
+}
+
+function buildQuakeMapShareText(){
+  return '🌍 グローバル地震マップ｜DWA防災情報センター\n'
+       + '1902年から2026年までの世界の地震737件を地図で確認できます。\n'
+       + '活断層・プレート境界・南海トラフの想定震源域も重ねて表示。\n';
+}
+
+function shareQuakeMap(){
+  var url  = quakeMapUrl();
+  var text = buildQuakeMapShareText();
+  if(navigator.share){
+    navigator.share({ title: 'グローバル地震マップ｜DWA防災情報センター', text: text, url: url })
+      .then(function(){ if(typeof closeHamburger==='function') closeHamburger(); })
+      .catch(function(){ /* キャンセル時は何もしない */ });
+  }else{
+    var full = text + url;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(full).then(function(){
+        alert('共有メッセージをコピーしました。\nLINEやメールに貼り付けて送ってください。');
+        if(typeof closeHamburger==='function') closeHamburger();
+      }).catch(function(){ quakeMapLegacyCopy(full); });
+    }else{
+      quakeMapLegacyCopy(full);
+    }
+  }
+}
+
+function quakeMapLegacyCopy(text){
+  try{
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    alert('共有メッセージをコピーしました。\nLINEやメールに貼り付けて送ってください。');
+  }catch(e){
+    prompt('以下をコピーして共有してください', text);
+  }
+  if(typeof closeHamburger==='function') closeHamburger();
+}
+
 function shareToFriend(){
   var text = buildShareText();
   var link = buildReferralLink();
