@@ -2651,6 +2651,13 @@ html.light .tour-mask { background:rgba(10,20,35,0.55); }
 .tour-dots { display:flex; gap:5px; flex-wrap:wrap; flex:0 1 auto; min-width:0; justify-content:center; }
 .tour-dot { width:6px; height:6px; border-radius:50%; background:var(--surface3); border:1px solid var(--border); }
 .tour-dot.active { background:var(--blue); border-color:var(--blue); }
+/* ステップ数が多いときは点ではなく進捗バーで示す */
+.tour-progress { height:4px; border-radius:99px; background:var(--surface3); overflow:hidden; margin:0 0 14px; }
+.tour-progress i { display:block; height:100%; width:0; border-radius:99px;
+  background:linear-gradient(90deg,var(--blue),#7ee0c0); transition:width 0.35s ease; }
+.tour-head { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:7px; }
+.tour-head .tour-step-no { margin-bottom:0; }
+.tour-pct { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--blue); letter-spacing:0.08em; }
 
 /* チュートリアル完了ダイアログ */
 #tourDoneOverlay { display:none; position:fixed; inset:0; z-index:99995; background:rgba(4,8,15,0.74);
@@ -5621,7 +5628,11 @@ html.panel-light .rk-note{ color:#5A6672; border-top-color:#DDE3EA; }
   <div class="tour-mask" id="tourMaskRight"></div>
   <div id="tourHole"></div>
   <div id="tourPop">
-    <div class="tour-step-no" id="tourStepNo">STEP 1 / 7</div>
+    <div class="tour-head">
+      <div class="tour-step-no" id="tourStepNo">STEP 1 / 7</div>
+      <div class="tour-pct" id="tourPct">0%</div>
+    </div>
+    <div class="tour-progress"><i id="tourBar"></i></div>
     <div class="tour-title" id="tourTitle"></div>
     <div class="tour-text" id="tourText"></div>
     <div class="tour-btns">
@@ -5930,9 +5941,61 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <button onclick="closeHamburger()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;">✕</button>
     </div>
     <nav class="hamburger-nav">
-      <div class="hamburger-section-label">// ガイド</div>
+
+      <div class="hamburger-section-label">// 令和8年 熊本地震</div>
+      <button class="hamburger-link" onclick="closeHamburger();openQuakeHub();" style="color:#ff6b6b;border-color:rgba(255,80,80,0.35);background:rgba(255,80,80,0.07);width:100%;text-align:left;cursor:pointer;">
+        <span class="h-link-icon">🔴</span>熊本地震 情報センター<br><span style="font-size:11px;opacity:.75;">相談窓口・支援制度・生活情報</span>
+      </button>
+      <button class="hamburger-link" onclick="closeHamburger();openKyusui();" style="color:#00c8ff;border-color:rgba(0,200,255,0.3);background:rgba(0,200,255,0.06);width:100%;text-align:left;cursor:pointer;">
+        <span class="h-link-icon">💧</span>熊本 給水・断水情報<br><span style="font-size:11px;opacity:.75;">各自治体の公式ページへ</span>
+      </button>
+
+      <div class="hamburger-section-label">// 設定</div>
+      <button type="button" class="hamburger-link" onclick="closeHamburger();openSettings();">
+        <span class="h-link-icon">⚙️</span>設定
+      </button>
+      <button type="button" class="hamburger-link" onclick="closeHamburger();openStampCard();">
+        <span class="h-link-icon">🎁</span>スタンプカード
+      </button>
+
+      <div class="hamburger-section-label">// サイトご利用ガイド</div>
       <button class="hamburger-link" data-tour="usage-guide" onclick="openUsageGuide();closeHamburger();" style="color:#ffd54f;border-color:rgba(255,213,79,0.35);background:rgba(255,213,79,0.07);width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">📖</span>取扱説明書（ご利用ガイド）
+      </button>
+      <button class="hamburger-link" data-tour="lang" onclick="openTranslateModal();closeHamburger();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:none;width:100%;text-align:left;cursor:pointer;">
+        <span class="h-link-icon">🌐</span>English / 言語
+      </button>
+
+      <div class="hamburger-section-label">// 公式アカウント</div>
+      <a class="hamburger-link" href="https://x.com/DWAbousai0111" target="_blank" rel="noopener">
+        <span class="h-link-icon">𝕏</span>公式X（旧Twitter）
+      </a>
+      <a class="hamburger-link" href="https://lin.ee/swjPxzv" target="_blank" rel="noopener" style="gap:10px;">
+        <span class="h-link-icon">💬</span>公式LINE
+        <img src="https://scdn.line-apps.com/n/line_add_friends/btn/ja.png" alt="友だち追加" height="28" style="margin-left:auto;height:28px;border:0;">
+      </a>
+      <button class="hamburger-link" data-tour="line-stamp" onclick="openLineStampQr()" style="color:#06c755;border-color:rgba(6,199,85,0.3);background:rgba(6,199,85,0.06);width:100%;text-align:left;cursor:pointer;">
+        <span class="h-link-icon">🎟️</span>LINEスタンプ
+      </button>
+      <button class="hamburger-link" onclick="openInstaQr()" style="background:none;width:100%;text-align:left;cursor:pointer;">
+        <span class="h-link-icon">📸</span>公式Instagram
+      </button>
+
+      <div class="hamburger-section-label">// サイト関連</div>
+      <button class="hamburger-link" onclick="closeHamburger();openArchiveModal();" style="background:none;width:100%;text-align:left;cursor:pointer;">
+        <span class="h-link-icon">📂</span>記事アーカイブ<span class="arch-badge" id="archiveBadge"></span>
+      </button>
+      <a class="hamburger-link" href="https://bousai0111.info/post.html" target="_blank" rel="noopener">
+        <span class="h-link-icon">📝</span>記事を投稿
+      </a>
+      <button type="button" class="hamburger-link" id="navContact">
+        <span class="h-link-icon">📬</span>お問い合わせ
+      </button>
+      <button type="button" class="hamburger-link" id="navSponsor" onclick="closeHamburger();openSponsorModal();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:rgba(0,180,255,0.05);">
+        <span class="h-link-icon">🤝</span>協賛企業募集
+      </button>
+      <button type="button" class="hamburger-link" id="navPrivacy">
+        <span class="h-link-icon">🔒</span>プライバシーポリシー
       </button>
 
       <div class="hamburger-section-label">// 画面モード</div>
@@ -5945,54 +6008,8 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <button class="hamburger-link" onclick="enterMode('kiosk');closeHamburger();" style="color:#ffc24d;border-color:rgba(255,180,60,0.3);background:rgba(255,180,60,0.07);width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">📺</span>キオスクモード
       </button>
-      <a class="hamburger-link" href="https://mkms0822-ops.github.io/saigaidengonban/" target="_blank" rel="noopener" onclick="closeHamburger();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:rgba(0,180,255,0.05);width:100%;text-align:left;cursor:pointer;display:flex;align-items:center;text-decoration:none;">
-        <span class="h-link-icon">📨</span>災害用伝言板
-      </a>
 
-      <div class="hamburger-section-label">// 令和8年熊本地震</div>
-      <button class="hamburger-link" onclick="closeHamburger();openQuakeHub();" style="color:#ff6b6b;border-color:rgba(255,80,80,0.35);background:rgba(255,80,80,0.07);width:100%;text-align:left;cursor:pointer;">
-        <span class="h-link-icon">🔴</span>熊本地震 情報センター<br><span style="font-size:11px;opacity:.75;">相談窓口・支援制度・生活情報</span>
-      </button>
-      <button class="hamburger-link" onclick="closeHamburger();openKyusui();" style="color:#00c8ff;border-color:rgba(0,200,255,0.3);background:rgba(0,200,255,0.06);width:100%;text-align:left;cursor:pointer;">
-        <span class="h-link-icon">💧</span>熊本 給水・断水情報<br><span style="font-size:11px;opacity:.75;">各自治体の公式ページへ</span>
-      </button>
-
-      <div class="hamburger-section-label">// 防災情報</div>
-      <a class="hamburger-link" data-tour="quake-map" href="earthquake-map.html" target="_blank" rel="noopener" onclick="closeHamburger();" style="color:#ff9d3c;border-color:rgba(255,157,60,0.35);background:rgba(255,157,60,0.08);width:100%;text-align:left;text-decoration:none;display:flex;align-items:center;">
-        <span class="h-link-icon">🌍</span>グローバル地震マップ<br><span style="font-size:11px;opacity:.75;">1902〜2026年 世界737件・活断層・宇宙天気</span>
-      </a>
-      <button class="hamburger-link" onclick="shareQuakeMap();" style="color:#7ee0c0;border-color:rgba(126,224,192,0.3);background:rgba(126,224,192,0.06);width:100%;text-align:left;cursor:pointer;">
-        <span class="h-link-icon">📤</span>地震マップを共有する
-      </button>
-      <a class="hamburger-link" data-tour="bousai-shindan" href="https://mkms0822-ops.github.io/anatano-bousai-shindan/" target="_blank" rel="noopener" style="color:#00ffe0;border-color:rgba(0,255,224,0.3);background:rgba(0,255,224,0.07);">
-        <span class="h-link-icon">🧭</span>あなたの防災意識診断
-      </a>
-      <button class="hamburger-link" onclick="openShindanModal();closeHamburger();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:none;width:100%;text-align:left;cursor:pointer;">
-        <span class="h-link-icon">🗾</span>地震リスク・被害想定<br>診断ツール
-      </button>
-      <button class="hamburger-link" data-tour="battery-shindan" onclick="openBatteryModal();closeHamburger();" style="color:#ff9d3c;border-color:rgba(255,140,40,0.3);background:rgba(255,140,40,0.07);width:100%;text-align:left;cursor:pointer;">
-        <span class="h-link-icon">🔋</span>モバイルバッテリー<br>発火リスク診断計
-      </button>
-      <a class="hamburger-link" href="https://mkms0822-ops.github.io/bousai-quiz/" target="_blank">
-        <span class="h-link-icon">🛡️</span>防災診断・防災クイズ
-      </a>
-      <a class="hamburger-link" href="https://mkms0822-ops.github.io/nankaitorafutunamisinndann/" target="_blank">
-        <span class="h-link-icon">🌊</span>南海トラフ 津波避難診断
-      </a>
-      <button class="hamburger-link" data-tour="ecs-timer" onclick="closeHamburger();openEcs();" style="color:#00ffe0;border-color:rgba(0,255,224,0.3);background:rgba(0,255,224,0.07);width:100%;text-align:left;cursor:pointer;">
-        <span class="h-link-icon">🦵</span>エコノミークラス症候群 予防<br><span style="font-size:11px;opacity:.75;">足うごかしタイマー</span>
-      </button>
-
-      <div class="hamburger-section-label" style="margin-top:16px;">// こころのケア</div>
-      <a class="hamburger-link" href="kokoro.html" target="_blank" rel="noopener" style="color:#7ee0c0;border-color:rgba(0,192,96,0.3);background:rgba(0,192,96,0.07);">
-        <span class="h-link-icon">🌿</span>こころのチェック<br><span style="font-size:11px;opacity:.75;">災害のあとの心の自己チェック</span>
-      </a>
-      <button class="hamburger-link" onclick="openOverseasModal();closeHamburger();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:none;width:100%;text-align:left;cursor:pointer;">
-        <span class="h-link-icon">🌏</span>海外地震履歴
-      </button>
-      <button class="hamburger-link" data-tour="lang" onclick="openTranslateModal();closeHamburger();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:none;width:100%;text-align:left;cursor:pointer;">
-        <span class="h-link-icon">🌐</span>English / 言語
-      </button>
+      <div class="hamburger-section-label">// 外部リンク（気象・災害情報）</div>
       <a class="hamburger-link" href="https://www.jma.go.jp/bosai/map.html#contents=tsunami" target="_blank">
         <span class="h-link-icon">🌊</span>気象庁 津波情報
       </a>
@@ -6008,7 +6025,8 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <a class="hamburger-link" href="https://www.jma.go.jp/bosai/risk/" target="_blank">
         <span class="h-link-icon">🚨</span>大雨危険度
       </a>
-      <div class="hamburger-section-label" style="margin-top:16px;">// 外部リンク</div>
+
+      <div class="hamburger-section-label">// 外部リンク（公的機関・その他）</div>
       <a class="hamburger-link" href="https://www.jma.go.jp/" target="_blank">
         <span class="h-link-icon">🏛️</span>気象庁トップ
       </a>
@@ -6027,42 +6045,46 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <a class="hamburger-link" href="https://radiko.jp/" target="_blank" rel="noopener">
         <span class="h-link-icon">📻</span>radiko（ラジオ）
       </a>
-      <div class="hamburger-section-label" style="margin-top:16px;">// 公式アカウント</div>
-      <a class="hamburger-link" href="https://x.com/DWAbousai0111" target="_blank" rel="noopener">
-        <span class="h-link-icon">𝕏</span>公式X（旧Twitter）
+
+      <div class="hamburger-section-label">// 各種ツール（地震・被害想定）</div>
+      <a class="hamburger-link" data-tour="quake-map" href="earthquake-map.html" target="_blank" rel="noopener" onclick="closeHamburger();" style="color:#ff9d3c;border-color:rgba(255,157,60,0.35);background:rgba(255,157,60,0.08);width:100%;text-align:left;text-decoration:none;display:flex;align-items:center;">
+        <span class="h-link-icon">🌍</span>グローバル地震マップ<br><span style="font-size:11px;opacity:.75;">1902〜2026年 世界737件・活断層・宇宙天気</span>
       </a>
-      <a class="hamburger-link" href="https://lin.ee/swjPxzv" target="_blank" rel="noopener" style="gap:10px;">
-        <span class="h-link-icon">💬</span>公式LINE
-        <img src="https://scdn.line-apps.com/n/line_add_friends/btn/ja.png" alt="友だち追加" height="28" style="margin-left:auto;height:28px;border:0;">
+      <button class="hamburger-link" onclick="shareQuakeMap();" style="color:#7ee0c0;border-color:rgba(126,224,192,0.3);background:rgba(126,224,192,0.06);width:100%;text-align:left;cursor:pointer;">
+        <span class="h-link-icon">📤</span>地震マップを共有する
+      </button>
+      <button class="hamburger-link" onclick="openShindanModal();closeHamburger();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:none;width:100%;text-align:left;cursor:pointer;">
+        <span class="h-link-icon">🗾</span>地震リスク・被害想定<br>診断ツール
+      </button>
+      <a class="hamburger-link" href="https://mkms0822-ops.github.io/nankaitorafutunamisinndann/" target="_blank">
+        <span class="h-link-icon">🌊</span>南海トラフ 津波避難診断
       </a>
-      <button class="hamburger-link" data-tour="line-stamp" onclick="openLineStampQr()" style="color:#06c755;border-color:rgba(6,199,85,0.3);background:rgba(6,199,85,0.06);width:100%;text-align:left;cursor:pointer;">
-        <span class="h-link-icon">🎟️</span>LINEスタンプ
+      <button class="hamburger-link" onclick="openOverseasModal();closeHamburger();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:none;width:100%;text-align:left;cursor:pointer;">
+        <span class="h-link-icon">🌏</span>海外地震履歴
       </button>
-      <button class="hamburger-link" onclick="openInstaQr()" style="background:none;width:100%;text-align:left;cursor:pointer;">
-        <span class="h-link-icon">📸</span>公式Instagram
-      </button>
-      <div class="hamburger-section-label" style="margin-top:16px;">// このサイト</div>
-      <button class="hamburger-link" onclick="closeHamburger();openArchiveModal();" style="background:none;width:100%;text-align:left;cursor:pointer;">
-        <span class="h-link-icon">📂</span>記事アーカイブ<span class="arch-badge" id="archiveBadge"></span>
-      </button>
-      <a class="hamburger-link" href="https://bousai0111.info/post.html" target="_blank" rel="noopener">
-        <span class="h-link-icon">📝</span>記事を投稿
+
+      <div class="hamburger-section-label">// 各種ツール（診断・チェック）</div>
+      <a class="hamburger-link" data-tour="bousai-shindan" href="https://mkms0822-ops.github.io/anatano-bousai-shindan/" target="_blank" rel="noopener" style="color:#00ffe0;border-color:rgba(0,255,224,0.3);background:rgba(0,255,224,0.07);">
+        <span class="h-link-icon">🧭</span>あなたの防災意識診断
       </a>
-      <button type="button" class="hamburger-link" onclick="closeHamburger();openStampCard();">
-        <span class="h-link-icon">🎁</span>スタンプカード
+      <a class="hamburger-link" href="https://mkms0822-ops.github.io/bousai-quiz/" target="_blank">
+        <span class="h-link-icon">🛡️</span>防災診断・防災クイズ
+      </a>
+      <button class="hamburger-link" data-tour="battery-shindan" onclick="openBatteryModal();closeHamburger();" style="color:#ff9d3c;border-color:rgba(255,140,40,0.3);background:rgba(255,140,40,0.07);width:100%;text-align:left;cursor:pointer;">
+        <span class="h-link-icon">🔋</span>モバイルバッテリー<br>発火リスク診断計
       </button>
-      <button type="button" class="hamburger-link" onclick="closeHamburger();openSettings();">
-        <span class="h-link-icon">⚙️</span>設定
+
+      <div class="hamburger-section-label">// 各種ツール（避難生活・支援）</div>
+      <a class="hamburger-link" href="https://mkms0822-ops.github.io/saigaidengonban/" target="_blank" rel="noopener" onclick="closeHamburger();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:rgba(0,180,255,0.05);width:100%;text-align:left;cursor:pointer;display:flex;align-items:center;text-decoration:none;">
+        <span class="h-link-icon">📨</span>災害用伝言板
+      </a>
+      <button class="hamburger-link" data-tour="ecs-timer" onclick="closeHamburger();openEcs();" style="color:#00ffe0;border-color:rgba(0,255,224,0.3);background:rgba(0,255,224,0.07);width:100%;text-align:left;cursor:pointer;">
+        <span class="h-link-icon">🦵</span>エコノミークラス症候群 予防<br><span style="font-size:11px;opacity:.75;">足うごかしタイマー</span>
       </button>
-      <button type="button" class="hamburger-link" id="navContact">
-        <span class="h-link-icon">📬</span>お問い合わせ
-      </button>
-      <button type="button" class="hamburger-link" id="navSponsor" onclick="closeHamburger();openSponsorModal();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:rgba(0,180,255,0.05);">
-        <span class="h-link-icon">🤝</span>協賛企業募集
-      </button>
-      <button type="button" class="hamburger-link" id="navPrivacy">
-        <span class="h-link-icon">🔒</span>プライバシーポリシー
-      </button>
+      <a class="hamburger-link" href="kokoro.html" target="_blank" rel="noopener" style="color:#7ee0c0;border-color:rgba(0,192,96,0.3);background:rgba(0,192,96,0.07);">
+        <span class="h-link-icon">🌿</span>こころのチェック<br><span style="font-size:11px;opacity:.75;">災害のあとの心の自己チェック</span>
+      </a>
+
     </nav>
   </div>
 </div>
@@ -11906,12 +11928,14 @@ const tourSteps = [
   { sel:'[data-tour="tempmap"]', title:'🌡️ 全国 最高気温予測マップ', text:'SOSボタンの下にある「最高気温」ボタンです。タップすると全国の最高気温予測マップが開き、今日どこがどれくらい暑くなるかをひと目で確認できます。猛暑日や熱中症警戒アラートが出る日は、外出や運動の計画を立てる前にチェックしてみてください。', fallbackToTop:true },
   { sel:'[data-tour="live"]', title:'🟢 LIVE・現在時刻', text:'ヘッダー右の機器パネルです。赤いランプが点滅していれば「LIVE（リアルタイム配信中）」を表し、その下の窓に現在時刻が表示されます。地震データは自動で更新され続けます。' },
   { sel:'#siteRefreshBtn', title:'🔄 最新情報に更新', text:'パネル内の丸い矢印ボタンです。自動更新を待たずに、いますぐ最新の地震・気象情報を取り込みたいときにタップします。表示が古いと感じたらここを押してください。', fallbackToTop:true },
-  { sel:'[data-tour="menu"]', title:'☰ メニュー（設定）', text:'パネル右側の三本線アイコンがメニューボタンです。タップで開くメニューの中に、設定・お問い合わせ・プライバシーポリシーがあります。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。' },
-  { sel:'[data-tour="menu"]', title:'☰ メニュー（リンク集）', text:'同じ三本線メニューの中には、防災クイズや気象庁の各種情報ページへのリンクもまとめてあります。', fallbackToTop:true },
-  { sel:'[data-tour="usage-guide"]', title:'📖 取扱説明書（ご利用ガイド）', text:'メニューの一番上にある「取扱説明書」です。このサイトの全機能の使い方を、ひとつずつ丁寧に解説したガイドブックがサイト内でそのまま開きます。SOSビーコンの使い方、引き継ぎコードの説明、よくある質問まで揃っているので、使い方に迷ったらまずここを開いてください。', onShow:openHamburgerForTour, fallbackToTop:true },
-  { sel:'[data-tour="bousai-shindan"]', title:'🧭 あなたの防災意識診断', text:'メニューの「防災情報」最上段にある「あなたの防災意識診断」ボタンです。いくつかの質問に答えるだけで、あなたの防災意識のレベルや弱点を診断できます。日頃の備えを見直すきっかけとして、ぜひ一度チェックしてみましょう。', onShow:openHamburgerForTour, fallbackToTop:true },
-  { sel:'[data-tour="battery-shindan"]', title:'🔋 モバイルバッテリー発火リスク診断計', text:'メニューの「防災情報」にある「モバイルバッテリー発火リスク診断計」です。お使いのモバイルバッテリーの<b>メーカーと型番</b>を入力すると、公表されているリコール情報と照合し、発火リスクの目安を表示します。電車内や住宅での発火事故が増えているいま、手元の製品が対象になっていないか確認できます。正しい使い方・厳禁事項・発火時の対処法もまとまっています。', onShow:openHamburgerForTour, fallbackToTop:true },
-  { sel:'[data-tour="lang"]', title:'🌐 English / 多言語表示', text:'メニューの中の「English / 言語」ボタンです。お使いのブラウザの翻訳機能を使うと、このサイトを英語など多言語で読めます。ボタンを押すと、スマホ・パソコン別の翻訳手順を日本語と英語で案内します。海外の方や、英語で読みたい方はこちらをご利用ください。', onShow:openHamburgerForTour, fallbackToTop:true },
+  { sel:'[data-tour="menu"]', title:'☰ メニュー（設定）', text:'パネル右側の三本線アイコンがメニューボタンです。タップで開くメニューの2番目のグループが「設定」です。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。お問い合わせとプライバシーポリシーは「サイト関連」にあります。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。' },
+  { sel:'[data-tour="menu"]', title:'☰ メニュー（リンク集）', text:'メニューは8つのグループに分かれています。上から順に、熊本地震・設定・ご利用ガイド・公式アカウント・サイト関連・画面モード・外部リンク・各種ツールです。探しているものがどのグループにあるか、見出しを目印にしてください。', fallbackToTop:true },
+  { sel:'[data-tour="usage-guide"]', title:'📖 取扱説明書（ご利用ガイド）', text:'メニューの「サイトご利用ガイド」にある「取扱説明書」です。このサイトの全機能の使い方を、ひとつずつ丁寧に解説したガイドブックがサイト内でそのまま開きます。SOSビーコンの使い方、引き継ぎコードの説明、よくある質問まで揃っているので、使い方に迷ったらまずここを開いてください。', onShow:openHamburgerForTour, fallbackToTop:true },
+  { sel:'[data-tour="quake-map"]', title:'🌍 グローバル地震マップ', text:'メニューの「各種ツール（地震・被害想定）」にある「グローバル地震マップ」です。1902年から2026年までの世界の地震737件を地図上で確認できます。震度や年代で絞り込めるほか、日本周辺の<b>活断層687本</b>、世界のプレート境界、南海トラフ・千島海溝の<b>想定震源域</b>も重ねて表示できます。お住まいの地域の地下に断層があるか、過去にどんな地震が起きたかを調べてみてください。', onShow:openHamburgerForTour, fallbackToTop:true },
+  { sel:'[data-tour="ecs-timer"]', title:'🦵 エコノミークラス症候群 予防タイマー', text:'メニューの「各種ツール（避難生活・支援）」にあります。車中泊や避難所での生活が続くと、足に血のかたまりができて命に関わることがあります。このタイマーは、一定時間ごとに足を動かす合図を出してくれます。避難生活が長引きそうなときに使ってください。', onShow:openHamburgerForTour, fallbackToTop:true },
+  { sel:'[data-tour="bousai-shindan"]', title:'🧭 あなたの防災意識診断', text:'メニューの「各種ツール（診断・チェック）」にある「あなたの防災意識診断」ボタンです。いくつかの質問に答えるだけで、あなたの防災意識のレベルや弱点を診断できます。日頃の備えを見直すきっかけとして、ぜひ一度チェックしてみましょう。', onShow:openHamburgerForTour, fallbackToTop:true },
+  { sel:'[data-tour="battery-shindan"]', title:'🔋 モバイルバッテリー発火リスク診断計', text:'メニューの「各種ツール（診断・チェック）」にある「モバイルバッテリー発火リスク診断計」です。お使いのモバイルバッテリーの<b>メーカーと型番</b>を入力すると、公表されているリコール情報と照合し、発火リスクの目安を表示します。電車内や住宅での発火事故が増えているいま、手元の製品が対象になっていないか確認できます。正しい使い方・厳禁事項・発火時の対処法もまとまっています。', onShow:openHamburgerForTour, fallbackToTop:true },
+  { sel:'[data-tour="lang"]', title:'🌐 English / 多言語表示', text:'メニューの「サイトご利用ガイド」にある「English / 言語」ボタンです。お使いのブラウザの翻訳機能を使うと、このサイトを英語など多言語で読めます。ボタンを押すと、スマホ・パソコン別の翻訳手順を日本語と英語で案内します。海外の方や、英語で読みたい方はこちらをご利用ください。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="line-stamp"]', title:'🎟️ LINEスタンプ', text:'メニューの「公式アカウント」にある「LINEスタンプ」ボタンです。タップするとQRコードが表示され、スマホのカメラで読み取るとLINE公式アカウントのショップカードが開きます。スタンプを貯めると特典がもらえるので、ぜひ友だち追加して貯めてみてください。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="tabs"]', title:'気象情報タブ（収納式）', text:'台風・雨雲レーダー・警報・注意報・危険警報など、気象・災害情報へのリンク集です。ふだんは「災害情報タブ」ボタンに収納されていて、タップすると開きます（いまチュートリアル用に開いています）。目的の情報にすぐアクセスできます。', onShow:openDtabsForTour },
   { sel:'[data-tour="spaceweather"]', title:'🛰️ 宇宙天気', text:'NICT（情報通信研究機構）が発表する「宇宙天気」の状況です。太陽フレア・地磁気の乱れ・電波やGPSへの影響をまとめています。大規模な太陽フレアが起きると、通信・放送・測位（GPS）などに影響が出ることがあります。各項目をタップすると、NICTの詳しい解説ページが開きます。', onShow:closeDtabsForTour, fallbackToTop:true },
@@ -12481,6 +12505,14 @@ function showTourStep(){
   document.getElementById('tourPrev').style.visibility = _tourIndex === 0 ? 'hidden' : 'visible';
   document.getElementById('tourNext').textContent = _tourIndex === _activeSteps.length - 1 ? '完了' : '次へ';
   document.querySelectorAll('.tour-dot').forEach((d,i)=>d.classList.toggle('active', i === _tourIndex));
+  // ステップが多いと点が折り返して崩れるため、12を超える場合は進捗バーだけにする
+  var _dotsEl = document.getElementById('tourDots');
+  if(_dotsEl) _dotsEl.style.display = (_activeSteps.length > 12) ? 'none' : '';
+  var _pct = Math.round((_tourIndex + 1) / _activeSteps.length * 100);
+  var _barEl = document.getElementById('tourBar');
+  var _pctEl = document.getElementById('tourPct');
+  if(_barEl) _barEl.style.width = _pct + '%';
+  if(_pctEl) _pctEl.textContent = _pct + '%';
   // 特に強調するステップ：ハイライト枠を赤くゆっくり点滅
   document.getElementById('tourHole').classList.toggle('emphasize', !!step.emphasize);
   document.getElementById('tourPop').classList.toggle('emphasize', !!step.emphasize);
