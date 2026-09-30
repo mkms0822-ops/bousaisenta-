@@ -2470,7 +2470,44 @@ html.light .site-refresh-btn:hover { background:rgba(0,100,180,0.1); }
   font-family:'Share Tech Mono',monospace; font-size:10px;
   letter-spacing:0.15em; color:var(--muted); margin-bottom:8px;
 }
-.hamburger-nav { display:flex; flex-direction:column; gap:4px; }
+.hamburger-nav { display:flex; flex-direction:column; gap:0; }
+/* ===== メニューの大カテゴリー（アコーディオン） ===== */
+.ham-acc { border:1px solid var(--border); border-radius:10px; overflow:hidden;
+  background:var(--surface2); margin-bottom:8px; }
+.ham-acc-head {
+  width:100%; display:flex; align-items:center; gap:10px;
+  padding:13px 14px; border:none; background:transparent;
+  color:var(--text); font-size:14px; font-weight:700; cursor:pointer;
+  text-align:left; font-family:inherit; transition:background 0.15s;
+}
+.ham-acc-head:hover { background:var(--surface3); }
+.ham-acc.open .ham-acc-head { background:var(--surface3); border-bottom:1px solid var(--border); }
+.ham-acc-head .ha-ico { font-size:17px; line-height:1; flex-shrink:0; }
+.ham-acc-head .ha-cnt {
+  margin-left:auto; font-family:'Share Tech Mono',monospace; font-size:11px;
+  color:var(--muted); background:var(--surface); border:1px solid var(--border);
+  border-radius:99px; padding:2px 8px; flex-shrink:0;
+}
+.ham-acc-head .ha-arw { font-size:11px; color:var(--muted); transition:transform 0.2s; flex-shrink:0; }
+.ham-acc.open .ham-acc-head .ha-arw { transform:rotate(90deg); }
+.ham-acc-head:focus-visible { outline:2px solid var(--blue); outline-offset:-2px; }
+.ham-acc-body { display:none; padding:10px 10px 12px; }
+.ham-acc.open .ham-acc-body { display:flex; flex-direction:column; gap:4px; }
+/* 常時表示（熊本地震）は枠を赤系にして目立たせる */
+.ham-acc.pinned { border-color:rgba(255,80,80,0.4); background:rgba(255,80,80,0.05); }
+.ham-acc.pinned .ham-pin-label {
+  display:flex; align-items:center; gap:10px; padding:13px 14px 9px;
+  font-size:14px; font-weight:700; color:#ff6b6b;
+}
+.ham-acc.pinned .ham-acc-body { display:flex; flex-direction:column; gap:4px; }
+/* 一括開閉 */
+.ham-allbtn {
+  width:100%; padding:10px; margin-bottom:10px; border-radius:8px;
+  border:1px solid var(--border); background:var(--surface2); color:var(--muted);
+  font-family:'Share Tech Mono',monospace; font-size:12px; cursor:pointer;
+}
+.ham-allbtn:hover { border-color:var(--blue); color:var(--blue); }
+
 .hamburger-link {
   display:flex; align-items:center; gap:12px; padding:12px 14px;
   border-radius:8px; border:1px solid transparent;
@@ -3114,6 +3151,66 @@ html.light .nr-ctrl-btn.active{ color:#fff; }
 .review-card-date{font-size:11px;color:var(--muted);margin-left:auto;}
 .review-card-body{font-size:13px;color:var(--text);line-height:1.7;white-space:pre-wrap;word-break:break-word;}
 .review-empty{font-size:12.5px;color:var(--muted);text-align:center;padding:18px;}
+
+/* ===================== メニューの大カテゴリー開閉 ===================== */
+function toggleHamAcc(btn){
+  var box = btn.parentElement;
+  box.classList.toggle('open');
+  saveHamAccState();
+  syncHamAllBtn();
+}
+
+function toggleAllHamAcc(){
+  var els = document.querySelectorAll('.ham-acc:not(.pinned)');
+  var anyOpen = false;
+  for(var i=0;i<els.length;i++) if(els[i].classList.contains('open')) anyOpen = true;
+  for(var j=0;j<els.length;j++) els[j].classList.toggle('open', !anyOpen);
+  saveHamAccState();
+  syncHamAllBtn();
+}
+
+function syncHamAllBtn(){
+  var els = document.querySelectorAll('.ham-acc:not(.pinned)');
+  var anyOpen = false;
+  for(var i=0;i<els.length;i++) if(els[i].classList.contains('open')) anyOpen = true;
+  var b = document.getElementById('hamAllBtn');
+  if(b) b.textContent = anyOpen ? 'すべて閉じる' : 'すべて開く';
+}
+
+function saveHamAccState(){
+  try{
+    var st = {};
+    var els = document.querySelectorAll('.ham-acc[id]');
+    for(var i=0;i<els.length;i++) st[els[i].id] = els[i].classList.contains('open');
+    localStorage.setItem('hamAcc', JSON.stringify(st));
+  }catch(e){}
+}
+
+function loadHamAccState(){
+  var st = null;
+  try{ st = JSON.parse(localStorage.getItem('hamAcc') || 'null'); }catch(e){}
+  var els = document.querySelectorAll('.ham-acc[id]');
+  for(var i=0;i<els.length;i++){
+    /* 保存が無ければ畳んだ状態で始める */
+    var open = (st && st[els[i].id] === true);
+    els[i].classList.toggle('open', open);
+  }
+  syncHamAllBtn();
+}
+
+/* チュートリアルが特定の項目を指すとき、その大カテゴリーを開く */
+function openHamAccFor(sel){
+  var el = document.querySelector(sel);
+  if(!el) return;
+  var box = el.closest('.ham-acc');
+  if(box && !box.classList.contains('open')){
+    box.classList.add('open');
+    syncHamAllBtn();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadHamAccState);
+
 /* ===================== 友達紹介（共有） ===================== */
 .share-section{max-width:1100px;margin:40px auto 0;padding:0 16px;}
 .chat-section{max-width:1100px;margin:40px auto 0;padding:0 16px;}
@@ -5942,31 +6039,44 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
     </div>
     <nav class="hamburger-nav">
 
-      <div class="hamburger-section-label">// 令和8年 熊本地震</div>
+      <div class="ham-acc pinned">
+        <div class="ham-pin-label"><span class="ha-ico">🔴</span>令和8年 熊本地震</div>
+        <div class="ham-acc-body">
       <button class="hamburger-link" onclick="closeHamburger();openQuakeHub();" style="color:#ff6b6b;border-color:rgba(255,80,80,0.35);background:rgba(255,80,80,0.07);width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">🔴</span>熊本地震 情報センター<br><span style="font-size:11px;opacity:.75;">相談窓口・支援制度・生活情報</span>
       </button>
       <button class="hamburger-link" onclick="closeHamburger();openKyusui();" style="color:#00c8ff;border-color:rgba(0,200,255,0.3);background:rgba(0,200,255,0.06);width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">💧</span>熊本 給水・断水情報<br><span style="font-size:11px;opacity:.75;">各自治体の公式ページへ</span>
-      </button>
+      </button></div>
+      </div>
 
-      <div class="hamburger-section-label">// 設定</div>
+      <button type="button" class="ham-allbtn" id="hamAllBtn" onclick="toggleAllHamAcc()">すべて開く</button>
+
+      <div class="ham-acc" id="hamAcc0">
+        <button type="button" class="ham-acc-head" onclick="toggleHamAcc(this)"><span class="ha-ico">⚙️</span><span>設定</span><span class="ha-cnt">2</span><span class="ha-arw">▶</span></button>
+        <div class="ham-acc-body">
       <button type="button" class="hamburger-link" onclick="closeHamburger();openSettings();">
         <span class="h-link-icon">⚙️</span>設定
       </button>
       <button type="button" class="hamburger-link" onclick="closeHamburger();openStampCard();">
         <span class="h-link-icon">🎁</span>スタンプカード
-      </button>
+      </button></div>
+      </div>
 
-      <div class="hamburger-section-label">// サイトご利用ガイド</div>
+      <div class="ham-acc" id="hamAcc1">
+        <button type="button" class="ham-acc-head" onclick="toggleHamAcc(this)"><span class="ha-ico">📖</span><span>サイトご利用ガイド</span><span class="ha-cnt">2</span><span class="ha-arw">▶</span></button>
+        <div class="ham-acc-body">
       <button class="hamburger-link" data-tour="usage-guide" onclick="openUsageGuide();closeHamburger();" style="color:#ffd54f;border-color:rgba(255,213,79,0.35);background:rgba(255,213,79,0.07);width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">📖</span>取扱説明書（ご利用ガイド）
       </button>
       <button class="hamburger-link" data-tour="lang" onclick="openTranslateModal();closeHamburger();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:none;width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">🌐</span>English / 言語
-      </button>
+      </button></div>
+      </div>
 
-      <div class="hamburger-section-label">// 公式アカウント</div>
+      <div class="ham-acc" id="hamAcc2">
+        <button type="button" class="ham-acc-head" onclick="toggleHamAcc(this)"><span class="ha-ico">📱</span><span>公式アカウント</span><span class="ha-cnt">4</span><span class="ha-arw">▶</span></button>
+        <div class="ham-acc-body">
       <a class="hamburger-link" href="https://x.com/DWAbousai0111" target="_blank" rel="noopener">
         <span class="h-link-icon">𝕏</span>公式X（旧Twitter）
       </a>
@@ -5979,9 +6089,12 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       </button>
       <button class="hamburger-link" onclick="openInstaQr()" style="background:none;width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">📸</span>公式Instagram
-      </button>
+      </button></div>
+      </div>
 
-      <div class="hamburger-section-label">// サイト関連</div>
+      <div class="ham-acc" id="hamAcc3">
+        <button type="button" class="ham-acc-head" onclick="toggleHamAcc(this)"><span class="ha-ico">📄</span><span>サイト関連</span><span class="ha-cnt">5</span><span class="ha-arw">▶</span></button>
+        <div class="ham-acc-body">
       <button class="hamburger-link" onclick="closeHamburger();openArchiveModal();" style="background:none;width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">📂</span>記事アーカイブ<span class="arch-badge" id="archiveBadge"></span>
       </button>
@@ -5996,9 +6109,12 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       </button>
       <button type="button" class="hamburger-link" id="navPrivacy">
         <span class="h-link-icon">🔒</span>プライバシーポリシー
-      </button>
+      </button></div>
+      </div>
 
-      <div class="hamburger-section-label">// 画面モード</div>
+      <div class="ham-acc" id="hamAcc4">
+        <button type="button" class="ham-acc-head" onclick="toggleHamAcc(this)"><span class="ha-ico">🖥️</span><span>画面モード</span><span class="ha-cnt">3</span><span class="ha-arw">▶</span></button>
+        <div class="ham-acc-body">
       <button class="hamburger-link" id="navEmergency" onclick="enterEmergency('manual');closeHamburger();" style="color:#ff6b6b;border-color:rgba(255,45,45,0.35);background:rgba(255,45,45,0.08);width:100%;text-align:left;cursor:pointer;display:none;">
         <span class="h-link-icon">🚨</span>緊急モード
       </button>
@@ -6007,9 +6123,12 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       </button>
       <button class="hamburger-link" onclick="enterMode('kiosk');closeHamburger();" style="color:#ffc24d;border-color:rgba(255,180,60,0.3);background:rgba(255,180,60,0.07);width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">📺</span>キオスクモード
-      </button>
+      </button></div>
+      </div>
 
-      <div class="hamburger-section-label">// 外部リンク（気象・災害情報）</div>
+      <div class="ham-acc" id="hamAcc5">
+        <button type="button" class="ham-acc-head" onclick="toggleHamAcc(this)"><span class="ha-ico">🔗</span><span>外部リンク</span><span class="ha-cnt">11</span><span class="ha-arw">▶</span></button>
+        <div class="ham-acc-body">
       <a class="hamburger-link" href="https://www.jma.go.jp/bosai/map.html#contents=tsunami" target="_blank">
         <span class="h-link-icon">🌊</span>気象庁 津波情報
       </a>
@@ -6025,8 +6144,6 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <a class="hamburger-link" href="https://www.jma.go.jp/bosai/risk/" target="_blank">
         <span class="h-link-icon">🚨</span>大雨危険度
       </a>
-
-      <div class="hamburger-section-label">// 外部リンク（公的機関・その他）</div>
       <a class="hamburger-link" href="https://www.jma.go.jp/" target="_blank">
         <span class="h-link-icon">🏛️</span>気象庁トップ
       </a>
@@ -6044,9 +6161,12 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       </a>
       <a class="hamburger-link" href="https://radiko.jp/" target="_blank" rel="noopener">
         <span class="h-link-icon">📻</span>radiko（ラジオ）
-      </a>
+      </a></div>
+      </div>
 
-      <div class="hamburger-section-label">// 各種ツール（地震・被害想定）</div>
+      <div class="ham-acc" id="hamAcc6">
+        <button type="button" class="ham-acc-head" onclick="toggleHamAcc(this)"><span class="ha-ico">🧰</span><span>各種ツール</span><span class="ha-cnt">11</span><span class="ha-arw">▶</span></button>
+        <div class="ham-acc-body">
       <a class="hamburger-link" data-tour="quake-map" href="earthquake-map.html" target="_blank" rel="noopener" onclick="closeHamburger();" style="color:#ff9d3c;border-color:rgba(255,157,60,0.35);background:rgba(255,157,60,0.08);width:100%;text-align:left;text-decoration:none;display:flex;align-items:center;">
         <span class="h-link-icon">🌍</span>グローバル地震マップ<br><span style="font-size:11px;opacity:.75;">1902〜2026年 世界737件・活断層・宇宙天気</span>
       </a>
@@ -6062,8 +6182,6 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <button class="hamburger-link" onclick="openOverseasModal();closeHamburger();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:none;width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">🌏</span>海外地震履歴
       </button>
-
-      <div class="hamburger-section-label">// 各種ツール（診断・チェック）</div>
       <a class="hamburger-link" data-tour="bousai-shindan" href="https://mkms0822-ops.github.io/anatano-bousai-shindan/" target="_blank" rel="noopener" style="color:#00ffe0;border-color:rgba(0,255,224,0.3);background:rgba(0,255,224,0.07);">
         <span class="h-link-icon">🧭</span>あなたの防災意識診断
       </a>
@@ -6073,8 +6191,6 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <button class="hamburger-link" data-tour="battery-shindan" onclick="openBatteryModal();closeHamburger();" style="color:#ff9d3c;border-color:rgba(255,140,40,0.3);background:rgba(255,140,40,0.07);width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">🔋</span>モバイルバッテリー<br>発火リスク診断計
       </button>
-
-      <div class="hamburger-section-label">// 各種ツール（避難生活・支援）</div>
       <a class="hamburger-link" href="https://mkms0822-ops.github.io/saigaidengonban/" target="_blank" rel="noopener" onclick="closeHamburger();" style="color:#00b4ff;border-color:rgba(0,180,255,0.2);background:rgba(0,180,255,0.05);width:100%;text-align:left;cursor:pointer;display:flex;align-items:center;text-decoration:none;">
         <span class="h-link-icon">📨</span>災害用伝言板
       </a>
@@ -6084,6 +6200,9 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <a class="hamburger-link" href="kokoro.html" target="_blank" rel="noopener" style="color:#7ee0c0;border-color:rgba(0,192,96,0.3);background:rgba(0,192,96,0.07);">
         <span class="h-link-icon">🌿</span>こころのチェック<br><span style="font-size:11px;opacity:.75;">災害のあとの心の自己チェック</span>
       </a>
+
+    </div>
+      </div>
 
     </nav>
   </div>
@@ -11976,7 +12095,7 @@ const tourSteps = [
   { sel:'[data-tour="live"]', title:'🟢 LIVE・現在時刻', text:'ヘッダー右の機器パネルです。赤いランプが点滅していれば「LIVE（リアルタイム配信中）」を表し、その下の窓に現在時刻が表示されます。地震データは自動で更新され続けます。' },
   { sel:'#siteRefreshBtn', title:'🔄 最新情報に更新', text:'パネル内の丸い矢印ボタンです。自動更新を待たずに、いますぐ最新の地震・気象情報を取り込みたいときにタップします。表示が古いと感じたらここを押してください。', fallbackToTop:true },
   { sel:'[data-tour="menu"]', title:'☰ メニュー（設定）', text:'パネル右側の三本線アイコンがメニューボタンです。タップで開くメニューの2番目のグループが「設定」です。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。お問い合わせとプライバシーポリシーは「サイト関連」にあります。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。' },
-  { sel:'[data-tour="menu"]', title:'☰ メニュー（リンク集）', text:'メニューは8つのグループに分かれています。上から順に、熊本地震・設定・ご利用ガイド・公式アカウント・サイト関連・画面モード・外部リンク・各種ツールです。探しているものがどのグループにあるか、見出しを目印にしてください。', fallbackToTop:true },
+  { sel:'[data-tour="menu"]', title:'☰ メニュー（リンク集）', text:'メニューは大きく7つのグループに畳まれています。見出しをタップすると中身が開きます。上から順に、設定・ご利用ガイド・公式アカウント・サイト関連・画面モード・外部リンク・各種ツールです。見出しの右の数字は、その中に入っている項目の数です。「すべて開く」で一度に全部を表示することもできます。なお熊本地震の情報だけは、すぐ使えるよう畳まずに一番上へ置いています。', fallbackToTop:true },
   { sel:'[data-tour="usage-guide"]', title:'📖 取扱説明書（ご利用ガイド）', text:'メニューの「サイトご利用ガイド」にある「取扱説明書」です。このサイトの全機能の使い方を、ひとつずつ丁寧に解説したガイドブックがサイト内でそのまま開きます。SOSビーコンの使い方、引き継ぎコードの説明、よくある質問まで揃っているので、使い方に迷ったらまずここを開いてください。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="quake-map"]', title:'🌍 グローバル地震マップ', text:'メニューの「各種ツール（地震・被害想定）」にある「グローバル地震マップ」です。1902年から2026年までの世界の地震737件を地図上で確認できます。震度や年代で絞り込めるほか、日本周辺の<b>活断層687本</b>、世界のプレート境界、南海トラフ・千島海溝の<b>想定震源域</b>も重ねて表示できます。お住まいの地域の地下に断層があるか、過去にどんな地震が起きたかを調べてみてください。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="ecs-timer"]', title:'🦵 エコノミークラス症候群 予防タイマー', text:'メニューの「各種ツール（避難生活・支援）」にあります。車中泊や避難所での生活が続くと、足に血のかたまりができて命に関わることがあります。このタイマーは、一定時間ごとに足を動かす合図を出してくれます。避難生活が長引きそうなときに使ってください。', onShow:openHamburgerForTour, fallbackToTop:true },
@@ -12054,6 +12173,11 @@ function openHamburgerForTour(){
     // 開き直すとアニメが再生され、パネル内スクロール位置が先頭に戻ってしまう。
     const _already = document.querySelector('.hamburger-overlay[data-tour-lifted="1"]');
     if(!_already && typeof openHamburger === 'function') openHamburger();
+    /* 目的の項目が畳まれた大カテゴリーの中にある場合は、そこを開いてから案内する */
+    try{
+      var _st = (typeof _activeSteps !== 'undefined' && _activeSteps[_tourIndex]) || tourSteps[_tourIndex];
+      if(_st && _st.sel && typeof openHamAccFor === 'function') openHamAccFor(_st.sel);
+    }catch(e){}
     // ハンバーガーオーバーレイ（通常z-index 400）をツアーのマスク(99990)より前面へ持ち上げる
     const ov = document.querySelector('.hamburger-overlay');
     if(ov){
