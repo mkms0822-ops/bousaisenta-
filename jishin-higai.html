@@ -239,7 +239,20 @@ select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(5
 :root{
   --dwa-scale: 1;
 }
-html{ font-size: calc(16px * var(--dwa-scale)); }
+/* このツールは文字サイズをpxで指定しているため、ルートのfont-sizeを変えても効かない。
+   そこで本文側を丸ごと拡大する。上部バーとメニューは等倍のまま保つ。 */
+.dwa-zoom{
+  zoom: var(--dwa-scale);
+}
+/* zoom非対応のブラウザ向けの代替 */
+@supports not (zoom: 1){
+  .dwa-zoom{
+    transform: scale(var(--dwa-scale));
+    transform-origin: top center;
+    width: calc(100% / var(--dwa-scale));
+    margin-inline: auto;
+  }
+}
 
 /* ---- ライトモード ---- */
 html.dwa-light{
@@ -363,6 +376,7 @@ html.dwa-light body{
   <button type="button" class="dwa-btn icon" onclick="dwaToggleTheme()" id="dwaThemeBtn" aria-label="表示モードを切り替える">🌓</button>
   <button type="button" class="dwa-btn icon" onclick="dwaOpenMenu()" aria-label="メニュー">☰</button>
 </div>
+<div class="dwa-zoom">
 
 <div class="wrap">
 
@@ -1654,6 +1668,12 @@ function dwaCopyResult(){
           '診断結果をコピーしました');
 }
 
+
+/* 拡大率を変えたあとの後始末 */
+function dwaOnScaleChange(v){
+  try{ window.dispatchEvent(new Event('resize')); }catch(e){}
+}
+
 /* ---- 起動時の復元 ---- */
 (function(){
   var th = null, sc = null;
@@ -1664,6 +1684,7 @@ function dwaCopyResult(){
 
 </script>
 
+</div>
 <div class="dwa-ov" id="dwaOv" onclick="if(event.target===this)dwaCloseMenu()">
   <div class="dwa-panel">
     <button class="dwa-close" onclick="dwaCloseMenu()" aria-label="閉じる">✕</button>
