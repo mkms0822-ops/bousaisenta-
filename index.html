@@ -3152,64 +3152,7 @@ html.light .nr-ctrl-btn.active{ color:#fff; }
 .review-card-body{font-size:13px;color:var(--text);line-height:1.7;white-space:pre-wrap;word-break:break-word;}
 .review-empty{font-size:12.5px;color:var(--muted);text-align:center;padding:18px;}
 
-/* ===================== メニューの大カテゴリー開閉 ===================== */
-function toggleHamAcc(btn){
-  var box = btn.parentElement;
-  box.classList.toggle('open');
-  saveHamAccState();
-  syncHamAllBtn();
-}
 
-function toggleAllHamAcc(){
-  var els = document.querySelectorAll('.ham-acc:not(.pinned)');
-  var anyOpen = false;
-  for(var i=0;i<els.length;i++) if(els[i].classList.contains('open')) anyOpen = true;
-  for(var j=0;j<els.length;j++) els[j].classList.toggle('open', !anyOpen);
-  saveHamAccState();
-  syncHamAllBtn();
-}
-
-function syncHamAllBtn(){
-  var els = document.querySelectorAll('.ham-acc:not(.pinned)');
-  var anyOpen = false;
-  for(var i=0;i<els.length;i++) if(els[i].classList.contains('open')) anyOpen = true;
-  var b = document.getElementById('hamAllBtn');
-  if(b) b.textContent = anyOpen ? 'すべて閉じる' : 'すべて開く';
-}
-
-function saveHamAccState(){
-  try{
-    var st = {};
-    var els = document.querySelectorAll('.ham-acc[id]');
-    for(var i=0;i<els.length;i++) st[els[i].id] = els[i].classList.contains('open');
-    localStorage.setItem('hamAcc', JSON.stringify(st));
-  }catch(e){}
-}
-
-function loadHamAccState(){
-  var st = null;
-  try{ st = JSON.parse(localStorage.getItem('hamAcc') || 'null'); }catch(e){}
-  var els = document.querySelectorAll('.ham-acc[id]');
-  for(var i=0;i<els.length;i++){
-    /* 保存が無ければ畳んだ状態で始める */
-    var open = (st && st[els[i].id] === true);
-    els[i].classList.toggle('open', open);
-  }
-  syncHamAllBtn();
-}
-
-/* チュートリアルが特定の項目を指すとき、その大カテゴリーを開く */
-function openHamAccFor(sel){
-  var el = document.querySelector(sel);
-  if(!el) return;
-  var box = el.closest('.ham-acc');
-  if(box && !box.classList.contains('open')){
-    box.classList.add('open');
-    syncHamAllBtn();
-  }
-}
-
-document.addEventListener('DOMContentLoaded', loadHamAccState);
 
 /* ===================== 友達紹介（共有） ===================== */
 .share-section{max-width:1100px;margin:40px auto 0;padding:0 16px;}
@@ -8101,6 +8044,71 @@ function submitSponsor(){
 
 
 <script>
+/* ===================== メニューの大カテゴリー開閉 ===================== */
+function toggleHamAcc(btn){
+  var box = btn.parentElement;
+  box.classList.toggle('open');
+  saveHamAccState();
+  syncHamAllBtn();
+}
+
+function toggleAllHamAcc(){
+  var els = document.querySelectorAll('.ham-acc:not(.pinned)');
+  var anyOpen = false;
+  for(var i=0;i<els.length;i++) if(els[i].classList.contains('open')) anyOpen = true;
+  for(var j=0;j<els.length;j++) els[j].classList.toggle('open', !anyOpen);
+  saveHamAccState();
+  syncHamAllBtn();
+}
+
+function syncHamAllBtn(){
+  var els = document.querySelectorAll('.ham-acc:not(.pinned)');
+  var anyOpen = false;
+  for(var i=0;i<els.length;i++) if(els[i].classList.contains('open')) anyOpen = true;
+  var b = document.getElementById('hamAllBtn');
+  if(b) b.textContent = anyOpen ? 'すべて閉じる' : 'すべて開く';
+}
+
+function saveHamAccState(){
+  try{
+    var st = {};
+    var els = document.querySelectorAll('.ham-acc[id]');
+    for(var i=0;i<els.length;i++) st[els[i].id] = els[i].classList.contains('open');
+    localStorage.setItem('hamAcc', JSON.stringify(st));
+  }catch(e){}
+}
+
+function loadHamAccState(){
+  var st = null;
+  try{ st = JSON.parse(localStorage.getItem('hamAcc') || 'null'); }catch(e){}
+  var els = document.querySelectorAll('.ham-acc[id]');
+  for(var i=0;i<els.length;i++){
+    /* 保存が無ければ畳んだ状態で始める */
+    var open = (st && st[els[i].id] === true);
+    els[i].classList.toggle('open', open);
+  }
+  syncHamAllBtn();
+}
+
+/* チュートリアルが特定の項目を指すとき、その大カテゴリーを開く */
+function openHamAccFor(sel){
+  try{
+  var el = document.querySelector(sel);
+  if(!el) return;
+  var box = el.closest ? el.closest('.ham-acc') : null;
+  if(box && !box.classList.contains('open')){
+    box.classList.add('open');
+    syncHamAllBtn();
+  }
+  }catch(e){}
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', loadHamAccState);
+}else{
+  loadHamAccState();
+}
+
 // ===================== CLOCK =====================
 function tick() {
   const el = document.getElementById('clock');
