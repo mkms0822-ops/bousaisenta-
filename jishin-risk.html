@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="都道府県を選ぶだけで、30年以内に震度6弱以上の揺れに見舞われる確率・全国順位・周辺の活断層と海溝型地震がわかる地震リスク診断ツール。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="地震リスク統合診断ツール｜DWA防災情報センター">
+<meta property="og:description" content="都道府県別に、30年以内の震度6弱以上の確率と全国順位、周辺の活断層を表示します。">
+<meta property="og:site_name" content="DWA防災情報センター">
+<meta name="twitter:card" content="summary">
+<title>地震リスク統合診断｜リスクランキング × 活断層・震源マップ</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"/>
+<style>
+  :root{
+    --bg:#0b0f14;
+    --panel:#121821;
+    --panel2:#0e141c;
+    --line:#1f2c3a;
+    --ink:#e8eef5;
+    --muted:#8499ad;
+    --grid:#16202c;
+    --crit:#ff3b3b;
+    --high:#ff7a2e;
+    --mid:#ffc94d;
+    --low:#3fb6a8;
+    --vlow:#3a7bd5;
+    --accent:#39d0d8;
+    --S:#ff3b3b;--A:#ff9a3c;--Z:#5a93d6;--X:#c46bff;--trough:#ff5c8a;
+    --r:14px;
+    --mono:"DIN Alternate","Bahnschrift","Roboto Mono",ui-monospace,monospace;
+    --sans:"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(900px 420px at 50% -8%,#14283b 0%,transparent 60%),var(--bg);
+    color:var(--ink);font-family:var(--sans);line-height:1.7;
+    min-height:100vh;min-height:100dvh;
+    padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  }
+  .wrap{max-width:820px;margin:0 auto;padding:24px 16px 80px;}
+
+  /* ヘッダー */
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.22em;color:var(--accent);
+    text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:9px;}
+  .eyebrow::before{content:"";width:26px;height:1px;background:var(--accent);display:inline-block;}
+  .hero h1{font-size:26px;line-height:1.4;margin:0 0 10px;font-weight:800;letter-spacing:.01em;}
+  .hero h1 b{color:var(--accent);font-weight:800;}
+  .hero p{font-size:13px;color:var(--muted);margin:0 0 22px;}
+
+  /* セレクター */
+  .card{
+    background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--line);border-radius:var(--r);
+    padding:18px 16px;margin-bottom:16px;
+  }
+  .card-h{font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--muted);
+    margin-bottom:12px;text-transform:uppercase;}
+  .select-wrap{position:relative;}
+  .select-wrap::after{content:"▾";position:absolute;right:15px;top:50%;transform:translateY(-50%);
+    color:var(--accent);pointer-events:none;font-size:13px;}
+  select{
+    width:100%;padding:14px 13px;border-radius:11px;
+    background:var(--bg);border:1px solid var(--line);color:var(--ink);
+    font-family:inherit;font-size:16px;appearance:none;cursor:pointer;
+  }
+  select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(57,208,216,.16);}
+
+  /* 結果エリア */
+  #result{display:none;}
+  #result.show{display:block;animation:fade .3s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+  /* セクション区切り */
+  .sec-label{
+    display:flex;align-items:center;gap:12px;
+    font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--accent);
+    text-transform:uppercase;margin:26px 0 12px;
+  }
+  .sec-label::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 100%);opacity:.4;}
+  .sec-num{
+    width:22px;height:22px;border-radius:6px;background:rgba(57,208,216,.15);
+    border:1px solid rgba(57,208,216,.3);display:grid;place-items:center;
+    font-size:11px;font-weight:700;flex:none;color:var(--accent);
+  }
+
+  /* ── SECTION 1: リスクサマリー ── */
+  .headline{
+    background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--line);border-radius:var(--r);padding:22px 18px;margin-bottom:14px;
+    position:relative;overflow:hidden;
+  }
+  .headline::before{content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(90deg,transparent,transparent 38px,var(--grid) 38px,var(--grid) 39px);
+    opacity:.5;pointer-events:none;}
+  .hl-top{display:flex;align-items:baseline;justify-content:space-between;position:relative;z-index:1;flex-wrap:wrap;gap:6px;}
+  .hl-pref{font-size:22px;font-weight:800;}
+  .hl-rank{font-family:var(--mono);font-size:13px;color:var(--muted);}
+  .hl-rank b{color:var(--ink);font-size:17px;}
+  .bignum{font-family:var(--mono);font-weight:800;line-height:1;margin:12px 0 4px;
+    font-size:64px;letter-spacing:-.02em;position:relative;z-index:1;}
+  .bignum .unit{font-size:26px;margin-left:4px;}
+  .bigcap{font-size:13px;color:var(--muted);position:relative;z-index:1;}
+  .meter{height:12px;border-radius:6px;background:#0a1018;border:1px solid var(--line);
+    overflow:hidden;margin:14px 0 6px;position:relative;z-index:1;}
+  .meter-fill{height:100%;border-radius:5px;transition:width .8s cubic-bezier(.2,.8,.2,1);}
+  .scale{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--muted);
+    position:relative;z-index:1;}
+  .pill{display:inline-block;padding:3px 11px;border-radius:999px;font-size:12px;font-weight:700;
+    font-family:var(--mono);letter-spacing:.05em;}
+  .freq{font-size:13px;margin-top:10px;color:var(--ink);position:relative;z-index:1;
+    border-top:1px solid var(--line);padding-top:12px;}
+  .freq b{color:var(--accent);}
+  .hkbox{margin-top:12px;padding:12px 13px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:10px;font-size:12.5px;color:var(--muted);display:none;}
+  .hkbox.show{display:block;}
+  .hkbox b{color:var(--ink);}
+  .hkbox .hkrow{display:flex;justify-content:space-between;padding:3px 0;}
+  .hkbox .hkrow span:last-child{font-family:var(--mono);color:var(--high);}
+
+  /* 統計カード横並び */
+  .stat-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+  .stat{flex:1;min-width:130px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:12px 14px;}
+  .stat .k{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em;}
+  .stat .v{font-size:22px;font-weight:800;margin-top:3px;}
+
+  /* ── SECTION 2: ランキング ── */
+  .rank-h{display:flex;align-items:center;justify-content:space-between;margin:0 2px 10px;}
+  .rank-h .t{font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;}
+  .toggle{font-family:var(--mono);font-size:12px;color:var(--accent);background:none;border:1px solid var(--line);
+    border-radius:8px;padding:5px 11px;cursor:pointer;transition:all .2s;}
+  .toggle:hover{border-color:var(--accent);}
+  .row{display:flex;align-items:center;gap:11px;padding:9px 12px;border-bottom:1px solid var(--line);}
+  .row:last-child{border-bottom:none;}
+  .row.me{background:rgba(57,208,216,.08);border-radius:9px;border-bottom:1px solid transparent;}
+  .row .rk{font-family:var(--mono);font-size:13px;color:var(--muted);width:34px;flex:none;text-align:right;}
+  .row.me .rk{color:var(--accent);font-weight:700;}
+  .row .nm{flex:1;font-size:15px;}
+  .row .bar{flex:none;width:90px;height:7px;border-radius:4px;background:#0a1018;overflow:hidden;}
+  .row .bar i{display:block;height:100%;border-radius:4px;}
+  .row .pv{font-family:var(--mono);font-size:14px;font-weight:700;width:52px;text-align:right;flex:none;}
+
+  /* ── SECTION 3: マップ ── */
+  #map{height:440px;width:100%;border-radius:var(--r);border:1px solid var(--line);
+    margin-bottom:14px;background:#0a0e13;z-index:1;}
+  .legend{display:flex;gap:13px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:2px 2px 14px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .legend i{width:18px;height:4px;border-radius:2px;display:inline-block;}
+  .flist{margin-bottom:14px;}
+  .fitem{display:flex;align-items:center;gap:11px;padding:11px 12px;border-bottom:1px solid var(--line);cursor:pointer;
+    transition:background .15s;}
+  .fitem:last-child{border-bottom:none;}
+  .fitem:hover{background:rgba(57,208,216,.06);}
+  .fitem .rk2{font-family:var(--mono);font-weight:800;font-size:13px;width:26px;height:26px;border-radius:7px;
+    display:grid;place-items:center;flex:none;color:#0b0f14;}
+  .fitem .nm{flex:1;font-size:14.5px;line-height:1.4;}
+  .fitem .nm small{display:block;color:var(--muted);font-size:12px;font-family:var(--mono);margin-top:1px;}
+  .fitem .pv2{font-family:var(--mono);font-size:13px;color:var(--muted);text-align:right;flex:none;}
+  .sech{font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--muted);margin:4px 2px 8px;text-transform:uppercase;}
+
+  /* 出典・免責 */
+  .src{font-size:11px;color:var(--muted);line-height:1.7;margin-top:8px;padding:14px;
+    background:var(--panel2);border:1px solid var(--line);border-radius:10px;}
+  .src b{color:var(--ink);}
+
+  /* 免責事項ブロック */
+  .disclaimer-wrap{
+    margin-top:28px;border:1px solid var(--line);border-radius:var(--r);
+    background:var(--panel2);overflow:hidden;
+  }
+  .disclaimer-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:13px 16px;cursor:pointer;user-select:none;
+    border-bottom:1px solid transparent;transition:border-color .2s;
+  }
+  .disclaimer-head:hover{background:rgba(57,208,216,.04);}
+  .disclaimer-head.open{border-bottom-color:var(--line);}
+  .disclaimer-head-left{display:flex;align-items:center;gap:10px;}
+  .disclaimer-icon{
+    width:20px;height:20px;border-radius:5px;background:rgba(255,122,46,.15);
+    border:1px solid rgba(255,122,46,.4);display:grid;place-items:center;flex:none;
+    font-size:11px;color:#ff7a2e;font-family:var(--mono);font-weight:700;
+  }
+  .disclaimer-title{font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+    color:var(--muted);text-transform:uppercase;}
+  .disclaimer-arrow{font-size:12px;color:var(--muted);transition:transform .25s;}
+  .disclaimer-head.open .disclaimer-arrow{transform:rotate(180deg);}
+  .disclaimer-body{display:none;padding:16px;}
+  .disclaimer-body.open{display:block;}
+  .disclaimer-lead{
+    font-size:12px;color:var(--ink);line-height:1.75;
+    padding:10px 13px;background:rgba(255,122,46,.07);
+    border:1px solid rgba(255,122,46,.2);border-radius:9px;margin-bottom:14px;
+  }
+  .disclaimer-items{display:flex;flex-direction:column;gap:10px;}
+  .disclaimer-item{font-size:11.5px;color:var(--muted);line-height:1.75;
+    padding-left:13px;border-left:2px solid var(--line);}
+  .disclaimer-item b{color:var(--ink);}
+  .disclaimer-item.warn{border-left-color:rgba(255,122,46,.5);}
+  .disclaimer-footer{
+    margin-top:14px;padding:11px 13px;
+    background:rgba(255,59,59,.06);border:1px solid rgba(255,59,59,.2);border-radius:9px;
+    font-size:11.5px;color:var(--muted);line-height:1.75;
+  }
+  .disclaimer-footer b{color:#ff3b3b;}
+
+  .leaflet-popup-content{font-family:var(--sans);font-size:13px;line-height:1.6;}
+  .leaflet-popup-content b{font-size:14px;}
+  .leaflet-container{font-family:var(--sans);}
+
+/* ============================================================
+   共通UI（テーマ・文字サイズ・メニュー）
+   ============================================================ */
+:root{
+  --dwa-scale: 1;
+}
+html{ font-size: calc(16px * var(--dwa-scale)); }
+
+/* ---- ライトモード ---- */
+html.dwa-light{
+  --bg:#f4f7fa; --panel:#ffffff; --panel2:#eef3f8; --line:#d4dee8;
+  --ink:#16222e; --muted:#5b7183; --grid:#dde6ef;
+}
+html.dwa-light body{
+  background:radial-gradient(900px 420px at 50% -8%,#dceaf6 0%,transparent 60%),var(--bg);
+  color:var(--ink);
+}
+
+/* ---- 上部バー ---- */
+.dwa-bar{
+  position:sticky; top:0; z-index:900;
+  display:flex; align-items:center; gap:8px;
+  padding:9px 12px; background:var(--panel); border-bottom:1px solid var(--line);
+  backdrop-filter:blur(6px);
+}
+.dwa-bar .sp{ flex:1; }
+.dwa-btn{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:7px 13px; border:1px solid var(--line); border-radius:99px;
+  background:var(--panel2); color:var(--muted);
+  font-size:13px; font-family:inherit; cursor:pointer; text-decoration:none;
+  white-space:nowrap;
+}
+.dwa-btn:hover{ border-color:var(--accent); color:var(--accent); }
+.dwa-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+.dwa-btn.icon{ padding:7px 11px; }
+
+/* ---- メニュー ---- */
+.dwa-ov{
+  position:fixed; inset:0; z-index:1000; display:none;
+  background:rgba(0,0,0,.55); backdrop-filter:blur(3px);
+}
+.dwa-ov.open{ display:block; }
+.dwa-panel{
+  position:absolute; top:0; right:0; height:100%; width:min(90vw,340px);
+  background:var(--panel); border-left:1px solid var(--line);
+  overflow-y:auto; padding:16px 16px 40px;
+  box-shadow:-8px 0 30px rgba(0,0,0,.4);
+}
+.dwa-panel h3{ font-size:16px; margin-bottom:4px; color:var(--ink); }
+.dwa-panel .sub{ font-size:11.5px; color:var(--muted); margin-bottom:16px; }
+.dwa-sec{
+  font-size:10.5px; letter-spacing:.14em; color:var(--muted);
+  margin:18px 0 8px; font-family:var(--mono,monospace);
+}
+.dwa-item{
+  display:flex; align-items:center; gap:10px; width:100%;
+  padding:12px 13px; margin-bottom:6px;
+  border:1px solid var(--line); border-radius:9px;
+  background:var(--panel2); color:var(--ink);
+  font-size:13.5px; font-family:inherit; text-align:left;
+  cursor:pointer; text-decoration:none;
+}
+.dwa-item:hover{ border-color:var(--accent); color:var(--accent); }
+.dwa-close{
+  position:absolute; top:12px; right:14px;
+  background:none; border:none; color:var(--muted);
+  font-size:20px; cursor:pointer; line-height:1;
+}
+
+/* ---- 文字サイズの選択 ---- */
+.dwa-sizes{ display:flex; gap:6px; }
+.dwa-size{
+  flex:1; padding:11px 4px; border:1px solid var(--line); border-radius:9px;
+  background:var(--panel2); color:var(--ink); cursor:pointer; font-family:inherit;
+}
+.dwa-size.on{ border-color:var(--accent); color:var(--accent); background:rgba(57,208,216,.1); }
+.dwa-size .s{ display:block; font-weight:700; }
+.dwa-size .l{ display:block; font-size:10px; color:var(--muted); margin-top:2px; }
+
+/* ---- 説明文のダイアログ ---- */
+.dwa-modal{
+  position:fixed; inset:0; z-index:1100; display:none;
+  background:rgba(0,0,0,.6); padding:20px; overflow-y:auto;
+}
+.dwa-modal.open{ display:block; }
+.dwa-modal-in{
+  max-width:620px; margin:30px auto; background:var(--panel);
+  border:1px solid var(--line); border-radius:14px; padding:22px;
+}
+.dwa-modal-in h3{ font-size:17px; margin-bottom:12px; color:var(--ink); }
+.dwa-modal-in h4{ font-size:14px; margin:16px 0 6px; color:var(--accent); }
+.dwa-modal-in p, .dwa-modal-in li{
+  font-size:13px; line-height:1.85; color:var(--ink); margin-bottom:8px;
+}
+.dwa-modal-in ul{ margin-left:20px; }
+.dwa-modal-in .note{
+  font-size:12px; color:var(--muted); border-top:1px solid var(--line);
+  padding-top:12px; margin-top:16px;
+}
+
+/* ---- 結果のコピー・共有 ---- */
+.dwa-share{
+  display:flex; gap:8px; flex-wrap:wrap; justify-content:center;
+  margin:18px auto 6px; max-width:640px; padding:0 12px;
+}
+.dwa-share .dwa-btn{ flex:1; min-width:140px; justify-content:center; }
+.dwa-toast{
+  position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(16px);
+  background:var(--ink); color:var(--bg); padding:11px 20px; border-radius:99px;
+  font-size:13px; z-index:1200; opacity:0; pointer-events:none;
+  transition:opacity .25s, transform .25s;
+}
+.dwa-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+@media (max-width:480px){
+  .dwa-bar{ padding:8px 10px; gap:6px; }
+  .dwa-btn{ padding:6px 10px; font-size:12px; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="dwa-bar">
+  <a class="dwa-btn" href="index.html">↩ 戻る</a>
+  <span class="sp"></span>
+  <button type="button" class="dwa-btn icon" onclick="dwaToggleTheme()" id="dwaThemeBtn" aria-label="表示モードを切り替える">🌓</button>
+  <button type="button" class="dwa-btn icon" onclick="dwaOpenMenu()" aria-label="メニュー">☰</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ヘッダー -->
+  <div class="hero">
+    <div class="eyebrow">全国地震動予測地図 × 活断層長期評価</div>
+    <h1>地震リスク<b>統合診断</b>ツール</h1>
+    <p>都道府県を一度選ぶだけで、30年以内の震度6弱以上の確率・全国ランキング・活断層と海溝型震源マップが連動して表示されます。</p>
+  </div>
+
+  <!-- セレクター -->
+  <div class="card">
+    <div class="card-h">// 都道府県を選択</div>
+    <div class="select-wrap">
+      <select id="pref">
+        <option value="">都道府県を選んでください</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- 結果エリア -->
+  <div id="result">
+
+    <!-- SECTION 1: リスクサマリー -->
+    <div class="sec-label"><span class="sec-num">1</span>リスクサマリー</div>
+
+    <div class="headline">
+      <div class="hl-top">
+        <span class="hl-pref" id="rPref">―</span>
+        <span class="hl-rank">全国 <b id="rRank">―</b> / 47 位</span>
+      </div>
+      <div class="bignum" id="rProb">―<span class="unit">%</span></div>
+      <div class="bigcap">今後30年以内に震度6弱以上の揺れに見舞われる確率（県庁所在地）</div>
+      <div class="meter"><div class="meter-fill" id="rMeter"></div></div>
+      <div class="scale"><span>0%</span><span>26%</span><span>50%</span><span>100%</span></div>
+      <div style="margin-top:10px;position:relative;z-index:1;"><span class="pill" id="rPill">―</span></div>
+      <div class="freq" id="rFreq"></div>
+      <div class="hkbox" id="hkBox"></div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="k">主要活断層</div><div class="v" id="sFault">―</div></div>
+      <div class="stat"><div class="k">海溝型震源域</div><div class="v" id="sTrough">―</div></div>
+      <div class="stat"><div class="k">危険度レベル</div><div class="v" id="sLevel" style="font-size:16px;margin-top:6px;">―</div></div>
+    </div>
+
+    <!-- SECTION 2: ランキング -->
+    <div class="sec-label"><span class="sec-num">2</span>全国ランキング</div>
+
+    <div class="card">
+      <div class="rank-h">
+        <span class="t" id="rankTitle">// 上位5県とあなたの周辺</span>
+        <button class="toggle" id="rankToggle">全国を表示</button>
+      </div>
+      <div id="rankList"></div>
+    </div>
+
+    <!-- SECTION 3: 活断層・震源マップ -->
+    <div class="sec-label"><span class="sec-num">3</span>活断層・震源マップ</div>
+
+    <div id="map"></div>
+    <div class="legend">
+      <span><i style="background:var(--S)"></i>S 高い</span>
+      <span><i style="background:var(--A)"></i>A 中程度</span>
+      <span><i style="background:var(--Z)"></i>Z 低い</span>
+      <span><i style="background:var(--X)"></i>X 不明</span>
+      <span><i style="background:var(--trough);height:9px;border-radius:3px;"></i>海溝型</span>
+    </div>
+
+    <div id="troughSec" style="display:none;">
+      <div class="sech">// 海溝型震源域</div>
+      <div class="flist" id="troughList"></div>
+    </div>
+    <div class="sech">// 主要活断層帯（県内・周辺）</div>
+    <div class="flist" id="faultList"></div>
+
+    <!-- 出典 -->
+    <div class="src">
+      <b>出典：</b>断層名・想定マグニチュード・30年確率・評価ランクは地震調査研究推進本部「主要活断層帯の長期評価の概要（算定基準日 令和8年〔2026年〕1月1日）＜都道府県別＞」、県の震度6弱以上確率は「全国地震動予測地図2020年版」より作成。<br>
+      <b>注意：</b>地図上の断層線は各断層が通る地名に基づく<b>おおよその位置・向き</b>であり、正確な断層トレースではありません。海溝型の範囲も概略です。正確な位置・形状はJ-SHIS地震ハザードステーション、各自治体のハザードマップをご確認ください。
+    </div>
+
+    <!-- 免責事項（アコーディオン） -->
+    <div class="disclaimer-wrap" style="margin-top:20px;">
+      <div class="disclaimer-head" id="disclHead">
+        <div class="disclaimer-head-left">
+          <span class="disclaimer-icon">!</span>
+          <span class="disclaimer-title">免責事項・ご利用上の注意</span>
+        </div>
+        <span class="disclaimer-arrow" id="disclArrow">▾</span>
+      </div>
+      <div class="disclaimer-body" id="disclBody">
+        <div class="disclaimer-lead">
+          当サイトに掲載するすべての情報は、利用者の<b>防災意識向上を目的とした参考情報</b>であり、その正確性・完全性・最新性・有用性を保証するものではありません。
+        </div>
+        <div class="disclaimer-items">
+          <div class="disclaimer-item warn">
+            <b>掲載データの正確性：</b>断層名・想定マグニチュード・30年確率・評価ランクは地震調査研究推進本部の公表値、震度6弱以上の確率は「全国地震動予測地図2020年版」をもとにしていますが、その正確性・完全性・最新性を保証するものではありません。提供元の仕様変更等により、内容が実際と異なる場合があります。
+          </div>
+          <div class="disclaimer-item">
+            <b>確率値の読み方：</b>掲載している確率は「震度6弱の地震が発生する確率」ではなく、各県庁所在地の地点が「震度6弱以上の揺れに見舞われる確率」（超過確率）です。確率が低い地域でも地震が起きないという意味ではありません。値は地点の地盤条件によって県内でも大きく変わります。
+          </div>
+          <div class="disclaimer-item">
+            <b>地図上の断層線について：</b>地図上の断層線は各断層が通る地名に基づくおおよその位置・向きであり、正確な断層トレースではありません。海溝型震源域の範囲も概略です。正確な位置・形状はJ-SHIS地震ハザードステーション、各自治体のハザードマップをご確認ください。
+          </div>
+          <div class="disclaimer-item warn">
+            <b>本ツールの利用と避難判断：</b>本ツールはあくまで防災意識向上を目的とした参考情報です。実際の避難・安全確保の判断は、必ず気象庁・自治体・消防・警察等の<b>公式発表および現場の状況</b>に基づいて行い、本ツールの情報のみに依拠した判断は行わないでください。
+          </div>
+        </div>
+        <div class="disclaimer-footer">
+          <b>免責：</b>当サイトの情報・診断結果・手順案内の利用、またはこれらを利用できなかったことにより利用者または第三者に生じたいかなる損害（直接・間接・特別・結果的損害を含む）についても、当サイトおよび運営者は一切の責任を負いません。
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<div class="dwa-share">
+  <button type="button" class="dwa-btn" onclick="dwaCopyResult()">📋 結果をコピー</button>
+  <button type="button" class="dwa-btn" onclick="dwaShareResult()">📤 結果を共有</button>
+</div>
+<!-- /result -->
+</div><!-- /wrap -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+/* ==================== データ ==================== */
+const PREF_DATA = [{"pref": "北海道", "prob": 2.2}, {"pref": "青森県", "prob": 5.0}, {"pref": "岩手県", "prob": 6.3}, {"pref": "宮城県", "prob": 7.6}, {"pref": "秋田県", "prob": 10.0}, {"pref": "山形県", "prob": 4.2}, {"pref": "福島県", "prob": 9.3}, {"pref": "茨城県", "prob": 81.0}, {"pref": "栃木県", "prob": 13.0}, {"pref": "群馬県", "prob": 6.4}, {"pref": "埼玉県", "prob": 60.0}, {"pref": "千葉県", "prob": 62.0}, {"pref": "東京都", "prob": 47.0}, {"pref": "神奈川県", "prob": 38.0}, {"pref": "新潟県", "prob": 15.0}, {"pref": "富山県", "prob": 5.2}, {"pref": "石川県", "prob": 6.6}, {"pref": "福井県", "prob": 15.0}, {"pref": "山梨県", "prob": 36.0}, {"pref": "長野県", "prob": 6.1}, {"pref": "岐阜県", "prob": 27.0}, {"pref": "静岡県", "prob": 70.0}, {"pref": "愛知県", "prob": 46.0}, {"pref": "三重県", "prob": 64.0}, {"pref": "滋賀県", "prob": 13.0}, {"pref": "京都府", "prob": 15.0}, {"pref": "大阪府", "prob": 30.0}, {"pref": "兵庫県", "prob": 46.0}, {"pref": "奈良県", "prob": 62.0}, {"pref": "和歌山県", "prob": 68.0}, {"pref": "鳥取県", "prob": 9.3}, {"pref": "島根県", "prob": 4.9}, {"pref": "岡山県", "prob": 44.0}, {"pref": "広島県", "prob": 24.0}, {"pref": "山口県", "prob": 6.3}, {"pref": "徳島県", "prob": 75.0}, {"pref": "香川県", "prob": 64.0}, {"pref": "愛媛県", "prob": 46.0}, {"pref": "高知県", "prob": 75.0}, {"pref": "福岡県", "prob": 6.2}, {"pref": "佐賀県", "prob": 9.2}, {"pref": "長崎県", "prob": 3.0}, {"pref": "熊本県", "prob": 11.0}, {"pref": "大分県", "prob": 55.0}, {"pref": "宮崎県", "prob": 43.0}, {"pref": "鹿児島県", "prob": 18.0}, {"pref": "沖縄県", "prob": 21.0}];
+const HOKKAIDO_DETAIL = {"根室市": 80.0, "釧路市": 71.0, "浦河町(日高)": 69.0, "帯広市": 23.0, "岩見沢市": 12.0, "室蘭市": 9.1, "札幌市": 2.2};
+
+const MAP_DATA = {"faults": [{"name": "糸魚川－静岡構造線断層帯（中北部）", "m": "7.6", "prob": "14〜30%", "rank": "S", "prefs": ["長野県"], "line": [[36.45, 137.85], [36.05, 138.05], [36.0, 138.12]]}, {"name": "糸魚川－静岡構造線断層帯（北部）", "m": "7.7", "prob": "0.009〜16%", "rank": "S", "prefs": ["長野県", "新潟県"], "line": [[36.83, 137.85], [36.45, 137.85]]}, {"name": "糸魚川－静岡構造線断層帯（中南部）", "m": "7.4", "prob": "0.9〜8%", "rank": "S", "prefs": ["長野県", "山梨県"], "line": [[36.0, 138.12], [35.75, 138.3]]}, {"name": "中央構造線断層帯（金剛山地東縁〜和泉山脈南縁）", "m": "7.5", "prob": "0.06〜14%", "rank": "S", "prefs": ["奈良県", "和歌山県", "大阪府"], "line": [[34.45, 135.7], [34.25, 135.5], [34.2, 135.2]]}, {"name": "中央構造線断層帯（讃岐山脈南縁〜石鎚山脈北縁）", "m": "7.5〜8.0", "prob": "ほぼ0〜12%", "rank": "S", "prefs": ["徳島県", "香川県", "愛媛県"], "line": [[34.1, 134.5], [34.05, 133.8], [33.95, 133.2], [33.8, 132.7]]}, {"name": "上町断層帯", "m": "7.5", "prob": "2〜3%", "rank": "A", "prefs": ["大阪府"], "line": [[34.78, 135.5], [34.6, 135.5], [34.45, 135.48]]}, {"name": "森本・富樫断層帯", "m": "7.2", "prob": "2〜8%", "rank": "S", "prefs": ["石川県"], "line": [[36.62, 136.72], [36.5, 136.68]]}, {"name": "高田平野東縁断層帯", "m": "7.3", "prob": "ほぼ0〜20%", "rank": "S", "prefs": ["新潟県"], "line": [[37.2, 138.32], [37.05, 138.28]]}, {"name": "櫛形山脈断層帯", "m": "6.8", "prob": "0.3〜5%", "rank": "S", "prefs": ["新潟県"], "line": [[38.05, 139.45], [37.9, 139.4]]}, {"name": "十日町断層帯（西部）", "m": "7.0", "prob": "3%以上", "rank": "S", "prefs": ["新潟県"], "line": [[37.2, 138.65], [37.05, 138.72]]}, {"name": "境峠・神谷断層帯", "m": "7.4", "prob": "0.02〜13%", "rank": "S", "prefs": ["長野県"], "line": [[36.15, 137.6], [36.0, 137.75]]}, {"name": "阿寺断層帯（主部北部）", "m": "6.9", "prob": "6〜11%", "rank": "S", "prefs": ["岐阜県", "長野県"], "line": [[35.85, 137.5], [35.6, 137.4]]}, {"name": "邑知潟断層帯", "m": "7.6", "prob": "2%", "rank": "S", "prefs": ["石川県"], "line": [[37.05, 136.85], [36.85, 136.95]]}, {"name": "三浦半島断層群（武山断層帯）", "m": "6.6以上", "prob": "6〜11%", "rank": "S", "prefs": ["神奈川県"], "line": [[35.25, 139.62], [35.18, 139.6]]}, {"name": "立川断層帯", "m": "7.4", "prob": "0.8〜4%", "rank": "A", "prefs": ["東京都", "埼玉県"], "line": [[35.78, 139.42], [35.68, 139.3]]}, {"name": "国府津－松田断層帯", "m": "7.5", "prob": "ほぼ0〜16%相当", "rank": "X", "prefs": ["神奈川県"], "line": [[35.32, 139.15], [35.25, 139.18]]}, {"name": "曽根丘陵断層帯", "m": "7.3", "prob": "1%", "rank": "A", "prefs": ["山梨県"], "line": [[35.6, 138.5], [35.55, 138.62]]}, {"name": "富士川河口断層帯", "m": "8.0", "prob": "10〜18%(参考)", "rank": "S", "prefs": ["静岡県"], "line": [[35.25, 138.62], [35.1, 138.6]]}, {"name": "奈良盆地東縁断層帯", "m": "7.4", "prob": "ほぼ0〜5%", "rank": "X", "prefs": ["奈良県"], "line": [[34.75, 135.85], [34.6, 135.84]]}, {"name": "生駒断層帯", "m": "7.0〜7.5", "prob": "ほぼ0〜0.1%", "rank": "X", "prefs": ["大阪府", "奈良県"], "line": [[34.72, 135.65], [34.6, 135.65]]}, {"name": "有馬－高槻断層帯", "m": "7.5", "prob": "ほぼ0〜0.04%", "rank": "X", "prefs": ["大阪府", "兵庫県"], "line": [[34.85, 135.4], [34.83, 135.6]]}, {"name": "六甲・淡路島断層帯（主部）", "m": "7.9", "prob": "ほぼ0〜1%", "rank": "A", "prefs": ["兵庫県"], "line": [[34.78, 135.25], [34.6, 135.05], [34.45, 134.92]]}, {"name": "山崎断層帯（主部）", "m": "7.7", "prob": "0.06〜0.1%", "rank": "A", "prefs": ["兵庫県"], "line": [[35.05, 134.5], [34.9, 134.35]]}, {"name": "琵琶湖西岸断層帯", "m": "7.1〜7.5", "prob": "1〜3%", "rank": "S", "prefs": ["滋賀県"], "line": [[35.3, 136.0], [35.15, 135.92]]}, {"name": "養老－桑名－四日市断層帯", "m": "8.0", "prob": "ほぼ0〜0.8%", "rank": "A", "prefs": ["三重県", "岐阜県"], "line": [[35.3, 136.55], [35.05, 136.62], [34.95, 136.6]]}, {"name": "黒松内低地断層帯", "m": "7.3以上", "prob": "2〜5%以下", "rank": "S", "prefs": ["北海道"], "line": [[42.7, 140.3], [42.55, 140.32]]}, {"name": "石狩低地東縁断層帯（主部）", "m": "7.9", "prob": "ほぼ0%", "rank": "Z", "prefs": ["北海道"], "line": [[43.0, 141.75], [42.7, 141.78]]}, {"name": "山形盆地断層帯", "m": "7.3", "prob": "1%", "rank": "A", "prefs": ["山形県"], "line": [[38.4, 140.35], [38.2, 140.3]]}, {"name": "庄内平野東縁断層帯", "m": "7.1", "prob": "ほぼ0〜6%", "rank": "S", "prefs": ["山形県"], "line": [[38.9, 139.9], [38.7, 139.88]]}, {"name": "新庄盆地断層帯", "m": "7.1", "prob": "5%以下", "rank": "S", "prefs": ["山形県"], "line": [[38.85, 140.3], [38.65, 140.32]]}, {"name": "長町－利府線断層帯", "m": "7.0〜7.5", "prob": "ほぼ0%", "rank": "Z", "prefs": ["宮城県"], "line": [[38.3, 140.95], [38.22, 140.9]]}, {"name": "福岡警固断層帯（南東区間）", "m": "7.2程度", "prob": "0.3〜6%", "rank": "S", "prefs": ["福岡県"], "line": [[33.6, 130.4], [33.5, 130.35]]}, {"name": "西山断層帯", "m": "7.3〜7.9", "prob": "0.003〜8%", "rank": "S", "prefs": ["福岡県"], "line": [[33.9, 130.3], [33.75, 130.25]]}, {"name": "布田川断層帯・日奈久断層帯", "m": "7.5〜8.0", "prob": "ほぼ0〜16%", "rank": "S", "prefs": ["熊本県"], "line": [[32.9, 130.9], [32.7, 130.75], [32.5, 130.6]]}, {"name": "別府－万年山断層帯", "m": "6.7〜7.6", "prob": "区間によりS〜A", "rank": "S", "prefs": ["大分県"], "line": [[33.3, 131.5], [33.25, 131.3], [33.2, 131.1]]}, {"name": "雲仙断層群", "m": "7.3前後", "prob": "ほぼ0〜4%", "rank": "S", "prefs": ["長崎県"], "line": [[32.75, 130.3], [32.73, 130.1]]}, {"name": "日向灘・宮崎沖（参考）", "m": "7前後", "prob": "高い", "rank": "S", "prefs": ["宮崎県"], "line": [[32.3, 131.7], [31.9, 131.6]]}], "troughs": [{"name": "南海トラフ（M8〜9・30年70〜80%）", "prob": "70〜80%", "prefs": ["静岡県", "愛知県", "三重県", "和歌山県", "徳島県", "高知県", "愛媛県", "大分県", "宮崎県", "兵庫県", "大阪府", "奈良県", "香川県", "岡山県", "山口県", "千葉県", "東京都", "神奈川県", "京都府", "滋賀県"], "poly": [[34.6, 138.3], [33.2, 137.3], [32.0, 134.5], [31.5, 132.0], [32.0, 131.5], [33.0, 134.0], [34.2, 136.5], [34.8, 138.0]]}, {"name": "相模トラフ（M8クラス・首都直下に関連）", "prob": "M8級は約5%等", "prefs": ["東京都", "神奈川県", "千葉県"], "poly": [[35.3, 139.3], [34.8, 140.3], [34.3, 140.0], [34.6, 139.2], [35.1, 139.1]]}, {"name": "日本海溝（東北地方太平洋沖型ほか）", "prob": "領域により高い", "prefs": ["青森県", "岩手県", "宮城県", "福島県", "茨城県", "千葉県"], "poly": [[40.8, 143.5], [38.0, 143.0], [36.5, 141.6], [37.0, 141.2], [38.5, 142.2], [40.8, 142.7]]}, {"name": "千島海溝（超巨大地震17世紀型ほか・北海道太平洋側）", "prob": "根室沖等で高い", "prefs": ["北海道"], "poly": [[43.5, 146.5], [42.3, 144.5], [41.8, 143.3], [42.6, 143.0], [43.8, 145.5]]}], "byPref": {"長野県": {"faults": [0, 1, 2, 10, 11], "troughs": []}, "新潟県": {"faults": [1, 7, 8, 9], "troughs": []}, "山梨県": {"faults": [2, 16], "troughs": []}, "奈良県": {"faults": [3, 18, 19], "troughs": [0]}, "和歌山県": {"faults": [3], "troughs": [0]}, "大阪府": {"faults": [3, 5, 19, 20], "troughs": [0]}, "徳島県": {"faults": [4], "troughs": [0]}, "香川県": {"faults": [4], "troughs": [0]}, "愛媛県": {"faults": [4], "troughs": [0]}, "石川県": {"faults": [6, 12], "troughs": []}, "岐阜県": {"faults": [11, 24], "troughs": []}, "神奈川県": {"faults": [13, 15], "troughs": [0, 1]}, "東京都": {"faults": [14], "troughs": [0, 1]}, "埼玉県": {"faults": [14], "troughs": []}, "静岡県": {"faults": [17], "troughs": [0]}, "兵庫県": {"faults": [20, 21, 22], "troughs": [0]}, "滋賀県": {"faults": [23], "troughs": [0]}, "三重県": {"faults": [24], "troughs": [0]}, "北海道": {"faults": [25, 26], "troughs": [3]}, "山形県": {"faults": [27, 28, 29], "troughs": []}, "宮城県": {"faults": [30], "troughs": [2]}, "福岡県": {"faults": [31, 32], "troughs": []}, "熊本県": {"faults": [33], "troughs": []}, "大分県": {"faults": [34], "troughs": [0]}, "長崎県": {"faults": [35], "troughs": []}, "宮崎県": {"faults": [36], "troughs": [0]}, "愛知県": {"faults": [], "troughs": [0]}, "高知県": {"faults": [], "troughs": [0]}, "岡山県": {"faults": [], "troughs": [0]}, "山口県": {"faults": [], "troughs": [0]}, "千葉県": {"faults": [], "troughs": [0, 1, 2]}, "京都府": {"faults": [], "troughs": [0]}, "青森県": {"faults": [], "troughs": [2]}, "岩手県": {"faults": [], "troughs": [2]}, "福島県": {"faults": [], "troughs": [2]}, "茨城県": {"faults": [], "troughs": [2]}}, "center": {"北海道": [43.06, 141.35], "青森県": [40.82, 140.74], "岩手県": [39.7, 141.15], "宮城県": [38.27, 140.87], "秋田県": [39.72, 140.1], "山形県": [38.24, 140.36], "福島県": [37.75, 140.47], "茨城県": [36.34, 140.45], "栃木県": [36.57, 139.88], "群馬県": [36.39, 139.06], "埼玉県": [35.86, 139.65], "千葉県": [35.6, 140.12], "東京都": [35.69, 139.69], "神奈川県": [35.45, 139.64], "新潟県": [37.9, 139.02], "富山県": [36.7, 137.21], "石川県": [36.59, 136.63], "福井県": [36.07, 136.22], "山梨県": [35.66, 138.57], "長野県": [36.65, 138.18], "岐阜県": [35.39, 136.72], "静岡県": [34.98, 138.38], "愛知県": [35.18, 136.91], "三重県": [34.73, 136.51], "滋賀県": [35.0, 135.87], "京都府": [35.02, 135.76], "大阪府": [34.69, 135.52], "兵庫県": [34.69, 135.18], "奈良県": [34.69, 135.83], "和歌山県": [34.23, 135.17], "鳥取県": [35.5, 134.24], "島根県": [35.47, 133.05], "岡山県": [34.66, 133.93], "広島県": [34.4, 132.46], "山口県": [34.19, 131.47], "徳島県": [34.07, 134.56], "香川県": [34.34, 134.04], "愛媛県": [33.84, 132.77], "高知県": [33.56, 133.53], "福岡県": [33.61, 130.42], "佐賀県": [33.25, 130.3], "長崎県": [32.74, 129.87], "熊本県": [32.79, 130.74], "大分県": [33.24, 131.61], "宮崎県": [31.91, 131.42], "鹿児島県": [31.56, 130.56], "沖縄県": [26.21, 127.68]}};
+
+const RANKCOL = {S:'#ff3b3b',A:'#ff9a3c',Z:'#5a93d6',X:'#c46bff'};
+const RANKLABEL = {S:'高い',A:'中程度',Z:'低い',X:'不明'};
+
+/* ==================== ランキングデータ準備 ==================== */
+const sorted = [...PREF_DATA].sort((a,b)=>b.prob-a.prob);
+const rankOf = {};
+sorted.forEach((d,i)=>rankOf[d.pref]=i+1);
+
+function levelOf(p){
+  if(p>=50) return {key:'crit', c:'var(--crit)', label:'極めて高い', cap:'最優先で耐震・備蓄を'};
+  if(p>=26) return {key:'high', c:'var(--high)', label:'高い',       cap:'約100年に1回以上の頻度'};
+  if(p>=6)  return {key:'mid',  c:'var(--mid)',  label:'中程度',     cap:'油断できない水準'};
+  if(p>=3)  return {key:'low',  c:'var(--low)',  label:'低め',       cap:'低くても備えは必要'};
+  return           {key:'vlow', c:'var(--vlow)', label:'相対的に低い', cap:'確率は低いが油断は禁物'};
+}
+function freqText(p){
+  if(p<=0) return '';
+  const r = -Math.log(1-p/100)/30;
+  const T = Math.round(1/r);
+  if(T<=120) return `約${Math.round(T/10)*10}年に1回程度`;
+  if(T<=1200) return `約${Math.round(T/50)*50}年に1回程度`;
+  return `約${Math.round(T/500)*500}年に1回程度`;
+}
+function fmtProb(p){ return (Math.round(p)===p)?String(p):p.toFixed(1); }
+
+/* ==================== セレクター構築 ==================== */
+const prefSel = document.getElementById('pref');
+PREF_DATA.forEach(d=>{
+  const o=document.createElement('option'); o.value=d.pref; o.textContent=d.pref; prefSel.appendChild(o);
+});
+
+/* ==================== マップ ==================== */
+let map, mapLayers=[];
+function clearMapLayers(){ mapLayers.forEach(l=>map.removeLayer(l)); mapLayers=[]; }
+
+function initMap(){
+  map = L.map('map',{zoomControl:true,scrollWheelZoom:false}).setView([36,138],5);
+  L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png',{
+    attribution:"地理院タイル", maxZoom:14
+  }).addTo(map);
+}
+
+/* ==================== 状態 ==================== */
+let currentPref='', showAll=false;
+
+prefSel.addEventListener('change', ()=>{
+  currentPref = prefSel.value;
+  if(!currentPref){ document.getElementById('result').classList.remove('show'); return; }
+  showAll = false;
+  document.getElementById('result').classList.add('show');
+  renderSummary();
+  renderRank();
+  // マップ初期化後にrenderMap
+  if(!map) initMap();
+  setTimeout(()=>{ map.invalidateSize(); renderMap(currentPref); }, 80);
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+});
+
+document.getElementById('rankToggle').addEventListener('click', ()=>{
+  showAll = !showAll;
+  renderRank();
+});
+
+/* ==================== サマリー描画 ==================== */
+function renderSummary(){
+  const d = PREF_DATA.find(x=>x.pref===currentPref);
+  const lv = levelOf(d.prob);
+  const rank = rankOf[currentPref];
+  const idx = MAP_DATA.byPref[currentPref]||{faults:[],troughs:[]};
+
+  document.getElementById('rPref').textContent = d.pref;
+  document.getElementById('rRank').textContent = rank;
+  document.getElementById('rProb').innerHTML = fmtProb(d.prob)+'<span class="unit">%</span>';
+  document.getElementById('rProb').style.color = lv.c;
+
+  const meter = document.getElementById('rMeter');
+  meter.style.background = lv.c;
+  meter.style.width = '0%';
+  requestAnimationFrame(()=>{ setTimeout(()=>{ meter.style.width = Math.min(100,d.prob)+'%'; }, 60); });
+
+  const pill = document.getElementById('rPill');
+  pill.textContent = '危険度：'+lv.label;
+  pill.style.background = lv.c;
+  pill.style.color = (lv.key==='mid')?'#1a1200':'#fff';
+
+  document.getElementById('rFreq').innerHTML =
+    `この確率は、おおよそ <b>${freqText(d.prob)}</b> 震度6弱以上の揺れに見舞われる計算です。${lv.cap}。`;
+
+  document.getElementById('sFault').textContent = (idx.faults||[]).length+'件';
+  document.getElementById('sTrough').textContent = (idx.troughs||[]).length+'件';
+  const sLevel = document.getElementById('sLevel');
+  sLevel.textContent = lv.label;
+  sLevel.style.color = lv.c;
+
+  // 北海道補足
+  const hk = document.getElementById('hkBox');
+  if(currentPref==='北海道'){
+    let rows = Object.entries(HOKKAIDO_DETAIL).map(([k,v])=>
+      `<div class="hkrow"><span>${k}</span><span>${fmtProb(v)}%</span></div>`).join('');
+    hk.innerHTML = `<b>北海道は地域差が大きい地域です。</b>上の値は札幌市（石狩振興局）のものです。道内では太平洋側（千島海溝沿い）で極めて高くなります。<div style="margin-top:8px;">${rows}</div>`;
+    hk.classList.add('show');
+  } else {
+    hk.classList.remove('show');
+  }
+}
+
+/* ==================== ランキング描画 ==================== */
+function renderRank(){
+  const list = document.getElementById('rankList');
+  const title = document.getElementById('rankTitle');
+  const toggle = document.getElementById('rankToggle');
+  const myRank = rankOf[currentPref];
+
+  let display;
+  if(showAll){
+    display = sorted.map((d,i)=>({...d,rank:i+1}));
+    title.textContent = '// 全国ランキング（47都道府県）';
+    toggle.textContent = '上位+周辺のみ';
+  } else {
+    const idxs = new Set([0,1,2,3,4]);
+    const mi = myRank-1;
+    [mi-2,mi-1,mi,mi+1,mi+2].forEach(i=>{ if(i>=0&&i<sorted.length) idxs.add(i); });
+    display = [...idxs].sort((a,b)=>a-b).map(i=>({...sorted[i],rank:i+1}));
+    title.textContent = '// 上位5県とあなたの周辺';
+    toggle.textContent = '全国を表示';
+  }
+
+  let html=''; let prevRank=0;
+  display.forEach(d=>{
+    if(prevRank && d.rank-prevRank>1){
+      html+=`<div class="row" style="opacity:.4;justify-content:center;"><span class="nm" style="text-align:center;font-family:var(--mono);font-size:12px;">···</span></div>`;
+    }
+    const lv=levelOf(d.prob);
+    const me=(d.pref===currentPref)?' me':'';
+    html+=`<div class="row${me}">
+      <span class="rk">${d.rank}</span>
+      <span class="nm">${d.pref}</span>
+      <span class="bar"><i style="width:${Math.min(100,d.prob)}%;background:${lv.c};"></i></span>
+      <span class="pv" style="color:${lv.c};">${fmtProb(d.prob)}%</span>
+    </div>`;
+    prevRank=d.rank;
+  });
+  list.innerHTML=html;
+}
+
+/* ==================== マップ描画 ==================== */
+function renderMap(pref){
+  clearMapLayers();
+  const idx = MAP_DATA.byPref[pref]||{faults:[],troughs:[]};
+  const fIds=idx.faults||[], tIds=idx.troughs||[];
+  let allpts=[];
+
+  // 海溝型ポリゴン
+  tIds.forEach(i=>{
+    const t=MAP_DATA.troughs[i];
+    const poly=L.polygon(t.poly,{color:'#ff5c8a',weight:1.5,fillColor:'#ff5c8a',fillOpacity:.15,dashArray:'4 4'}).addTo(map);
+    poly.bindPopup('<b>'+t.name+'</b><br>想定: '+t.prob);
+    mapLayers.push(poly); allpts=allpts.concat(t.poly);
+  });
+
+  // 活断層ライン
+  fIds.forEach(i=>{
+    const f=MAP_DATA.faults[i];
+    const col=RANKCOL[f.rank]||'#888';
+    const ln=L.polyline(f.line,{color:col,weight:5,opacity:.9}).addTo(map);
+    ln.bindPopup('<b>'+f.name+'</b><br>想定M'+f.m+'／30年確率 '+f.prob+'<br>評価ランク: '+f.rank+'（'+(RANKLABEL[f.rank]||'')+'）');
+    mapLayers.push(ln); allpts=allpts.concat(f.line);
+  });
+
+  // 県中心マーカー
+  const c=MAP_DATA.center[pref]||[36,138];
+  const mk=L.circleMarker(c,{radius:7,color:'#39d0d8',weight:2,fillColor:'#39d0d8',fillOpacity:.5}).addTo(map);
+  mk.bindPopup('<b>'+pref+'</b><br>30年以内に震度6弱以上: '+fmtProb(MAP_DATA.prob[pref]||0)+'%');
+  mapLayers.push(mk); allpts.push(c);
+
+  if(allpts.length){
+    map.fitBounds(L.latLngBounds(allpts).pad(0.25),{maxZoom:9});
+  } else {
+    map.setView(c,8);
+  }
+
+  // 海溝型リスト
+  const tSec=document.getElementById('troughSec');
+  const tList=document.getElementById('troughList');
+  if(tIds.length){
+    tSec.style.display='block';
+    tList.innerHTML=tIds.map(i=>{
+      const t=MAP_DATA.troughs[i];
+      return '<div class="fitem"><span class="rk2" style="background:#ff5c8a;">海</span>'
+        +'<span class="nm">'+t.name+'</span><span class="pv2">'+t.prob+'</span></div>';
+    }).join('');
+  } else { tSec.style.display='none'; }
+
+  // 活断層リスト（ランク順）
+  const order={S:0,A:1,X:2,Z:3};
+  const sortedF=[...fIds].sort((a,b)=>(order[MAP_DATA.faults[a].rank]??9)-(order[MAP_DATA.faults[b].rank]??9));
+  document.getElementById('faultList').innerHTML = sortedF.length ? sortedF.map(i=>{
+    const f=MAP_DATA.faults[i]; const col=RANKCOL[f.rank]||'#888';
+    return '<div class="fitem" data-fk="'+i+'"><span class="rk2" style="background:'+col+';">'+f.rank+'</span>'
+      +'<span class="nm">'+f.name+'<small>想定M'+f.m+'</small></span>'
+      +'<span class="pv2">30年<br>'+f.prob+'</span></div>';
+  }).join('') : '<div class="fitem" style="cursor:default;color:var(--muted);">この県には主要活断層帯の登録がありません（海溝型のみ、または評価対象外）。</div>';
+
+  // クリックでジャンプ
+  document.querySelectorAll('[data-fk]').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const f=MAP_DATA.faults[+el.dataset.fk];
+      map.setView(f.line[Math.floor(f.line.length/2)],9);
+    });
+  });
+}
+
+/* ==================== 免責事項アコーディオン ==================== */
+document.getElementById('disclHead').addEventListener('click', ()=>{
+  const head = document.getElementById('disclHead');
+  const body = document.getElementById('disclBody');
+  const isOpen = body.classList.contains('open');
+  head.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+});
+
+var DWA_TITLE = '地震リスク統合診断ツール';
+var DWA_DESC  = '都道府県を選ぶだけで、30年以内に震度6弱以上の揺れに見舞われる確率・全国順位・周辺の活断層がわかります。';
+
+/* 診断結果を文章にする */
+function dwaBuildResultText(){
+  var pr = document.getElementById('rPref');
+  if(!pr || !pr.textContent || pr.textContent.trim() === '―') return '';
+  function g(id){
+    var e = document.getElementById(id);
+    return e ? e.textContent.trim() : '―';
+  }
+  var t = '【地震リスク統合診断】' + g('rPref') + '\n';
+  t += '・30年以内に震度6弱以上: ' + g('rProb') + '\n';
+  t += '・全国順位: ' + g('rRank') + '\n';
+  var fq = g('rFreq');
+  if(fq && fq !== '―') t += '・目安: ' + fq + '\n';
+  var lv = g('sLevel');
+  if(lv && lv !== '―') t += '・リスク区分: ' + lv + '\n';
+  var ft = g('sFault');
+  if(ft && ft !== '―') t += '・周辺の活断層: ' + ft + '\n';
+  var tr = g('sTrough');
+  if(tr && tr !== '―') t += '・海溝型地震: ' + tr + '\n';
+  return t;
+}
+
+/* 地図の配色を表示モードに合わせる */
+var dwaTileLight = null, dwaTileDark = null;
+function dwaOnThemeChange(light){
+  try{
+    var el = document.getElementById('map');
+    if(el) el.style.filter = light ? 'none'
+      : 'invert(1) hue-rotate(180deg) brightness(.9) contrast(1.05) saturate(.6)';
+  }catch(e){}
+}
+
+/* ============================================================
+   共通UI
+   ============================================================ */
+/* ---- 表示モード ---- */
+function dwaApplyTheme(light){
+  document.documentElement.classList.toggle('dwa-light', light);
+  var ic = document.getElementById('dwaThemeIcon');
+  var lb = document.getElementById('dwaThemeLabel');
+  if(ic) ic.textContent = light ? '🌙' : '☀️';
+  if(lb) lb.textContent = light ? 'ダークモードにする' : 'ライトモードにする';
+}
+function dwaToggleTheme(){
+  var light = !document.documentElement.classList.contains('dwa-light');
+  dwaApplyTheme(light);
+  try{ localStorage.setItem('dwaTheme', light ? 'light' : 'dark'); }catch(e){}
+  if(typeof dwaOnThemeChange === 'function') dwaOnThemeChange(light);
+}
+
+/* ---- 表示サイズ ---- */
+function dwaSetScale(v){
+  document.documentElement.style.setProperty('--dwa-scale', v);
+  try{ localStorage.setItem('dwaScale', String(v)); }catch(e){}
+  var btns = document.querySelectorAll('.dwa-size');
+  for(var i=0;i<btns.length;i++){
+    btns[i].classList.toggle('on', parseFloat(btns[i].getAttribute('data-scale')) === v);
+  }
+  if(typeof dwaOnScaleChange === 'function') dwaOnScaleChange(v);
+}
+
+/* ---- メニュー ---- */
+function dwaOpenMenu(){ document.getElementById('dwaOv').classList.add('open'); document.body.style.overflow='hidden'; }
+function dwaCloseMenu(){ document.getElementById('dwaOv').classList.remove('open'); document.body.style.overflow=''; }
+function dwaOpenHelp(){ dwaCloseMenu(); document.getElementById('dwaHelp').classList.add('open'); }
+function dwaOpenPrivacy(){ dwaCloseMenu(); document.getElementById('dwaPriv').classList.add('open'); }
+function dwaCloseModal(id){ document.getElementById(id).classList.remove('open'); }
+
+document.addEventListener('keydown', function(e){
+  if(e.key !== 'Escape') return;
+  dwaCloseMenu();
+  dwaCloseModal('dwaHelp');
+  dwaCloseModal('dwaPriv');
+});
+
+/* ---- お知らせ表示 ---- */
+function dwaToast(msg){
+  var t = document.getElementById('dwaToast');
+  if(!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tm);
+  t._tm = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
+
+/* ---- コピーと共有 ---- */
+function dwaCopy(text, done){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text)
+      .then(function(){ dwaToast(done || 'コピーしました'); })
+      .catch(function(){ dwaCopyFallback(text, done); });
+  }else{
+    dwaCopyFallback(text, done);
+  }
+}
+function dwaCopyFallback(text, done){
+  try{
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    dwaToast(done || 'コピーしました');
+  }catch(e){
+    prompt('以下をコピーしてください', text);
+  }
+}
+
+/* ツール自体を共有する */
+function dwaShare(){
+  dwaCloseMenu();
+  var url = location.href.split('#')[0];
+  var text = DWA_TITLE + '｜DWA防災情報センター\n' + DWA_DESC + '\n';
+  if(navigator.share){
+    navigator.share({ title: DWA_TITLE, text: text, url: url }).catch(function(){});
+    return;
+  }
+  dwaCopy(text + url, '共有メッセージをコピーしました');
+}
+
+/* 診断結果を共有する */
+function dwaShareResult(){
+  var body = (typeof dwaBuildResultText === 'function') ? dwaBuildResultText() : '';
+  if(!body){ dwaToast('先に都道府県を選んでください'); return; }
+  var url = location.href.split('#')[0];
+  var text = body + '\n' + DWA_TITLE + '｜DWA防災情報センター\n';
+  if(navigator.share){
+    navigator.share({ title: DWA_TITLE, text: text, url: url }).catch(function(){});
+    return;
+  }
+  dwaCopy(text + url, '診断結果をコピーしました');
+}
+
+/* 診断結果をコピーする */
+function dwaCopyResult(){
+  var body = (typeof dwaBuildResultText === 'function') ? dwaBuildResultText() : '';
+  if(!body){ dwaToast('先に都道府県を選んでください'); return; }
+  dwaCopy(body + '\n' + DWA_TITLE + '｜DWA防災情報センター\n' + location.href.split('#')[0],
+          '診断結果をコピーしました');
+}
+
+/* ---- 起動時の復元 ---- */
+(function(){
+  var th = null, sc = null;
+  try{ th = localStorage.getItem('dwaTheme'); sc = localStorage.getItem('dwaScale'); }catch(e){}
+  dwaApplyTheme(th === 'light');
+  dwaSetScale(sc ? parseFloat(sc) : 1);
+})();
+
+</script>
+
+<div class="dwa-ov" id="dwaOv" onclick="if(event.target===this)dwaCloseMenu()">
+  <div class="dwa-panel">
+    <button class="dwa-close" onclick="dwaCloseMenu()" aria-label="閉じる">✕</button>
+    <h3>メニュー</h3>
+    <div class="sub">DWA防災情報センター</div>
+
+    <div class="dwa-sec">// 表示</div>
+    <button type="button" class="dwa-item" onclick="dwaToggleTheme()">
+      <span id="dwaThemeIcon">🌙</span><span id="dwaThemeLabel">ダークモード</span>
+    </button>
+    <div class="dwa-sec">// 表示サイズ</div>
+    <div class="dwa-sizes">
+      <button type="button" class="dwa-size" data-scale="0.9" onclick="dwaSetScale(0.9)"><span class="s">小</span><span class="l">90%</span></button>
+      <button type="button" class="dwa-size" data-scale="1" onclick="dwaSetScale(1)"><span class="s">標準</span><span class="l">100%</span></button>
+      <button type="button" class="dwa-size" data-scale="1.15" onclick="dwaSetScale(1.15)"><span class="s">大</span><span class="l">115%</span></button>
+      <button type="button" class="dwa-size" data-scale="1.3" onclick="dwaSetScale(1.3)"><span class="s">特大</span><span class="l">130%</span></button>
+    </div>
+
+    <div class="dwa-sec">// このツールについて</div>
+    <button type="button" class="dwa-item" onclick="dwaOpenHelp()">📖 取扱説明・使い方</button>
+    <button type="button" class="dwa-item" onclick="dwaOpenPrivacy()">🔒 プライバシーポリシー</button>
+    <button type="button" class="dwa-item" onclick="dwaShare()">📤 このツールを共有する</button>
+
+    <div class="dwa-sec">// 他のツール</div>
+    <a class="dwa-item" href="jishin-higai.html">🗾 地震被害想定ツール（都道府県別）</a>
+    <a class="dwa-item" href="earthquake-map.html">🌍 グローバル地震マップ</a>
+    <a class="dwa-item" href="index.html">🏠 防災情報センター トップ</a>
+  </div>
+</div>
+
+<div class="dwa-modal" id="dwaHelp" onclick="if(event.target===this)dwaCloseModal('dwaHelp')">
+  <div class="dwa-modal-in">
+    <button class="dwa-close" onclick="dwaCloseModal('dwaHelp')" aria-label="閉じる">✕</button>
+    <h3>📖 取扱説明・使い方</h3>
+    
+<h4>このツールでわかること</h4>
+<p>都道府県を選ぶだけで、その地域の地震リスクを4つの角度から確認できます。</p>
+<ul>
+  <li><b>30年以内に震度6弱以上の揺れに見舞われる確率</b>（全国地震動予測地図より）</li>
+  <li><b>全国47都道府県のなかでの順位</b></li>
+  <li><b>周辺の活断層</b>の名称・想定規模・発生確率</li>
+  <li><b>海溝型地震</b>の想定</li>
+</ul>
+<h4>使い方</h4>
+<ul>
+  <li>上部の<b>都道府県を選ぶ</b>と、すぐに結果が出ます</li>
+  <li>地図には<b>活断層と想定震源域</b>が表示されます。線や範囲をタップすると詳しい情報が出ます</li>
+  <li>「全国ランキングを見る」で47都道府県の一覧を開けます</li>
+  <li><b>📋 結果をコピー</b>で診断内容を文章として書き出せます。家族への共有やメモにお使いください</li>
+</ul>
+<h4>確率の読み方</h4>
+<p>「30年以内に26%」とは、<b>30年のあいだに4回に1回ほどの割合で、震度6弱以上の揺れが起きうる</b>という意味です。
+交通事故にあう確率（30年で約24%）とほぼ同じ水準だと考えると、実感しやすいかもしれません。</p>
+<p>確率が低い地域でも、<b>地震が起きないわけではありません</b>。
+2016年の熊本地震や2024年の能登半島地震のように、
+事前の確率評価が高くなかった地域で大きな地震が起きた例は何度もあります。</p>
+<h4>表示の調整</h4>
+<p>メニューから<b>ライト／ダークの切替</b>と<b>文字の大きさ</b>（小・標準・大・特大）を変更できます。
+設定は次回も引き継がれます。</p>
+
+    <div class="note">
+      数値は国や自治体が公表している想定・評価にもとづく概算です。
+      実際の被害は、地震の起こり方、季節、時刻、天候、建物の状態によって大きく変わります。
+      防災のご判断は、お住まいの自治体の公式情報とあわせてご確認ください。
+    </div>
+  </div>
+</div>
+
+<div class="dwa-modal" id="dwaPriv" onclick="if(event.target===this)dwaCloseModal('dwaPriv')">
+  <div class="dwa-modal-in">
+    <button class="dwa-close" onclick="dwaCloseModal('dwaPriv')" aria-label="閉じる">✕</button>
+    <h3>🔒 プライバシーポリシー</h3>
+    <h4>収集する情報</h4>
+    <p>このツールは、入力・選択された内容を<b>外部へ送信しません</b>。
+    すべての計算と表示は、お使いの端末のブラウザの中だけで行われます。
+    選んだ都道府県や診断結果が、運営者を含む第三者に渡ることはありません。</p>
+    <h4>端末への保存</h4>
+    <p>次の2つだけを、お使いのブラウザに保存します。見た目の設定のみで、個人を識別する情報は含みません。</p>
+    <ul>
+      <li>表示モード（ライト／ダーク）の選択</li>
+      <li>表示サイズ（文字の大きさ）の選択</li>
+    </ul>
+    <p>ブラウザの設定から閲覧データを削除すると、これらも消去されます。</p>
+    <h4>外部サービス</h4>
+    <p>地図の表示に、国土地理院の地図タイル（cyberjapandata.gsi.go.jp）と、地図表示ライブラリ Leaflet（cdnjs.cloudflare.com）を利用しています。これらの読み込みにあたり、接続元のIPアドレスなど一般的な通信記録が各提供元に残る場合があります。選択した都道府県や診断結果が送信されることはありません。</p>
+    <h4>アクセス解析・広告</h4>
+    <p>このツール単体では、アクセス解析や広告配信は行っていません。</p>
+    <div class="note">
+      運営：DWA防災情報センター<br>
+      お問い合わせは<a href="index.html" style="color:var(--accent)">トップページ</a>のメニューからお願いします。
+    </div>
+  </div>
+</div>
+
+<div class="dwa-toast" id="dwaToast"></div>
+
+</body>
+</html>

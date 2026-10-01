@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="都道府県を選ぶだけで、その地域で想定される主要地震の規模・死者数・建物被害・経済損失・発生確率がわかる被害想定ツール。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="地震被害想定ツール｜DWA防災情報センター">
+<meta property="og:description" content="都道府県別に、想定される地震の被害規模と発生確率を表示します。">
+<meta property="og:site_name" content="DWA防災情報センター">
+<meta name="twitter:card" content="summary">
+<title>地震被害想定ツール｜都道府県別・主要地震ランキング</title>
+<style>
+:root{
+  --bg:#0b0f14;--panel:#121821;--panel2:#0e141c;--line:#1f2c3a;
+  --ink:#e8eef5;--muted:#8499ad;--grid:#16202c;
+  --crit:#ff3b3b;--high:#ff7a2e;--mid:#ffc94d;--low:#3fb6a8;--vlow:#3a7bd5;
+  --accent:#39d0d8;--r:14px;
+  --mono:"DIN Alternate","Bahnschrift","Roboto Mono",ui-monospace,monospace;
+  --sans:"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
+html,body{min-height:100vh;}
+body{
+  background:radial-gradient(900px 420px at 50% -8%,#14283b 0%,transparent 60%),var(--bg);
+  color:var(--ink);font-family:var(--sans);line-height:1.7;
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+}
+.wrap{max-width:780px;margin:0 auto;padding:28px 16px 100px;}
+
+/* ── ヘッダー ── */
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.24em;color:var(--accent);
+  text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:9px;}
+.eyebrow::before{content:"";width:26px;height:1px;background:var(--accent);}
+.hero h1{font-size:25px;font-weight:800;line-height:1.4;margin-bottom:8px;}
+.hero h1 b{color:var(--accent);}
+.hero p{font-size:13px;color:var(--muted);margin-bottom:24px;}
+
+/* ── カード / セレクター ── */
+.card{background:linear-gradient(180deg,var(--panel),var(--panel2));
+  border:1px solid var(--line);border-radius:var(--r);padding:18px 16px;margin-bottom:16px;}
+.card-h{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--muted);
+  margin-bottom:12px;text-transform:uppercase;}
+.select-wrap{position:relative;}
+.select-wrap::after{content:"▾";position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  color:var(--accent);pointer-events:none;}
+select{width:100%;padding:13px 12px;border-radius:11px;background:var(--bg);
+  border:1px solid var(--line);color:var(--ink);font-family:inherit;font-size:16px;
+  appearance:none;cursor:pointer;}
+select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(57,208,216,.15);}
+
+/* ── 結果エリア ── */
+#result{display:none;}
+#result.show{display:block;animation:fadeUp .35s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+
+/* ── セクション区切り ── */
+.sec-label{display:flex;align-items:center;gap:10px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--accent);
+  text-transform:uppercase;margin:24px 0 12px;}
+.sec-label::after{content:"";flex:1;height:1px;
+  background:linear-gradient(90deg,rgba(57,208,216,.5) 0%,transparent 100%);}
+.sec-num{width:22px;height:22px;border-radius:6px;background:rgba(57,208,216,.12);
+  border:1px solid rgba(57,208,216,.3);display:grid;place-items:center;
+  font-size:11px;font-weight:700;flex:none;color:var(--accent);}
+
+/* ── 県サマリー ── */
+.pref-banner{
+  background:linear-gradient(135deg,var(--panel) 0%,#0d1620 100%);
+  border:1px solid var(--line);border-radius:var(--r);padding:20px 18px;
+  margin-bottom:16px;position:relative;overflow:hidden;
+}
+.pref-banner::before{content:"";position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg,transparent,transparent 40px,var(--grid) 40px,var(--grid) 41px);
+  opacity:.4;pointer-events:none;}
+.pref-name{font-size:24px;font-weight:800;position:relative;z-index:1;}
+.pref-sub{font-size:12px;color:var(--muted);margin-top:3px;position:relative;z-index:1;}
+.pref-stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;position:relative;z-index:1;}
+.ps-item{flex:1;min-width:110px;background:rgba(10,14,19,.6);border:1px solid var(--line);
+  border-radius:10px;padding:10px 12px;}
+.ps-k{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;}
+.ps-v{font-size:18px;font-weight:800;margin-top:2px;}
+
+/* ── 地震ランキングカード ── */
+.eq-list{display:flex;flex-direction:column;gap:12px;}
+.eq-card{
+  background:linear-gradient(180deg,var(--panel),var(--panel2));
+  border:1px solid var(--line);border-radius:var(--r);
+  overflow:hidden;cursor:pointer;transition:border-color .2s,transform .15s;
+  user-select:none;
+}
+.eq-card:active{transform:scale(.99);}
+.eq-card:hover{border-color:rgba(57,208,216,.35);}
+.eq-card-head{display:flex;align-items:center;gap:13px;padding:16px 16px;}
+.eq-rank-badge{
+  width:40px;height:40px;border-radius:10px;
+  display:grid;place-items:center;flex:none;
+  font-family:var(--mono);font-size:18px;font-weight:800;color:#0b0f14;
+}
+.eq-info{flex:1;min-width:0;}
+.eq-name{font-size:15px;font-weight:700;line-height:1.3;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;}
+.eq-mag{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:2px;}
+.eq-prob-badge{font-family:var(--mono);font-size:13px;font-weight:700;
+  padding:4px 10px;border-radius:999px;flex:none;border:1px solid;}
+.eq-arrow{font-size:14px;color:var(--muted);flex:none;transition:transform .25s;}
+.eq-card.open .eq-arrow{transform:rotate(180deg);}
+
+/* 被害サマリー行（カード内） */
+.eq-damage-bar{
+  display:flex;gap:0;border-top:1px solid var(--line);
+  background:rgba(10,14,19,.5);
+}
+.eq-db-item{flex:1;padding:8px 6px;text-align:center;border-right:1px solid var(--line);}
+.eq-db-item:last-child{border-right:none;}
+.eq-db-k{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.05em;line-height:1.2;}
+.eq-db-v{font-family:var(--mono);font-size:12px;font-weight:700;margin-top:2px;}
+
+/* タップ誘導 */
+.eq-tap-hint{
+  text-align:center;font-family:var(--mono);font-size:11px;color:var(--accent);
+  padding:8px;border-top:1px dashed rgba(57,208,216,.2);
+  background:rgba(57,208,216,.04);letter-spacing:.1em;
+}
+
+/* ── オーバーレイ ── */
+.overlay{
+  position:fixed;inset:0;z-index:1000;
+  background:rgba(5,8,12,.85);backdrop-filter:blur(6px);
+  display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.overlay.show{opacity:1;pointer-events:auto;}
+.overlay-sheet{
+  width:100%;max-width:780px;max-height:92dvh;
+  background:var(--panel);border-radius:20px 20px 0 0;
+  border:1px solid var(--line);border-bottom:none;
+  overflow-y:auto;overscroll-behavior:contain;
+  transform:translateY(40px);transition:transform .28s cubic-bezier(.2,.8,.2,1);
+}
+.overlay.show .overlay-sheet{transform:translateY(0);}
+.ov-handle{width:36px;height:4px;border-radius:2px;background:var(--line);
+  margin:12px auto 0;}
+.ov-head{padding:18px 18px 14px;border-bottom:1px solid var(--line);
+  position:sticky;top:0;background:var(--panel);z-index:2;}
+.ov-close{position:absolute;top:14px;right:16px;width:30px;height:30px;
+  border-radius:8px;background:var(--panel2);border:1px solid var(--line);
+  display:grid;place-items:center;cursor:pointer;font-size:14px;color:var(--muted);}
+.ov-close:hover{border-color:var(--accent);color:var(--ink);}
+.ov-rank-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.ov-rank-badge{width:36px;height:36px;border-radius:9px;
+  display:grid;place-items:center;font-family:var(--mono);font-size:16px;font-weight:800;color:#0b0f14;}
+.ov-title{font-size:18px;font-weight:800;line-height:1.35;}
+.ov-sub{font-size:12px;color:var(--muted);}
+.ov-body{padding:18px;}
+
+/* 被害想定グリッド */
+.damage-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.dg-item{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px 13px;}
+.dg-item.full{grid-column:1/-1;}
+.dg-icon{font-size:18px;margin-bottom:6px;}
+.dg-k{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;line-height:1.4;}
+.dg-v{font-size:20px;font-weight:800;margin-top:4px;line-height:1.2;}
+.dg-v .unit{font-size:13px;font-weight:400;color:var(--muted);margin-left:3px;}
+.dg-note{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5;}
+.dg-sub{font-size:12px;color:var(--muted);margin-top:3px;}
+
+/* 詳細テーブル */
+.detail-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:14px;}
+.detail-table th{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--muted);
+  text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);font-weight:400;}
+.detail-table td{padding:9px 10px;border-bottom:1px solid rgba(31,44,58,.7);vertical-align:top;}
+.detail-table tr:last-child td{border-bottom:none;}
+.detail-table .val{font-family:var(--mono);font-weight:700;text-align:right;}
+
+/* シナリオ・条件 */
+.scenario-box{background:rgba(57,208,216,.05);border:1px solid rgba(57,208,216,.18);
+  border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--muted);line-height:1.7;}
+.scenario-box b{color:var(--ink);}
+
+/* 出典バッジ */
+.src-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.src-badge{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:999px;
+  background:rgba(57,208,216,.08);border:1px solid rgba(57,208,216,.2);color:var(--accent);
+  letter-spacing:.05em;}
+.src-text{font-size:11px;color:var(--muted);line-height:1.7;}
+
+/* 免責（オーバーレイ内） */
+.disclaimer-mini{
+  margin-top:16px;padding:11px 13px;font-size:11px;color:var(--muted);line-height:1.7;
+  background:rgba(255,59,59,.05);border:1px solid rgba(255,59,59,.18);border-radius:9px;
+}
+.disclaimer-mini b{color:#ff3b3b;}
+
+/* 免責事項アコーディオン（ページ下部） */
+.disclaimer-wrap{
+  margin-top:24px;border:1px solid var(--line);border-radius:var(--r);
+  background:var(--panel2);overflow:hidden;
+}
+.disclaimer-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 16px;cursor:pointer;user-select:none;
+  border-bottom:1px solid transparent;transition:border-color .2s;
+}
+.disclaimer-head:hover{background:rgba(57,208,216,.04);}
+.disclaimer-head.open{border-bottom-color:var(--line);}
+.disclaimer-head-left{display:flex;align-items:center;gap:10px;}
+.disclaimer-icon{
+  width:20px;height:20px;border-radius:5px;background:rgba(255,122,46,.15);
+  border:1px solid rgba(255,122,46,.4);display:grid;place-items:center;flex:none;
+  font-size:11px;color:#ff7a2e;font-family:var(--mono);font-weight:700;
+}
+.disclaimer-title{font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+  color:var(--muted);text-transform:uppercase;}
+.disclaimer-arrow{font-size:12px;color:var(--muted);transition:transform .25s;}
+.disclaimer-head.open .disclaimer-arrow{transform:rotate(180deg);}
+.disclaimer-body{display:none;padding:16px;}
+.disclaimer-body.open{display:block;}
+.disclaimer-lead{
+  font-size:12px;color:var(--ink);line-height:1.75;
+  padding:10px 13px;background:rgba(255,122,46,.07);
+  border:1px solid rgba(255,122,46,.2);border-radius:9px;margin-bottom:14px;
+}
+.disclaimer-items{display:flex;flex-direction:column;gap:10px;}
+.disclaimer-item{font-size:11.5px;color:var(--muted);line-height:1.75;
+  padding-left:13px;border-left:2px solid var(--line);}
+.disclaimer-item b{color:var(--ink);}
+.disclaimer-item.warn{border-left-color:rgba(255,122,46,.5);}
+.disclaimer-footer{
+  margin-top:14px;padding:11px 13px;
+  background:rgba(255,59,59,.06);border:1px solid rgba(255,59,59,.2);border-radius:9px;
+  font-size:11.5px;color:var(--muted);line-height:1.75;
+}
+.disclaimer-footer b{color:#ff3b3b;}
+
+/* ============================================================
+   共通UI（テーマ・文字サイズ・メニュー）
+   ============================================================ */
+:root{
+  --dwa-scale: 1;
+}
+html{ font-size: calc(16px * var(--dwa-scale)); }
+
+/* ---- ライトモード ---- */
+html.dwa-light{
+  --bg:#f4f7fa; --panel:#ffffff; --panel2:#eef3f8; --line:#d4dee8;
+  --ink:#16222e; --muted:#5b7183; --grid:#dde6ef;
+}
+html.dwa-light body{
+  background:radial-gradient(900px 420px at 50% -8%,#dceaf6 0%,transparent 60%),var(--bg);
+  color:var(--ink);
+}
+
+/* ---- 上部バー ---- */
+.dwa-bar{
+  position:sticky; top:0; z-index:900;
+  display:flex; align-items:center; gap:8px;
+  padding:9px 12px; background:var(--panel); border-bottom:1px solid var(--line);
+  backdrop-filter:blur(6px);
+}
+.dwa-bar .sp{ flex:1; }
+.dwa-btn{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:7px 13px; border:1px solid var(--line); border-radius:99px;
+  background:var(--panel2); color:var(--muted);
+  font-size:13px; font-family:inherit; cursor:pointer; text-decoration:none;
+  white-space:nowrap;
+}
+.dwa-btn:hover{ border-color:var(--accent); color:var(--accent); }
+.dwa-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+.dwa-btn.icon{ padding:7px 11px; }
+
+/* ---- メニュー ---- */
+.dwa-ov{
+  position:fixed; inset:0; z-index:1000; display:none;
+  background:rgba(0,0,0,.55); backdrop-filter:blur(3px);
+}
+.dwa-ov.open{ display:block; }
+.dwa-panel{
+  position:absolute; top:0; right:0; height:100%; width:min(90vw,340px);
+  background:var(--panel); border-left:1px solid var(--line);
+  overflow-y:auto; padding:16px 16px 40px;
+  box-shadow:-8px 0 30px rgba(0,0,0,.4);
+}
+.dwa-panel h3{ font-size:16px; margin-bottom:4px; color:var(--ink); }
+.dwa-panel .sub{ font-size:11.5px; color:var(--muted); margin-bottom:16px; }
+.dwa-sec{
+  font-size:10.5px; letter-spacing:.14em; color:var(--muted);
+  margin:18px 0 8px; font-family:var(--mono,monospace);
+}
+.dwa-item{
+  display:flex; align-items:center; gap:10px; width:100%;
+  padding:12px 13px; margin-bottom:6px;
+  border:1px solid var(--line); border-radius:9px;
+  background:var(--panel2); color:var(--ink);
+  font-size:13.5px; font-family:inherit; text-align:left;
+  cursor:pointer; text-decoration:none;
+}
+.dwa-item:hover{ border-color:var(--accent); color:var(--accent); }
+.dwa-close{
+  position:absolute; top:12px; right:14px;
+  background:none; border:none; color:var(--muted);
+  font-size:20px; cursor:pointer; line-height:1;
+}
+
+/* ---- 文字サイズの選択 ---- */
+.dwa-sizes{ display:flex; gap:6px; }
+.dwa-size{
+  flex:1; padding:11px 4px; border:1px solid var(--line); border-radius:9px;
+  background:var(--panel2); color:var(--ink); cursor:pointer; font-family:inherit;
+}
+.dwa-size.on{ border-color:var(--accent); color:var(--accent); background:rgba(57,208,216,.1); }
+.dwa-size .s{ display:block; font-weight:700; }
+.dwa-size .l{ display:block; font-size:10px; color:var(--muted); margin-top:2px; }
+
+/* ---- 説明文のダイアログ ---- */
+.dwa-modal{
+  position:fixed; inset:0; z-index:1100; display:none;
+  background:rgba(0,0,0,.6); padding:20px; overflow-y:auto;
+}
+.dwa-modal.open{ display:block; }
+.dwa-modal-in{
+  max-width:620px; margin:30px auto; background:var(--panel);
+  border:1px solid var(--line); border-radius:14px; padding:22px;
+}
+.dwa-modal-in h3{ font-size:17px; margin-bottom:12px; color:var(--ink); }
+.dwa-modal-in h4{ font-size:14px; margin:16px 0 6px; color:var(--accent); }
+.dwa-modal-in p, .dwa-modal-in li{
+  font-size:13px; line-height:1.85; color:var(--ink); margin-bottom:8px;
+}
+.dwa-modal-in ul{ margin-left:20px; }
+.dwa-modal-in .note{
+  font-size:12px; color:var(--muted); border-top:1px solid var(--line);
+  padding-top:12px; margin-top:16px;
+}
+
+/* ---- 結果のコピー・共有 ---- */
+.dwa-share{
+  display:flex; gap:8px; flex-wrap:wrap; justify-content:center;
+  margin:18px auto 6px; max-width:640px; padding:0 12px;
+}
+.dwa-share .dwa-btn{ flex:1; min-width:140px; justify-content:center; }
+.dwa-toast{
+  position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(16px);
+  background:var(--ink); color:var(--bg); padding:11px 20px; border-radius:99px;
+  font-size:13px; z-index:1200; opacity:0; pointer-events:none;
+  transition:opacity .25s, transform .25s;
+}
+.dwa-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+@media (max-width:480px){
+  .dwa-bar{ padding:8px 10px; gap:6px; }
+  .dwa-btn{ padding:6px 10px; font-size:12px; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="dwa-bar">
+  <a class="dwa-btn" href="index.html">↩ 戻る</a>
+  <span class="sp"></span>
+  <button type="button" class="dwa-btn icon" onclick="dwaToggleTheme()" id="dwaThemeBtn" aria-label="表示モードを切り替える">🌓</button>
+  <button type="button" class="dwa-btn icon" onclick="dwaOpenMenu()" aria-label="メニュー">☰</button>
+</div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="eyebrow">内閣府・地震調査研究推進本部データ準拠</div>
+    <h1>都道府県別<br><b>地震被害想定</b>ツール</h1>
+    <p>都道府県を選ぶと、その地域に影響する主要地震シナリオをリスク順にランキング。タップで死者数・建物被害・火災・避難者・経済損失の想定値を詳細表示します。</p>
+  </div>
+
+  <div class="card">
+    <div class="card-h">// 都道府県を選択</div>
+    <div class="select-wrap">
+      <select id="pref"><option value="">都道府県を選んでください</option></select>
+    </div>
+  </div>
+
+  <div id="result">
+    <div class="sec-label"><span class="sec-num">―</span>地域概要</div>
+    <div class="pref-banner">
+      <div class="pref-name" id="bPref">―</div>
+      <div class="pref-sub" id="bSub">―</div>
+      <div class="pref-stats">
+        <div class="ps-item"><div class="ps-k">30年震度6弱以上</div><div class="ps-v" id="bProb">―</div></div>
+        <div class="ps-item"><div class="ps-k">主要地震シナリオ</div><div class="ps-v" id="bCount">―</div></div>
+        <div class="ps-item"><div class="ps-k">最大想定死者数</div><div class="ps-v" id="bMaxDead">―</div></div>
+      </div>
+    </div>
+
+    <div class="sec-label"><span class="sec-num">TOP</span>地震リスクランキング</div>
+    <div class="eq-list" id="eqList"></div>
+
+    <div style="margin-top:28px;" class="src-text">
+      ※数値は内閣府・各都道府県公表の被害想定（最大値）および地震調査研究推進本部の長期評価をもとに作成。想定条件（季節・時刻・風速等）により幅があります。最新・詳細は各自治体の公式ハザードマップをご確認ください。
+    </div>
+
+    <!-- 免責事項アコーディオン -->
+    <div class="disclaimer-wrap">
+      <div class="disclaimer-head" id="disclHead">
+        <div class="disclaimer-head-left">
+          <span class="disclaimer-icon">!</span>
+          <span class="disclaimer-title">免責事項・ご利用上の注意</span>
+        </div>
+        <span class="disclaimer-arrow" id="disclArrow">▾</span>
+      </div>
+      <div class="disclaimer-body" id="disclBody">
+        <div class="disclaimer-lead">
+          本ツールに掲載するすべての情報は、利用者の<b>防災意識向上を目的とした参考情報</b>であり、その正確性・完全性・最新性・有用性を保証するものではありません。
+        </div>
+        <div class="disclaimer-items">
+          <div class="disclaimer-item warn">
+            <b>被害想定数値について：</b>掲載している死者数・負傷者数・建物被害・避難者数・経済被害額は、内閣府・各都道府県・地震調査研究推進本部が公表した被害想定の最大値をもとにした参考値です。想定条件（発生時刻・季節・気象・地盤・建物耐震性等）により実際の被害は大きく異なります。数値はあくまで備えの目安としてご参照ください。
+          </div>
+          <div class="disclaimer-item warn">
+            <b>発生確率について：</b>掲載している30年以内の発生確率は、地震調査研究推進本部の長期評価（算定基準日 令和8年〔2026年〕1月1日）等に基づく値です。確率が低い地震でも発生しないという意味ではなく、確率が高い地震が必ず発生するという保証もありません。
+          </div>
+          <div class="disclaimer-item">
+            <b>データの正確性・最新性：</b>各都道府県・内閣府の被害想定は改訂が行われる場合があります。本ツールのデータが最新の公表値と異なる可能性があります。正確・最新の情報は各自治体・内閣府の公式発表をご確認ください。
+          </div>
+          <div class="disclaimer-item warn">
+            <b>避難・安全確保の判断：</b>実際の避難・安全確保の判断は、必ず気象庁・自治体・消防・警察等の<b>公式発表および現場の状況</b>に基づいて行ってください。本ツールの情報のみに依拠した判断は行わないでください。
+          </div>
+        </div>
+        <div class="disclaimer-footer">
+          <b>免責：</b>本ツールの情報・診断結果の利用、またはこれらを利用できなかったことにより利用者または第三者に生じたいかなる損害（直接・間接・特別・結果的損害を含む）についても、本ツールおよび運営者は一切の責任を負いません。
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="dwa-share">
+  <button type="button" class="dwa-btn" onclick="dwaCopyResult()">📋 結果をコピー</button>
+  <button type="button" class="dwa-btn" onclick="dwaShareResult()">📤 結果を共有</button>
+</div>
+
+</div>
+
+<!-- オーバーレイ -->
+<div class="overlay" id="overlay" role="dialog" aria-modal="true">
+  <div class="overlay-sheet" id="ovSheet">
+    <div class="ov-handle"></div>
+    <div class="ov-head">
+      <div class="ov-rank-row">
+        <div class="ov-rank-badge" id="ovBadge">1</div>
+        <div>
+          <div class="ov-title" id="ovTitle">―</div>
+          <div class="ov-sub" id="ovSub">―</div>
+        </div>
+      </div>
+      <div id="ovClose" class="ov-close" role="button" aria-label="閉じる">✕</div>
+    </div>
+    <div class="ov-body" id="ovBody"></div>
+  </div>
+</div>
+
+<script>
+/* =====================================================
+   データ定義
+   出典：内閣府「南海トラフ巨大地震の被害想定」(令和5年)、
+         各都道府県地震被害想定調査、
+         地震調査研究推進本部 長期評価 (2026年1月時点)
+   ===================================================== */
+const PREF_PROB = {"北海道":2.2,"青森県":5.0,"岩手県":6.3,"宮城県":7.6,"秋田県":10.0,"山形県":4.2,"福島県":9.3,"茨城県":81.0,"栃木県":13.0,"群馬県":6.4,"埼玉県":60.0,"千葉県":62.0,"東京都":47.0,"神奈川県":38.0,"新潟県":15.0,"富山県":5.2,"石川県":6.6,"福井県":15.0,"山梨県":36.0,"長野県":6.1,"岐阜県":27.0,"静岡県":70.0,"愛知県":46.0,"三重県":64.0,"滋賀県":13.0,"京都府":15.0,"大阪府":30.0,"兵庫県":46.0,"奈良県":62.0,"和歌山県":68.0,"鳥取県":9.3,"島根県":4.9,"岡山県":44.0,"広島県":24.0,"山口県":6.3,"徳島県":75.0,"香川県":64.0,"愛媛県":46.0,"高知県":75.0,"福岡県":6.2,"佐賀県":9.2,"長崎県":3.0,"熊本県":11.0,"大分県":55.0,"宮崎県":43.0,"鹿児島県":18.0,"沖縄県":21.0};
+
+/* 各地震シナリオ
+   rank: 1=最高リスク, color: badge色
+   dead/injured: 人的被害
+   fullDestroy/halfDestroy: 建物被害(棟)
+   fire/burnedHouses: 出火件数/焼失棟数
+   evacuees/stranded: 避難者/帰宅困難者(万人)
+   economicLoss: 経済被害(兆円)
+   prob30: 30年発生確率
+   mag: マグニチュード
+   scenario: 最悪条件
+   source1: 内閣府/国 出典
+   source2: 都道府県 出典
+*/
+const EQ_DATA = {
+
+  "北海道": [
+    {rank:1,name:"千島海溝巨大地震",color:"#ff3b3b",mag:"M9.3",prob30:"根室沖等で高い",
+     dead:"19,000人以上",injured:"2万5,000人",fullDestroy:"14万棟",halfDestroy:"22万棟",
+     fire:"約500件",burnedHouses:"2万棟",evacuees:"106万人",stranded:"―",economicLoss:"約34兆円",
+     scenario:"冬・深夜・積雪・津波同時発生",
+     source1:"内閣府 千島海溝沿いの巨大地震モデル検討会(R3)",source2:"北海道地震被害想定調査(R4)"},
+    {rank:2,name:"日高沖地震（プレート内）",color:"#ff7a2e",mag:"M7.8",prob30:"数%",
+     dead:"約1,000人",injured:"約3,000人",fullDestroy:"約1万棟",halfDestroy:"約2万棟",
+     fire:"約80件",burnedHouses:"約3,000棟",evacuees:"約12万人",stranded:"―",economicLoss:"約2兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"北海道地震被害想定調査"},
+    {rank:3,name:"石狩低地東縁断層帯地震",color:"#ffc94d",mag:"M7.9",prob30:"ほぼ0%",
+     dead:"約600人",injured:"約2,000人",fullDestroy:"約8,000棟",halfDestroy:"約1万5,000棟",
+     fire:"約50件",burnedHouses:"約1,500棟",evacuees:"約7万人",stranded:"―",economicLoss:"約1.5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"北海道地震被害想定調査"},
+  ],
+
+  "青森県": [
+    {rank:1,name:"日本海溝・三陸沖北部地震",color:"#ff3b3b",mag:"M8.2",prob30:"領域により高い",
+     dead:"約2,000人",injured:"約4,000人",fullDestroy:"約1万2,000棟",halfDestroy:"約2万棟",
+     fire:"約60件",burnedHouses:"約1,000棟",evacuees:"約15万人",stranded:"―",economicLoss:"約3兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府・東北地整",source2:"青森県地震被害想定調査(R4)"},
+    {rank:2,name:"太平洋プレート内地震（三陸沖）",color:"#ff7a2e",mag:"M7.5",prob30:"高い",
+     dead:"約500人",injured:"約1,500人",fullDestroy:"約4,000棟",halfDestroy:"約8,000棟",
+     fire:"約30件",burnedHouses:"約500棟",evacuees:"約6万人",stranded:"―",economicLoss:"約1兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"青森県地震被害想定調査"},
+    {rank:3,name:"陸奥湾周辺断層地震",color:"#ffc94d",mag:"M6.9",prob30:"数%",
+     dead:"約150人",injured:"約500人",fullDestroy:"約2,000棟",halfDestroy:"約5,000棟",
+     fire:"約20件",burnedHouses:"約300棟",evacuees:"約3万人",stranded:"―",economicLoss:"約4,000億円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"青森県地震被害想定調査"},
+  ],
+
+  "岩手県": [
+    {rank:1,name:"日本海溝・三陸沖中部地震",color:"#ff3b3b",mag:"M8.5",prob30:"高い",
+     dead:"約3,500人",injured:"約6,000人",fullDestroy:"約1万8,000棟",halfDestroy:"約3万棟",
+     fire:"約80件",burnedHouses:"約1,500棟",evacuees:"約20万人",stranded:"―",economicLoss:"約4.5兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府・東北地整",source2:"岩手県地震被害想定(R4)"},
+    {rank:2,name:"岩手県内陸南部地震",color:"#ff7a2e",mag:"M7.2",prob30:"数%",
+     dead:"約400人",injured:"約1,200人",fullDestroy:"約5,000棟",halfDestroy:"約1万棟",
+     fire:"約40件",burnedHouses:"約600棟",evacuees:"約7万人",stranded:"―",economicLoss:"約1.2兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"岩手県地震被害想定"},
+    {rank:3,name:"宮古沖プレート内地震",color:"#ffc94d",mag:"M7.4",prob30:"高い",
+     dead:"約200人",injured:"約600人",fullDestroy:"約2,500棟",halfDestroy:"約6,000棟",
+     fire:"約20件",burnedHouses:"約300棟",evacuees:"約4万人",stranded:"―",economicLoss:"約6,000億円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"岩手県地震被害想定"},
+  ],
+
+  "宮城県": [
+    {rank:1,name:"宮城県沖連動型地震（日本海溝）",color:"#ff3b3b",mag:"M8.0〜8.5",prob30:"約90%",
+     dead:"約9,500人",injured:"約1万4,000人",fullDestroy:"約19万棟",halfDestroy:"約26万棟",
+     fire:"約380件",burnedHouses:"約8,000棟",evacuees:"約62万人",stranded:"―",economicLoss:"約17兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府・東北地整",source2:"宮城県地震被害想定(R4)"},
+    {rank:2,name:"長町－利府線断層帯地震",color:"#ff7a2e",mag:"M7.0〜7.5",prob30:"ほぼ0%",
+     dead:"約3,800人",injured:"約1万人",fullDestroy:"約10万棟",halfDestroy:"約16万棟",
+     fire:"約500件",burnedHouses:"約1万2,000棟",evacuees:"約30万人",stranded:"―",economicLoss:"約8兆円",
+     scenario:"冬・夕方・強風",
+     source1:"地震調査研究推進本部",source2:"宮城県地震被害想定(R4)"},
+    {rank:3,name:"宮城県沖単独型地震",color:"#ffc94d",mag:"M7.4",prob30:"約60%（30年）",
+     dead:"約800人",injured:"約3,500人",fullDestroy:"約4万棟",halfDestroy:"約8万棟",
+     fire:"約120件",burnedHouses:"約2,500棟",evacuees:"約18万人",stranded:"―",economicLoss:"約4兆円",
+     scenario:"冬・深夜・津波",
+     source1:"地震調査研究推進本部",source2:"宮城県地震被害想定"},
+  ],
+
+  "秋田県": [
+    {rank:1,name:"秋田沖海底地震（日本海東縁部）",color:"#ff3b3b",mag:"M7.9",prob30:"不明",
+     dead:"約1,200人",injured:"約3,000人",fullDestroy:"約1万棟",halfDestroy:"約2万棟",
+     fire:"約60件",burnedHouses:"約800棟",evacuees:"約10万人",stranded:"―",economicLoss:"約2.5兆円",
+     scenario:"冬・深夜・津波",
+     source1:"地震調査研究推進本部",source2:"秋田県地震被害想定(R3)"},
+    {rank:2,name:"秋田県内陸南部地震",color:"#ff7a2e",mag:"M7.1",prob30:"数%",
+     dead:"約400人",injured:"約1,000人",fullDestroy:"約4,000棟",halfDestroy:"約9,000棟",
+     fire:"約30件",burnedHouses:"約400棟",evacuees:"約6万人",stranded:"―",economicLoss:"約1兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"秋田県地震被害想定"},
+    {rank:3,name:"北秋田地域断層地震",color:"#ffc94d",mag:"M6.8",prob30:"数%",
+     dead:"約100人",injured:"約300人",fullDestroy:"約1,500棟",halfDestroy:"約4,000棟",
+     fire:"約15件",burnedHouses:"約200棟",evacuees:"約2万人",stranded:"―",economicLoss:"約3,000億円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"秋田県地震被害想定"},
+  ],
+
+  "山形県": [
+    {rank:1,name:"庄内平野東縁断層帯地震",color:"#ff3b3b",mag:"M7.1",prob30:"ほぼ0〜6%",
+     dead:"約2,300人",injured:"約6,500人",fullDestroy:"約2万4,000棟",halfDestroy:"約4万棟",
+     fire:"約200件",burnedHouses:"約4,000棟",evacuees:"約22万人",stranded:"―",economicLoss:"約5兆円",
+     scenario:"冬・深夜・強風",
+     source1:"地震調査研究推進本部",source2:"山形県地震被害想定(R3)"},
+    {rank:2,name:"山形盆地断層帯地震",color:"#ff7a2e",mag:"M7.3",prob30:"1%",
+     dead:"約1,200人",injured:"約3,500人",fullDestroy:"約1万2,000棟",halfDestroy:"約2万5,000棟",
+     fire:"約100件",burnedHouses:"約2,000棟",evacuees:"約12万人",stranded:"―",economicLoss:"約3兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"山形県地震被害想定"},
+    {rank:3,name:"日本海東縁部地震（山形沖）",color:"#ffc94d",mag:"M7.8",prob30:"不明",
+     dead:"約400人",injured:"約1,000人",fullDestroy:"約4,000棟",halfDestroy:"約8,000棟",
+     fire:"約30件",burnedHouses:"約500棟",evacuees:"約6万人",stranded:"―",economicLoss:"約1.2兆円",
+     scenario:"冬・深夜・津波",
+     source1:"地震調査研究推進本部",source2:"山形県地震被害想定"},
+  ],
+
+  "福島県": [
+    {rank:1,name:"日本海溝・福島沖地震",color:"#ff3b3b",mag:"M8.0",prob30:"高い",
+     dead:"約3,000人",injured:"約7,000人",fullDestroy:"約2万棟",halfDestroy:"約4万棟",
+     fire:"約100件",burnedHouses:"約2,000棟",evacuees:"約25万人",stranded:"―",economicLoss:"約5兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府",source2:"福島県地震被害想定(R4)"},
+    {rank:2,name:"双葉断層・棚倉断層帯地震",color:"#ff7a2e",mag:"M7.0",prob30:"数%",
+     dead:"約600人",injured:"約2,000人",fullDestroy:"約6,000棟",halfDestroy:"約1万2,000棟",
+     fire:"約50件",burnedHouses:"約700棟",evacuees:"約8万人",stranded:"―",economicLoss:"約1.5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"福島県地震被害想定"},
+    {rank:3,name:"会津盆地西縁断層帯地震",color:"#ffc94d",mag:"M7.0",prob30:"数%",
+     dead:"約300人",injured:"約800人",fullDestroy:"約3,000棟",halfDestroy:"約7,000棟",
+     fire:"約25件",burnedHouses:"約400棟",evacuees:"約5万人",stranded:"―",economicLoss:"約8,000億円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"福島県地震被害想定"},
+  ],
+
+  "茨城県": [
+    {rank:1,name:"茨城県南部地震（首都直下連動）",color:"#ff3b3b",mag:"M7.3",prob30:"約81%",
+     dead:"約5,400人",injured:"約1万4,000人",fullDestroy:"約15万棟",halfDestroy:"約29万棟",
+     fire:"約900件",burnedHouses:"約2万棟",evacuees:"約60万人",stranded:"約30万人",economicLoss:"約14兆円",
+     scenario:"冬・夕方・強風",
+     source1:"内閣府 首都直下地震被害想定(H25)",source2:"茨城県地震被害想定(R3)"},
+    {rank:2,name:"日本海溝・茨城沖地震",color:"#ff7a2e",mag:"M8.0",prob30:"高い",
+     dead:"約1,200人",injured:"約4,000人",fullDestroy:"約6万棟",halfDestroy:"約12万棟",
+     fire:"約200件",burnedHouses:"約3,000棟",evacuees:"約25万人",stranded:"―",economicLoss:"約5兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府",source2:"茨城県地震被害想定"},
+    {rank:3,name:"茨城県北部断層地震",color:"#ffc94d",mag:"M6.8",prob30:"数%",
+     dead:"約300人",injured:"約900人",fullDestroy:"約3,500棟",halfDestroy:"約8,000棟",
+     fire:"約60件",burnedHouses:"約800棟",evacuees:"約7万人",stranded:"―",economicLoss:"約1兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"茨城県地震被害想定"},
+  ],
+
+  "栃木県": [
+    {rank:1,name:"栃木県南部・茨城県西部地震",color:"#ff3b3b",mag:"M7.0",prob30:"数%",
+     dead:"約2,200人",injured:"約7,000人",fullDestroy:"約6万棟",halfDestroy:"約12万棟",
+     fire:"約350件",burnedHouses:"約6,000棟",evacuees:"約30万人",stranded:"約15万人",economicLoss:"約7兆円",
+     scenario:"冬・夕方・強風",
+     source1:"内閣府 首都直下",source2:"栃木県地震被害想定(R3)"},
+    {rank:2,name:"日光足尾断層帯地震",color:"#ff7a2e",mag:"M7.2",prob30:"数%",
+     dead:"約600人",injured:"約2,000人",fullDestroy:"約8,000棟",halfDestroy:"約1万5,000棟",
+     fire:"約80件",burnedHouses:"約1,200棟",evacuees:"約10万人",stranded:"―",economicLoss:"約2兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"栃木県地震被害想定"},
+    {rank:3,name:"深部低周波地震（スラブ内）",color:"#ffc94d",mag:"M6.5",prob30:"高い",
+     dead:"約100人",injured:"約400人",fullDestroy:"約2,000棟",halfDestroy:"約5,000棟",
+     fire:"約30件",burnedHouses:"約400棟",evacuees:"約4万人",stranded:"―",economicLoss:"約5,000億円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"栃木県地震被害想定"},
+  ],
+
+  "群馬県": [
+    {rank:1,name:"関東平野北西縁断層帯地震",color:"#ff3b3b",mag:"M8.1",prob30:"不明",
+     dead:"約2,000人",injured:"約5,500人",fullDestroy:"約3万棟",halfDestroy:"約6万棟",
+     fire:"約200件",burnedHouses:"約3,500棟",evacuees:"約18万人",stranded:"約10万人",economicLoss:"約6兆円",
+     scenario:"冬・夕方・強風",
+     source1:"地震調査研究推進本部",source2:"群馬県地震被害想定(R3)"},
+    {rank:2,name:"榛名山東麓断層帯地震",color:"#ff7a2e",mag:"M7.0",prob30:"数%",
+     dead:"約500人",injured:"約1,500人",fullDestroy:"約6,000棟",halfDestroy:"約1万2,000棟",
+     fire:"約60件",burnedHouses:"約900棟",evacuees:"約8万人",stranded:"―",economicLoss:"約1.5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"群馬県地震被害想定"},
+    {rank:3,name:"首都直下地震（関東平野北部）",color:"#ffc94d",mag:"M7.0",prob30:"30年70%",
+     dead:"約200人",injured:"約800人",fullDestroy:"約3,000棟",halfDestroy:"約7,000棟",
+     fire:"約80件",burnedHouses:"約1,000棟",evacuees:"約5万人",stranded:"―",economicLoss:"約1兆円",
+     scenario:"冬・夕方",
+     source1:"内閣府 首都直下",source2:"群馬県地震被害想定"},
+  ],
+
+  "埼玉県": [
+    {rank:1,name:"首都直下地震（東京湾北部）",color:"#ff3b3b",mag:"M7.3",prob30:"約70%",
+     dead:"約4,000人",injured:"約1万1,000人",fullDestroy:"約11万棟",halfDestroy:"約20万棟",
+     fire:"約1,500件",burnedHouses:"約3万棟",evacuees:"約65万人",stranded:"約80万人",economicLoss:"約16兆円",
+     scenario:"冬・夕方・強風",
+     source1:"内閣府 首都直下地震被害想定(H25)",source2:"埼玉県地震被害想定(R4)"},
+    {rank:2,name:"関東平野北西縁断層帯地震",color:"#ff7a2e",mag:"M8.1",prob30:"不明",
+     dead:"約1,500人",injured:"約4,500人",fullDestroy:"約5万棟",halfDestroy:"約10万棟",
+     fire:"約400件",burnedHouses:"約7,000棟",evacuees:"約30万人",stranded:"―",economicLoss:"約8兆円",
+     scenario:"冬・夕方",
+     source1:"地震調査研究推進本部",source2:"埼玉県地震被害想定"},
+    {rank:3,name:"立川断層帯地震",color:"#ffc94d",mag:"M7.4",prob30:"0.8〜4%",
+     dead:"約500人",injured:"約1,800人",fullDestroy:"約3万棟",halfDestroy:"約7万棟",
+     fire:"約300件",burnedHouses:"約5,000棟",evacuees:"約18万人",stranded:"―",economicLoss:"約5兆円",
+     scenario:"冬・夕方",
+     source1:"地震調査研究推進本部",source2:"埼玉県地震被害想定"},
+  ],
+
+  "千葉県": [
+    {rank:1,name:"首都直下地震（東京湾北部）",color:"#ff3b3b",mag:"M7.3",prob30:"約70%",
+     dead:"約5,000人",injured:"約1万2,000人",fullDestroy:"約13万棟",halfDestroy:"約22万棟",
+     fire:"約1,200件",burnedHouses:"約2万8,000棟",evacuees:"約70万人",stranded:"約100万人",economicLoss:"約18兆円",
+     scenario:"冬・夕方・強風",
+     source1:"内閣府 首都直下地震被害想定(H25)",source2:"千葉県地震被害想定(R4)"},
+    {rank:2,name:"元禄型関東地震（相模トラフ）",color:"#ff7a2e",mag:"M8.2",prob30:"約5%",
+     dead:"約3,000人",injured:"約8,000人",fullDestroy:"約8万棟",halfDestroy:"約16万棟",
+     fire:"約500件",burnedHouses:"約1万棟",evacuees:"約40万人",stranded:"―",economicLoss:"約12兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府",source2:"千葉県地震被害想定"},
+    {rank:3,name:"日本海溝・茨城・千葉沖地震",color:"#ffc94d",mag:"M8.0",prob30:"高い",
+     dead:"約800人",injured:"約2,500人",fullDestroy:"約4万棟",halfDestroy:"約9万棟",
+     fire:"約150件",burnedHouses:"約2,500棟",evacuees:"約20万人",stranded:"―",economicLoss:"約5兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府",source2:"千葉県地震被害想定"},
+  ],
+
+  "東京都": [
+    {rank:1,name:"首都直下地震（東京湾北部）",color:"#ff3b3b",mag:"M7.3",prob30:"約70%",
+     dead:"約6,100人",injured:"約9万3,000人",fullDestroy:"約19万棟",halfDestroy:"約32万棟",
+     fire:"約2,390件",burnedHouses:"約41万棟",evacuees:"約299万人",stranded:"約517万人",economicLoss:"約95兆円",
+     scenario:"冬・夕方・強風",
+     source1:"内閣府 首都直下地震被害想定(H25)",source2:"東京都地震被害想定(R4)"},
+    {rank:2,name:"元禄型関東地震（相模トラフ）",color:"#ff7a2e",mag:"M8.2",prob30:"約5%",
+     dead:"約4,000人",injured:"約2万6,000人",fullDestroy:"約14万棟",halfDestroy:"約22万棟",
+     fire:"約1,400件",burnedHouses:"約18万棟",evacuees:"約200万人",stranded:"―",economicLoss:"約60兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府",source2:"東京都地震被害想定(R4)"},
+    {rank:3,name:"立川断層帯地震",color:"#ffc94d",mag:"M7.4",prob30:"0.8〜4%",
+     dead:"約1,100人",injured:"約2万2,000人",fullDestroy:"約5万棟",halfDestroy:"約11万棟",
+     fire:"約600件",burnedHouses:"約9万棟",evacuees:"約80万人",stranded:"―",economicLoss:"約22兆円",
+     scenario:"冬・夕方・強風",
+     source1:"地震調査研究推進本部",source2:"東京都地震被害想定(R4)"},
+  ],
+
+  "神奈川県": [
+    {rank:1,name:"元禄型関東地震（相模トラフ）",color:"#ff3b3b",mag:"M8.2",prob30:"約5%",
+     dead:"約8,500人",injured:"約2万4,000人",fullDestroy:"約20万棟",halfDestroy:"約34万棟",
+     fire:"約1,700件",burnedHouses:"約22万棟",evacuees:"約170万人",stranded:"―",economicLoss:"約50兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府",source2:"神奈川県地震被害想定(R4)"},
+    {rank:2,name:"首都直下地震（東京湾北部）",color:"#ff7a2e",mag:"M7.3",prob30:"約70%",
+     dead:"約5,200人",injured:"約1万7,000人",fullDestroy:"約13万棟",halfDestroy:"約24万棟",
+     fire:"約1,500件",burnedHouses:"約16万棟",evacuees:"約120万人",stranded:"約80万人",economicLoss:"約40兆円",
+     scenario:"冬・夕方・強風",
+     source1:"内閣府",source2:"神奈川県地震被害想定"},
+    {rank:3,name:"三浦半島断層群地震",color:"#ffc94d",mag:"M6.6以上",prob30:"6〜11%",
+     dead:"約1,200人",injured:"約4,000人",fullDestroy:"約4万棟",halfDestroy:"約8万棟",
+     fire:"約400件",burnedHouses:"約5,000棟",evacuees:"約35万人",stranded:"―",economicLoss:"約10兆円",
+     scenario:"冬・夕方",
+     source1:"地震調査研究推進本部",source2:"神奈川県地震被害想定"},
+  ],
+
+  "新潟県": [
+    {rank:1,name:"高田平野東縁断層帯地震",color:"#ff3b3b",mag:"M7.3",prob30:"ほぼ0〜20%",
+     dead:"約3,500人",injured:"約9,000人",fullDestroy:"約3万棟",halfDestroy:"約5万棟",
+     fire:"約200件",burnedHouses:"約4,000棟",evacuees:"約25万人",stranded:"―",economicLoss:"約6兆円",
+     scenario:"冬・深夜・積雪",
+     source1:"地震調査研究推進本部",source2:"新潟県地震被害想定(R4)"},
+    {rank:2,name:"十日町断層帯地震",color:"#ff7a2e",mag:"M7.0",prob30:"3%以上",
+     dead:"約1,000人",injured:"約3,000人",fullDestroy:"約1万棟",halfDestroy:"約2万棟",
+     fire:"約80件",burnedHouses:"約1,500棟",evacuees:"約9万人",stranded:"―",economicLoss:"約2.5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"新潟県地震被害想定"},
+    {rank:3,name:"日本海東縁部地震（新潟沖）",color:"#ffc94d",mag:"M8.1",prob30:"不明",
+     dead:"約500人",injured:"約1,500人",fullDestroy:"約6,000棟",halfDestroy:"約1万2,000棟",
+     fire:"約40件",burnedHouses:"約700棟",evacuees:"約10万人",stranded:"―",economicLoss:"約1.5兆円",
+     scenario:"冬・深夜・津波",
+     source1:"地震調査研究推進本部",source2:"新潟県地震被害想定"},
+  ],
+
+  "富山県": [
+    {rank:1,name:"富山湾周辺断層地震",color:"#ff3b3b",mag:"M7.5",prob30:"数%",
+     dead:"約1,500人",injured:"約4,000人",fullDestroy:"約1万5,000棟",halfDestroy:"約2万8,000棟",
+     fire:"約100件",burnedHouses:"約2,000棟",evacuees:"約14万人",stranded:"―",economicLoss:"約3兆円",
+     scenario:"冬・深夜・津波",
+     source1:"地震調査研究推進本部",source2:"富山県地震被害想定(R3)"},
+    {rank:2,name:"砺波平野断層帯・呉羽山断層帯地震",color:"#ff7a2e",mag:"M7.2",prob30:"数%",
+     dead:"約800人",injured:"約2,500人",fullDestroy:"約8,000棟",halfDestroy:"約1万8,000棟",
+     fire:"約60件",burnedHouses:"約1,200棟",evacuees:"約8万人",stranded:"―",economicLoss:"約2兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"富山県地震被害想定"},
+    {rank:3,name:"糸魚川－静岡構造線断層帯地震",color:"#ffc94d",mag:"M7.6〜7.7",prob30:"高い（S）",
+     dead:"約300人",injured:"約900人",fullDestroy:"約3,000棟",halfDestroy:"約6,000棟",
+     fire:"約25件",burnedHouses:"約400棟",evacuees:"約5万人",stranded:"―",economicLoss:"約8,000億円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"富山県地震被害想定"},
+  ],
+
+  "石川県": [
+    {rank:1,name:"森本・富樫断層帯地震",color:"#ff3b3b",mag:"M7.2",prob30:"2〜8%（S）",
+     dead:"約2,500人",injured:"約7,000人",fullDestroy:"約2万2,000棟",halfDestroy:"約3万6,000棟",
+     fire:"約220件",burnedHouses:"約4,500棟",evacuees:"約22万人",stranded:"―",economicLoss:"約5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"石川県地震被害想定(R5)"},
+    {rank:2,name:"邑知潟断層帯地震",color:"#ff7a2e",mag:"M7.6",prob30:"2%（S）",
+     dead:"約1,200人",injured:"約3,500人",fullDestroy:"約1万1,000棟",halfDestroy:"約2万棟",
+     fire:"約90件",burnedHouses:"約1,800棟",evacuees:"約10万人",stranded:"―",economicLoss:"約2.5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"石川県地震被害想定"},
+    {rank:3,name:"能登半島周辺断層地震（2024年型）",color:"#ffc94d",mag:"M7.6",prob30:"参考（2024年発生）",
+     dead:"約245人",injured:"約1,300人",fullDestroy:"約1万2,000棟",halfDestroy:"約2万3,000棟",
+     fire:"約30件",burnedHouses:"約200棟",evacuees:"約3万4,000人",stranded:"―",economicLoss:"約2兆円",
+     scenario:"元日・冬・津波",
+     source1:"石川県・内閣府（実績値）",source2:"2024年能登半島地震被害調査"},
+  ],
+
+  "福井県": [
+    {rank:1,name:"福井地震型断層地震（再来）",color:"#ff3b3b",mag:"M7.1",prob30:"数%",
+     dead:"約2,800人",injured:"約8,000人",fullDestroy:"約2万5,000棟",halfDestroy:"約4万棟",
+     fire:"約250件",burnedHouses:"約5,000棟",evacuees:"約24万人",stranded:"―",economicLoss:"約5.5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"福井県地震被害想定(R4)"},
+    {rank:2,name:"三方・花折断層帯地震",color:"#ff7a2e",mag:"M7.2",prob30:"数%",
+     dead:"約1,000人",injured:"約3,000人",fullDestroy:"約1万棟",halfDestroy:"約2万棟",
+     fire:"約80件",burnedHouses:"約1,500棟",evacuees:"約10万人",stranded:"―",economicLoss:"約2.5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"福井県地震被害想定"},
+    {rank:3,name:"若狭湾周辺断層地震",color:"#ffc94d",mag:"M7.0",prob30:"数%",
+     dead:"約400人",injured:"約1,200人",fullDestroy:"約4,000棟",halfDestroy:"約8,500棟",
+     fire:"約35件",burnedHouses:"約600棟",evacuees:"約6万人",stranded:"―",economicLoss:"約1兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"福井県地震被害想定"},
+  ],
+
+  "山梨県": [
+    {rank:1,name:"富士山麓断層群地震",color:"#ff3b3b",mag:"M7.5",prob30:"数%",
+     dead:"約2,000人",injured:"約5,500人",fullDestroy:"約1万8,000棟",halfDestroy:"約3万2,000棟",
+     fire:"約180件",burnedHouses:"約3,500棟",evacuees:"約20万人",stranded:"―",economicLoss:"約5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"山梨県地震被害想定(R4)"},
+    {rank:2,name:"糸魚川－静岡構造線断層帯（中南部）",color:"#ff7a2e",mag:"M7.4",prob30:"0.9〜8%（S）",
+     dead:"約1,200人",injured:"約3,500人",fullDestroy:"約1万2,000棟",halfDestroy:"約2万2,000棟",
+     fire:"約100件",burnedHouses:"約2,000棟",evacuees:"約12万人",stranded:"―",economicLoss:"約3兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"山梨県地震被害想定"},
+    {rank:3,name:"首都直下地震（山梨・関東連動）",color:"#ffc94d",mag:"M7.3",prob30:"約70%",
+     dead:"約400人",injured:"約1,200人",fullDestroy:"約5,000棟",halfDestroy:"約1万棟",
+     fire:"約70件",burnedHouses:"約1,200棟",evacuees:"約8万人",stranded:"―",economicLoss:"約2兆円",
+     scenario:"冬・夕方",
+     source1:"内閣府 首都直下",source2:"山梨県地震被害想定"},
+  ],
+
+  "長野県": [
+    {rank:1,name:"糸魚川－静岡構造線断層帯（中北部）",color:"#ff3b3b",mag:"M7.6",prob30:"14〜30%（S）",
+     dead:"約3,100人",injured:"約8,500人",fullDestroy:"約2万8,000棟",halfDestroy:"約5万棟",
+     fire:"約250件",burnedHouses:"約5,000棟",evacuees:"約28万人",stranded:"―",economicLoss:"約7兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"長野県地震被害想定(R4)"},
+    {rank:2,name:"境峠・神谷断層帯地震",color:"#ff7a2e",mag:"M7.4",prob30:"0.02〜13%（S）",
+     dead:"約900人",injured:"約2,500人",fullDestroy:"約9,000棟",halfDestroy:"約1万7,000棟",
+     fire:"約70件",burnedHouses:"約1,300棟",evacuees:"約10万人",stranded:"―",economicLoss:"約2.2兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"長野県地震被害想定"},
+    {rank:3,name:"阿寺断層帯（主部北部）地震",color:"#ffc94d",mag:"M6.9",prob30:"6〜11%（S）",
+     dead:"約400人",injured:"約1,100人",fullDestroy:"約5,000棟",halfDestroy:"約9,000棟",
+     fire:"約40件",burnedHouses:"約700棟",evacuees:"約6万人",stranded:"―",economicLoss:"約1.2兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"長野県地震被害想定"},
+  ],
+
+  "岐阜県": [
+    {rank:1,name:"養老－桑名－四日市断層帯地震",color:"#ff3b3b",mag:"M8.0",prob30:"ほぼ0〜0.8%（A）",
+     dead:"約2,500人",injured:"約7,000人",fullDestroy:"約2万3,000棟",halfDestroy:"約4万棟",
+     fire:"約220件",burnedHouses:"約4,500棟",evacuees:"約22万人",stranded:"―",economicLoss:"約5.5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"岐阜県地震被害想定(R3)"},
+    {rank:2,name:"南海トラフ巨大地震",color:"#ff7a2e",mag:"M9.1",prob30:"70〜80%",
+     dead:"約1,500人",injured:"約5,000人",fullDestroy:"約1万2,000棟",halfDestroy:"約2万5,000棟",
+     fire:"約120件",burnedHouses:"約2,000棟",evacuees:"約15万人",stranded:"―",economicLoss:"約3.5兆円",
+     scenario:"冬・深夜",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"岐阜県地震被害想定"},
+    {rank:3,name:"阿寺断層帯地震",color:"#ffc94d",mag:"M6.9",prob30:"6〜11%（S）",
+     dead:"約600人",injured:"約1,800人",fullDestroy:"約6,000棟",halfDestroy:"約1万2,000棟",
+     fire:"約50件",burnedHouses:"約900棟",evacuees:"約8万人",stranded:"―",economicLoss:"約1.5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"岐阜県地震被害想定"},
+  ],
+
+  "静岡県": [
+    {rank:1,name:"南海トラフ巨大地震（最大想定）",color:"#ff3b3b",mag:"M9.1",prob30:"70〜80%",
+     dead:"約10万5,000人",injured:"約16万5,000人",fullDestroy:"約21万棟",halfDestroy:"約49万棟",
+     fire:"約420件",burnedHouses:"約2万棟",evacuees:"約150万人",stranded:"―",economicLoss:"約50兆円",
+     scenario:"冬・深夜・満潮・最大クラス",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"静岡県地震被害想定(R4)"},
+    {rank:2,name:"富士川河口断層帯地震",color:"#ff7a2e",mag:"M8.0",prob30:"10〜18%（S・参考）",
+     dead:"約6,500人",injured:"約1万6,000人",fullDestroy:"約10万棟",halfDestroy:"約18万棟",
+     fire:"約700件",burnedHouses:"約1万4,000棟",evacuees:"約70万人",stranded:"―",economicLoss:"約22兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"静岡県地震被害想定(R4)"},
+    {rank:3,name:"東海地震（単独・M8クラス）",color:"#ffc94d",mag:"M8.0",prob30:"参考（逼迫性評価終了）",
+     dead:"約9,200人",injured:"約1万9,000人",fullDestroy:"約15万棟",halfDestroy:"約28万棟",
+     fire:"約580件",burnedHouses:"約1万1,000棟",evacuees:"約90万人",stranded:"―",economicLoss:"約30兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府（旧東海地震想定）",source2:"静岡県地震被害想定"},
+  ],
+
+  "愛知県": [
+    {rank:1,name:"南海トラフ巨大地震（最大想定）",color:"#ff3b3b",mag:"M9.1",prob30:"70〜80%",
+     dead:"約5万2,000人",injured:"約10万人",fullDestroy:"約45万棟",halfDestroy:"約92万棟",
+     fire:"約1,200件",burnedHouses:"約5万5,000棟",evacuees:"約170万人",stranded:"―",economicLoss:"約42兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"愛知県地震被害想定(R4)"},
+    {rank:2,name:"養老－桑名断層帯地震",color:"#ff7a2e",mag:"M8.0",prob30:"ほぼ0〜0.8%（A）",
+     dead:"約3,200人",injured:"約8,000人",fullDestroy:"約18万棟",halfDestroy:"約35万棟",
+     fire:"約800件",burnedHouses:"約2万棟",evacuees:"約65万人",stranded:"―",economicLoss:"約18兆円",
+     scenario:"冬・夕方",
+     source1:"地震調査研究推進本部",source2:"愛知県地震被害想定"},
+    {rank:3,name:"名古屋市直下地震（M6.9想定）",color:"#ffc94d",mag:"M6.9",prob30:"数%",
+     dead:"約2,000人",injured:"約6,000人",fullDestroy:"約10万棟",halfDestroy:"約20万棟",
+     fire:"約600件",burnedHouses:"約1万2,000棟",evacuees:"約40万人",stranded:"―",economicLoss:"約12兆円",
+     scenario:"冬・夕方",
+     source1:"地震調査研究推進本部",source2:"愛知県地震被害想定"},
+  ],
+
+  "三重県": [
+    {rank:1,name:"南海トラフ巨大地震（最大想定）",color:"#ff3b3b",mag:"M9.1",prob30:"70〜80%",
+     dead:"約4万2,000人",injured:"約8万人",fullDestroy:"約16万棟",halfDestroy:"約32万棟",
+     fire:"約320件",burnedHouses:"約1万棟",evacuees:"約90万人",stranded:"―",economicLoss:"約20兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"三重県地震被害想定(R4)"},
+    {rank:2,name:"養老－桑名－四日市断層帯地震",color:"#ff7a2e",mag:"M8.0",prob30:"ほぼ0〜0.8%（A）",
+     dead:"約2,800人",injured:"約7,000人",fullDestroy:"約1万2,000棟",halfDestroy:"約2万5,000棟",
+     fire:"約200件",burnedHouses:"約4,000棟",evacuees:"約40万人",stranded:"―",economicLoss:"約8兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"三重県地震被害想定"},
+    {rank:3,name:"鈴鹿山脈東縁断層帯地震",color:"#ffc94d",mag:"M7.5",prob30:"数%",
+     dead:"約600人",injured:"約2,000人",fullDestroy:"約5,000棟",halfDestroy:"約1万棟",
+     fire:"約60件",burnedHouses:"約1,000棟",evacuees:"約10万人",stranded:"―",economicLoss:"約2兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"三重県地震被害想定"},
+  ],
+
+  "滋賀県": [
+    {rank:1,name:"琵琶湖西岸断層帯地震",color:"#ff3b3b",mag:"M7.1〜7.5",prob30:"1〜3%（S）",
+     dead:"約4,600人",injured:"約1万3,000人",fullDestroy:"約4万2,000棟",halfDestroy:"約7万棟",
+     fire:"約350件",burnedHouses:"約7,000棟",evacuees:"約38万人",stranded:"―",economicLoss:"約10兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"滋賀県地震被害想定(R4)"},
+    {rank:2,name:"南海トラフ巨大地震",color:"#ff7a2e",mag:"M9.1",prob30:"70〜80%",
+     dead:"約1,000人",injured:"約4,000人",fullDestroy:"約8,000棟",halfDestroy:"約2万棟",
+     fire:"約100件",burnedHouses:"約2,000棟",evacuees:"約20万人",stranded:"―",economicLoss:"約4兆円",
+     scenario:"冬・深夜",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"滋賀県地震被害想定"},
+    {rank:3,name:"三方・花折断層帯地震",color:"#ffc94d",mag:"M7.2",prob30:"数%",
+     dead:"約500人",injured:"約1,500人",fullDestroy:"約5,000棟",halfDestroy:"約1万棟",
+     fire:"約50件",burnedHouses:"約900棟",evacuees:"約8万人",stranded:"―",economicLoss:"約2兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"滋賀県地震被害想定"},
+  ],
+
+  "京都府": [
+    {rank:1,name:"花折断層帯地震",color:"#ff3b3b",mag:"M7.3",prob30:"数%",
+     dead:"約8,900人",injured:"約2万4,000人",fullDestroy:"約6万2,000棟",halfDestroy:"約10万棟",
+     fire:"約1,000件",burnedHouses:"約1万8,000棟",evacuees:"約66万人",stranded:"―",economicLoss:"約17兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"京都府地震被害想定(R4)"},
+    {rank:2,name:"南海トラフ巨大地震",color:"#ff7a2e",mag:"M9.1",prob30:"70〜80%",
+     dead:"約2,500人",injured:"約8,000人",fullDestroy:"約1万5,000棟",halfDestroy:"約3万5,000棟",
+     fire:"約200件",burnedHouses:"約4,000棟",evacuees:"約40万人",stranded:"―",economicLoss:"約8兆円",
+     scenario:"冬・深夜",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"京都府地震被害想定"},
+    {rank:3,name:"三方・花折断層帯北部地震",color:"#ffc94d",mag:"M7.2",prob30:"数%",
+     dead:"約1,200人",injured:"約3,500人",fullDestroy:"約1万棟",halfDestroy:"約2万棟",
+     fire:"約150件",burnedHouses:"約3,000棟",evacuees:"約18万人",stranded:"―",economicLoss:"約4兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"京都府地震被害想定"},
+  ],
+
+  "大阪府": [
+    {rank:1,name:"上町断層帯地震",color:"#ff3b3b",mag:"M7.5",prob30:"2〜3%（A）",
+     dead:"約4万2,000人",injured:"約21万人",fullDestroy:"約97万棟",halfDestroy:"約170万棟",
+     fire:"約7,200件",burnedHouses:"約20万棟",evacuees:"約340万人",stranded:"―",economicLoss:"約約65兆円",
+     scenario:"冬・夕方・強風",
+     source1:"地震調査研究推進本部",source2:"大阪府地震被害想定(R4)"},
+    {rank:2,name:"南海トラフ巨大地震",color:"#ff7a2e",mag:"M9.1",prob30:"70〜80%",
+     dead:"約1万3,000人",injured:"約5万人",fullDestroy:"約44万棟",halfDestroy:"約85万棟",
+     fire:"約2,300件",burnedHouses:"約7万棟",evacuees:"約180万人",stranded:"―",economicLoss:"約40兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"大阪府地震被害想定"},
+    {rank:3,name:"中央構造線断層帯（金剛山地東縁）地震",color:"#ffc94d",mag:"M7.5",prob30:"0.06〜14%（S）",
+     dead:"約3,000人",injured:"約1万2,000人",fullDestroy:"約25万棟",halfDestroy:"約45万棟",
+     fire:"約1,500件",burnedHouses:"約5万棟",evacuees:"約90万人",stranded:"―",economicLoss:"約25兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"大阪府地震被害想定"},
+  ],
+
+  "兵庫県": [
+    {rank:1,name:"南海トラフ巨大地震",color:"#ff3b3b",mag:"M9.1",prob30:"70〜80%",
+     dead:"約1万4,000人",injured:"約4万9,000人",fullDestroy:"約48万棟",halfDestroy:"約88万棟",
+     fire:"約2,500件",burnedHouses:"約8万棟",evacuees:"約200万人",stranded:"―",economicLoss:"約46兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"兵庫県地震被害想定(R4)"},
+    {rank:2,name:"六甲・淡路島断層帯地震（阪神型）",color:"#ff7a2e",mag:"M7.9",prob30:"ほぼ0〜1%（A）",
+     dead:"約1万2,000人",injured:"約4万5,000人",fullDestroy:"約58万棟",halfDestroy:"約100万棟",
+     fire:"約3,000件",burnedHouses:"約10万棟",evacuees:"約200万人",stranded:"―",economicLoss:"約47兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"兵庫県地震被害想定(R4)"},
+    {rank:3,name:"山崎断層帯地震",color:"#ffc94d",mag:"M7.7",prob30:"0.06〜0.1%（A）",
+     dead:"約4,000人",injured:"約1万3,000人",fullDestroy:"約18万棟",halfDestroy:"約35万棟",
+     fire:"約900件",burnedHouses:"約2万棟",evacuees:"約70万人",stranded:"―",economicLoss:"約16兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"兵庫県地震被害想定"},
+  ],
+
+  "奈良県": [
+    {rank:1,name:"中央構造線断層帯（金剛山地東縁）地震",color:"#ff3b3b",mag:"M7.5",prob30:"0.06〜14%（S）",
+     dead:"約4,200人",injured:"約1万3,000人",fullDestroy:"約3万5,000棟",halfDestroy:"約6万棟",
+     fire:"約400件",burnedHouses:"約8,000棟",evacuees:"約40万人",stranded:"―",economicLoss:"約9兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"奈良県地震被害想定(R4)"},
+    {rank:2,name:"南海トラフ巨大地震",color:"#ff7a2e",mag:"M9.1",prob30:"70〜80%",
+     dead:"約2,000人",injured:"約7,000人",fullDestroy:"約1万5,000棟",halfDestroy:"約3万棟",
+     fire:"約200件",burnedHouses:"約4,000棟",evacuees:"約30万人",stranded:"―",economicLoss:"約6兆円",
+     scenario:"冬・深夜",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"奈良県地震被害想定"},
+    {rank:3,name:"奈良盆地東縁断層帯地震",color:"#ffc94d",mag:"M7.4",prob30:"ほぼ0〜5%（X）",
+     dead:"約1,000人",injured:"約3,500人",fullDestroy:"約8,000棟",halfDestroy:"約1万6,000棟",
+     fire:"約100件",burnedHouses:"約2,000棟",evacuees:"約12万人",stranded:"―",economicLoss:"約2.5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"奈良県地震被害想定"},
+  ],
+
+  "和歌山県": [
+    {rank:1,name:"南海トラフ巨大地震（最大想定）",color:"#ff3b3b",mag:"M9.1",prob30:"70〜80%",
+     dead:"約8万人",injured:"約9万人",fullDestroy:"約8万棟",halfDestroy:"約16万棟",
+     fire:"約300件",burnedHouses:"約8,000棟",evacuees:"約70万人",stranded:"―",economicLoss:"約15兆円",
+     scenario:"冬・深夜・満潮・最大津波",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"和歌山県地震被害想定(R5)"},
+    {rank:2,name:"中央構造線断層帯（和泉山脈南縁）地震",color:"#ff7a2e",mag:"M7.5",prob30:"0.06〜14%（S）",
+     dead:"約2,500人",injured:"約7,500人",fullDestroy:"約2万棟",halfDestroy:"約3万5,000棟",
+     fire:"約200件",burnedHouses:"約4,000棟",evacuees:"約25万人",stranded:"―",economicLoss:"約6兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"和歌山県地震被害想定"},
+    {rank:3,name:"中央構造線断層帯（金剛山地東縁）地震",color:"#ffc94d",mag:"M7.5",prob30:"0.06〜14%（S）",
+     dead:"約1,000人",injured:"約3,500人",fullDestroy:"約8,000棟",halfDestroy:"約1万5,000棟",
+     fire:"約90件",burnedHouses:"約2,000棟",evacuees:"約12万人",stranded:"―",economicLoss:"約3兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"和歌山県地震被害想定"},
+  ],
+
+  "鳥取県": [
+    {rank:1,name:"鳥取平野南縁断層地震（鳥取西部型）",color:"#ff3b3b",mag:"M7.3",prob30:"数%",
+     dead:"約1,200人",injured:"約3,500人",fullDestroy:"約1万1,000棟",halfDestroy:"約1万9,000棟",
+     fire:"約80件",burnedHouses:"約1,500棟",evacuees:"約12万人",stranded:"―",economicLoss:"約2.5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"鳥取県地震被害想定(R3)"},
+    {rank:2,name:"日本海東縁部地震（鳥取沖）",color:"#ff7a2e",mag:"M7.8",prob30:"不明",
+     dead:"約500人",injured:"約1,500人",fullDestroy:"約5,000棟",halfDestroy:"約1万棟",
+     fire:"約40件",burnedHouses:"約700棟",evacuees:"約7万人",stranded:"―",economicLoss:"約1.2兆円",
+     scenario:"冬・深夜・津波",
+     source1:"地震調査研究推進本部",source2:"鳥取県地震被害想定"},
+    {rank:3,name:"鳥取県東部断層地震",color:"#ffc94d",mag:"M7.0",prob30:"数%",
+     dead:"約200人",injured:"約600人",fullDestroy:"約2,000棟",halfDestroy:"約5,000棟",
+     fire:"約20件",burnedHouses:"約300棟",evacuees:"約3万人",stranded:"―",economicLoss:"約5,000億円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"鳥取県地震被害想定"},
+  ],
+
+  "島根県": [
+    {rank:1,name:"宍道断層地震",color:"#ff3b3b",mag:"M7.1",prob30:"数%",
+     dead:"約1,400人",injured:"約4,000人",fullDestroy:"約1万2,000棟",halfDestroy:"約2万棟",
+     fire:"約90件",burnedHouses:"約1,800棟",evacuees:"約13万人",stranded:"―",economicLoss:"約3兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"島根県地震被害想定(R3)"},
+    {rank:2,name:"日本海東縁部地震（島根沖）",color:"#ff7a2e",mag:"M7.8",prob30:"不明",
+     dead:"約400人",injured:"約1,200人",fullDestroy:"約4,000棟",halfDestroy:"約8,000棟",
+     fire:"約30件",burnedHouses:"約500棟",evacuees:"約6万人",stranded:"―",economicLoss:"約1兆円",
+     scenario:"冬・深夜・津波",
+     source1:"地震調査研究推進本部",source2:"島根県地震被害想定"},
+    {rank:3,name:"鹿島断層地震",color:"#ffc94d",mag:"M6.8",prob30:"数%",
+     dead:"約150人",injured:"約450人",fullDestroy:"約1,500棟",halfDestroy:"約4,000棟",
+     fire:"約15件",burnedHouses:"約200棟",evacuees:"約3万人",stranded:"―",economicLoss:"約4,000億円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"島根県地震被害想定"},
+  ],
+
+  "岡山県": [
+    {rank:1,name:"南海トラフ巨大地震",color:"#ff3b3b",mag:"M9.1",prob30:"70〜80%",
+     dead:"約1万2,000人",injured:"約2万4,000人",fullDestroy:"約15万棟",halfDestroy:"約30万棟",
+     fire:"約500件",burnedHouses:"約1万棟",evacuees:"約80万人",stranded:"―",economicLoss:"約17兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"岡山県地震被害想定(R4)"},
+    {rank:2,name:"山陽自動車道沿断層地震",color:"#ff7a2e",mag:"M7.0",prob30:"数%",
+     dead:"約800人",injured:"約2,500人",fullDestroy:"約7,000棟",halfDestroy:"約1万4,000棟",
+     fire:"約60件",burnedHouses:"約1,200棟",evacuees:"約10万人",stranded:"―",economicLoss:"約2兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"岡山県地震被害想定"},
+    {rank:3,name:"鳥取県西部地震連動（2000年型）",color:"#ffc94d",mag:"M7.3",prob30:"参考",
+     dead:"約200人",injured:"約700人",fullDestroy:"約2,500棟",halfDestroy:"約6,000棟",
+     fire:"約20件",burnedHouses:"約300棟",evacuees:"約4万人",stranded:"―",economicLoss:"約6,000億円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"岡山県地震被害想定"},
+  ],
+
+  "広島県": [
+    {rank:1,name:"南海トラフ巨大地震",color:"#ff3b3b",mag:"M9.1",prob30:"70〜80%",
+     dead:"約1万5,000人",injured:"約3万人",fullDestroy:"約12万棟",halfDestroy:"約25万棟",
+     fire:"約400件",burnedHouses:"約8,000棟",evacuees:"約80万人",stranded:"―",economicLoss:"約18兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"広島県地震被害想定(R4)"},
+    {rank:2,name:"安芸灘断層群地震",color:"#ff7a2e",mag:"M7.2",prob30:"数%",
+     dead:"約2,500人",injured:"約8,000人",fullDestroy:"約2万棟",halfDestroy:"約4万棟",
+     fire:"約200件",burnedHouses:"約4,000棟",evacuees:"約22万人",stranded:"―",economicLoss:"約5兆円",
+     scenario:"冬・深夜・津波",
+     source1:"地震調査研究推進本部",source2:"広島県地震被害想定"},
+    {rank:3,name:"広島市直下断層地震",color:"#ffc94d",mag:"M6.9",prob30:"数%",
+     dead:"約800人",injured:"約2,500人",fullDestroy:"約7,000棟",halfDestroy:"約1万5,000棟",
+     fire:"約80件",burnedHouses:"約1,500棟",evacuees:"約10万人",stranded:"―",economicLoss:"約2.5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"広島県地震被害想定"},
+  ],
+
+  "山口県": [
+    {rank:1,name:"南海トラフ巨大地震",color:"#ff3b3b",mag:"M9.1",prob30:"70〜80%",
+     dead:"約4,000人",injured:"約8,000人",fullDestroy:"約4万棟",halfDestroy:"約9万棟",
+     fire:"約150件",burnedHouses:"約3,000棟",evacuees:"約30万人",stranded:"―",economicLoss:"約7兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"山口県地震被害想定(R3)"},
+    {rank:2,name:"日本海東縁部地震（山口沖）",color:"#ff7a2e",mag:"M7.8",prob30:"不明",
+     dead:"約1,000人",injured:"約3,000人",fullDestroy:"約8,000棟",halfDestroy:"約1万6,000棟",
+     fire:"約70件",burnedHouses:"約1,200棟",evacuees:"約10万人",stranded:"―",economicLoss:"約2兆円",
+     scenario:"冬・深夜・津波",
+     source1:"地震調査研究推進本部",source2:"山口県地震被害想定"},
+    {rank:3,name:"安芸灘〜伊予灘断層群地震",color:"#ffc94d",mag:"M7.3",prob30:"数%",
+     dead:"約400人",injured:"約1,200人",fullDestroy:"約3,500棟",halfDestroy:"約7,000棟",
+     fire:"約30件",burnedHouses:"約500棟",evacuees:"約6万人",stranded:"―",economicLoss:"約1兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"山口県地震被害想定"},
+  ],
+
+  "徳島県": [
+    {rank:1,name:"南海トラフ巨大地震（最大想定）",color:"#ff3b3b",mag:"M9.1",prob30:"70〜80%",
+     dead:"約3万2,000人",injured:"約5万8,000人",fullDestroy:"約13万棟",halfDestroy:"約24万棟",
+     fire:"約250件",burnedHouses:"約6,500棟",evacuees:"約85万人",stranded:"―",economicLoss:"約17兆円",
+     scenario:"冬・深夜・満潮・最大津波",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"徳島県地震被害想定(R4)"},
+    {rank:2,name:"中央構造線断層帯（讃岐山脈南縁〜石鎚山脈北縁）地震",color:"#ff7a2e",mag:"M7.5〜8.0",prob30:"ほぼ0〜12%（S）",
+     dead:"約5,000人",injured:"約1万4,000人",fullDestroy:"約2万5,000棟",halfDestroy:"約4万5,000棟",
+     fire:"約300件",burnedHouses:"約6,000棟",evacuees:"約35万人",stranded:"―",economicLoss:"約7兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"徳島県地震被害想定"},
+    {rank:3,name:"田辺海盆地震（東海沖）",color:"#ffc94d",mag:"M7.5",prob30:"数%",
+     dead:"約1,500人",injured:"約4,500人",fullDestroy:"約7,000棟",halfDestroy:"約1万4,000棟",
+     fire:"約100件",burnedHouses:"約2,000棟",evacuees:"約15万人",stranded:"―",economicLoss:"約3.5兆円",
+     scenario:"冬・深夜・津波",
+     source1:"地震調査研究推進本部",source2:"徳島県地震被害想定"},
+  ],
+
+  "香川県": [
+    {rank:1,name:"南海トラフ巨大地震",color:"#ff3b3b",mag:"M9.1",prob30:"70〜80%",
+     dead:"約1万3,000人",injured:"約3万人",fullDestroy:"約14万棟",halfDestroy:"約28万棟",
+     fire:"約400件",burnedHouses:"約8,000棟",evacuees:"約75万人",stranded:"―",economicLoss:"約16兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"香川県地震被害想定(R4)"},
+    {rank:2,name:"中央構造線断層帯（讃岐山脈南縁）地震",color:"#ff7a2e",mag:"M7.5〜8.0",prob30:"ほぼ0〜12%（S）",
+     dead:"約4,000人",injured:"約1万1,000人",fullDestroy:"約1万8,000棟",halfDestroy:"約3万5,000棟",
+     fire:"約250件",burnedHouses:"約5,000棟",evacuees:"約28万人",stranded:"―",economicLoss:"約6兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"香川県地震被害想定"},
+    {rank:3,name:"讃岐山脈南縁東部断層地震",color:"#ffc94d",mag:"M7.2",prob30:"数%",
+     dead:"約800人",injured:"約2,500人",fullDestroy:"約6,000棟",halfDestroy:"約1万2,000棟",
+     fire:"約70件",burnedHouses:"約1,200棟",evacuees:"約10万人",stranded:"―",economicLoss:"約2兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"香川県地震被害想定"},
+  ],
+
+  "愛媛県": [
+    {rank:1,name:"南海トラフ巨大地震（最大想定）",color:"#ff3b3b",mag:"M9.1",prob30:"70〜80%",
+     dead:"約2万9,000人",injured:"約5万2,000人",fullDestroy:"約14万棟",halfDestroy:"約27万棟",
+     fire:"約300件",burnedHouses:"約7,000棟",evacuees:"約80万人",stranded:"―",economicLoss:"約16兆円",
+     scenario:"冬・深夜・満潮・津波",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"愛媛県地震被害想定(R4)"},
+    {rank:2,name:"中央構造線断層帯（石鎚山脈北縁）地震",color:"#ff7a2e",mag:"M7.5〜8.0",prob30:"ほぼ0〜12%（S）",
+     dead:"約3,500人",injured:"約9,000人",fullDestroy:"約1万5,000棟",halfDestroy:"約3万棟",
+     fire:"約200件",burnedHouses:"約4,000棟",evacuees:"約25万人",stranded:"―",economicLoss:"約5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"愛媛県地震被害想定"},
+    {rank:3,name:"伊予断層帯地震",color:"#ffc94d",mag:"M7.1",prob30:"数%",
+     dead:"約600人",injured:"約2,000人",fullDestroy:"約5,000棟",halfDestroy:"約1万棟",
+     fire:"約60件",burnedHouses:"約1,000棟",evacuees:"約8万人",stranded:"―",economicLoss:"約1.5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"愛媛県地震被害想定"},
+  ],
+
+  "高知県": [
+    {rank:1,name:"南海トラフ巨大地震（最大想定）",color:"#ff3b3b",mag:"M9.1",prob30:"70〜80%",
+     dead:"約4万9,000人",injured:"約8万5,000人",fullDestroy:"約12万棟",halfDestroy:"約21万棟",
+     fire:"約200件",burnedHouses:"約5,000棟",evacuees:"約65万人",stranded:"―",economicLoss:"約12兆円",
+     scenario:"冬・深夜・満潮・最大津波",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"高知県地震被害想定(R5)"},
+    {rank:2,name:"田辺海盆〜室戸沖地震",color:"#ff7a2e",mag:"M7.5",prob30:"数%",
+     dead:"約3,000人",injured:"約8,000人",fullDestroy:"約5,000棟",halfDestroy:"約1万棟",
+     fire:"約80件",burnedHouses:"約1,500棟",evacuees:"約20万人",stranded:"―",economicLoss:"約3兆円",
+     scenario:"冬・深夜・津波",
+     source1:"地震調査研究推進本部",source2:"高知県地震被害想定"},
+    {rank:3,name:"土佐湾沖地震（M7前後）",color:"#ffc94d",mag:"M7.2",prob30:"高い",
+     dead:"約500人",injured:"約1,500人",fullDestroy:"約2,500棟",halfDestroy:"約5,000棟",
+     fire:"約40件",burnedHouses:"約700棟",evacuees:"約8万人",stranded:"―",economicLoss:"約1兆円",
+     scenario:"冬・深夜・津波",
+     source1:"地震調査研究推進本部",source2:"高知県地震被害想定"},
+  ],
+
+  "福岡県": [
+    {rank:1,name:"警固断層帯（南東区間）地震",color:"#ff3b3b",mag:"M7.2",prob30:"0.3〜6%（S）",
+     dead:"約5,900人",injured:"約2万6,000人",fullDestroy:"約17万棟",halfDestroy:"約29万棟",
+     fire:"約1,000件",burnedHouses:"約2万棟",evacuees:"約90万人",stranded:"―",economicLoss:"約20兆円",
+     scenario:"冬・夕方・強風",
+     source1:"地震調査研究推進本部",source2:"福岡県地震被害想定(R4)"},
+    {rank:2,name:"西山断層帯地震",color:"#ff7a2e",mag:"M7.3〜7.9",prob30:"0.003〜8%（S）",
+     dead:"約1,200人",injured:"約5,000人",fullDestroy:"約5万棟",halfDestroy:"約10万棟",
+     fire:"約300件",burnedHouses:"約6,000棟",evacuees:"約30万人",stranded:"―",economicLoss:"約7兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"福岡県地震被害想定"},
+    {rank:3,name:"周防灘断層群地震",color:"#ffc94d",mag:"M7.6",prob30:"数%",
+     dead:"約300人",injured:"約1,000人",fullDestroy:"約2,500棟",halfDestroy:"約5,000棟",
+     fire:"約40件",burnedHouses:"約600棟",evacuees:"約6万人",stranded:"―",economicLoss:"約1.5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"福岡県地震被害想定"},
+  ],
+
+  "佐賀県": [
+    {rank:1,name:"佐賀平野北縁断層地震",color:"#ff3b3b",mag:"M7.1",prob30:"数%",
+     dead:"約1,800人",injured:"約5,500人",fullDestroy:"約1万5,000棟",halfDestroy:"約2万8,000棟",
+     fire:"約120件",burnedHouses:"約2,500棟",evacuees:"約16万人",stranded:"―",economicLoss:"約3.5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"佐賀県地震被害想定(R3)"},
+    {rank:2,name:"警固断層帯南東延伸部地震",color:"#ff7a2e",mag:"M7.0",prob30:"数%",
+     dead:"約500人",injured:"約1,500人",fullDestroy:"約4,000棟",halfDestroy:"約9,000棟",
+     fire:"約50件",burnedHouses:"約900棟",evacuees:"約6万人",stranded:"―",economicLoss:"約1.2兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"佐賀県地震被害想定"},
+    {rank:3,name:"有明海断層群地震",color:"#ffc94d",mag:"M6.8",prob30:"数%",
+     dead:"約200人",injured:"約600人",fullDestroy:"約2,000棟",halfDestroy:"約5,000棟",
+     fire:"約20件",burnedHouses:"約300棟",evacuees:"約3万人",stranded:"―",economicLoss:"約5,000億円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"佐賀県地震被害想定"},
+  ],
+
+  "長崎県": [
+    {rank:1,name:"雲仙断層群地震",color:"#ff3b3b",mag:"M7.3",prob30:"ほぼ0〜4%（S）",
+     dead:"約2,000人",injured:"約6,000人",fullDestroy:"約1万5,000棟",halfDestroy:"約2万8,000棟",
+     fire:"約130件",burnedHouses:"約2,500棟",evacuees:"約16万人",stranded:"―",economicLoss:"約3.5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"長崎県地震被害想定(R3)"},
+    {rank:2,name:"五島灘断層地震",color:"#ff7a2e",mag:"M7.1",prob30:"数%",
+     dead:"約400人",injured:"約1,200人",fullDestroy:"約3,500棟",halfDestroy:"約7,000棟",
+     fire:"約30件",burnedHouses:"約500棟",evacuees:"約5万人",stranded:"―",economicLoss:"約8,000億円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"長崎県地震被害想定"},
+    {rank:3,name:"日本海東縁部地震（壱岐・対馬沖）",color:"#ffc94d",mag:"M7.6",prob30:"不明",
+     dead:"約200人",injured:"約600人",fullDestroy:"約2,000棟",halfDestroy:"約4,500棟",
+     fire:"約20件",burnedHouses:"約300棟",evacuees:"約3万人",stranded:"―",economicLoss:"約5,000億円",
+     scenario:"冬・深夜・津波",
+     source1:"地震調査研究推進本部",source2:"長崎県地震被害想定"},
+  ],
+
+  "熊本県": [
+    {rank:1,name:"布田川断層帯・日奈久断層帯地震（2016年型）",color:"#ff3b3b",mag:"M7.5〜8.0",prob30:"ほぼ0〜16%（S）",
+     dead:"約3,300人",injured:"約1万2,000人",fullDestroy:"約5万棟",halfDestroy:"約10万棟",
+     fire:"約200件",burnedHouses:"約4,000棟",evacuees:"約45万人",stranded:"―",economicLoss:"約10兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"熊本県地震被害想定(R4)"},
+    {rank:2,name:"熊本県北部断層地震",color:"#ff7a2e",mag:"M7.1",prob30:"数%",
+     dead:"約800人",injured:"約3,000人",fullDestroy:"約9,000棟",halfDestroy:"約1万8,000棟",
+     fire:"約70件",burnedHouses:"約1,400棟",evacuees:"約12万人",stranded:"―",economicLoss:"約2.5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"熊本県地震被害想定"},
+    {rank:3,name:"南海トラフ巨大地震（熊本への影響）",color:"#ffc94d",mag:"M9.1",prob30:"70〜80%",
+     dead:"約400人",injured:"約2,000人",fullDestroy:"約4,000棟",halfDestroy:"約9,000棟",
+     fire:"約50件",burnedHouses:"約800棟",evacuees:"約10万人",stranded:"―",economicLoss:"約2.5兆円",
+     scenario:"冬・深夜",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"熊本県地震被害想定"},
+  ],
+
+  "大分県": [
+    {rank:1,name:"南海トラフ巨大地震（最大想定）",color:"#ff3b3b",mag:"M9.1",prob30:"70〜80%",
+     dead:"約1万4,000人",injured:"約2万8,000人",fullDestroy:"約10万棟",halfDestroy:"約20万棟",
+     fire:"約250件",burnedHouses:"約5,000棟",evacuees:"約60万人",stranded:"―",economicLoss:"約12兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"大分県地震被害想定(R4)"},
+    {rank:2,name:"別府－万年山断層帯地震",color:"#ff7a2e",mag:"M6.7〜7.6",prob30:"S〜A区間",
+     dead:"約3,200人",injured:"約9,000人",fullDestroy:"約3万2,000棟",halfDestroy:"約5万5,000棟",
+     fire:"約300件",burnedHouses:"約6,000棟",evacuees:"約32万人",stranded:"―",economicLoss:"約7兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"大分県地震被害想定"},
+    {rank:3,name:"大分平野〜由布院断層帯地震",color:"#ffc94d",mag:"M7.2",prob30:"数%",
+     dead:"約800人",injured:"約2,500人",fullDestroy:"約7,000棟",halfDestroy:"約1万4,000棟",
+     fire:"約80件",burnedHouses:"約1,500棟",evacuees:"約10万人",stranded:"―",economicLoss:"約2兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"大分県地震被害想定"},
+  ],
+
+  "宮崎県": [
+    {rank:1,name:"南海トラフ巨大地震（最大想定）",color:"#ff3b3b",mag:"M9.1",prob30:"70〜80%",
+     dead:"約2万2,000人",injured:"約3万8,000人",fullDestroy:"約9万棟",halfDestroy:"約17万棟",
+     fire:"約180件",burnedHouses:"約4,000棟",evacuees:"約55万人",stranded:"―",economicLoss:"約10兆円",
+     scenario:"冬・深夜・満潮・最大津波",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"宮崎県地震被害想定(R4)"},
+    {rank:2,name:"日向灘地震（M8前後）",color:"#ff7a2e",mag:"M7.6〜8.1",prob30:"高い",
+     dead:"約4,500人",injured:"約8,000人",fullDestroy:"約2万5,000棟",halfDestroy:"約5万棟",
+     fire:"約120件",burnedHouses:"約2,500棟",evacuees:"約35万人",stranded:"―",economicLoss:"約6兆円",
+     scenario:"冬・深夜・津波",
+     source1:"地震調査研究推進本部",source2:"宮崎県地震被害想定"},
+    {rank:3,name:"都城盆地断層帯地震",color:"#ffc94d",mag:"M7.2",prob30:"数%",
+     dead:"約600人",injured:"約2,000人",fullDestroy:"約5,500棟",halfDestroy:"約1万1,000棟",
+     fire:"約60件",burnedHouses:"約1,000棟",evacuees:"約8万人",stranded:"―",economicLoss:"約1.5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"宮崎県地震被害想定"},
+  ],
+
+  "鹿児島県": [
+    {rank:1,name:"南海トラフ巨大地震（波及）",color:"#ff3b3b",mag:"M9.1",prob30:"70〜80%",
+     dead:"約4,000人",injured:"約9,000人",fullDestroy:"約3万棟",halfDestroy:"約7万棟",
+     fire:"約100件",burnedHouses:"約2,000棟",evacuees:"約30万人",stranded:"―",economicLoss:"約5兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府 南海トラフ被害想定(R5)",source2:"鹿児島県地震被害想定(R4)"},
+    {rank:2,name:"北薩断層帯地震",color:"#ff7a2e",mag:"M7.1",prob30:"数%",
+     dead:"約1,200人",injured:"約4,000人",fullDestroy:"約1万棟",halfDestroy:"約2万棟",
+     fire:"約80件",burnedHouses:"約1,500棟",evacuees:"約12万人",stranded:"―",economicLoss:"約2.5兆円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"鹿児島県地震被害想定"},
+    {rank:3,name:"鹿児島湾内地震（1997年型）",color:"#ffc94d",mag:"M6.7",prob30:"高い",
+     dead:"約200人",injured:"約700人",fullDestroy:"約3,000棟",halfDestroy:"約7,000棟",
+     fire:"約30件",burnedHouses:"約500棟",evacuees:"約5万人",stranded:"―",economicLoss:"約7,000億円",
+     scenario:"冬・深夜",
+     source1:"地震調査研究推進本部",source2:"鹿児島県地震被害想定"},
+  ],
+
+  "沖縄県": [
+    {rank:1,name:"南西諸島海溝沿い巨大地震",color:"#ff3b3b",mag:"M8.7",prob30:"不明",
+     dead:"約1万2,000人",injured:"約2万人",fullDestroy:"約5万棟",halfDestroy:"約10万棟",
+     fire:"約120件",burnedHouses:"約2,000棟",evacuees:"約40万人",stranded:"―",economicLoss:"約7兆円",
+     scenario:"冬・深夜・津波",
+     source1:"内閣府・地震調査研究推進本部",source2:"沖縄県地震被害想定(R4)"},
+    {rank:2,name:"南部沖縄トラフ地震",color:"#ff7a2e",mag:"M8.0",prob30:"数%",
+     dead:"約3,000人",injured:"約8,000人",fullDestroy:"約1万5,000棟",halfDestroy:"約3万棟",
+     fire:"約60件",burnedHouses:"約1,000棟",evacuees:"約15万人",stranded:"―",economicLoss:"約3兆円",
+     scenario:"冬・深夜・津波",
+     source1:"地震調査研究推進本部",source2:"沖縄県地震被害想定"},
+    {rank:3,name:"宮古島近海地震",color:"#ffc94d",mag:"M7.5",prob30:"高い",
+     dead:"約400人",injured:"約1,200人",fullDestroy:"約3,500棟",halfDestroy:"約7,000棟",
+     fire:"約25件",burnedHouses:"約400棟",evacuees:"約5万人",stranded:"―",economicLoss:"約8,000億円",
+     scenario:"冬・深夜・津波",
+     source1:"地震調査研究推進本部",source2:"沖縄県地震被害想定"},
+  ],
+
+  /* ---- 未整備県（共通フォールバック用）---- */
+};
+
+/* データが未登録の県に対する共通フォールバックは不要。全県データ済み */
+
+/* =====================================================
+   UI 初期化
+   ===================================================== */
+const prefSel = document.getElementById('pref');
+const allPrefs = Object.keys(EQ_DATA).filter(k=>!k.includes('('));
+// PREF_PROBの順に並べる
+Object.keys(PREF_PROB).forEach(p=>{
+  const o=document.createElement('option');o.value=p;o.textContent=p;prefSel.appendChild(o);
+});
+
+prefSel.addEventListener('change',()=>{
+  const p=prefSel.value;
+  if(!p){document.getElementById('result').classList.remove('show');return;}
+  renderResult(p);
+  document.getElementById('result').classList.add('show');
+  requestAnimationFrame(()=>document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'}));
+});
+
+/* =====================================================
+   描画
+   ===================================================== */
+const RANK_LABELS = ['','1st','2nd','3rd'];
+
+function renderResult(pref){
+  const eqs = EQ_DATA[pref]||[];
+  const prob = PREF_PROB[pref]||0;
+  const maxDead = eqs.length ? eqs[0].dead : '―';
+
+  document.getElementById('bPref').textContent = pref;
+  document.getElementById('bSub').textContent = '今後30年以内に震度6弱以上の確率：'+prob+'%　|　地震本部・内閣府データ準拠';
+  document.getElementById('bProb').textContent = prob+'%';
+  document.getElementById('bCount').textContent = eqs.length+'シナリオ';
+  document.getElementById('bMaxDead').textContent = maxDead;
+
+  const list = document.getElementById('eqList');
+  list.innerHTML='';
+
+  eqs.forEach((eq,idx)=>{
+    const card=document.createElement('div');
+    card.className='eq-card';
+
+    card.innerHTML=`
+      <div class="eq-card-head">
+        <div class="eq-rank-badge" style="background:${eq.color};">${idx+1}</div>
+        <div class="eq-info">
+          <div class="eq-name">${eq.name}</div>
+          <div class="eq-mag">M${eq.mag}　30年確率：${eq.prob30}</div>
+        </div>
+        <div class="eq-prob-badge" style="color:${eq.color};border-color:${eq.color}20;background:${eq.color}14;">
+          ${RANK_LABELS[idx+1]}
+        </div>
+        <div class="eq-arrow">▾</div>
+      </div>
+      <div class="eq-damage-bar">
+        <div class="eq-db-item">
+          <div class="eq-db-k">死者</div>
+          <div class="eq-db-v" style="color:${eq.color};">${eq.dead}</div>
+        </div>
+        <div class="eq-db-item">
+          <div class="eq-db-k">全壊棟数</div>
+          <div class="eq-db-v">${eq.fullDestroy}</div>
+        </div>
+        <div class="eq-db-item">
+          <div class="eq-db-k">避難者</div>
+          <div class="eq-db-v">${eq.evacuees}</div>
+        </div>
+        <div class="eq-db-item">
+          <div class="eq-db-k">経済損失</div>
+          <div class="eq-db-v">${eq.economicLoss}</div>
+        </div>
+      </div>
+      <div class="eq-tap-hint">▸ タップして詳細な被害想定を見る</div>
+    `;
+
+    card.addEventListener('click',()=>openOverlay(eq,idx+1));
+    list.appendChild(card);
+  });
+}
+
+/* =====================================================
+   オーバーレイ
+   ===================================================== */
+function openOverlay(eq,rank){
+  document.getElementById('ovBadge').textContent=rank;
+  document.getElementById('ovBadge').style.background=eq.color;
+  document.getElementById('ovTitle').textContent=eq.name;
+  document.getElementById('ovSub').textContent='想定M'+eq.mag+'　30年発生確率：'+eq.prob30;
+
+  document.getElementById('ovBody').innerHTML=`
+    <div class="scenario-box">
+      <b>📋 想定シナリオ条件：</b>${eq.scenario}<br>
+      <b>⚠ 注意：</b>以下はすべて最大クラス・最悪条件下の推計値です。実際の被害は発生時刻・季節・気象・建物耐震性により大きく異なります。
+    </div>
+
+    <div class="damage-grid">
+      <div class="dg-item">
+        <div class="dg-icon">❤️</div>
+        <div class="dg-k">死者数（最大）</div>
+        <div class="dg-v" style="color:${eq.color};">${eq.dead}</div>
+        <div class="dg-note">冬・深夜等の最悪条件時の推計</div>
+      </div>
+      <div class="dg-item">
+        <div class="dg-icon">🚑</div>
+        <div class="dg-k">負傷者数（最大）</div>
+        <div class="dg-v">${eq.injured}</div>
+        <div class="dg-note">重傷・軽傷の合計推計</div>
+      </div>
+      <div class="dg-item">
+        <div class="dg-icon">🏚</div>
+        <div class="dg-k">建物全壊棟数</div>
+        <div class="dg-v">${eq.fullDestroy}</div>
+        <div class="dg-sub">半壊：${eq.halfDestroy}</div>
+      </div>
+      <div class="dg-item">
+        <div class="dg-icon">🔥</div>
+        <div class="dg-k">出火件数／焼失棟数</div>
+        <div class="dg-v">${eq.fire}</div>
+        <div class="dg-sub">焼失：${eq.burnedHouses}</div>
+      </div>
+      <div class="dg-item">
+        <div class="dg-icon">🏕</div>
+        <div class="dg-k">避難者数</div>
+        <div class="dg-v">${eq.evacuees}</div>
+        <div class="dg-note">最大時・ピーク時の推計</div>
+      </div>
+      <div class="dg-item">
+        <div class="dg-icon">🚶</div>
+        <div class="dg-k">帰宅困難者数</div>
+        <div class="dg-v">${eq.stranded}</div>
+        <div class="dg-note">都市部では特に大規模発生</div>
+      </div>
+      <div class="dg-item full">
+        <div class="dg-icon">💴</div>
+        <div class="dg-k">経済被害額（推計）</div>
+        <div class="dg-v" style="font-size:26px;">${eq.economicLoss}</div>
+        <div class="dg-note">建物・インフラ・産業等の直接・間接損失の合計推計</div>
+      </div>
+    </div>
+
+    <div class="src-row">
+      <span class="src-badge">国・内閣府</span>
+      <span class="src-badge">都道府県公表値</span>
+      <span class="src-badge">地震調査研究推進本部</span>
+    </div>
+    <div class="src-text">
+      <b>国・内閣府：</b>${eq.source1}<br>
+      <b>都道府県：</b>${eq.source2}
+    </div>
+
+    <div class="disclaimer-mini">
+      <b>免責：</b>掲載データは内閣府・各都道府県・地震調査研究推進本部の公表値をもとにした参考情報です。正確性・最新性を保証するものではありません。実際の避難・安全確保は必ず公式発表・自治体の指示に従ってください。当ツールの情報のみに依拠した判断は行わないでください。
+    </div>
+  `;
+
+  document.getElementById('overlay').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+
+function closeOverlay(){
+  document.getElementById('overlay').classList.remove('show');
+  document.body.style.overflow='';
+}
+
+document.getElementById('ovClose').addEventListener('click',closeOverlay);
+document.getElementById('overlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('overlay')) closeOverlay();
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeOverlay(); });
+
+// スワイプで閉じる
+let startY=0;
+document.getElementById('ovSheet').addEventListener('touchstart',e=>{startY=e.touches[0].clientY;},{passive:true});
+document.getElementById('ovSheet').addEventListener('touchend',e=>{
+  if(e.changedTouches[0].clientY - startY > 60) closeOverlay();
+},{passive:true});
+
+/* 免責事項アコーディオン */
+document.getElementById('disclHead').addEventListener('click',()=>{
+  const head=document.getElementById('disclHead');
+  const body=document.getElementById('disclBody');
+  const isOpen=body.classList.contains('open');
+  head.classList.toggle('open',!isOpen);
+  body.classList.toggle('open',!isOpen);
+});
+
+var DWA_TITLE = '地震被害想定ツール';
+var DWA_DESC  = '都道府県を選ぶだけで、想定される地震の規模・死者数・建物被害・経済損失がわかります。';
+
+/* 診断結果を文章にする */
+function dwaBuildResultText(){
+  var sel = document.getElementById('pref');
+  if(!sel || !sel.value) return '';
+  var pref = sel.value;
+  var eqs = (typeof EQ_DATA !== 'undefined' && EQ_DATA[pref]) ? EQ_DATA[pref] : [];
+  var prob = (typeof PREF_PROB !== 'undefined' && PREF_PROB[pref]) ? PREF_PROB[pref] : '―';
+  if(!eqs.length) return '';
+
+  var t = '【地震被害想定】' + pref + '\n';
+  t += '30年以内に震度6弱以上の確率: ' + prob + '%\n';
+  t += '想定シナリオ: ' + eqs.length + '件\n\n';
+  var n = Math.min(eqs.length, 3);
+  for(var i=0;i<n;i++){
+    var e = eqs[i];
+    t += (i+1) + '. ' + e.name + '（' + e.mag + '）\n';
+    t += '   死者 ' + e.dead + ' / 負傷 ' + e.injured + '\n';
+    t += '   全壊 ' + e.fullDestroy + ' / 半壊 ' + e.halfDestroy + '\n';
+    t += '   避難者 ' + e.evacuees + ' / 経済損失 ' + e.economicLoss + '\n';
+    if(e.scenario) t += '   想定条件: ' + e.scenario + '\n';
+    t += '\n';
+  }
+  if(eqs.length > n) t += '（ほか ' + (eqs.length - n) + '件）\n';
+  return t;
+}
+
+/* ============================================================
+   共通UI
+   ============================================================ */
+/* ---- 表示モード ---- */
+function dwaApplyTheme(light){
+  document.documentElement.classList.toggle('dwa-light', light);
+  var ic = document.getElementById('dwaThemeIcon');
+  var lb = document.getElementById('dwaThemeLabel');
+  if(ic) ic.textContent = light ? '🌙' : '☀️';
+  if(lb) lb.textContent = light ? 'ダークモードにする' : 'ライトモードにする';
+}
+function dwaToggleTheme(){
+  var light = !document.documentElement.classList.contains('dwa-light');
+  dwaApplyTheme(light);
+  try{ localStorage.setItem('dwaTheme', light ? 'light' : 'dark'); }catch(e){}
+  if(typeof dwaOnThemeChange === 'function') dwaOnThemeChange(light);
+}
+
+/* ---- 表示サイズ ---- */
+function dwaSetScale(v){
+  document.documentElement.style.setProperty('--dwa-scale', v);
+  try{ localStorage.setItem('dwaScale', String(v)); }catch(e){}
+  var btns = document.querySelectorAll('.dwa-size');
+  for(var i=0;i<btns.length;i++){
+    btns[i].classList.toggle('on', parseFloat(btns[i].getAttribute('data-scale')) === v);
+  }
+  if(typeof dwaOnScaleChange === 'function') dwaOnScaleChange(v);
+}
+
+/* ---- メニュー ---- */
+function dwaOpenMenu(){ document.getElementById('dwaOv').classList.add('open'); document.body.style.overflow='hidden'; }
+function dwaCloseMenu(){ document.getElementById('dwaOv').classList.remove('open'); document.body.style.overflow=''; }
+function dwaOpenHelp(){ dwaCloseMenu(); document.getElementById('dwaHelp').classList.add('open'); }
+function dwaOpenPrivacy(){ dwaCloseMenu(); document.getElementById('dwaPriv').classList.add('open'); }
+function dwaCloseModal(id){ document.getElementById(id).classList.remove('open'); }
+
+document.addEventListener('keydown', function(e){
+  if(e.key !== 'Escape') return;
+  dwaCloseMenu();
+  dwaCloseModal('dwaHelp');
+  dwaCloseModal('dwaPriv');
+});
+
+/* ---- お知らせ表示 ---- */
+function dwaToast(msg){
+  var t = document.getElementById('dwaToast');
+  if(!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tm);
+  t._tm = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
+
+/* ---- コピーと共有 ---- */
+function dwaCopy(text, done){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text)
+      .then(function(){ dwaToast(done || 'コピーしました'); })
+      .catch(function(){ dwaCopyFallback(text, done); });
+  }else{
+    dwaCopyFallback(text, done);
+  }
+}
+function dwaCopyFallback(text, done){
+  try{
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    dwaToast(done || 'コピーしました');
+  }catch(e){
+    prompt('以下をコピーしてください', text);
+  }
+}
+
+/* ツール自体を共有する */
+function dwaShare(){
+  dwaCloseMenu();
+  var url = location.href.split('#')[0];
+  var text = DWA_TITLE + '｜DWA防災情報センター\n' + DWA_DESC + '\n';
+  if(navigator.share){
+    navigator.share({ title: DWA_TITLE, text: text, url: url }).catch(function(){});
+    return;
+  }
+  dwaCopy(text + url, '共有メッセージをコピーしました');
+}
+
+/* 診断結果を共有する */
+function dwaShareResult(){
+  var body = (typeof dwaBuildResultText === 'function') ? dwaBuildResultText() : '';
+  if(!body){ dwaToast('先に都道府県を選んでください'); return; }
+  var url = location.href.split('#')[0];
+  var text = body + '\n' + DWA_TITLE + '｜DWA防災情報センター\n';
+  if(navigator.share){
+    navigator.share({ title: DWA_TITLE, text: text, url: url }).catch(function(){});
+    return;
+  }
+  dwaCopy(text + url, '診断結果をコピーしました');
+}
+
+/* 診断結果をコピーする */
+function dwaCopyResult(){
+  var body = (typeof dwaBuildResultText === 'function') ? dwaBuildResultText() : '';
+  if(!body){ dwaToast('先に都道府県を選んでください'); return; }
+  dwaCopy(body + '\n' + DWA_TITLE + '｜DWA防災情報センター\n' + location.href.split('#')[0],
+          '診断結果をコピーしました');
+}
+
+/* ---- 起動時の復元 ---- */
+(function(){
+  var th = null, sc = null;
+  try{ th = localStorage.getItem('dwaTheme'); sc = localStorage.getItem('dwaScale'); }catch(e){}
+  dwaApplyTheme(th === 'light');
+  dwaSetScale(sc ? parseFloat(sc) : 1);
+})();
+
+</script>
+
+<div class="dwa-ov" id="dwaOv" onclick="if(event.target===this)dwaCloseMenu()">
+  <div class="dwa-panel">
+    <button class="dwa-close" onclick="dwaCloseMenu()" aria-label="閉じる">✕</button>
+    <h3>メニュー</h3>
+    <div class="sub">DWA防災情報センター</div>
+
+    <div class="dwa-sec">// 表示</div>
+    <button type="button" class="dwa-item" onclick="dwaToggleTheme()">
+      <span id="dwaThemeIcon">🌙</span><span id="dwaThemeLabel">ダークモード</span>
+    </button>
+    <div class="dwa-sec">// 表示サイズ</div>
+    <div class="dwa-sizes">
+      <button type="button" class="dwa-size" data-scale="0.9" onclick="dwaSetScale(0.9)"><span class="s">小</span><span class="l">90%</span></button>
+      <button type="button" class="dwa-size" data-scale="1" onclick="dwaSetScale(1)"><span class="s">標準</span><span class="l">100%</span></button>
+      <button type="button" class="dwa-size" data-scale="1.15" onclick="dwaSetScale(1.15)"><span class="s">大</span><span class="l">115%</span></button>
+      <button type="button" class="dwa-size" data-scale="1.3" onclick="dwaSetScale(1.3)"><span class="s">特大</span><span class="l">130%</span></button>
+    </div>
+
+    <div class="dwa-sec">// このツールについて</div>
+    <button type="button" class="dwa-item" onclick="dwaOpenHelp()">📖 取扱説明・使い方</button>
+    <button type="button" class="dwa-item" onclick="dwaOpenPrivacy()">🔒 プライバシーポリシー</button>
+    <button type="button" class="dwa-item" onclick="dwaShare()">📤 このツールを共有する</button>
+
+    <div class="dwa-sec">// 他のツール</div>
+    <a class="dwa-item" href="jishin-risk.html">⚡ 地震リスク統合診断ツール</a>
+    <a class="dwa-item" href="earthquake-map.html">🌍 グローバル地震マップ</a>
+    <a class="dwa-item" href="index.html">🏠 防災情報センター トップ</a>
+  </div>
+</div>
+
+<div class="dwa-modal" id="dwaHelp" onclick="if(event.target===this)dwaCloseModal('dwaHelp')">
+  <div class="dwa-modal-in">
+    <button class="dwa-close" onclick="dwaCloseModal('dwaHelp')" aria-label="閉じる">✕</button>
+    <h3>📖 取扱説明・使い方</h3>
+    
+<h4>このツールでわかること</h4>
+<p>都道府県を選ぶと、その地域で想定されている主要な地震について、
+国や自治体が公表している被害想定を一覧で確認できます。</p>
+<ul>
+  <li><b>想定される地震</b>の名称と規模（マグニチュード）</li>
+  <li><b>死者・負傷者</b>の想定数</li>
+  <li><b>建物被害</b>（全壊・半壊・焼失）</li>
+  <li><b>避難者数</b>と<b>経済損失</b></li>
+  <li>その想定が<b>どんな条件</b>（季節・時刻・天候）で計算されたか</li>
+</ul>
+<h4>使い方</h4>
+<ul>
+  <li>上部の<b>都道府県を選ぶ</b>と結果が出ます</li>
+  <li>被害の大きい順に並んでいます。一番上がその地域で最も警戒すべき地震です</li>
+  <li>各カードの<b>出典</b>で、どの機関の想定かを確認できます</li>
+  <li><b>📋 結果をコピー</b>で診断内容を文章として書き出せます</li>
+</ul>
+<h4>数値を読むときの注意</h4>
+<p>被害想定は<b>「最悪の場合」を含む幅のある見積もり</b>です。
+多くは冬の深夜や風の強い夕方など、被害が大きくなりやすい条件で計算されています。
+そのまま起きると決まっているわけではありません。</p>
+<p>逆に、<b>想定を上回ることもあります</b>。
+建物の耐震化や家具の固定、早めの避難によって、被害は大きく減らせます。
+数字に怯えるためではなく、備えを決めるための材料としてお使いください。</p>
+<h4>表示の調整</h4>
+<p>メニューから<b>ライト／ダークの切替</b>と<b>文字の大きさ</b>（小・標準・大・特大）を変更できます。
+設定は次回も引き継がれます。</p>
+
+    <div class="note">
+      数値は国や自治体が公表している想定・評価にもとづく概算です。
+      実際の被害は、地震の起こり方、季節、時刻、天候、建物の状態によって大きく変わります。
+      防災のご判断は、お住まいの自治体の公式情報とあわせてご確認ください。
+    </div>
+  </div>
+</div>
+
+<div class="dwa-modal" id="dwaPriv" onclick="if(event.target===this)dwaCloseModal('dwaPriv')">
+  <div class="dwa-modal-in">
+    <button class="dwa-close" onclick="dwaCloseModal('dwaPriv')" aria-label="閉じる">✕</button>
+    <h3>🔒 プライバシーポリシー</h3>
+    <h4>収集する情報</h4>
+    <p>このツールは、入力・選択された内容を<b>外部へ送信しません</b>。
+    すべての計算と表示は、お使いの端末のブラウザの中だけで行われます。
+    選んだ都道府県や診断結果が、運営者を含む第三者に渡ることはありません。</p>
+    <h4>端末への保存</h4>
+    <p>次の2つだけを、お使いのブラウザに保存します。見た目の設定のみで、個人を識別する情報は含みません。</p>
+    <ul>
+      <li>表示モード（ライト／ダーク）の選択</li>
+      <li>表示サイズ（文字の大きさ）の選択</li>
+    </ul>
+    <p>ブラウザの設定から閲覧データを削除すると、これらも消去されます。</p>
+    <h4>外部サービス</h4>
+    <p>このツールは外部のサービスを一切利用していません。すべてのデータはこのページの中に含まれており、通信は発生しません。そのため、一度開いたあとは通信が無い場所でもご利用いただけます。</p>
+    <h4>アクセス解析・広告</h4>
+    <p>このツール単体では、アクセス解析や広告配信は行っていません。</p>
+    <div class="note">
+      運営：DWA防災情報センター<br>
+      お問い合わせは<a href="index.html" style="color:var(--accent)">トップページ</a>のメニューからお願いします。
+    </div>
+  </div>
+</div>
+
+<div class="dwa-toast" id="dwaToast"></div>
+
+</body>
+</html>
