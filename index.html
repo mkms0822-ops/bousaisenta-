@@ -12098,7 +12098,7 @@ const tourSteps = [
   { sel:'.hp-header', title:'防災情報センターへようこそ', text:'地震速報をリアルタイムで表示する防災情報サイトです。ヘッダー右のこの機器パネルに、LIVE表示・現在時刻・更新ボタン・メニューがまとまっています。主な使い方を簡単にご案内します。' },
   { sel:'[data-tour="emg-plate"]', title:'🚨 緊急対応マニュアル', text:'ヘッダーの「緊急対応」プレートです。タップすると、サイトを離れずにその場で緊急対応マニュアルが全画面表示されます。地震・火災・救急・台風・防犯など、いざという時の対応手順を状況を選ぶだけで確認でき、「✕ 閉じる」で元の画面にそのまま戻れます。', fallbackToTop:true },
   { sel:'[data-tour="diag-plate"]', title:'🗾 被害想定診断ツール', text:'「被害想定診断ツール」ボタンです。都道府県を選ぶだけで、活断層マップ・地震の発生確率・想定される死者数や経済損失などを即座に確認できます。お住まいの地域のリスクをチェックしてみましょう。', fallbackToTop:true },
-  { sel:'#sosHeaderBtn', title:'🆘 緊急SOSビーコン', text:'ヘッダーの赤い「SOS」ボタンです。通信が無くても使える「音・光ビーコン」（画面をSOS信号で点滅させ、大音量アラームで居場所を知らせる）と、救急車式の連続サイレンが使えます。119・110へのワンタップ発信も可能。GPSでの位置発信・安否登録はプレミアム会員限定機能として10月に提供予定です。', fallbackToTop:true },
+  { sel:'#sosHeaderBtn', title:'🆘 緊急SOSビーコン', text:'ヘッダーの赤い「SOS」ボタンです。通信が無くても使える「音・光ビーコン」（画面をSOS信号で点滅させ、大音量アラームで居場所を知らせる）と、救急車式の連続サイレンが使えます。119・110へのワンタップ発信も可能です。', fallbackToTop:true },
   { sel:'[data-tour="tempmap"]', title:'🌡️ 全国 最高気温予測マップ', text:'SOSボタンの下にある「最高気温」ボタンです。タップすると全国の最高気温予測マップが開き、今日どこがどれくらい暑くなるかをひと目で確認できます。猛暑日や熱中症警戒アラートが出る日は、外出や運動の計画を立てる前にチェックしてみてください。', fallbackToTop:true },
   { sel:'[data-tour="live"]', title:'🟢 LIVE・現在時刻', text:'ヘッダー右の機器パネルです。赤いランプが点滅していれば「LIVE（リアルタイム配信中）」を表し、その下の窓に現在時刻が表示されます。地震データは自動で更新され続けます。' },
   { sel:'#siteRefreshBtn', title:'🔄 最新情報に更新', text:'パネル内の丸い矢印ボタンです。自動更新を待たずに、いますぐ最新の地震・気象情報を取り込みたいときにタップします。表示が古いと感じたらここを押してください。', fallbackToTop:true },
@@ -18951,7 +18951,7 @@ document.addEventListener('keydown', function(e){
 <!-- ============================================================
      ★緊急SOSビーコン＋注目ガイド＋チュートリアル文の上書き（完全版で自動組込済み）
      ・SOSビーコン … ヘッダーの赤いSOSボタンから開くパネル。
-        ①音・光ビーコン（通信不要）②GPS位置発信 ③安否登録
+        ①音・光ビーコン（通信不要）②電話での通報（119・110）
      ・チュートリアル文の上書き … 機能設定シートの「チュートリアル_本文N」が
         空欄でなければ、その文章で標準のチュートリアル説明を差し替える。
      ・注目ガイド … 機能設定シートの「注目ガイド_◯◯」で、指定した機能を
@@ -19112,15 +19112,6 @@ document.addEventListener('keydown', function(e){
       <div class="sos-row">
         <a class="sos-btn red" style="text-align:center;text-decoration:none;box-sizing:border-box;line-height:1.3" href="tel:119">📞 119へ電話<br><span style="font-size:11px;font-weight:400">火事・救急・救助</span></a>
         <a class="sos-btn blue" style="text-align:center;text-decoration:none;box-sizing:border-box;line-height:1.3" href="tel:110">📞 110へ電話<br><span style="font-size:11px;font-weight:400">事件・事故</span></a>
-      </div>
-    </div>
-
-    <div class="sos-sec" style="border-style:dashed">
-      <h3>③ GPS位置発信・安否登録 <span style="color:#ffd54f">（10月1日 提供開始予定）</span></h3>
-      <div class="sos-note">
-        現在地をワンタップで発信して、ご家族や運営と共有できる「GPS位置発信」と「安否登録」は、
-        <b style="color:#ffd54f">プレミアム会員限定機能</b>として <b>10月1日</b> に提供を開始する予定です。<br>
-        ※無料会員登録は8月開始予定。詳細は追ってサイト内のお知らせでご案内します。
       </div>
     </div>
 
@@ -19410,7 +19401,7 @@ document.addEventListener('keydown', function(e){
   };
 
   // ============================================================
-  // ② SOS位置発信 ③ 安否登録（GASへ記録）
+  // 位置情報と安否状態の記録（GASへ送信する内部処理）
   // ============================================================
   function nowStr() {
     var d = new Date();
