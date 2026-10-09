@@ -688,10 +688,11 @@ const ICON = {
   search: S('<circle cx="20" cy="20" r="13"/><path d="M30 30l11 11"/>'),
   shelter: S('<path d="M6 24 24 8l18 16"/><path d="M11 20v20h26V20"/><path d="M19 40V28h10v12"/>'),
   rescue: S('<circle cx="24" cy="24" r="16"/><circle cx="24" cy="24" r="7"/><path d="M24 8v9M24 31v9M8 24h9M31 24h9"/>'),
+  cyber: S('<rect x="6" y="8" width="36" height="24" rx="3"/><path d="M18 40h12M24 32v8"/>'),
 };
 
 /* =========================================================
-   データ：5カテゴリ × 分岐ツリー
+   データ：8カテゴリ × 分岐ツリー
    node: { q, lead, options:[{label, sub, icon, next|result}] }
    result: { badge, level, title, sub, steps:[{icon,head,desc,type}], note, call }
    ========================================================= */
@@ -1342,6 +1343,113 @@ const TREE = {
       }),
     }
   },
+
+  cyber: {
+    title:'サイバー攻撃・情報漏洩', icon:'cyber', color:'#00c2d1',
+    root:{
+      q:'どんなトラブルですか？', lead:'心当たりのある状況を選んでください。被害の拡大を止めることが最優先です。',
+      options:[
+        {label:'個人情報漏洩', sub:'自分や顧客の情報が流出した', icon:'lock', next:'pii'},
+        {label:'機密情報漏洩', sub:'社内の機密・取引先情報の流出', icon:'lock', next:'secret'},
+        {label:'アカウント乗っ取り', sub:'身に覚えのないログイン・変更', icon:'eye', next:'takeover'},
+        {label:'不正出金', sub:'口座・電子マネーからの身に覚えのない引き出し', icon:'warn', next:'withdraw'},
+        {label:'不正契約', sub:'身に覚えのない契約・購入', icon:'warn', next:'contract'},
+        {label:'通信障害', sub:'電話・インターネットがつながらない', icon:'off', next:'network'},
+        {label:'システム障害', sub:'業務システムが停止・異常動作', icon:'ac', next:'system'},
+      ]
+    },
+    nodes:{
+      pii: r({
+        level:'crit', badge:'個人情報の漏洩', title:'個人情報が流出したかもしれないとき',
+        sub:'二次被害（なりすまし・迷惑連絡）を防ぐことが目的です。',
+        steps:[
+          {icon:'lock', head:'被害の範囲を確認', desc:'どの情報（氏名・住所・カード番号など）が、いつ、どこから漏れたかを確認する。', type:'do'},
+          {icon:'lock', head:'カード・口座は早めに停止相談', desc:'カード番号や口座情報が含まれる場合は、すぐカード会社・銀行へ連絡し、利用停止や再発行を相談する。', type:'crit'},
+          {icon:'eye', head:'パスワードを変更', desc:'同じパスワードを使い回している他のサービスも含めて変更する。'},
+          {icon:'ear', head:'不審な連絡に注意', desc:'「情報が漏れた」と装う電話・メール・SMSには応じず、正規の窓口から確認する。', type:'crit'},
+          {icon:'phone', head:'被害があれば相談', desc:'悪用されたと感じたら警察へ相談する。緊急時は110番。'},
+        ],
+        note:{type:'danger',text:'流出元が企業などの場合は、その企業のお詫び・問い合わせ窓口の案内に従ってください。'},
+        pageLinks:[{href:'https://mkms0822-ops.github.io/cyberattack-response-guide/', icon:'share', label:'対応ガイド（Web版）を開く'}],
+        tels:[{num:'#9110', label:'#9110 警察相談に電話する', sub:'緊急でない相談', kind:'soft'}]
+      }),
+      secret: r({
+        level:'crit', badge:'機密情報の漏洩', title:'社内の機密情報が流出したとき',
+        sub:'拡散を止め、すぐ組織に報告することが最優先です。',
+        steps:[
+          {icon:'warn', head:'すぐ上司・情報セキュリティ担当へ報告', desc:'自己判断で隠さず、わかった時点で報告する。報告が早いほど対応の選択肢が増える。', type:'crit'},
+          {icon:'off', head:'拡散を止める', desc:'送信先への削除依頼、共有リンクの停止など、担当者の指示のもと拡散を止める。', type:'do'},
+          {icon:'eye', head:'証拠を残す', desc:'メールの履歴・送信日時・画面をスクリーンショットなどで記録する。'},
+          {icon:'lock', head:'削除・書き換えはしない', desc:'自分の判断でファイルやログを消すと、調査の妨げになる。'},
+          {icon:'ear', head:'社外への連絡は指示に従う', desc:'取引先や顧客への連絡は、会社の判断と担当部署の案内に従って行う。'},
+        ],
+        note:{type:'danger',text:'個人の判断で「大したことない」と決めつけないこと。組織としての対応が必要かは担当者が判断します。'}
+      }),
+      takeover: r({
+        level:'crit', badge:'アカウントの保護', title:'アカウントが乗っ取られたとき',
+        sub:'犯人にログインされている状態を断ち切ることが先です。',
+        steps:[
+          {icon:'eye', head:'パスワードを変更', desc:'ログインできるうちに、すぐパスワードを変更する。ログインできない場合は次の手順へ。', type:'do'},
+          {icon:'lock', head:'不審な端末からログアウト', desc:'設定画面の「ログイン中の端末」などから、見覚えのない端末を外す。二段階認証も設定する。', type:'crit'},
+          {icon:'warn', head:'連絡先・転送設定を確認', desc:'メールアドレス・電話番号・転送設定を書き換えられていないか確認し、元に戻す。'},
+          {icon:'ear', head:'友人・家族に知らせる', desc:'乗っ取られたアカウントから届く不審なメッセージやリンクに注意するよう伝える。'},
+          {icon:'phone', head:'運営・警察へ相談', desc:'復旧できない場合はサービス運営の問い合わせ窓口へ。悪用が続くなら警察へ相談する。'},
+        ],
+        note:{type:'danger',text:'同じパスワードを使い回している他のサービスも、すぐに変更してください。'}
+      }),
+      withdraw: r({
+        level:'crit', badge:'不正出金', title:'身に覚えのない引き出しがあったとき',
+        sub:'時間との勝負です。すぐに金融機関へ連絡してください。',
+        steps:[
+          {icon:'phone', head:'すぐ金融機関へ連絡', desc:'銀行・カード会社・電子マネーの提供元へ電話し、取引停止・口座凍結を依頼する。24時間の窓口がある場合も多い。', type:'crit'},
+          {icon:'lock', head:'ネットバンキングを停止', desc:'ログイン情報を変更し、利用を一時停止する。', type:'do'},
+          {icon:'eye', head:'明細・通知を記録', desc:'不正な取引の日時・金額・利用先をスクリーンショットなどで保存する。'},
+          {icon:'warn', head:'警察へ被害を届け出る', desc:'被害届を出し、受理番号や控えを金融機関の補償手続きに提出する。'},
+          {icon:'ear', head:'電話の「確認」に注意', desc:'銀行員や警察を名乗り、暗証番号やワンタイムパスワードを聞く電話には応じない。'},
+        ],
+        note:{type:'danger',text:'暗証番号・ワンタイムパスワードは、誰に聞かれても教えないこと。'},
+        call110:true
+      }),
+      contract: r({
+        level:'warn', badge:'不正契約', title:'身に覚えのない契約があったとき',
+        sub:'契約の証拠を残し、契約先と消費生活センターに相談します。',
+        steps:[
+          {icon:'eye', head:'契約内容を保存', desc:'契約書・申込み画面・届いたメールなどを保存し、契約先・日時を確認する。', type:'do'},
+          {icon:'phone', head:'契約先に身に覚えがないと伝える', desc:'取消し・解約を申し出て、対応の記録（担当者名・日時）を残す。', type:'crit'},
+          {icon:'lock', head:'支払い・引き落としを止める', desc:'請求が始まっている場合は、口座・カード会社にも連絡して支払いを止める。'},
+          {icon:'phone', head:'消費生活センターに相談', desc:'取消しの交渉が進まない場合は、最寄りの消費生活センターへ相談する。'},
+          {icon:'warn', head:'なりすましの疑いがあれば警察へ', desc:'身分証や個人情報が悪用された場合は、警察に相談する。'},
+        ],
+        note:{type:'',text:'契約の書面を受け取ってから一定期間内なら、クーリング・オフが使える場合があります。'},
+        tels:[{num:'188', label:'188 消費生活相談に電話する', sub:'最寄りの消費生活センターへ', kind:'soft'}]
+      }),
+      network: r({
+        level:'warn', badge:'通信障害', title:'電話・インターネットがつながらないとき',
+        sub:'自分の環境か、広範囲の障害かを切り分けます。',
+        steps:[
+          {icon:'off', head:'自分の環境を確認', desc:'機器の再起動、別の回線・Wi-Fiへの切替えで改善するか試す。', type:'do'},
+          {icon:'ear', head:'障害情報を確認', desc:'キャリアやプロバイダの公式サイト・SNSで、広範囲の障害が起きていないか確認する。'},
+          {icon:'phone', head:'緊急通報は別の手段で', desc:'携帯がつながらない場合は、固定電話・公衆電話、近くの人のスマホを借りて119番・110番へ。', type:'crit'},
+          {icon:'ear', head:'災害用伝言ダイヤルを使う', desc:'災害時は171で伝言を残せる。家族との安否確認に役立つ。'},
+          {icon:'door', head:'重要な連絡は別の方法で', desc:'復旧までは、対面・紙の書面・別の回線など、通信に頼らない方法を使う。'},
+        ],
+        note:{type:'danger',text:'通信がつながらないときでも、緊急通報は諦めず別の回線を試してください。'},
+        call:true
+      }),
+      system: r({
+        level:'warn', badge:'システム障害', title:'業務システムが停止・異常動作したとき',
+        sub:'被害を広げないことと、すぐ報告することが大切です。',
+        steps:[
+          {icon:'warn', head:'すぐ担当者へ報告', desc:'情報システム担当・管理者へ、いつ・何をしたら異常が起きたかを伝える。', type:'crit'},
+          {icon:'off', head:'異常な操作を止める', desc:'不審な動き（大量のデータ送信・画面の勝手な変化など）が続く場合は、担当者の指示で操作を止める。', type:'do'},
+          {icon:'eye', head:'状況を記録', desc:'エラーメッセージ・発生日時・操作内容を、スクリーンショットやメモで残す。'},
+          {icon:'hand', head:'勝手に再起動・修正しない', desc:'原因の調査前に再起動や設定変更を繰り返すと、証拠が失われることがある。'},
+          {icon:'door', head:'業務は代替手段へ', desc:'紙・手作業・別システムなど代わりの方法を、上司の指示のもとで用意する。'},
+        ],
+        note:{type:'danger',text:'ランサムウェア感染が疑われる場合は、電源を切らず、ネットワークから外す操作を担当者の指示で行ってください。'}
+      }),
+    }
+  },
 };
 
 /* =========================================================
@@ -1522,6 +1630,12 @@ function renderResult(catKey, res){
   if(Array.isArray(res.links)){
     linkBtns = res.links.map(l=>
       `<button type="button" class="link-cta" onclick="goNode('${catKey}','${l.to}','${escapeAttr(l.label)}')">${ICON[l.icon]||ICON.check}<span>${l.label}</span></button>`
+    ).join('');
+  }
+  // 別ファイルの対処ガイド（外部ページ）へのリンク
+  if(Array.isArray(res.pageLinks)){
+    linkBtns += res.pageLinks.map(p=>
+      `<a class="link-cta" href="${escapeAttr(p.href)}" target="_blank" rel="noopener">${ICON[p.icon]||ICON.check}<span>${p.label}</span></a>`
     ).join('');
   }
   // #7119 の対応地域・受付時間を確認するボタン
