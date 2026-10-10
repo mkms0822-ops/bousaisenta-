@@ -166,7 +166,7 @@
   <button type="button" class="hbtn" onclick="shareGlobe()" title="共有">🔗 共有</button>
 </div>
 
-<h1>2026年 マグニチュード7.0以上の地震（12件）</h1>
+<h1>2026年 マグニチュード7.0以上の地震（13件）</h1>
 <p class="sub">ドラッグで地球儀を回転、丸印をクリックすると詳細が表示されます</p>
 
 <div id="wrap">
@@ -191,33 +191,36 @@ const quakes = [
   {n:3,  name:"バヌアツ",                       date:"2026年3月30日", mag:7.3, depth:120, lat:-15.0,lon:167.0,
     intensity:"震央付近で改正メルカリ震度階級VII相当（日本の震度5弱程度）",
     damage:"津波の心配なし。大きな被害報告なし"},
-  {n:4,  name:"インドネシア（北マルク沖）",     date:"2026年4月1日(日本時間4/2)",  mag:7.4, depth:35,  lat:-2.5, lon:120.0,
+  {n:4,  name:"インドネシア（北マルク沖）",     date:"2026年4月1日(日本時間4/2)",  mag:7.4, depth:35,  lat:1.12, lon:126.30,
     intensity:"震度情報の公式発表なし",
     damage:"マナドで建物倒壊、死者1人・負傷1人。最大75cmの津波を観測"},
   {n:5,  name:"日本（岩手県沖・三陸沖近海）",   date:"2026年4月20日", mag:7.4, depth:20,  lat:39.5, lon:143.0,
     intensity:"最大震度5強（岩手県）",
     damage:"岩手県久慈港で約80cmの津波を観測。人的被害の大きな報告なし。「北海道・三陸沖後発地震注意情報」が発表された"},
-  {n:6,  name:"フィリピン（ミンダナオ島）",     date:"2026年6月7日(日本時間6/8)",  mag:7.8, depth:55,  lat:7.0,  lon:126.0,
+  {n:6,  name:"フィリピン（ミンダナオ島）",     date:"2026年6月7日(日本時間6/8)",  mag:7.8, depth:57,  lat:5.59, lon:125.05,
     intensity:"現地PHIVOLCS震度階級で最大VIII（非常に破壊的）",
-    damage:"死者65人・行方不明36人、避難者7万人超。日本にも津波注意報（最大20cm観測）"},
-  {n:7,  name:"ベネズエラ（1回目）",            date:"2026年6月24日", mag:7.2, depth:10,  lat:8.0,  lon:-66.0,
+    damage:"死者106人以上・負傷1,300人超・行方不明7人、避難者7万人超。日本にも津波注意報（最大20cm観測）"},
+  {n:7,  name:"ベネズエラ（1回目）",            date:"2026年6月24日", mag:7.2, depth:28,  lat:10.41,lon:-68.56,
     intensity:"首都カラカス、ラ・グアイラ州などで激しい揺れ",
     damage:"直後に本震（M7.5）が連続発生したため被害は合算で計上"},
-  {n:8,  name:"ベネズエラ（2回目・本震）",      date:"2026年6月24日", mag:7.5, depth:10,  lat:8.3,  lon:-66.3,
+  {n:8,  name:"ベネズエラ（2回目・本震）",      date:"2026年6月24日", mag:7.5, depth:10,  lat:10.45,lon:-68.51,
     intensity:"ラ・グアイラ州で建物の約8割が倒壊するなど激甚な揺れ",
     damage:"死者6,301人・負傷6万人超（2026年8月11日時点）。国家非常事態を宣言"},
-  {n:9,  name:"メキシコ（チアパス州）",         date:"2026年7月17日", mag:7.3, depth:19,  lat:16.5, lon:-93.0,
+  {n:9,  name:"メキシコ（チアパス州）",         date:"2026年7月17日", mag:7.3, depth:15,  lat:14.69,lon:-92.89,
     intensity:"州都トゥストラ・グティエレスなどで強い揺れ",
     damage:"数人が負傷、死者なし。一時津波警報も解除"},
   {n:10, name:"日本（熊本県熊本地方 令和8年熊本地震）", date:"2026年7月28日", mag:7.1, depth:16, lat:32.8, lon:130.7,
     intensity:"最大震度7（宇城市・氷川町）",
     damage:"死者39人・負傷165人、住家被害7,820棟超（8月14日時点）。激甚災害・特定非常災害に指定"},
-  {n:11, name:"コロンビア西部",                 date:"2026年8月10日", mag:7.4, depth:110,  lat:4.0,  lon:-76.0,
+  {n:11, name:"コロンビア西部",                 date:"2026年8月10日", mag:7.4, depth:108, lat:4.84, lon:-76.24,
     intensity:"深発地震のため揺れは広範囲だが比較的マイルド",
-    damage:"死者181人、建物1,500棟以上損壊（8月11日時点）。非常事態を宣言"},
-  {n:12, name:"インドネシア（フローレス沖）",   date:"2026年8月15日 6時58分ごろ", mag:7.7, depth:null, lat:-8.3, lon:121.4,
+    damage:"死者335人・負傷4,613人・行方不明111人。非常事態を宣言"},
+  {n:12, name:"インドネシア（フローレス沖）",   date:"2026年8月15日 6時58分ごろ", mag:7.8, depth:10, lat:-8.3, lon:121.4,
     intensity:"震度情報の公式発表なし（現地）",
-    damage:"太平洋で津波発生の可能性あり。この地震による日本への津波の影響はなし"}
+    damage:"死者136人・負傷1,776人、最大1.61mの津波を観測。日本への津波の影響はなし"},
+  {n:13, name:"パナマ（エレーラ県・アスエロ半島）", date:"2026年10月9日(日本時間10/10 2時56分ごろ)", mag:7.7, depth:12.6, lat:7.59, lon:-80.77,
+    intensity:"最大改正メルカリ震度IX（激しい）。首都パナマ市でもV（やや強い）の揺れ",
+    damage:"負傷者27人以上、死者の報告なし（10日時点）。ペノノメで大聖堂・州庁舎・ホテルが部分倒壊、道路も崩落。パナマ運河は通常運航。USGSは当初M8.0→7.6→確定7.7に修正。津波警報は後に解除"}
 ];
 
 const width = 600, height = 600;
@@ -241,6 +244,8 @@ const gQuakes = svg.append('g');
 
 let landFeatures = [];
 let quakeSel = null;
+let markerK = 1; // zoom factor: markers scale with the globe
+const baseR = d => 5 + (d.mag - 7) * 5;
 
 d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(world => {
   landFeatures = topojson.feature(world, world.objects.countries).features;
@@ -258,7 +263,7 @@ d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(w
 
   quakeSel.append('circle')
     .attr('class','quake-dot')
-    .attr('r', d => 5 + (d.mag - 7) * 5);
+    .attr('r', d => baseR(d));
 
   quakeSel.append('text')
     .attr('class','quake-label')
@@ -277,9 +282,11 @@ function render() {
       const coord = [d.lon, d.lat];
       const visible = d3.geoDistance(coord, [-rot[0], -rot[1]]) < Math.PI/2;
       const p = projection(coord);
-      d3.select(this)
-        .style('display', visible && p ? null : 'none')
+      const g = d3.select(this);
+      g.style('display', visible && p ? null : 'none')
         .attr('transform', p ? `translate(${p[0]},${p[1]})` : null);
+      g.select('circle').attr('r', baseR(d) * markerK).style('stroke-width', markerK + 'px');
+      g.select('text').style('font-size', (9 * markerK) + 'px');
     });
   }
 }
@@ -325,6 +332,7 @@ svg.call(d3.zoom()
   .on('zoom', (event) => {
     const k = event.transform.k;
     projection.scale(scale0 * k);
+    markerK = k;
     render();
   })
 );
