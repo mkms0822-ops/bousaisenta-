@@ -64,6 +64,13 @@
   @media(max-width:520px){.goals{grid-template-columns:1fr}table.info th{width:6em}}
   @media(min-width:601px){.hero h1{font-size:30px}}
   @media print{.bar,.jump,.navrow,.map-embed,.btns{display:none}body{background:#fff}section{box-shadow:none;break-inside:avoid}}
+
+  /* ===== パソコンの大きな画面では、全体を拡大して見やすくする(スマホ・タブレットは変更なし) ===== */
+  @media (min-width:1100px){ body{zoom:1.25} }
+  @media (min-width:1500px){ body{zoom:1.5} }
+  @media (min-width:2000px){ body{zoom:1.8} }
+  @media (min-width:2800px){ body{zoom:2.2} }
+  @media print{ body{zoom:1} }
 </style>
 </head>
 <body>
@@ -172,13 +179,13 @@
 
   <footer>
     <div class="navrow">
-      <a href="staff.html">スタッフ紹介</a>
+      <a href="staff.html">スタッフ紹介・アクセス・問い合わせ</a>
       <a href="activity.html">活動と目標</a>
       <a href="map.html">防災マップ</a>
       <a href="contact.html">お問い合わせ</a>
     </div>
     長岡京市認定 市民活動団体　DWA防災情報センター<br>
-    <a href="index.html">ホーム</a>　·　<a href="staff.html">スタッフ紹介</a>　·　<a href="activity.html">活動と目標</a>　·　<a href="contact.html">お問い合わせフォーム</a>
+    <a href="index.html">ホーム</a>　·　<a href="staff.html">スタッフ紹介・アクセス・問い合わせ</a>　·　<a href="activity.html">活動と目標</a>　·　<a href="contact.html">お問い合わせフォーム</a>
   </footer>
 </body>
 </html>

@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DWA防災情報センター｜長岡京市認定 市民活動団体</title>
+<meta name="description" content="長岡京市認定 市民活動団体 DWA防災情報センター。タップで助かる、災害時デジタル後方支援。防災マップ・緊急対応マニュアル・SOSビーコンを提供します。">
+<!-- PWA / アプリとしてインストール -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#e3392e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DWA防災">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<style>
+  :root{
+    --ink:#16212b; --sub:#5b6b78; --line:#e2e8ee; --bg:#eef2f5; --panel:#ffffff;
+    --brand:#e3392e; --brand2:#1f6f8b; --accent:#d1541f;
+    --menu-w:300px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;color:var(--ink);background:var(--bg)}
+  body{min-height:100vh;min-height:100dvh}
+
+  /* トップバー */
+  .bar{position:sticky;top:0;z-index:1200;background:rgba(255,255,255,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+  .bar-in{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:9px 20px}
+  .bar .brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink)}
+  .bar .mark{font-size:20px}
+  .bar .name{font-size:15px;font-weight:800;letter-spacing:.02em;line-height:1.2}
+  .bar .name small{display:block;font-size:10.5px;color:var(--sub);font-weight:600;margin-top:1px}
+  .utils{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .util{background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:7px 11px;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--ink);font-family:inherit;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+  .util:hover{border-color:var(--sub)}
+  .util.fs{gap:2px;padding:5px 8px}
+  .util.fs .fs-label{font-size:11px;color:var(--sub);margin-right:3px}
+  .util.fs button{background:none;border:0;font-weight:800;font-size:12px;cursor:pointer;color:var(--sub);padding:3px 5px;border-radius:5px;font-family:inherit}
+  .util.fs button.on{background:var(--brand2,#1f6f8b);color:#fff}
+  .searchbar{display:none;border-top:1px solid var(--line);background:#f6f9fb}
+  .searchbar.open{display:block}
+  .searchbar form{max-width:1200px;margin:0 auto;padding:10px 20px;display:flex;gap:8px}
+  .searchbar input{flex:1;border:1.5px solid var(--line);border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit}
+  .searchbar button{background:var(--brand2,#1f6f8b);color:#fff;border:0;border-radius:8px;padding:9px 18px;font-weight:700;cursor:pointer;font-family:inherit}
+  .burger{display:inline-flex;flex-direction:column;justify-content:center;gap:4px;
+    width:44px;height:40px;border:1.5px solid var(--line);border-radius:9px;background:#fff;cursor:pointer;padding:0 10px}
+  .burger span{display:block;height:2.5px;background:var(--ink);border-radius:2px;transition:.25s}
+  .burger.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+  .burger.open span:nth-child(2){opacity:0}
+  .burger.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+  /* スマホでは文字サイズ・検索ラベルを省スペースに */
+  @media(max-width:600px){
+    .bar-in{padding:8px 10px;gap:6px}
+    .bar .name{font-size:12.5px;line-height:1.15}
+    .bar .name small{font-size:9px}
+    .bar .mark{font-size:17px}
+    .util{padding:6px 7px;font-size:11.5px}
+    .util .util-tx{display:none}
+    .util#langBtn{font-size:0}
+    .util#langBtn::before{content:"🌐EN";font-size:11.5px}
+    .util.fs{padding:4px 6px}
+    .util.fs .fs-label{display:none}
+    .util.fs button{padding:3px 4px;font-size:11px}
+    .burger{width:40px;height:36px;padding:0 9px}
+  }
+
+  /* ヒーロー（ポスター） */
+  .hero{display:flex;justify-content:center;padding:20px 16px 18px}
+
+/* ============================================================
+   ヒーローの登場演出
+   ============================================================ */
+.hero{
+  position:relative;
+  perspective:1200px;
+}
+.hero-stage{
+  position:relative;
+  width:100%;
+  max-width:560px;
+  margin:0 auto;
+  border-radius:16px;
+  overflow:hidden;
+  isolation:isolate;
+  /* 現れる前 */
+  opacity:0;
+  transform:translateY(42px) scale(.965);
+  filter:blur(14px) saturate(.45) brightness(.82);
+  box-shadow:0 10px 34px rgba(20,40,60,.22);
+  transition:none;
+}
+.hero-stage img{
+  width:100%; height:auto; display:block;
+  border-radius:16px;
+  transform:scale(1.06);
+  transition:transform 2.6s cubic-bezier(.16,1,.3,1);
+}
+
+/* ---- 現れたあと ---- */
+.hero-stage.in{
+  animation:heroRise 1.5s cubic-bezier(.16,1,.3,1) forwards;
+}
+.hero-stage.in img{ transform:scale(1); }
+@keyframes heroRise{
+  0%{   opacity:0; transform:translateY(42px) scale(.965);
+        filter:blur(14px) saturate(.45) brightness(.82); }
+  55%{  opacity:1; }
+  100%{ opacity:1; transform:translateY(0) scale(1);
+        filter:blur(0) saturate(1) brightness(1); }
+}
+
+/* ---- 走査線（一度だけ上から下へ） ---- */
+.hero-scan{
+  position:absolute; left:0; right:0; top:0; height:26%;
+  pointer-events:none; opacity:0; z-index:3;
+  background:linear-gradient(to bottom,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,.06) 42%,
+    rgba(255,255,255,.55) 50%,
+    rgba(255,255,255,.06) 58%,
+    rgba(255,255,255,0) 100%);
+  mix-blend-mode:overlay;
+}
+.hero-stage.in .hero-scan{ animation:heroScan 1.5s ease-out .18s 1; }
+@keyframes heroScan{
+  0%{   transform:translateY(-120%); opacity:0; }
+  12%{  opacity:1; }
+  88%{  opacity:1; }
+  100%{ transform:translateY(430%); opacity:0; }
+}
+
+/* ---- 四隅の枠（観測機器のファインダー） ---- */
+.hero-frame{
+  position:absolute; inset:0; pointer-events:none; z-index:4;
+}
+.hero-frame i{
+  position:absolute; width:30px; height:30px;
+  border:2px solid rgba(255,255,255,.92);
+  opacity:0;
+  filter:drop-shadow(0 0 4px rgba(0,0,0,.35));
+}
+.hero-frame i:nth-child(1){ top:12px;    left:12px;  border-right:0; border-bottom:0; border-radius:8px 0 0 0; }
+.hero-frame i:nth-child(2){ top:12px;    right:12px; border-left:0;  border-bottom:0; border-radius:0 8px 0 0; }
+.hero-frame i:nth-child(3){ bottom:12px; left:12px;  border-right:0; border-top:0;    border-radius:0 0 0 8px; }
+.hero-frame i:nth-child(4){ bottom:12px; right:12px; border-left:0;  border-top:0;    border-radius:0 0 8px 0; }
+.hero-stage.in .hero-frame i{ animation:heroCorner .7s ease-out forwards; }
+.hero-stage.in .hero-frame i:nth-child(1){ animation-delay:.95s; }
+.hero-stage.in .hero-frame i:nth-child(2){ animation-delay:1.05s; }
+.hero-stage.in .hero-frame i:nth-child(3){ animation-delay:1.15s; }
+.hero-stage.in .hero-frame i:nth-child(4){ animation-delay:1.25s; }
+@keyframes heroCorner{
+  0%{   opacity:0; transform:scale(1.7); }
+  60%{  opacity:.95; }
+  100%{ opacity:.55; transform:scale(1); }
+}
+
+/* ---- 淡い光沢がゆっくり横切る ---- */
+.hero-sheen{
+  position:absolute; inset:-30% -60%; z-index:2; pointer-events:none;
+  background:linear-gradient(105deg,
+    rgba(255,255,255,0) 38%,
+    rgba(255,255,255,.22) 48%,
+    rgba(255,255,255,0) 58%);
+  transform:translateX(-70%);
+  opacity:0;
+}
+.hero-stage.in .hero-sheen{ animation:heroSheen 2.1s ease-out 1.25s 1; }
+@keyframes heroSheen{
+  0%{   transform:translateX(-70%); opacity:0; }
+  18%{  opacity:1; }
+  100%{ transform:translateX(70%);  opacity:0; }
+}
+
+/* ---- 現れたあとの静かな呼吸 ---- */
+.hero-stage.settled img{ animation:heroBreath 11s ease-in-out 1s infinite; }
+@keyframes heroBreath{
+  0%,100%{ transform:scale(1); }
+  50%{     transform:scale(1.012); }
+}
+
+/* ---- 読み込み中の下地 ---- */
+.hero-stage::before{
+  content:''; position:absolute; inset:0; z-index:1;
+  background:linear-gradient(135deg,#dfe8ef 0%,#eef2f5 50%,#dfe8ef 100%);
+  background-size:220% 220%;
+  animation:heroShimmer 2.4s ease-in-out infinite;
+  opacity:1; transition:opacity .6s ease .35s;
+}
+.hero-stage.in::before{ opacity:0; }
+@keyframes heroShimmer{
+  0%,100%{ background-position:0% 50%; }
+  50%{     background-position:100% 50%; }
+}
+
+/* ---- 画像の下に伸びる光の帯 ---- */
+.hero-glow{
+  position:absolute; left:50%; bottom:-14px; transform:translateX(-50%) scaleX(0);
+  width:72%; height:14px; z-index:0; pointer-events:none;
+  background:radial-gradient(60% 100% at 50% 0%,
+    rgba(227,57,46,.38) 0%, rgba(31,111,139,.18) 45%, transparent 75%);
+  filter:blur(7px);
+  transform-origin:center;
+}
+.hero-stage.in .hero-glow{ animation:heroGlow 1.3s cubic-bezier(.16,1,.3,1) .6s forwards; }
+@keyframes heroGlow{
+  0%{   transform:translateX(-50%) scaleX(0);   opacity:0; }
+  100%{ transform:translateX(-50%) scaleX(1);   opacity:1; }
+}
+
+/* ---- 動きを減らす設定のときは静止表示 ---- */
+@media (prefers-reduced-motion: reduce){
+  .hero-stage{ opacity:1; transform:none; filter:none; animation:none; }
+  .hero-stage img{ transform:none; animation:none; }
+  .hero-stage::before{ display:none; }
+  .hero-scan, .hero-sheen, .hero-glow{ display:none; }
+  .hero-frame i{ opacity:.55; animation:none; }
+}
+
+/* ---- 画面が狭いとき ---- */
+@media (max-width:480px){
+  .hero-frame i{ width:22px; height:22px; }
+  .hero-frame i:nth-child(1),.hero-frame i:nth-child(2){ top:9px; }
+  .hero-frame i:nth-child(3),.hero-frame i:nth-child(4){ bottom:9px; }
+  .hero-frame i:nth-child(1),.hero-frame i:nth-child(3){ left:9px; }
+  .hero-frame i:nth-child(2),.hero-frame i:nth-child(4){ right:9px; }
+}
+
+
+  /* 主要導線ボタン */
+  .quick{max-width:560px;margin:14px auto 0;padding:0 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .q{display:flex;align-items:center;gap:9px;padding:14px;border-radius:12px;text-decoration:none;font-weight:800;font-size:14px;border:1.5px solid var(--line);background:#fff;color:var(--ink);transition:.15s}
+  .q:active{transform:scale(.98)}
+  .q .qi{font-size:20px}
+  .q.map{background:#eaf3f6;border-color:#a9d0dc;color:#155}
+  .q.sos{background:var(--brand);border-color:var(--brand);color:#fff;grid-column:1 / -1;justify-content:center;font-size:16px;flex-direction:column;gap:3px;text-align:center;line-height:1.3}
+  .q.sos .q-sub{font-size:12px;font-weight:700;opacity:.92;letter-spacing:.02em}
+  .q.manual{background:#fff4e6;border-color:#f0c185;color:#9a5410}
+  .q.near{background:#eaf0fb;border-color:#accbf0;color:#234f9e}
+
+  .tagline{max-width:560px;margin:18px auto 40px;padding:0 20px;text-align:center;color:var(--sub);font-size:13px;line-height:1.9}
+  .tagline .en{font-size:15px;font-weight:800;color:var(--brand2);letter-spacing:.02em}
+
+  footer{border-top:1px solid var(--line);background:#fff;padding:18px 16px 40px;text-align:center;color:var(--sub);font-size:11.5px;line-height:1.8}
+  footer a{color:var(--brand2);text-decoration:none}
+
+  /* メニュー */
+  .scrim{position:fixed;inset:0;background:rgba(10,20,30,.42);opacity:0;visibility:hidden;transition:.25s;z-index:1400}
+  .scrim.open{opacity:1;visibility:visible}
+  .menu{position:fixed;top:0;right:0;height:100%;width:var(--menu-w);max-width:86%;background:#fff;z-index:1500;
+    transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);box-shadow:-6px 0 26px rgba(0,0,0,.22);
+    display:flex;flex-direction:column;overflow-y:auto}
+  .menu.open{transform:translateX(0)}
+  .menu .mhead{padding:18px 18px 14px;border-bottom:1px solid var(--line)}
+  .menu .mhead .t{font-size:15px;font-weight:800}
+  .menu .mhead .s{font-size:11px;color:var(--sub);margin-top:3px;line-height:1.5}
+  .menu nav{padding:8px 0;flex:1}
+  .menu a.mi{display:flex;align-items:center;gap:12px;padding:14px 18px;text-decoration:none;color:var(--ink);font-size:14.5px;font-weight:700;border-bottom:1px solid #f2f5f8}
+  .menu a.mi:hover{background:#f6f9fb}
+  .menu a.mi .ic{font-size:19px;width:24px;text-align:center}
+  .menu a.mi .sub{display:block;font-size:11px;color:var(--sub);font-weight:500;margin-top:2px}
+  .menu a.mi.emg{color:var(--brand)}
+  .menu .mfoot{padding:16px 18px 24px;border-top:1px solid var(--line);font-size:11px;color:var(--sub);line-height:1.7}
+
+  @media(min-width:720px){
+    /* PC：ランディングページ構成。全幅で縦に積む */
+    main{max-width:none;margin:0;display:block;padding:0}
+    /* 勝竜寺城の画像を画面いっぱいに大きく */
+    .hero{padding:24px 100px 8px;display:flex;justify-content:center}
+    .hero-stage{max-width:70%;}
+    /* 緊急スイッチを画像の下に全幅で横並び */
+    .quick{max-width:1100px;margin:36px auto 0;padding:0 24px;grid-template-columns:repeat(4,1fr);gap:16px}
+    .quick .q{padding:20px;font-size:15px}
+    .quick .q.sos{grid-column:1 / -1;font-size:19px;padding:22px}
+    .tagline{max-width:900px;margin:26px auto 40px;font-size:15px;padding:0 24px}
+  }
+  /* 団体紹介記事（LP下部） */
+  .intro-article{margin-top:10px}
+  .ia-msg{background:var(--panel,#fff);padding:34px 20px}
+  .ia-in{max-width:820px;margin:0 auto}
+  .ia-msg h2{font-size:22px;font-weight:800;text-align:center;color:var(--navy,#0f2c4a);margin-bottom:18px}
+  .ia-msg p{font-size:14px;color:#28323c;line-height:2;margin-bottom:14px}
+  .ia-msg .em{font-weight:800;color:var(--navy,#0f2c4a);font-size:16px;text-align:center}
+  .ia-msg .en{font-weight:800;color:var(--teal,#2f7d78);text-align:center;font-size:15px;margin:2px 0 14px}
+  .ia-imgs{max-width:1000px;margin:0 auto;display:block}
+  .ia-imgs img{width:100%;height:auto;display:block}
+  .ia-vision{background:linear-gradient(135deg,#0f2c4a,#0d2b47);color:#fff;padding:34px 20px}
+  .ia-vision .ia-in{max-width:820px}
+  .ia-vision .lead{font-size:17px;font-weight:800;text-align:center;color:#f5a623;margin-bottom:16px}
+  .ia-vision p{font-size:13.5px;color:#e5eef5;line-height:2;margin-bottom:12px}
+  .ia-more{text-align:center;padding:26px 20px 6px}
+  .ia-more a{display:inline-block;background:var(--teal,#2f7d78);color:#fff;text-decoration:none;font-weight:800;font-size:15px;padding:13px 28px;border-radius:10px}
+  @media(min-width:720px){
+    .ia-msg{padding:52px 24px}
+    .ia-msg h2{font-size:28px}
+    .ia-msg p{font-size:15.5px}
+    .ia-vision{padding:52px 24px}
+    .ia-imgs{max-width:1100px}
+  }
+
+  /* ===== SOSビーコン（bousai0111.info本体より移植） ===== */
+  /* ===== SOSパネル ===== */
+  #sosPanel{ display:none; position:fixed; inset:0; z-index:99991;
+    background:rgba(10,12,16,.96); color:#eceff1; overflow-y:auto;
+    -webkit-overflow-scrolling:touch; font-family:inherit; }
+  #sosPanel.open{ display:block; }
+  .sos-wrap{ max-width:560px; margin:0 auto; padding:20px 16px 60px; }
+  .sos-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .sos-title{ font-size:18px; font-weight:800; color:#ff8a80; letter-spacing:1px; }
+  .sos-close{ background:none; border:1px solid #546e7a; color:#b0bec5;
+    border-radius:8px; padding:8px 14px; font-size:14px; cursor:pointer; }
+  .sos-sec{ background:#161b22; border:1px solid #30363d; border-radius:12px;
+    padding:16px 14px; margin-bottom:14px; }
+  .sos-sec h3{ margin:0 0 4px; font-size:14px; color:#80cbc4; font-weight:700; }
+  .sos-note{ font-size:12px; color:#90a4ae; line-height:1.6; margin:4px 0 10px; }
+  .sos-btn{ display:block; width:100%; padding:14px; margin:8px 0; border:none;
+    border-radius:10px; font-size:16px; font-weight:700; cursor:pointer; color:#fff; }
+  .sos-btn:active{ opacity:.85; }
+  .sos-btn.red{ background:#c62828; } .sos-btn.orange{ background:#e65100; }
+  .sos-btn.green{ background:#2e7d32; } .sos-btn.blue{ background:#1565c0; }
+  .sos-btn.gray{ background:#37474f; }
+  .sos-row{ display:flex; gap:8px; } .sos-row .sos-btn{ flex:1; }
+  .sos-status{ font-size:13px; color:#ffe082; min-height:1.4em; margin-top:6px; line-height:1.6; word-break:break-all; }
+  .sos-toggle{ display:flex; align-items:center; gap:8px; font-size:14px; color:#cfd8dc; margin:6px 0; }
+  .sos-toggle input{ width:20px; height:20px; }
+  .sos-lock-msg{ background:rgba(255,213,79,.12); border:1px solid rgba(255,213,79,.5);
+    color:#ffe082; border-radius:10px; padding:10px 12px; font-size:13px; line-height:1.6; margin-bottom:14px; }
+  .sos-btn.sos-locked{ background:#37474f !important; color:#90a4ae !important;
+    opacity:.55; pointer-events:none; }
+
+  /* ===== 点滅オーバーレイ ===== */
+  #sosFlash{ display:none; position:fixed; inset:0; z-index:99998; background:#000; }
+  #sosFlash.on{ background:#fff; }
+  #sosFlash.show{ display:block; }
+  #sosFlashStop{ display:none; position:fixed; left:50%; bottom:40px; transform:translateX(-50%);
+    z-index:99999; padding:16px 40px; font-size:18px; font-weight:800;
+    background:#c62828; color:#fff; border:3px solid #fff; border-radius:14px; cursor:pointer; }
+  #sosFlashStop.show{ display:block; }
+
+  .menu .grp{padding:14px 18px 6px;font-size:11px;font-weight:800;color:var(--sub);letter-spacing:.04em;background:#f6f9fb;border-bottom:1px solid #eef2f6}
+  .menu .sk{border:0}
+  .menu .sk>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;color:var(--ink);font-size:14.5px;font-weight:800;border-bottom:1px solid #f2f5f8;background:#f6f9fb}
+  .menu .sk>summary::-webkit-details-marker{display:none}
+  .menu .sk>summary:hover{background:#eef4f8}
+  .menu .sk>summary .ic{font-size:19px;width:24px;text-align:center}
+  .menu .sk>summary .sub{display:block;font-size:11px;color:var(--sub);font-weight:500;margin-top:2px}
+  .menu .sk>summary .arr{margin-left:auto;color:var(--sub);font-size:12px;transition:transform .2s}
+  .menu .sk[open]>summary .arr{transform:rotate(180deg)}
+  .menu .sksub a.mi{padding-left:40px;border-left:3px solid var(--teal,#2f7d78);background:#fff}
+
+  /* 文字サイズ 大中小（px指定のためズームで拡縮。ヒーロー画像は元サイズを維持） */
+  html.fs-s body{zoom:0.9}
+  html.fs-l body{zoom:1.18}
+  html.fs-s .hero-stage{zoom:1.1112}
+  html.fs-l .hero-stage{zoom:0.8475}
+
+/* ============================================================
+   説明部分のライズアップ（スクロールで下から現れる）
+   ============================================================ */
+.rise{
+  opacity:0;
+  transform:translateY(34px);
+  transition:opacity .85s cubic-bezier(.16,1,.3,1),
+             transform .85s cubic-bezier(.16,1,.3,1);
+  will-change:opacity, transform;
+}
+.rise.up{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* 中の要素を少しずつ遅らせて、順に立ち上がらせる */
+.rise .rise-i{
+  opacity:0;
+  transform:translateY(22px);
+  transition:opacity .75s cubic-bezier(.16,1,.3,1),
+             transform .75s cubic-bezier(.16,1,.3,1);
+}
+.rise.up .rise-i{ opacity:1; transform:translateY(0); }
+.rise.up .rise-i:nth-child(1){ transition-delay:.06s; }
+.rise.up .rise-i:nth-child(2){ transition-delay:.14s; }
+.rise.up .rise-i:nth-child(3){ transition-delay:.22s; }
+.rise.up .rise-i:nth-child(4){ transition-delay:.30s; }
+.rise.up .rise-i:nth-child(5){ transition-delay:.38s; }
+.rise.up .rise-i:nth-child(6){ transition-delay:.46s; }
+
+/* 写真の列は横に流しながら現れる */
+.ia-imgs.rise{ transform:translateY(30px) scale(.985); }
+.ia-imgs.rise.up{ transform:translateY(0) scale(1); }
+.ia-imgs.rise img{
+  opacity:0; transform:translateY(16px);
+  transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+}
+.ia-imgs.rise.up img{ opacity:1; transform:translateY(0); }
+.ia-imgs.rise.up img:nth-child(1){ transition-delay:.08s; }
+.ia-imgs.rise.up img:nth-child(2){ transition-delay:.18s; }
+.ia-imgs.rise.up img:nth-child(3){ transition-delay:.28s; }
+
+/* 見出しの下に細い線が伸びる */
+.rise-line{ position:relative; }
+.rise-line::after{
+  content:''; position:absolute; left:0; bottom:-8px;
+  width:0; height:2px; border-radius:2px;
+  background:linear-gradient(90deg,var(--brand),var(--brand2));
+  transition:width .9s cubic-bezier(.16,1,.3,1) .25s;
+}
+.rise.up .rise-line::after{ width:56px; }
+
+@media (prefers-reduced-motion: reduce){
+  .rise, .rise .rise-i, .ia-imgs.rise img{
+    opacity:1 !important; transform:none !important; transition:none !important;
+  }
+  .rise-line::after{ width:56px !important; transition:none !important; }
+}
+
+
+/* ============================================================
+   メニューを開いたとき、項目が順に立ち上がる
+   ============================================================ */
+.menu .grp,
+.menu .mi,
+.menu .sk,
+.menu .mhead .t,
+.menu .mhead .s,
+.menu .mfoot{
+  opacity:0;
+  transform:translateY(18px);
+  transition:opacity .5s cubic-bezier(.16,1,.3,1),
+             transform .5s cubic-bezier(.16,1,.3,1);
+}
+.menu.revealed .grp,
+.menu.revealed .mi,
+.menu.revealed .sk,
+.menu.revealed .mhead .t,
+.menu.revealed .mhead .s,
+.menu.revealed .mfoot{
+  opacity:1;
+  transform:translateY(0);
+}
+/* 見出しは少し強めに立ち上げる */
+.menu .grp{ transform:translateY(22px); }
+.menu.revealed .grp{ transform:translateY(0); }
+
+/* 開いた中（防災 skill up）の項目も同じ動きで出す */
+.menu .sk[open] .sksub .mi{
+  opacity:0; transform:translateY(14px);
+  animation:miRise .45s cubic-bezier(.16,1,.3,1) forwards;
+}
+@keyframes miRise{ to{ opacity:1; transform:translateY(0); } }
+
+@media (prefers-reduced-motion: reduce){
+  .menu .grp, .menu .mi, .menu .sk,
+  .menu .mhead .t, .menu .mhead .s, .menu .mfoot,
+  .menu .sk[open] .sksub .mi{
+    opacity:1 !important; transform:none !important;
+    transition:none !important; animation:none !important;
+  }
+}
+
+</style>
+<style id="dwaPcScale">
+/* パソコンの大きな画面では、全体を拡大して見やすくする(スマホ・タブレットは変更なし) */
+@media (min-width:1100px){ body{zoom:1.25} }
+@media (min-width:1500px){ body{zoom:1.5} }
+@media (min-width:2000px){ body{zoom:1.8} }
+@media (min-width:2800px){ body{zoom:2.2} }
+@media print{ body{zoom:1} }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <div class="bar-in">
+      <a class="brand" href="index.html">
+        <span class="mark">🛡️</span>
+        <span class="name">DWA防災情報センター<small>長岡京市認定 市民活動団体</small></span>
+      </a>
+      <div class="utils">
+        <button type="button" class="util" onclick="toggleLang()" id="langBtn" title="English / 日本語">🌐 English</button>
+        <div class="util fs" title="文字サイズ変更">
+          <span class="fs-label">文字</span>
+          <button type="button" onclick="setFont('s')" aria-label="小">小</button>
+          <button type="button" onclick="setFont('m')" aria-label="中" class="on" id="fsM">中</button>
+          <button type="button" onclick="setFont('l')" aria-label="大">大</button>
+        </div>
+        <button type="button" class="util" onclick="toggleSearch()" id="searchBtn" title="サイト内検索">🔍 <span class="util-tx">検索</span></button>
+        <button class="burger" id="burger" aria-label="メニューを開く" onclick="toggleMenu()">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+    <div class="searchbar" id="searchbar">
+      <form onsubmit="return doSearch(event)">
+        <input type="search" id="siteq" placeholder="サイト内をGoogleで検索…" aria-label="サイト内検索">
+        <button type="submit">検索</button>
+      </form>
+    </div>
+  </div>
+
+  <main>
+    <div class="hero">
+      <div class="hero-stage" id="heroStage">
+        <span class="hero-glow"></span>
+        <img src="hero.jpg" alt="DWA防災情報センター｜防災システムの構築、タップで助かる災害時デジタル後方支援。長岡京市勝竜寺城公園" decoding="async" fetchpriority="high">
+        <span class="hero-sheen"></span>
+        <span class="hero-scan"></span>
+        <span class="hero-frame"><i></i><i></i><i></i><i></i></span>
+      </div>
+    </div>
+
+    <div class="quick">
+      <button type="button" class="q sos" onclick="sosOpenPanel()">🆘 SOSビーコンを発信<span class="q-sub">音と光で助けを呼ぶ</span></button>
+      <a class="q map" href="map.html"><span class="qi">🗺️</span>防災マップ</a>
+      <a class="q near" href="near.html"><span class="qi">📍</span>近くを探す</a>
+      <a class="q manual" href="Manual.html"><span class="qi">📖</span>緊急対応<br>マニュアル</a>
+      <a class="q" href="https://bousai0111.info/drill.html"><span class="qi">🚨</span>デジタル<br>避難訓練</a>
+    </div>
+
+    <p class="tagline">
+      <span class="en">One for all, all for one.</span><br>
+      一人はみんなのために、皆は一人のために<br>
+      タップで助かる、災害時デジタル後方支援。
+    </p>
+  </main>
+
+  <!-- ===== 団体紹介記事（ランディングページ下部） ===== -->
+  <article class="intro-article">
+    <section class="ia-msg">
+      <div class="ia-in">
+        <h2>メッセージ</h2>
+        <p>近年、自然災害の規模が大きくなり、激甚化しつつあります。原因は気候変動、温室効果ガスの増加であると指摘されています。また、太陽活動や地球の自転軸の変動など、様々な要因により自然災害の規模や性質が複雑化しています。</p>
+        <p>私たちに今できること。それが「備え」です。自宅備蓄、避難袋の備え、生活水の備蓄、ハザードマップの再点検、避難所経路のシミュレーション、家族との連絡手段の確立、防災アプリの導入やSNSでの情報収集、電源の確保など、できることは沢山あります。</p>
+        <p class="em">「一人はみんなのために、みんなは一人のために」</p>
+        <p class="en">― One for all, All for one ―</p>
+        <p>この言葉を胸に、一緒に長岡京市に防災の輪を広めていきましょう。</p>
+      </div>
+    </section>
+
+    <div class="ia-imgs"><img src="sec-overview.png" alt="概要：活動の歩み・ミッション・見据える未来。2018年1月のTwitterアカウント開設から約8年を経てDWA防災情報センターとしてリスタート。"></div>
+    <div class="ia-imgs"><img src="sec-stats.png" alt="災害を数値化：年間地震回数 約250回前後、年間台風発生件数 11〜12個、年間労災死亡者数 750人前後、年間火災件数 3万7141件・死者数1451人（2024年度）。"></div>
+    <div class="ia-imgs"><img src="sec-resilience.png" alt="Resilience Together. 高齢者・乳幼児、女性・妊産婦、障がい者・外国人など、避難行動要支援者の避難システムの構築を目指します。"></div>
+
+    <section class="ia-vision">
+      <div class="ia-in">
+        <p class="lead">2030年　誰も取りこぼさない防災社会の実現へ</p>
+        <p>「発信」から「実装」へ。現在運用中の防災サイトと支援ツールは、行政の手が届きにくい「発災直後の空白の時間」を埋めるためのものです。</p>
+        <p>特に喫緊の課題である避難行動要支援者の個別避難計画については、支援の目途が立っていない方が大半です。自治体や消防と緊密に連携し、デジタル技術を駆使して「誰が、どこで、誰を助けるか」を可視化するシステム構築を目指します。</p>
+        <p>一人ひとりが確実な支援を受けられるレジリエンス（回復力）の高い社会を、共につくり上げていきましょう。</p>
+      </div>
+    </section>
+
+    <div class="ia-more">
+      <a href="activity.html">活動と目標をくわしく見る →</a>
+    </div>
+  </article>
+
+  <footer>
+    長岡京市認定 市民活動団体　DWA防災情報センター<br>
+    DISASTER PREVENTION・EARTHQUAKE MONITOR LIVE<br>
+    <a href="privacy.html">プライバシーポリシー</a>　·　<a href="map.html">防災マップ</a>　·　<a href="contact.html">お問い合わせ</a>
+  </footer>
+
+  <!-- メニュー -->
+  <div class="scrim" id="scrim" onclick="toggleMenu()"></div>
+  <aside class="menu" id="menu" aria-hidden="true">
+    <div class="mhead">
+      <div class="t">メニュー</div>
+      <div class="s">災害への備えと、いざというときの行動を、この一か所から。</div>
+    </div>
+    <nav>
+      <div class="grp">団体について</div>
+      <a class="mi" href="activity.html"><span class="ic">🎯</span><span>活動と目標<span class="sub">メッセージ・活動の歩み・ビジョン</span></span></a>
+      <button type="button" class="mi" onclick="closeMenuAndOrg()"><span class="ic">🏢</span><span>組織概要・沿革<span class="sub">団体の概要・歩み・活動目標</span></span></button>
+      <a class="mi" href="staff.html"><span class="ic">👤</span><span>スタッフ紹介・アクセス・問い合わせ<span class="sub">経歴・所在地と地図・電話とメール</span></span></a>
+
+      <div class="grp">防災ツール</div>
+      <button type="button" class="mi emg" onclick="closeMenuThenSOS()"><span class="ic">🆘</span><span>SOSビーコン<span class="sub">助けを求める信号を発信</span></span></button>
+      <a class="mi" href="map.html"><span class="ic">🗺️</span><span>防災マップ<span class="sub">避難所・危険箇所・病院・備蓄</span></span></a>
+      <a class="mi" href="near.html"><span class="ic">📍</span><span>近くを探す<span class="sub">現在地の近くの避難所</span></span></a>
+      <a class="mi" href="Manual.html"><span class="ic">📖</span><span>緊急対応マニュアル<span class="sub">いざというときの手順</span></span></a>
+      <a class="mi" href="https://mkms0822-ops.github.io/kinkyurenrakuka-do/" target="_blank" rel="noopener"><span class="ic">🪪</span><span>緊急連絡カード<span class="sub">家族の連絡先・持病・血液型を1枚に</span></span></a>
+      <a class="mi" href="https://bousai0111.info/drill.html"><span class="ic">🚨</span><span>デジタル避難訓練<span class="sub">オンラインで参加する訓練</span></span></a>
+      <a class="mi" href="quiz.html"><span class="ic">🧠</span><span>防災診断・防災クイズ<span class="sub">いっしょに知識を身につける</span></span></a>
+      <a class="mi" href="battery-diagnosis.html"><span class="ic">🔋</span><span>バッテリー診断<span class="sub">発火リスクをチェック</span></span></a>
+      <a class="mi" href="contact.html"><span class="ic">✉️</span><span>お問い合わせ<span class="sub">ご質問・ご連絡はこちら</span></span></a>
+      <div class="grp">セルフ診断</div>
+      <a class="mi" href="https://mkms0822-ops.github.io/anatano-bousai-shindan/" target="_blank" rel="noopener"><span class="ic">📝</span><span>あなたの防災意識診断<span class="sub">13の質問で備えと行動力をチェック</span></span></a>
+
+      <details class="sk">
+        <summary><span class="ic">🎓</span><span>防災 skill up<span class="sub">タップして訓練ツール一覧を開く</span></span><span class="arr">▾</span></summary>
+        <div class="sksub">
+          <a class="mi" href="https://mkms0822-ops.github.io/sct_speed.correct.training/" target="_blank" rel="noopener"><span class="ic">⚡</span><span>SCT ― 状況判断訓練ツール<span class="sub">防災士向け・状況判断のスピードと正確性を鍛える</span></span></a>
+        </div>
+      </details>
+
+      <div class="grp">公式情報サイト</div>
+      <a class="mi" href="https://www.jma.go.jp/jma/index.html" target="_blank" rel="noopener"><span class="ic">🌦️</span><span>気象庁<span class="sub">天気・警報・地震・台風</span></span></a>
+      <a class="mi" href="https://www.bousai.go.jp/" target="_blank" rel="noopener"><span class="ic">🏛️</span><span>内閣府 防災情報<span class="sub">国の防災対策・支援制度</span></span></a>
+      <a class="mi" href="https://www.fdma.go.jp/" target="_blank" rel="noopener"><span class="ic">🚒</span><span>総務省消防庁<span class="sub">火災・救急・防災の情報</span></span></a>
+      <a class="mi" href="https://www.npa.go.jp/" target="_blank" rel="noopener"><span class="ic">👮</span><span>警察庁<span class="sub">安全・防犯・交通の情報</span></span></a>
+      <a class="mi" href="https://www.pref.kyoto.jp/" target="_blank" rel="noopener"><span class="ic">📍</span><span>京都府<span class="sub">府の防災・災害情報</span></span></a>
+      <a class="mi" href="https://www.city.nagaokakyo.lg.jp/" target="_blank" rel="noopener"><span class="ic">🏙️</span><span>長岡京市<span class="sub">市の防災・避難情報</span></span></a>
+      <a class="mi" href="https://team-bousai-nagaokakyo.jimdofree.com/" target="_blank" rel="noopener"><span class="ic">🤝</span><span>チーム乙訓<span class="sub">乙訓地域の防災ネットワーク</span></span></a>
+
+      <div class="grp">このサイトについて</div>
+      <a class="mi" href="guide-nagaokakyo.html"><span class="ic">📖</span><span>ご利用ガイド<span class="sub">このサイトの使い方・よくある質問</span></span></a>
+      <button type="button" class="mi" id="installMenuBtn" onclick="onInstallClick()"><span class="ic">📲</span><span>アプリとしてインストール<span class="sub">ホーム画面に追加して使う</span></span></button>
+      <a class="mi" href="privacy.html"><span class="ic">🔒</span><span>プライバシーポリシー<span class="sub">個人情報の取り扱い</span></span></a>
+    </nav>
+    <div class="mfoot">
+      長岡京市認定 市民活動団体<br>DWA防災情報センター
+    </div>
+  </aside>
+
+<script>
+  // 文字サイズ変更
+  function setFont(size){
+    var el=document.documentElement;
+    el.classList.remove('fs-s','fs-m','fs-l');
+    el.classList.add('fs-'+size);
+    try{ localStorage.setItem('dwa-fs', size); }catch(e){}
+    document.querySelectorAll('.util.fs button').forEach(function(b){b.classList.remove('on');});
+    var map={s:0,m:1,l:2};
+    var btns=document.querySelectorAll('.util.fs button');
+    if(btns[map[size]]) btns[map[size]].classList.add('on');
+  }
+  (function(){ try{ var s=localStorage.getItem('dwa-fs'); if(s){ setFont(s); } }catch(e){} })();
+  // サイト内検索（Googleでこのサイト内を検索）
+  function toggleSearch(){
+    var s=document.getElementById('searchbar');
+    s.classList.toggle('open');
+    if(s.classList.contains('open')){ var i=document.getElementById('siteq'); if(i) i.focus(); }
+  }
+  function doSearch(e){
+    e.preventDefault();
+    var q=document.getElementById('siteq').value.trim();
+    if(!q) return false;
+    var host=location.hostname || 'bousai0111.info';
+    var url='https://www.google.com/search?q=site:'+encodeURIComponent(host)+' '+encodeURIComponent(q);
+    window.open(url,'_blank','noopener');
+    return false;
+  }
+  // 言語切替（Google翻訳で英語版を開く）
+  function toggleLang(){
+    var url='https://translate.google.com/translate?sl=ja&tl=en&u='+encodeURIComponent(location.href);
+    window.open(url,'_blank','noopener');
+  }
+
+  function toggleMenu(){
+    const m=document.getElementById('menu'), s=document.getElementById('scrim'), b=document.getElementById('burger');
+    const open=m.classList.toggle('open'); s.classList.toggle('open',open); b.classList.toggle('open',open);
+    m.setAttribute('aria-hidden', open?'false':'true');
+    document.body.style.overflow = open?'hidden':'';
+    if(open){ revealMenuItems(m); }
+    else{ m.classList.remove('revealed'); clearMenuDelays(m); }
+  }
+
+  /* メニューの項目を上から順に立ち上げる */
+  function revealMenuItems(m){
+    var items = m.querySelectorAll('.mhead .t, .mhead .s, .grp, .mi, .sk, .mfoot');
+    for(var i=0;i<items.length;i++){
+      /* 開いていない details の中身は、今は数に入れない */
+      items[i].style.transitionDelay = (0.05 + i * 0.035).toFixed(3) + 's';
+    }
+    /* パネルが動き出してから項目を出す */
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){ m.classList.add('revealed'); });
+    });
+  }
+
+  function clearMenuDelays(m){
+    var items = m.querySelectorAll('.mhead .t, .mhead .s, .grp, .mi, .sk, .mfoot');
+    for(var i=0;i<items.length;i++) items[i].style.transitionDelay = '';
+  }
+
+  /* 「防災 skill up」を開いたとき、中の項目を順に出す
+     読み込みの早さに左右されないよう、メニュー全体で受け取る */
+  (function(){
+    function bindDetails(){
+      var m = document.getElementById('menu');
+      if(!m) return;
+      var dets = m.querySelectorAll('details.sk');
+      for(var i=0;i<dets.length;i++){
+        if(dets[i]._bound) continue;
+        dets[i]._bound = true;
+        dets[i].addEventListener('toggle', function(){
+          if(!this.open) return;
+          var subs = this.querySelectorAll('.sksub .mi');
+          for(var k=0;k<subs.length;k++){
+            subs[k].style.animationDelay = (k * 0.06).toFixed(2) + 's';
+          }
+        });
+      }
+    }
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', bindDetails);
+    }else{
+      bindDetails();
+    }
+  })();
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ const m=document.getElementById('menu'); if(m.classList.contains('open')) toggleMenu(); }});
+
+/* ============================================================
+   ヒーロー画像の登場
+   画像が読み込まれ、かつ画面に入ったときに一度だけ動かす
+   ============================================================ */
+(function(){
+  var stage = document.getElementById('heroStage');
+  if(!stage) return;
+  var img = stage.querySelector('img');
+  var played = false;
+
+  function play(){
+    if(played) return;
+    played = true;
+    stage.classList.add('in');
+    /* 一連の演出が終わってから、ごく緩やかな呼吸に移る */
+    setTimeout(function(){ stage.classList.add('settled'); }, 3400);
+  }
+
+  function whenVisible(){
+    /* 画面に入ったかを見る。対応していない環境ではすぐ再生する */
+    if(!('IntersectionObserver' in window)){ play(); return; }
+    var io = new IntersectionObserver(function(es){
+      for(var i=0;i<es.length;i++){
+        if(es[i].isIntersecting){ play(); io.disconnect(); break; }
+      }
+    }, { threshold: 0.18 });
+    io.observe(stage);
+  }
+
+  function ready(){
+    /* 画像が未読込なら、読み込み完了を待ってから判定する */
+    if(img && !img.complete){
+      img.addEventListener('load', whenVisible, { once:true });
+      img.addEventListener('error', play, { once:true });
+      /* 読み込みが長引いても、いつまでも隠したままにしない */
+      setTimeout(play, 2600);
+    }else{
+      whenVisible();
+    }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', ready);
+  }else{
+    ready();
+  }
+})();
+
+/* ============================================================
+   説明部分のライズアップ
+   画面に入ったブロックから順に立ち上げる（一度だけ）
+   ============================================================ */
+(function(){
+  /* ヒーローとボタン群より下の説明部分だけを対象にする */
+  var targets = [];
+  function add(sel){
+    var ns = document.querySelectorAll(sel);
+    for(var i=0;i<ns.length;i++){
+      if(targets.indexOf(ns[i]) === -1) targets.push(ns[i]);
+    }
+  }
+  add('.tagline');
+  add('.intro-article .ia-msg .ia-in');
+  add('.intro-article .ia-vision .ia-in');
+  add('.intro-article .ia-imgs');
+  add('.intro-article .ia-more');
+
+  if(!targets.length) return;
+
+  for(var i=0;i<targets.length;i++){
+    targets[i].classList.add('rise');
+    /* 直下の子を順番に立ち上げる対象として印をつける */
+    var kids = targets[i].children;
+    for(var k=0;k<kids.length;k++){
+      if(kids[k].tagName !== 'IMG') kids[k].classList.add('rise-i');
+    }
+    /* 見出しには線を引く */
+    var h = targets[i].querySelector('h2, h3');
+    if(h) h.classList.add('rise-line');
+  }
+
+  function show(el){ el.classList.add('up'); }
+
+  if(!('IntersectionObserver' in window)){
+    for(var j=0;j<targets.length;j++) show(targets[j]);
+    return;
+  }
+
+  var io = new IntersectionObserver(function(entries){
+    for(var i=0;i<entries.length;i++){
+      if(!entries[i].isIntersecting) continue;
+      show(entries[i].target);
+      io.unobserve(entries[i].target);
+    }
+  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+
+  for(var n=0;n<targets.length;n++) io.observe(targets[n]);
+
+  /* 読み込み直後にすでに画面内にあるものは、待たずに出す */
+  setTimeout(function(){
+    for(var m=0;m<targets.length;m++){
+      var r = targets[m].getBoundingClientRect();
+      if(r.top < window.innerHeight * 0.92 && r.bottom > 0){
+        show(targets[m]);
+        io.unobserve(targets[m]);
+      }
+    }
+  }, 60);
+})();
+
+
+</script>
+
+<!-- ===== 緊急SOSビーコン（bousai0111.info本体より移植） ===== -->
+<div id="sosPanel" role="dialog" aria-label="緊急SOSビーコン">
+  <div class="sos-wrap">
+    <div class="sos-head">
+      <div class="sos-title">// 緊急SOSビーコン</div>
+      <button class="sos-close" type="button" onclick="sosClosePanel()">閉じる ✕</button>
+    </div>
+
+    <div class="sos-sec">
+      <h3>① 音・光ビーコン（通信不要）</h3>
+      <div class="sos-note">
+        画面をSOSモールス信号（・・・－－－・・・）で点滅させ、高音アラームを鳴らします。
+        瓦礫の下や暗所で居場所を知らせる用途です。<b>電波が無くても動きます。</b><br>
+        ※開始前に <b>音量（メディア音量）と画面の明るさを最大</b> にしてください。<br>
+        ※iPhoneは本体横の消音スイッチがONだと音が鳴りません。スイッチを解除してください。<br>
+        ※光の点滅が体質に合わない方は「光」をオフにしてください。<br>
+        <b>サイレン</b>は2種類の高音を交互に鳴らし続ける連続警報音です（光なし・通信不要）。
+        同じ音量でも救急車のサイレンと同じ原理で、人の耳に格段に気づかれやすい方式です。
+      </div>
+      <label class="sos-toggle"><input type="checkbox" id="sosOptSound" checked> 音（高音アラーム）</label>
+      <label class="sos-toggle"><input type="checkbox" id="sosOptLight" checked> 光（画面点滅）</label>
+      <button class="sos-btn red" type="button" onclick="sosBeaconStart()">▶ ビーコン開始</button>
+      <button class="sos-btn orange" type="button" onclick="sosSirenStart()">🚨 サイレン開始（連続2トーン）</button>
+      <button class="sos-btn gray" type="button" onclick="sosSoundTest()">🔊 音のテスト（1秒だけ鳴らす）</button>
+      <div class="sos-status" id="sosSoundTestStatus"></div>
+    </div>
+
+    <div class="sos-sec">
+      <h3>② 電話で通報（推奨）</h3>
+      <div class="sos-note">
+        通報できる状況の方は、こちらから直接通報してください。災害用伝言ダイヤルは171です。
+      </div>
+      <div class="sos-row">
+        <a class="sos-btn red" style="text-align:center;text-decoration:none;box-sizing:border-box;line-height:1.3" href="tel:119">📞 119へ電話<br><span style="font-size:11px;font-weight:400">火事・救急・救助</span></a>
+        <a class="sos-btn blue" style="text-align:center;text-decoration:none;box-sizing:border-box;line-height:1.3" href="tel:110">📞 110へ電話<br><span style="font-size:11px;font-weight:400">事件・事故</span></a>
+      </div>
+    </div>
+
+    <div class="sos-note" style="text-align:center">
+      通報は119（消防）・110（警察）へ。<br>
+      この機能は公的な救助要請システムとは連動していません。
+    </div>
+  </div>
+</div>
+
+<div id="sosFlash" aria-hidden="true"></div>
+<button id="sosFlashStop" type="button" onclick="sosAlarmStopAll()">■ 停止</button>
+
+
+<script>
+(function () {
+  // サイト本体と同じGAS（ARTICLES_URL）へ送信。未定義時の保険としてURLを直書き。
+  var SOS_GAS_URL = (typeof ARTICLES_URL !== 'undefined' && ARTICLES_URL) ? ARTICLES_URL
+    : "https://script.google.com/macros/s/AKfycbzVC_aeGGOv4m7-CpKl2Z75muRwWrU6MZDj3sgaBcobw9mSq9jYDY95BsoxiZHkw1dimg/exec";
+
+  // ---------- パネル開閉 ----------
+  var panel = document.getElementById('sosPanel');
+  window.sosOpenPanel = function () {
+    panel.classList.add('open');
+    try { sosApplyLockUI(); } catch (e) {}
+    try { if (window.dwaTrack) window.dwaTrack('button', 'SOSビーコンを開く'); } catch (e) {}
+  };
+  window.sosClosePanel = function () { panel.classList.remove('open'); };
+
+  // ---------- 共有URL対応：?sos=1 または #sos 付きで開かれたらSOSパネルを自動表示 ----------
+  try {
+    var _sosParams = new URLSearchParams(location.search);
+    if (_sosParams.get('sos') === '1' || location.hash === '#sos') {
+      setTimeout(function () {
+        try { window.sosOpenPanel(); } catch (e) {}
+      }, 1200);
+    }
+  } catch (e) {}
+
+  // ============================================================
+  // ① 音・光ビーコン（オフライン動作）
+  //    SOSモールス信号: ・・・ －－－ ・・・（単位200ms）
+  // ============================================================
+  var UNIT = 200;
+  var SOS_PATTERN = [];
+  (function build() {
+    var dot = [1, 1], dash = [3, 1];
+    var s = [dot, dot, dot], o = [dash, dash, dash];
+    var letters = [s, o, s];
+    for (var i = 0; i < letters.length; i++) {
+      var L = letters[i];
+      for (var j = 0; j < L.length; j++) {
+        var onMs = L[j][0] * UNIT;
+        var offMs = L[j][1] * UNIT;
+        if (j === L.length - 1) offMs = 3 * UNIT;
+        if (i === letters.length - 1 && j === L.length - 1) offMs = 7 * UNIT;
+        SOS_PATTERN.push([onMs, offMs]);
+      }
+    }
+  })();
+
+  var beaconOn = false, timerId = null, audioCtx = null, osc = null, gainNode = null, wakeLock = null;
+  var flashEl = document.getElementById('sosFlash');
+  var stopBtn = document.getElementById('sosFlashStop');
+
+  // ---------- 予備ブザー：WebAudioが動かない端末では<audio>のビープ音に自動切替 ----------
+  var _sosFallbackAudio = null;
+  function sosBuildBeepWav_() {
+    // 2600Hzの矩形波1秒分のWAVをその場で生成（外部ファイル不要＝オフラインでも鳴る）
+    var rate = 22050, n = rate, freq = 2600;
+    var data = new Uint8Array(44 + n);
+    function w32(o, v) { data[o] = v & 255; data[o + 1] = (v >> 8) & 255; data[o + 2] = (v >> 16) & 255; data[o + 3] = (v >> 24) & 255; }
+    function w16(o, v) { data[o] = v & 255; data[o + 1] = (v >> 8) & 255; }
+    function ws(o, s) { for (var i = 0; i < s.length; i++) data[o + i] = s.charCodeAt(i); }
+    ws(0, 'RIFF'); w32(4, 36 + n); ws(8, 'WAVE'); ws(12, 'fmt '); w32(16, 16); w16(20, 1); w16(22, 1);
+    w32(24, rate); w32(28, rate); w16(32, 1); w16(34, 8); ws(36, 'data'); w32(40, n);
+    for (var i = 0; i < n; i++) { data[44 + i] = (Math.sin(2 * Math.PI * freq * i / rate) >= 0) ? 255 : 0; }
+    var b = '';
+    for (var j = 0; j < data.length; j++) b += String.fromCharCode(data[j]);
+    return 'data:audio/wav;base64,' + btoa(b);
+  }
+  function sosStartFallbackBeep() {
+    if (_sosFallbackAudio) return;
+    try {
+      _sosFallbackAudio = new Audio(sosBuildBeepWav_());
+      _sosFallbackAudio.loop = true;
+      _sosFallbackAudio.volume = 0;   // SOSパターンに合わせて setSignal が音量を上げ下げする
+      var p = _sosFallbackAudio.play();
+      if (p && p.catch) p.catch(function () { _sosFallbackAudio = null; });
+    } catch (e) { _sosFallbackAudio = null; }
+  }
+
+  function setSignal(on) {
+    if (document.getElementById('sosOptLight').checked) {
+      flashEl.classList.toggle('on', on);
+    }
+    if (gainNode && audioCtx) {
+      var t = audioCtx.currentTime;
+      try {
+        gainNode.gain.cancelScheduledValues(t);
+        gainNode.gain.setTargetAtTime(on ? 1.0 : 0.0001, t, 0.005);   // 1.0=デジタル最大出力
+      } catch (e) {
+        gainNode.gain.value = on ? 1.0 : 0.0001;   // 古いWebView向け
+      }
+    }
+    if (_sosFallbackAudio) {
+      _sosFallbackAudio.volume = on ? 1 : 0;       // 予備ブザーもSOSパターンで鳴らす
+    }
+  }
+
+  function runPattern(idx) {
+    if (!beaconOn) return;
+    var step = SOS_PATTERN[idx % SOS_PATTERN.length];
+    setSignal(true);
+    timerId = setTimeout(function () {
+      setSignal(false);
+      timerId = setTimeout(function () { runPattern(idx + 1); }, step[1]);
+    }, step[0]);
+  }
+
+  function requestWakeLock() {
+    try {
+      if (navigator.wakeLock && navigator.wakeLock.request) {
+        navigator.wakeLock.request('screen').then(function (wl) { wakeLock = wl; }).catch(function () {});
+      }
+    } catch (e) {}
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState !== 'visible') return;
+    if (beaconOn || sirenOn) {
+      requestWakeLock();
+      try { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); } catch (e) {}
+      try { if (sirenCtx && sirenCtx.state === 'suspended') sirenCtx.resume(); } catch (e) {}
+    }
+  });
+
+  window.sosBeaconStart = function () {
+    if (beaconOn) return;
+    try { window.sosSirenStop(); } catch (e) {}   // サイレンと同時には鳴らさない
+    var useSound = document.getElementById('sosOptSound').checked;
+    var useLight = document.getElementById('sosOptLight').checked;
+    if (!useSound && !useLight) { alert('「音」か「光」のどちらかをオンにしてください。'); return; }
+    beaconOn = true;
+
+    if (useSound) {
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // 一部ブラウザ(Android Chrome/iOS Safari)は生成直後が「一時停止(suspended)」
+        // 状態のため、明示的に再開しないと音が出ない
+        if (audioCtx.state === 'suspended') { try { audioCtx.resume(); } catch (e2) {} }
+        // iOS/Android向けアンロック：無音バッファを1回再生して音声出力を有効化する
+        try {
+          var _ub = audioCtx.createBuffer(1, 1, 22050);
+          var _us = audioCtx.createBufferSource();
+          _us.buffer = _ub; _us.connect(audioCtx.destination); _us.start(0);
+        } catch (e3) {}
+        osc = audioCtx.createOscillator();
+        gainNode = audioCtx.createGain();
+        osc.type = 'square';
+        osc.frequency.value = 2800;
+        gainNode.gain.value = 0.0001;
+        osc.connect(gainNode).connect(audioCtx.destination);
+        osc.start();
+      } catch (e) { audioCtx = null; osc = null; gainNode = null; }
+      // それでも音声エンジンが動かない端末は、<audio>のビープ音へ自動フォールバック
+      setTimeout(function () {
+        if (!beaconOn) return;
+        if (audioCtx && audioCtx.state !== 'running') { try { audioCtx.resume(); } catch (e4) {} }
+        setTimeout(function () {
+          if (beaconOn && (!audioCtx || audioCtx.state !== 'running')) sosStartFallbackBeep();
+        }, 800);
+      }, 1000);
+    }
+    if (useLight) {
+      flashEl.classList.add('show');
+      try {
+        var el = document.documentElement;
+        if (el.requestFullscreen) el.requestFullscreen().catch(function () {});
+      } catch (e) {}
+    }
+    stopBtn.classList.add('show');
+    panel.classList.remove('open');
+    requestWakeLock();
+    runPattern(0);
+    try { if (window.dwaTrack) window.dwaTrack('button', 'SOS音光ビーコン開始'); } catch (e) {}
+  };
+
+  // 音のテスト：1秒鳴らして音声エンジンの状態を表示（コード起因か端末起因かの切り分け用）
+  window.sosSoundTest = function () {
+    var out = document.getElementById('sosSoundTestStatus');
+    try {
+      var c = new (window.AudioContext || window.webkitAudioContext)();
+      if (c.state === 'suspended') { try { c.resume(); } catch (e) {} }
+      var o = c.createOscillator(), g = c.createGain();
+      o.type = 'square'; o.frequency.value = 2000; g.gain.value = 0.5;
+      o.connect(g).connect(c.destination);
+      o.start();
+      out.textContent = '🔊 テスト音を再生中…（1秒）';
+      setTimeout(function () {
+        var st = c.state;
+        try { o.stop(); } catch (e) {}
+        try { c.close(); } catch (e) {}
+        if (st === 'running') {
+          out.innerHTML = '✅ 音声エンジンは正常に動いています。<b>それでも聞こえなかった場合は端末側の設定です：</b><br>'
+            + '① メディア音量…このまま本体の音量アップボタンを押し、表示されるバーが「メディア」で0でないか確認<br>'
+            + '② マナーモード／ミュートを解除<br>'
+            + '③ Bluetooth…イヤホン・時計・車などに接続中だと音はそちらに流れます。Bluetoothを一時OFFにして再テスト<br>'
+            + '④ HDMI・外部ディスプレイ接続中は音がそちらに出力され、本体からは鳴りません';
+        } else {
+          out.textContent = '⚠️ 音声エンジンが「' + st + '」状態のままです。もう一度このボタンを押すか、ページを再読み込みしてお試しください。';
+        }
+      }, 1000);
+    } catch (e) {
+      out.textContent = '⚠️ 音声エンジンを起動できませんでした（' + e + '）。ブラウザを最新版に更新してお試しください。';
+    }
+  };
+
+  // ---------- サイレン（ビーコンとは別の連続2トーン警報音・2800Hz⇄2200Hz） ----------
+  var sirenOn = false, sirenCtx = null, sirenOsc = null, sirenGain = null;
+  var sirenTimer = null, sirenHigh = true, sirenFallbackTimer = null;
+
+  window.sosSirenStart = function () {
+    if (sirenOn) return;
+    try { window.sosBeaconStop(); } catch (e) {}   // ビーコンと同時には鳴らさない
+    sirenOn = true;
+    try {
+      sirenCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (sirenCtx.state === 'suspended') { try { sirenCtx.resume(); } catch (e2) {} }
+      // 音声アンロック（無音バッファ）
+      try {
+        var ub = sirenCtx.createBuffer(1, 1, 22050);
+        var us = sirenCtx.createBufferSource();
+        us.buffer = ub; us.connect(sirenCtx.destination); us.start(0);
+      } catch (e3) {}
+      sirenOsc = sirenCtx.createOscillator();
+      sirenGain = sirenCtx.createGain();
+      sirenOsc.type = 'square';
+      sirenOsc.frequency.value = 2800;
+      sirenGain.gain.value = 1.0;   // デジタル最大出力
+      sirenOsc.connect(sirenGain).connect(sirenCtx.destination);
+      sirenOsc.start();
+      sirenHigh = true;
+      // 350msごとに高音⇄低音を切り替える（救急車式の交互2トーン）
+      sirenTimer = setInterval(function () {
+        sirenHigh = !sirenHigh;
+        var f = sirenHigh ? 2800 : 2200;
+        try { sirenOsc.frequency.setValueAtTime(f, sirenCtx.currentTime); }
+        catch (e4) { try { sirenOsc.frequency.value = f; } catch (e5) {} }
+        // 予備ブザー使用時は音量の強弱で疑似サイレン化
+        if (_sosFallbackAudio) { _sosFallbackAudio.volume = sirenHigh ? 1 : 0.15; }
+      }, 350);
+    } catch (e) { sirenCtx = null; sirenOsc = null; sirenGain = null; }
+    // WebAudioが動かない端末は予備ブザーへ自動フォールバック
+    sirenFallbackTimer = setTimeout(function () {
+      if (sirenOn && (!sirenCtx || sirenCtx.state !== 'running')) sosStartFallbackBeep();
+    }, 1800);
+    stopBtn.classList.add('show');
+    panel.classList.remove('open');
+    requestWakeLock();
+    try { if (window.dwaTrack) window.dwaTrack('button', 'SOSサイレン開始'); } catch (e) {}
+  };
+
+  window.sosSirenStop = function () {
+    sirenOn = false;
+    if (sirenTimer) { clearInterval(sirenTimer); sirenTimer = null; }
+    if (sirenFallbackTimer) { clearTimeout(sirenFallbackTimer); sirenFallbackTimer = null; }
+    if (sirenOsc) { try { sirenOsc.stop(); } catch (e) {} sirenOsc = null; }
+    if (sirenCtx) { try { sirenCtx.close(); } catch (e) {} sirenCtx = null; sirenGain = null; }
+    if (_sosFallbackAudio) { try { _sosFallbackAudio.pause(); } catch (e) {} _sosFallbackAudio = null; }
+  };
+
+  // 停止ボタン共通処理：ビーコン・サイレンのどちらが鳴っていても止める
+  window.sosAlarmStopAll = function () {
+    try { window.sosBeaconStop(); } catch (e) {}
+    try { window.sosSirenStop(); } catch (e) {}
+  };
+
+  window.sosBeaconStop = function () {
+    beaconOn = false;
+    if (timerId) { clearTimeout(timerId); timerId = null; }
+    if (osc) { try { osc.stop(); } catch (e) {} osc = null; }
+    if (audioCtx) { try { audioCtx.close(); } catch (e) {} audioCtx = null; gainNode = null; }
+    if (wakeLock) { try { wakeLock.release(); } catch (e) {} wakeLock = null; }
+    if (_sosFallbackAudio) { try { _sosFallbackAudio.pause(); } catch (e) {} _sosFallbackAudio = null; }
+    flashEl.classList.remove('show', 'on');
+    stopBtn.classList.remove('show');
+    try { if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(function () {}); } catch (e) {}
+  };
+
+  // ============================================================
+  // 位置情報と安否状態の記録（GASへ送信する内部処理）
+  // ============================================================
+  function nowStr() {
+    var d = new Date();
+    function z(n) { return (n < 10 ? '0' : '') + n; }
+    return d.getFullYear() + '/' + z(d.getMonth() + 1) + '/' + z(d.getDate()) + ' ' + z(d.getHours()) + ':' + z(d.getMinutes());
+  }
+  function sosUid() {
+    try { return localStorage.getItem('dwa_visit_uid') || ''; } catch (e) { return ''; }
+  }
+  // ---------- 送信キュー：失敗したら成功するまで約2分おきに自動再送 ----------
+  // 送信内容は端末(localStorage)に保存するため、ページを開き直しても再送が続く。
+  var SOS_QUEUE_KEY = 'dwa_sos_queue';
+  var SOS_RETRY_MS = 2 * 60 * 1000;   // 再送間隔（約2分）
+  var _sosFlushTimer = null;
+  var _sosFlushing = false;
+
+  function sosLoadQueue() {
+    try { var q = JSON.parse(localStorage.getItem(SOS_QUEUE_KEY) || '[]'); return Array.isArray(q) ? q : []; }
+    catch (e) { return []; }
+  }
+  function sosSaveQueue(q) {
+    try { localStorage.setItem(SOS_QUEUE_KEY, JSON.stringify(q.slice(0, 20))); } catch (e) {}
+  }
+  function sosBuildUrl(item) {
+    var qs = Object.keys(item.p).map(function (k) {
+      return k + '=' + encodeURIComponent(item.p[k]);
+    }).join('&');
+    return SOS_GAS_URL + '?type=sos&' + qs + '&uid=' + encodeURIComponent(sosUid()) + '&_=' + Date.now();
+  }
+  function sosUpdateStatusEl(item, ok) {
+    var el = document.getElementById(item.el || 'sosLocStatus');
+    if (!el) return;
+    if (ok) {
+      el.innerHTML = '✅ サーバーへ送信しました：' + (item.p.st || '') + '（' + nowStr() + '）'
+        + (item.map ? '<br><a href="' + item.map + '" target="_blank" rel="noopener" style="color:#80d8ff">地図で確認 →</a>'
+          + '<br>「📤 家族に共有」でこの位置をLINE等に送れます。' : '');
+      if ((item.p.st || '') !== '発信取り消し') {
+        sosSetLock(Date.now() + SOS_LOCK_MS);   // 送信完了 → ここから1時間ロック
+      }
+    } else {
+      el.textContent = '⏳ 通信できませんでした：' + (item.p.st || '')
+        + '。成功するまで約2分おきに自動で再送します。画面はこのまま開いておいてください。';
+    }
+  }
+  function sosScheduleFlush(delayMs) {
+    clearTimeout(_sosFlushTimer);
+    _sosFlushTimer = setTimeout(sosFlushQueue, delayMs);
+  }
+  function sosFlushQueue() {
+    if (_sosFlushing) return;
+    var q = sosLoadQueue();
+    if (!q.length) return;
+    _sosFlushing = true;
+    var remain = [];
+    var chain = Promise.resolve();
+    q.forEach(function (item) {
+      chain = chain.then(function () {
+        return fetch(sosBuildUrl(item), { method: 'GET', mode: 'no-cors', cache: 'no-store' })
+          .then(function () { sosUpdateStatusEl(item, true); })
+          .catch(function () { remain.push(item); sosUpdateStatusEl(item, false); });
+      });
+    });
+    chain.then(function () {
+      sosSaveQueue(remain);
+      _sosFlushing = false;
+      sosApplyLockUI();
+      if (remain.length) sosScheduleFlush(SOS_RETRY_MS);   // 残りがある限り再送を続ける
+    }).catch(function () {
+      sosSaveQueue(remain);
+      _sosFlushing = false;
+      sosApplyLockUI();
+      sosScheduleFlush(SOS_RETRY_MS);
+    });
+  }
+  // 発信をキューに積んで即送信を試みる
+  function sendToGas(params, elId, map) {
+    var q = sosLoadQueue();
+    q.push({ p: params, el: elId || 'sosLocStatus', map: map || '', t: Date.now() });
+    sosSaveQueue(q);
+    sosApplyLockUI();
+    sosFlushQueue();
+  }
+  // 通信が復活した瞬間・ページを開き直したときに未送信分を自動再送
+  window.addEventListener('online', function () { sosScheduleFlush(1500); });
+  if (sosLoadQueue().length) sosScheduleFlush(4000);
+
+  // ---------- 連続送信防止ロック：送信完了後は全送信ボタンを1時間グレーアウト ----------
+  var SOS_LOCK_KEY = 'dwa_sos_lock_until';
+  var SOS_LOCK_MS = 60 * 60 * 1000;   // 1時間
+  var _sosLockTimer = null;
+  var _sosGeoBusy = false;            // 位置取得中の二度押し防止
+
+  function sosLockUntil() { try { return Number(localStorage.getItem(SOS_LOCK_KEY)) || 0; } catch (e) { return 0; } }
+  function sosIsLocked() { return sosLockUntil() > Date.now(); }
+  function sosSetLock(until) {
+    try { localStorage.setItem(SOS_LOCK_KEY, String(until)); } catch (e) {}
+    sosApplyLockUI();
+  }
+  function sosLockMsgText() {
+    var until = sosLockUntil();
+    var d = new Date(until);
+    function z(n) { return (n < 10 ? '0' : '') + n; }
+    var remainMin = Math.max(1, Math.ceil((until - Date.now()) / 60000));
+    return '✅ 送信は完了しています。連続送信防止のため、次の送信は '
+      + z(d.getHours()) + ':' + z(d.getMinutes()) + ' 以降（あと約' + remainMin + '分）に可能になります。'
+      + '「📤 家族に共有」と📞119・110への電話はいつでも使えます。';
+  }
+  function sosApplyLockUI() {
+    var btns = document.querySelectorAll('#sosPanel .sos-send');
+    var msg = document.getElementById('sosLockMsg');
+    var locked = sosIsLocked();
+    var pending = sosLoadQueue().length > 0;
+    for (var i = 0; i < btns.length; i++) {
+      if (locked || pending) { btns[i].classList.add('sos-locked'); btns[i].setAttribute('disabled', 'disabled'); }
+      else { btns[i].classList.remove('sos-locked'); btns[i].removeAttribute('disabled'); }
+    }
+    if (msg) {
+      if (locked) { msg.style.display = 'block'; msg.textContent = sosLockMsgText(); }
+      else if (pending) { msg.style.display = 'block'; msg.textContent = '⏳ 送信処理中です（未達の場合は約2分おきに自動再送します）。完了までお待ちください。'; }
+      else { msg.style.display = 'none'; }
+    }
+    // 取り消しボタン：ロック中（＝送信完了後）だけ最下部に表示し、復旧と同時に自動で消す
+    var cbtn = document.getElementById('sosCancelBtn');
+    var cst = document.getElementById('sosCancelStatus');
+    if (cbtn) {
+      if (locked) {
+        cbtn.style.display = 'block';
+        var sent = '';
+        try { sent = localStorage.getItem('dwa_sos_cancel_sent') || ''; } catch (e) {}
+        if (sent === String(sosLockUntil())) {
+          cbtn.classList.add('sos-locked');
+          cbtn.textContent = '↩️ 取り消しを送信済みです';
+        } else {
+          cbtn.classList.remove('sos-locked');
+          cbtn.textContent = '↩️ 直前の発信を取り消す（誤送信のとき）';
+        }
+      } else {
+        cbtn.style.display = 'none';
+        if (cst) cst.textContent = '';
+      }
+    }
+    // 1分ごとに残り時間を更新し、期限が来たら自動で復旧（グレー解除）
+    clearTimeout(_sosLockTimer);
+    if (locked) {
+      _sosLockTimer = setTimeout(sosApplyLockUI, Math.min(60000, Math.max(1000, sosLockUntil() - Date.now())));
+    }
+  }
+  sosApplyLockUI();
+
+  // 直前の発信の取り消し（送信完了後のロック中のみ・1回だけ）
+  window.sosSendCancel = function () {
+    if (!sosIsLocked()) { sosApplyLockUI(); return; }
+    var sent = '';
+    try { sent = localStorage.getItem('dwa_sos_cancel_sent') || ''; } catch (e) {}
+    if (sent === String(sosLockUntil())) return;   // 二重送信防止
+    try { localStorage.setItem('dwa_sos_cancel_sent', String(sosLockUntil())); } catch (e) {}
+    var cst = document.getElementById('sosCancelStatus');
+    if (cst) cst.textContent = '送信中…';
+    sendToGas({ st: '発信取り消し' }, 'sosCancelStatus');
+    sosApplyLockUI();
+    try { if (window.dwaTrack) window.dwaTrack('event', 'SOS発信取り消し'); } catch (e) {}
+  };
+
+  var lastLoc = null;
+  try { lastLoc = JSON.parse(localStorage.getItem('dwa_sos_last') || 'null'); } catch (e) {}
+
+  window.sosSendLocation = function (status) {
+    var out = document.getElementById('sosLocStatus');
+    if (sosIsLocked()) { sosApplyLockUI(); return; }
+    if (_sosGeoBusy) { return; }
+    if (!navigator.geolocation) { out.textContent = 'この端末では位置情報を取得できません。'; return; }
+    _sosGeoBusy = true;
+    out.textContent = '📡 現在地を取得中…（最大20秒）';
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      _sosGeoBusy = false;
+      var lat = pos.coords.latitude.toFixed(6);
+      var lng = pos.coords.longitude.toFixed(6);
+      var acc = Math.round(pos.coords.accuracy || 0);
+      var map = 'https://maps.google.com/?q=' + lat + ',' + lng;
+      lastLoc = { st: status, lat: lat, lng: lng, acc: acc, map: map, time: nowStr() };
+      try { localStorage.setItem('dwa_sos_last', JSON.stringify(lastLoc)); } catch (e) {}
+      out.textContent = '📡 位置を取得しました（精度約' + acc + 'm）。送信中…';
+      sendToGas({ st: status, lat: lat, lng: lng, acc: acc }, 'sosLocStatus', map);
+      try { if (window.dwaTrack) window.dwaTrack('event', 'SOS位置発信:' + status); } catch (e) {}
+    }, function (err) {
+      _sosGeoBusy = false;
+      out.textContent = '⚠️ 位置を取得できませんでした（' +
+        (err.code === 1 ? '位置情報が許可されていません。ブラウザ設定をご確認ください' : '電波・GPSの状態をご確認ください') + '）。';
+    }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 60000 });
+  };
+
+  window.sosShareLast = function () {
+    var out = document.getElementById('sosLocStatus');
+    if (!lastLoc) { out.textContent = '先に「位置を発信」を押して現在地を取得してください。'; return; }
+    var text = '【SOS】' + lastLoc.st + '。現在地はこちら → ' + lastLoc.map +
+      '（精度約' + lastLoc.acc + 'm・' + lastLoc.time + '時点）';
+    if (navigator.share) {
+      navigator.share({ text: text }).catch(function () {});
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        out.textContent = '📋 共有文をコピーしました。LINE等に貼り付けて送信してください。';
+      }).catch(function () { out.textContent = text; });
+    } else {
+      out.textContent = text;
+    }
+  };
+
+  window.sosSendStatus = function (status) {
+    var out = document.getElementById('sosStStatus');
+    if (sosIsLocked()) { sosApplyLockUI(); return; }
+    out.textContent = '送信中…';
+    sendToGas({ st: status }, 'sosStStatus');
+    try { if (window.dwaTrack) window.dwaTrack('event', 'SOS安否登録:' + status); } catch (e) {}
+  };
+})();
+</script>
+
+<script>
+function closeMenuThenSOS(){
+  try{ document.getElementById('menu').classList.remove('open');
+       document.getElementById('scrim').classList.remove('open');
+       document.getElementById('burger').classList.remove('open');
+       document.body.style.overflow=''; }catch(e){}
+  try{ sosOpenPanel(); }catch(e){}
+}
+</script>
+<!-- ===== アプリとしてインストール：iPhone案内モーダル ===== -->
+<div id="iosInstall" style="display:none;position:fixed;inset:0;z-index:3000;background:rgba(10,20,30,.55);align-items:center;justify-content:center;padding:18px">
+  <div style="background:#fff;border-radius:16px;max-width:400px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 18px 50px rgba(0,0,0,.3)">
+    <div style="display:flex;align-items:center;gap:10px;padding:18px 18px 8px">
+      <span style="font-size:24px">📲</span>
+      <h2 style="font-size:17px;margin:0;font-weight:800;color:#0f2c4a">ホーム画面に追加</h2>
+      <button onclick="closeIosGuide()" style="margin-left:auto;background:none;border:0;font-size:24px;line-height:1;color:#5b6b78;cursor:pointer" aria-label="閉じる">×</button>
+    </div>
+    <div style="padding:6px 18px 20px">
+      <p style="font-size:13px;color:#5b6b78;margin:0 0 12px;line-height:1.6">iPhone・iPadでは、Safariの共有メニューからホーム画面に追加できます。次の手順で操作してください。</p>
+      <div style="display:flex;gap:11px;padding:9px 0;border-bottom:1px solid #f0f4f7">
+        <div style="flex:0 0 26px;height:26px;border-radius:50%;background:#e3392e;color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center">1</div>
+        <div style="font-size:13.5px;line-height:1.6"><b style="color:#1f6f8b">Safari</b>でこのサイトを開きます（Chrome等では追加できないことがあります）。</div>
+      </div>
+      <div style="display:flex;gap:11px;padding:9px 0;border-bottom:1px solid #f0f4f7">
+        <div style="flex:0 0 26px;height:26px;border-radius:50%;background:#e3392e;color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center">2</div>
+        <div style="font-size:13.5px;line-height:1.6">画面下の中央にある<b style="color:#1f6f8b">共有ボタン</b>（□に↑の矢印マーク）をタップします。</div>
+      </div>
+      <div style="display:flex;gap:11px;padding:9px 0;border-bottom:1px solid #f0f4f7">
+        <div style="flex:0 0 26px;height:26px;border-radius:50%;background:#e3392e;color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center">3</div>
+        <div style="font-size:13.5px;line-height:1.6">メニューを下にスクロールし、<b style="color:#1f6f8b">「ホーム画面に追加」</b>をタップします。</div>
+      </div>
+      <div style="display:flex;gap:11px;padding:9px 0">
+        <div style="flex:0 0 26px;height:26px;border-radius:50%;background:#e3392e;color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center">4</div>
+        <div style="font-size:13.5px;line-height:1.6">右上の<b style="color:#1f6f8b">「追加」</b>をタップすれば完了です。ホーム画面にDWAのアイコンが追加されます。</div>
+      </div>
+      <div style="font-size:12px;color:#a06a00;background:#fff4e0;border-radius:9px;padding:10px 12px;margin-top:12px;line-height:1.55">💡 共有ボタンが見当たらないときは、画面を一度上にスクロールするか、Safari下部のバーをタップすると表示されます。</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== PWA：サービスワーカー登録 =====
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+
+// ===== インストールプロンプト（Android/対応ブラウザ）=====
+var deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+function isIos(){
+  var ua = window.navigator.userAgent || '';
+  return /iphone|ipad|ipod/i.test(ua);
+}
+function isStandalone(){
+  return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+}
+
+function onInstallClick(){
+  // メニューを閉じる
+  try{
+    document.getElementById('menu').classList.remove('open');
+    document.getElementById('scrim').classList.remove('open');
+    document.getElementById('burger').classList.remove('open');
+    document.body.style.overflow='';
+  }catch(e){}
+
+  // すでにインストール済み（アプリとして起動中）
+  if (isStandalone()){
+    alert('すでにアプリとして利用中です。ホーム画面のアイコンから起動できます。');
+    return;
+  }
+
+  // Androidなど：インストールプロンプトが使える場合はそのまま実行
+  if (deferredPrompt){
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(){ deferredPrompt = null; });
+    return;
+  }
+
+  // iPhone：手順を案内
+  if (isIos()){
+    openIosGuide();
+    return;
+  }
+
+  // その他（プロンプト未発火のAndroid/PC等）：手動手順を案内
+  alert('お使いのブラウザのメニューから「ホーム画面に追加」または「アプリをインストール」を選んでください。');
+}
+
+function openIosGuide(){
+  var m=document.getElementById('iosInstall');
+  m.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function closeIosGuide(){
+  document.getElementById('iosInstall').style.display='none';
+  document.body.style.overflow='';
+}
+document.getElementById('iosInstall').addEventListener('click', function(e){
+  if(e.target===this) closeIosGuide();
+});
+
+// インストール完了時
+window.addEventListener('appinstalled', function(){
+  deferredPrompt = null;
+});
+</script>
+<!-- ===== 組織概要・沿革(ポップアップ) ===== -->
+<style id="orgModalCss">
+#orgModal{--ink:#16212b;--sub:#5b6b78;--line:#e2e8ee;--panel:#fff;--navy:#0f2c4a;--navy2:#173e63;--teal:#2f7d78;--flame:#e8541e;--flame2:#f5a623;
+ position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;display:none;background:rgba(8,20,34,.74);overflow-y:auto;-webkit-overflow-scrolling:touch}
+#orgModal.open{display:block}
+#orgModal *{box-sizing:border-box}
+#orgModal .org-card{max-width:820px;margin:20px auto;background:#eef2f5;color:var(--ink);border-radius:16px;overflow:hidden;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;line-height:1.8;font-size:16px;box-shadow:0 12px 44px rgba(0,0,0,.45);text-align:left}
+#orgModal .org-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;padding:10px 12px 10px 18px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff}
+#orgModal .org-head h2{flex:1;font-size:17px;margin:0;color:#fff;font-weight:800}
+#orgModal .org-x{min-width:44px;min-height:44px;border:0;border-radius:10px;background:rgba(255,255,255,.16);color:#fff;font-size:20px;cursor:pointer}
+#orgModal .org-body{padding:2px 6px 18px}
+#orgModal .org-foot{padding:6px 18px 22px;text-align:center;font-size:12.5px;color:var(--sub)}
+#orgModal section{margin:14px 8px}
+#orgModal .btn{text-decoration:none}
+#orgModal section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 18px 20px;margin:16px 0;box-shadow:0 2px 10px rgba(20,40,60,.05)}
+#orgModal .sec-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+#orgModal .sec-head .no{width:28px;height:28px;border-radius:7px;background:var(--teal);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px;flex:none}
+#orgModal .sec-head h2{font-size:16px;color:var(--navy)}
+#orgModal .lead{font-size:13.5px;color:#2a3540;margin-bottom:12px}
+#orgModal .note{font-size:12.5px;color:var(--sub);line-height:1.8;margin-top:10px}
+#orgModal table.info{width:100%;border-collapse:collapse;font-size:13.5px}
+#orgModal table.info th,#orgModal table.info td{padding:10px 10px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+#orgModal table.info th{width:7.5em;color:var(--navy);background:#f5f8fa;font-weight:700;white-space:nowrap}
+#orgModal a{color:#1864ab}
+#orgModal .tl .it{position:relative;margin:0 0 20px}
+#orgModal .tl .it:last-child{margin-bottom:0}
+#orgModal .tl .it:before{content:"";position:absolute;left:-34px;top:5px;width:13px;height:13px;border-radius:50%;background:#fff;border:3px solid var(--teal)}
+#orgModal .tl .it.now:before{background:var(--flame);border-color:var(--flame)}
+#orgModal .tl .it.goal:before{border-color:var(--flame2);background:var(--flame2)}
+#orgModal .tl .dt{font-weight:800;color:var(--navy);font-size:14px}
+#orgModal .tl .tx{font-size:13.5px;color:#28323c;margin-top:2px}
+#orgModal .tl .tx small{display:block;color:var(--sub);font-size:12px;margin-top:2px}
+#orgModal .goal{background:#f5f8fa;border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+#orgModal .goal b{display:block;color:var(--navy);font-size:13.5px;margin-bottom:2px}
+#orgModal .goal span{font-size:12.5px;color:#33404c;line-height:1.7}
+#orgModal .map-embed iframe{width:100%;height:260px;border:0;display:block}
+#orgModal .btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+#orgModal .btn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:9px 16px;border-radius:10px;font-weight:800;font-size:13.5px;text-decoration:none;border:2px solid var(--navy);color:var(--navy);background:#fff}
+#orgModal .btn.p{background:var(--navy);color:#fff}
+@media(max-width:520px){#orgModal .goals{grid-template-columns:1fr}#orgModal table.info th{width:6em}#orgModal .org-card{margin:0;border-radius:0;min-height:100%}}
+</style>
+<div id="orgModal" role="dialog" aria-modal="true" aria-labelledby="orgModalTitle" onclick="if(event.target===this)closeOrgModal()">
+  <div class="org-card">
+    <div class="org-head"><h2 id="orgModalTitle">🏢 組織概要・沿革</h2><button type="button" class="org-x" onclick="closeOrgModal()" aria-label="閉じる">✕</button></div>
+    <div class="org-body"><section data-sec="overview">
+      <div class="sec-head"><span class="no">1</span><h2>組織概要</h2></div>
+      <table class="info">
+        <tr><th>団体名</th><td>DWA防災情報センター</td></tr>
+        <tr><th>区分</th><td>長岡京市認定 市民活動団体</td></tr>
+        <tr><th>所在地</th><td>〒617-0833 京都府長岡京市神足芝本19-2　アクエルド長岡京 305</td></tr>
+        <tr><th>運営責任者</th><td>古谷 浩二（システム開発）</td></tr>
+        <tr><th>運営体制</th><td>運営責任者・広報マーケティング担当の2名<br><a href="staff.html#staff" data-orgp="staff.html#staff">スタッフ紹介（経歴・保有資格）を見る →</a></td></tr>
+        <tr><th>活動の起点</th><td>2018年1月　Twitter（現X）アカウントの開設</td></tr>
+        <tr><th>主な活動</th><td>災害情報の発信（地震・火山・津波・気象警報など）／安全・安心の見守り（事件・事故・国民保護の情報）／デジタル後方支援／福祉・介助の知見を活かした、支援が必要な方に寄り添う防災</td></tr>
+        <tr><th>連携</th><td>長岡京市災害ボランティアセンターとの「災害時パートナーシップ協定」の締結に向けて協議中</td></tr>
+        <tr><th>WEB</th><td><a href="http://bousai0111.info" target="_blank" rel="noopener">http://bousai0111.info</a></td></tr>
+        <tr><th>公式SNS</th><td><a href="https://x.com/DWAbousai0111" target="_blank" rel="noopener">公式X（旧Twitter）</a>　/　<a href="https://lin.ee/swjPxzv" target="_blank" rel="noopener">公式LINE</a></td></tr>
+        <tr><th>お問い合わせ</th><td><a href="staff.html#contact" data-orgp="staff.html#contact">問い合わせ窓口（電話・メール）→</a>　/　<a href="contact.html" data-orgp="contact.html">お問い合わせフォーム</a></td></tr>
+      </table>
+    </section><section data-sec="history">
+      <div class="sec-head"><span class="no">2</span><h2>沿革</h2></div>
+      <p class="lead">地震の情報発信と警鐘を行う、ひとつのアカウントから始まりました。</p>
+      <div class="tl">
+        <div class="it">
+          <div class="dt">2018年1月</div>
+          <div class="tx"><b>Twitter（現X）アカウントを開設</b><br>当初は、地震の情報発信と警鐘をするだけのアカウントとして活動を開始しました。</div>
+        </div>
+        <div class="it">
+          <div class="dt">約8年の歳月を経て</div>
+          <div class="tx"><b>「DWA防災情報センター」としてリスタート</b><br>市民活動団体として、更なる飛躍を目指す体制へ。地震・火山・気象警報から、事件・事故・国民保護まで、命に関わる情報を発信しています。</div>
+        </div>
+        <div class="it">
+          <div class="dt">2026年7月</div>
+          <div class="tx"><b>令和8年 熊本地震で、デジタル情報による後方支援</b><br>被災地を、デジタル情報で後方から支えました。大規模自然災害時には、同様の後方支援を行っています。</div>
+        </div>
+        <div class="it now">
+          <div class="dt">現在</div>
+          <div class="tx"><b>地域の防災パートナーへ</b><br>長岡京市災害ボランティアセンターとの「災害時パートナーシップ協定」の締結に向けて、協議中です。防災情報の発信に加え、防災マップや支援ツールの運用を続けています。</div>
+        </div>
+        <div class="it goal">
+          <div class="dt">2030年（目標）</div>
+          <div class="tx"><b>誰も取りこぼさない防災社会の実現へ</b><br>「発信」から「実装」へ。避難行動要支援者の個別避難計画について、自治体や消防と連携し、「誰が、どこで、誰を助けるか」を可視化するシステムの構築を目指します。<small><a href="activity.html" data-orgp="activity.html">活動と目標の詳細を見る →</a></small></div>
+        </div>
+      </div>
+    </section><section data-sec="goals">
+      <div class="sec-head"><span class="no">3</span><h2>活動目標</h2></div>
+      <p class="lead">「一人はみんなのために、みんなは一人のために」― One for all, All for one ―</p>
+      <div class="goals">
+        <div class="goal"><b>ミッション</b><span>多方面から最新の防災情報を収集し、分かりやすく、備えや緊急時の行動など役立つ最新情報を共有します。防災都市づくりに貢献します。</span></div>
+        <div class="goal"><b>見据える未来</b><span>刻々と変わる環境変化に適応すべく、システムのアップデートを続け、災害に負けない、安心して暮らせる社会の基盤を築きます。</span></div>
+        <div class="goal"><b>Resilience Together</b><span>高齢者・乳幼児、女性・妊産婦、障がい者・外国人など、避難行動要支援者の避難システムの構築を目指します。</span></div>
+        <div class="goal"><b>2030年のビジョン</b><span>誰も取りこぼさない防災社会の実現へ。デジタル技術で「誰が、どこで、誰を助けるか」を可視化します。</span></div>
+      </div>
+      <div class="btns"><a class="btn p" href="activity.html" data-orgp="activity.html">🎯 活動と目標を詳しく見る</a></div>
+    </section><section data-sec="access">
+      <div class="sec-head"><span class="no">4</span><h2>アクセス</h2></div>
+      <p class="lead">事務局所在地：〒617-0833 京都府長岡京市神足芝本19-2 アクエルド長岡京 305</p>
+      <div class="map-embed">
+        <iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+          src="https://www.google.com/maps?q=%E4%BA%AC%E9%83%BD%E5%BA%9C%E9%95%B7%E5%B2%A1%E4%BA%AC%E5%B8%82%E7%A5%9E%E8%B6%B3%E8%8A%9D%E6%9C%AC19-2&output=embed"
+          title="DWA防災情報センター 事務局の地図"></iframe>
+      </div>
+      <div class="btns">
+        <a class="btn p" href="https://www.google.com/maps/search/?api=1&query=%E4%BA%AC%E9%83%BD%E5%BA%9C%E9%95%B7%E5%B2%A1%E4%BA%AC%E5%B8%82%E7%A5%9E%E8%B6%B3%E8%8A%9D%E6%9C%AC19-2" target="_blank" rel="noopener">📍 地図アプリで開く</a>
+        <a class="btn" href="https://www.google.com/maps/dir/?api=1&destination=%E4%BA%AC%E9%83%BD%E5%BA%9C%E9%95%B7%E5%B2%A1%E4%BA%AC%E5%B8%82%E7%A5%9E%E8%B6%B3%E8%8A%9D%E6%9C%AC19-2" target="_blank" rel="noopener">🧭 経路を検索</a>
+        <a class="btn" href="tel:09081263532">📞 電話で連絡</a>
+      </div>
+      <div class="note">最寄りはJR「長岡京」駅周辺エリアです。お越しの際は、事前にお電話またはメールでご連絡いただけますと確実です。<br>
+        電話：090-8126-3532　/　メール：<a href="mailto:dwa8791@bousai0111.info">dwa8791@bousai0111.info</a><br>
+        ※ 災害時など緊急の場合は、状況に応じて 119番（消防・救急）・110番（警察）など公的機関へご連絡ください。</div>
+    </section>
+      <p class="org-foot">スタッフ紹介・アクセス・問い合わせは <a href="staff.html" data-orgp="staff.html">こちらのページ</a> にまとめています。<br>避難などの判断は、必ず気象庁・自治体などの公式発表もあわせてご確認ください。</p>
+    </div>
+  </div>
+</div>
+<script>
+function openOrgModal(){
+  var m=document.getElementById('orgModal'); if(!m) return;
+  var B=(typeof ORG_BASE!=='undefined')?ORG_BASE:'';
+  var as=m.querySelectorAll('a[data-orgp]');
+  for(var i=0;i<as.length;i++){ as[i].setAttribute('href', B+as[i].getAttribute('data-orgp')); as[i].setAttribute('target','_blank'); as[i].setAttribute('rel','noopener'); }
+  m.classList.add('open'); m.scrollTop=0;
+  document.addEventListener('keydown',orgEsc);
+  var x=m.querySelector('.org-x'); if(x) x.focus();
+}
+function closeOrgModal(){
+  var m=document.getElementById('orgModal'); if(m) m.classList.remove('open');
+  document.removeEventListener('keydown',orgEsc);
+}
+function orgEsc(e){ if(e.key==='Escape') closeOrgModal(); }
+</script>
+<script>
+function closeMenuAndOrg(){
+  try{ document.getElementById('menu').classList.remove('open');
+       document.getElementById('scrim').classList.remove('open');
+       document.getElementById('burger').classList.remove('open');
+       document.body.style.overflow=''; }catch(e){}
+  try{ openOrgModal(); }catch(e){}
+}
+</script>
+</body>
+</html>
