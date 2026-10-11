@@ -6035,6 +6035,29 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       </button></div>
       </div>
 
+      <div class="ham-acc" id="hamAcc7">
+        <button type="button" class="ham-acc-head" onclick="toggleHamAcc(this)"><span class="ha-ico">🏢</span><span>団体案内</span><span class="ha-cnt">6</span><span class="ha-arw">▶</span></button>
+        <div class="ham-acc-body">
+      <a class="hamburger-link" href="https://mkms0822-ops.github.io/nagaokakyoushi_bousai_site/" target="_blank" rel="noopener" style="color:#1864ab;border-color:rgba(24,100,171,0.35);background:rgba(24,100,171,0.06);">
+        <span class="h-link-icon">🏘️</span><span>DWA防災情報センター 長岡京市版<br><span style="font-size:11px;opacity:.75;">防災マップ・SOSビーコン・緊急対応マニュアルなど</span></span>
+      </a>
+      <a class="hamburger-link" href="organization.html" data-org="organization.html" target="_blank" rel="noopener">
+        <span class="h-link-icon">🏢</span><span>組織概要・沿革<br><span style="font-size:11px;opacity:.75;">団体の概要・歩み・活動目標</span></span>
+      </a>
+      <a class="hamburger-link" href="activity.html" data-org="activity.html" target="_blank" rel="noopener">
+        <span class="h-link-icon">🎯</span><span>活動と目標<br><span style="font-size:11px;opacity:.75;">メッセージ・ビジョン・2030年に向けて</span></span>
+      </a>
+      <a class="hamburger-link" href="staff.html#staff" data-org="staff.html#staff" target="_blank" rel="noopener">
+        <span class="h-link-icon">👤</span><span>スタッフ紹介<br><span style="font-size:11px;opacity:.75;">経歴・保有資格</span></span>
+      </a>
+      <a class="hamburger-link" href="staff.html#access" data-org="staff.html#access" target="_blank" rel="noopener">
+        <span class="h-link-icon">📍</span><span>アクセス方法<br><span style="font-size:11px;opacity:.75;">事務局の所在地・地図</span></span>
+      </a>
+      <a class="hamburger-link" href="staff.html#contact" data-org="staff.html#contact" target="_blank" rel="noopener">
+        <span class="h-link-icon">📞</span><span>問い合わせ窓口<br><span style="font-size:11px;opacity:.75;">電話・メールでのご連絡</span></span>
+      </a></div>
+      </div>
+
       <div class="ham-acc" id="hamAcc3">
         <button type="button" class="ham-acc-head" onclick="toggleHamAcc(this)"><span class="ha-ico">📄</span><span>サイト関連</span><span class="ha-cnt">5</span><span class="ha-arw">▶</span></button>
         <div class="ham-acc-body">
@@ -12103,7 +12126,7 @@ const tourSteps = [
   { sel:'[data-tour="live"]', title:'🟢 LIVE・現在時刻', text:'ヘッダー右の機器パネルです。赤いランプが点滅していれば「LIVE（リアルタイム配信中）」を表し、その下の窓に現在時刻が表示されます。地震データは自動で更新され続けます。' },
   { sel:'#siteRefreshBtn', title:'🔄 最新情報に更新', text:'パネル内の丸い矢印ボタンです。自動更新を待たずに、いますぐ最新の地震・気象情報を取り込みたいときにタップします。表示が古いと感じたらここを押してください。', fallbackToTop:true },
   { sel:'[data-tour="menu"]', title:'☰ メニュー（設定）', text:'パネル右側の三本線アイコンがメニューボタンです。タップで開くメニューの2番目のグループが「設定」です。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。お問い合わせとプライバシーポリシーは「サイト関連」にあります。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。' },
-  { sel:'[data-tour="menu"]', title:'☰ メニュー（リンク集）', text:'メニューは大きく7つのグループに畳まれています。見出しをタップすると中身が開きます。上から順に、設定・ご利用ガイド・公式アカウント・サイト関連・画面モード・外部リンク・各種ツールです。見出しの右の数字は、その中に入っている項目の数です。「すべて開く」で一度に全部を表示することもできます。なお熊本地震の情報だけは、すぐ使えるよう畳まずに一番上へ置いています。', fallbackToTop:true },
+  { sel:'[data-tour="menu"]', title:'☰ メニュー（リンク集）', text:'メニューは大きく8つのグループに畳まれています。見出しをタップすると中身が開きます。上から順に、設定・ご利用ガイド・公式アカウント・団体案内・サイト関連・画面モード・外部リンク・各種ツールです。「団体案内」には、長岡京市版サイトへのリンク、組織概要・沿革、活動と目標、スタッフ紹介、アクセス方法、問い合わせ窓口が入っています。見出しの右の数字は、その中に入っている項目の数です。「すべて開く」で一度に全部を表示することもできます。なお熊本地震の情報だけは、すぐ使えるよう畳まずに一番上へ置いています。', fallbackToTop:true },
   { sel:'[data-tour="usage-guide"]', title:'📖 取扱説明書（ご利用ガイド）', text:'メニューの「サイトご利用ガイド」にある「取扱説明書」です。このサイトの全機能の使い方を、ひとつずつ丁寧に解説したガイドブックがサイト内でそのまま開きます。SOSビーコンの使い方、引き継ぎコードの説明、よくある質問まで揃っているので、使い方に迷ったらまずここを開いてください。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="quake-map"]', title:'🌍 グローバル地震マップ', text:'メニューの「各種ツール（地震・被害想定）」にある「グローバル地震マップ」です。1902年から2026年までの世界の地震737件を地図上で確認できます。震度や年代で絞り込めるほか、日本周辺の<b>活断層687本</b>、世界のプレート境界、南海トラフ・千島海溝の<b>想定震源域</b>も重ねて表示できます。お住まいの地域の地下に断層があるか、過去にどんな地震が起きたかを調べてみてください。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="ecs-timer"]', title:'🦵 エコノミークラス症候群 予防タイマー', text:'メニューの「各種ツール（避難生活・支援）」にあります。車中泊や避難所での生活が続くと、足に血のかたまりができて命に関わることがあります。このタイマーは、一定時間ごとに足を動かす合図を出してくれます。避難生活が長引きそうなときに使ってください。', onShow:openHamburgerForTour, fallbackToTop:true },
@@ -23359,5 +23382,14 @@ else qhHashBoot();
 </script>
 
 
+<script>
+/* 団体案内ページ(organization.html・activity.html・staff.html)は、長岡京市版サイトに置かれています。
+   置き場所を変える場合は、ここを変更してください。同じフォルダに置くなら '' (空) にします。 */
+var ORG_BASE = 'https://mkms0822-ops.github.io/nagaokakyoushi_bousai_site/';
+(function(){
+  var els = document.querySelectorAll('a[data-org]');
+  for(var i = 0; i < els.length; i++) els[i].setAttribute('href', ORG_BASE + els[i].getAttribute('data-org'));
+})();
+</script>
 </body>
 </html>
