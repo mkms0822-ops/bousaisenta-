@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DWAおすすめ防災グッズ</title>
+<meta name="description" content="停電・断水・避難に向けた防災グッズを、カテゴリ別・五十音順・ことばで探せる紹介ページです(広告を含みます)。運営:DWA防災情報センター。"><meta name="theme-color" content="#0c1626"><meta property="og:type" content="website"><meta property="og:title" content="DWAおすすめ防災グッズ"><meta property="og:description" content="停電・断水・避難に向けた防災グッズを、カテゴリ別・五十音順・ことばで探せる紹介ページです(広告を含みます)。運営:DWA防災情報センター。"><style>[hidden]{display:none!important}</style></head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Dela+Gothic+One&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f0ea; --surface:#ffffff; --surface2:#ebe7df; --ink:#16202e; --muted:#566070; --line:#d8d2c6;
+  --accent:#c2410c; --accent-ink:#ffffff; --accent-soft:#fde9dc; --warn:#7a5000; --warn-soft:#fbf0d3;
+  --font:'BIZ UDPGothic','Hiragino Sans','Yu Gothic UI','Meiryo',sans-serif;
+  --disp:'Dela Gothic One','BIZ UDPGothic','Hiragino Sans',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e141d; --surface:#151d29; --surface2:#1b2534; --ink:#e8edf4; --muted:#9aa7b8; --line:#2b394c;
+    --accent:#ff9a5c; --accent-ink:#1a0c03; --accent-soft:#3a2314; --warn:#f0c15a; --warn-soft:#352a0e;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e141d; --surface:#151d29; --surface2:#1b2534; --ink:#e8edf4; --muted:#9aa7b8; --line:#2b394c;
+  --accent:#ff9a5c; --accent-ink:#1a0c03; --accent-soft:#3a2314; --warn:#f0c15a; --warn-soft:#352a0e;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:12px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font)}
+.site{--fs:16px;font-size:var(--fs);line-height:1.8;min-height:100vh}
+.site[data-fs="s"]{--fs:14px}.site[data-fs="l"]{--fs:19px}
+a{color:var(--accent)}
+button,input,select{font-family:inherit;font-size:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.in{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.mono{font-family:var(--mono)}
+
+/* ヒーロー */
+.tape{height:9px;background:repeating-linear-gradient(-45deg,#f2b705 0 14px,#14181f 14px 28px)}
+.hero{background:#0c1626;color:#fff;padding-block:28px 24px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-60px;top:-60px;width:300px;height:300px;border-radius:50%;border:2px solid rgba(255,154,92,.25);box-shadow:0 0 0 28px rgba(255,154,92,.07),0 0 0 60px rgba(255,154,92,.04);pointer-events:none}
+.eyebrow{font-family:var(--mono);font-size:.72em;letter-spacing:.18em;color:#ffb27d;margin-bottom:6px}
+h1{font-family:var(--disp);font-weight:400;font-size:2.1em;line-height:1.25;margin:0 0 6px;letter-spacing:.01em;text-wrap:balance}
+.lead{margin:0 0 16px;color:#c4d0df;font-size:.95em;max-width:56ch}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;position:relative;z-index:1}
+.tb{height:2.4em;padding:0 .85em;border-radius:.6em;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.07);color:#fff;font-size:.82em;cursor:pointer;white-space:nowrap}
+.tb:hover{background:rgba(255,255,255,.16)}
+.tb[aria-pressed="true"]{background:#ffb27d;border-color:#ffb27d;color:#1a0c03;font-weight:700}
+.grp{display:inline-flex;gap:4px;align-items:center;padding-left:8px;border-left:1px solid rgba(255,255,255,.25);font-size:.75em;color:#c4d0df}
+.grp .tb{padding:0 .7em}
+@media (max-width:520px){h1{font-size:1.6em}.hero::after{display:none}}
+
+/* 広告表示 */
+.ad{margin:16px 0 0;padding:12px 14px;border-radius:.7em;background:var(--warn-soft);border:1px solid var(--warn);color:var(--ink);font-size:.86em;line-height:1.75}
+.ad b{color:var(--warn)}
+
+/* 検索 */
+.find{padding-block:16px 4px;display:grid;gap:10px}
+.sbox{display:flex;gap:8px}
+.sbox input{flex:1;min-width:0;height:2.9em;padding:0 1em;border-radius:.7em;border:2px solid var(--line);background:var(--surface);font-size:1em}
+.sbox input:focus{border-color:var(--accent)}
+.btn{height:2.9em;padding:0 1em;border-radius:.7em;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:.9em;white-space:nowrap}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:.7em;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:.45em 1em;cursor:pointer;font-size:.88em}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:2em;padding:.25em .85em;cursor:pointer;font-size:.84em}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip small{opacity:.7;margin-left:4px;font-family:var(--mono)}
+.jump{display:flex;flex-wrap:wrap;gap:4px;padding-block:8px 0}
+.jump button{min-width:2.6em;height:2.3em;padding:0 .7em;border-radius:.5em;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:.84em}
+.jump button:disabled{opacity:.35;cursor:default}
+.jump button:not(:disabled):hover{border-color:var(--accent);color:var(--accent)}
+.count{font-size:.84em;color:var(--muted);padding-block:10px 0}
+
+/* 一覧 */
+.gh{display:flex;align-items:baseline;gap:10px;margin:26px 0 10px;padding-bottom:6px;border-bottom:3px solid var(--ink);scroll-margin-top:10px}
+.gh h2{font-size:1.25em;margin:0;line-height:1.4}
+.gh span{font-family:var(--mono);font-size:.78em;color:var(--muted)}
+details.gd{margin:0 0 12px;background:var(--surface2);border-radius:.7em;padding:.5em .9em;font-size:.86em}
+details.gd summary{cursor:pointer;font-weight:700}
+details.gd ul{margin:6px 0 4px;padding-left:1.3em}
+details.gd p{margin:4px 0;color:var(--muted);font-size:.9em}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px}
+.pc{background:var(--surface);border:1px solid var(--line);border-radius:.9em;padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.pc .r1{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.ct{font-size:.72em;background:var(--accent-soft);color:var(--accent);border-radius:.4em;padding:.1em .6em;font-weight:700}
+.pr{font-family:var(--mono);font-size:.68em;border:1px solid var(--muted);color:var(--muted);border-radius:.3em;padding:0 .4em;letter-spacing:.1em}
+.pc h3{font-size:1.02em;line-height:1.5;margin:4px 0 0;overflow-wrap:anywhere}
+.br{font-size:.78em;color:var(--muted)}
+.pc p{margin:2px 0 6px;font-size:.88em;line-height:1.75;flex:1;overflow-wrap:anywhere}
+.ac{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.bn{display:block;margin:6px 0 2px;text-align:center}.bn img{max-width:100%;height:auto;border:0;border-radius:4px}
+.pc{position:relative}
+.back{display:inline-block;margin-bottom:10px;font-size:.82em;color:#ffb27d;text-decoration:none}.back:hover{text-decoration:underline}
+.go{display:inline-flex;align-items:center;gap:6px;padding:.55em .9em;border-radius:.6em;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:.86em;text-decoration:none}
+.go small{font-weight:400;font-size:.8em;opacity:.85}
+.go.off{background:var(--surface2);color:var(--muted);font-weight:400}
+.sub{display:inline-flex;align-items:center;padding:.55em .8em;border-radius:.6em;border:1px solid var(--line);font-size:.84em;text-decoration:none;color:var(--ink)}
+.empty{padding:28px 16px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:.9em}
+.soon{padding:14px 16px;background:var(--surface);border:1px dashed var(--line);border-radius:.9em;font-size:.88em;color:var(--muted)}
+
+.about{margin-top:34px;padding:16px 18px;border-radius:.9em;background:var(--surface);border:1px solid var(--line);font-size:.86em}
+.about h2{font-size:1.05em;margin:0 0 6px}
+.about ul{margin:0;padding-left:1.2em}
+.foot{margin-top:28px;padding-block:18px 40px;border-top:1px solid var(--line);font-size:.8em;color:var(--muted)}
+.foot a{color:var(--muted)}
+
+/* ダイアログ */
+.ov{position:fixed;inset:0;z-index:100;background:rgba(5,12,24,.62);display:flex;align-items:flex-start;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 16px max(12px,env(safe-area-inset-left,0px));overflow:auto;font-family:var(--font);line-height:1.8}
+.pnl{width:100%;max-width:720px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:18px 20px 20px;margin:auto 0;font-size:15px}
+.pnl h2{font-size:19px;margin:0 0 10px;line-height:1.45}.pnl h3{font-size:15px;margin:16px 0 4px}
+.pnl p,.pnl li{font-size:14px;line-height:1.85;margin:0 0 8px}.pnl ul{margin:0 0 8px;padding-left:20px}
+.pnl .hd{display:flex;align-items:flex-start;gap:10px}.pnl .hd h2{flex:1}
+.x{flex:none;height:34px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);cursor:pointer;font-size:13px}
+.mi,.pb{display:flex;flex-direction:column;gap:8px;margin:8px 0}
+.mi button,.pb button,.pb a.bt{display:block;width:100%;text-align:left;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);cursor:pointer;font-size:14px;text-decoration:none}
+.mi button:hover,.pb button:hover,.pb a.bt:hover{border-color:var(--accent)}
+.mi small,.pb small{display:block;color:var(--muted);font-size:12px;overflow-wrap:anywhere}
+.act{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.act button,.act a.bt{padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);cursor:pointer;font-size:14px;text-decoration:none}
+.act .pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.dl{display:grid;grid-template-columns:7em 1fr;gap:6px 12px;font-size:14px;margin:0 0 10px}.dl dt{color:var(--muted)}.dl dd{margin:0;overflow-wrap:anywhere}
+.kb{font-family:var(--mono);background:var(--surface2);border:1px solid var(--line);border-radius:6px;padding:1px 6px;overflow-wrap:anywhere}
+.scope{display:flex;flex-wrap:wrap;gap:6px 16px;margin:8px 0 10px;font-size:14px}.scope label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.sheetwrap{background:#dfe3e8;border-radius:10px;padding:12px;margin-top:6px;max-height:56vh;overflow:auto}
+.sheet{background:#fff;color:#111;max-width:794px;margin:0 auto;padding:28px 32px;box-shadow:0 1px 6px rgba(0,0,0,.25)}
+.tn{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:200;background:#14202f;color:#fff;padding:9px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw}
+.tn.on{opacity:1}
+.top{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:max(14px,env(safe-area-inset-bottom,0px));z-index:50;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font-size:18px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+</style>
+<style id="docCss">
+.d{font-size:10.5pt;line-height:1.7;color:#111;font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif}
+.d h1{font-family:inherit;font-size:19pt;margin:0 0 6px;padding-bottom:8px;border-bottom:3px solid #14202f;line-height:1.35;color:#111}
+.d .meta{font-size:9.5pt;color:#444;margin:0 0 8px}
+.d h2{font-size:12.5pt;margin:16px 0 6px;padding:4px 10px;background:#eef2f6;border-left:5px solid #c2410c;break-after:avoid;page-break-after:avoid;line-height:1.5}
+.d .it{margin:0 0 7px;padding-bottom:6px;border-bottom:1px solid #ddd;break-inside:avoid;page-break-inside:avoid}
+.d .it b{font-size:10.5pt}.d .it span{color:#444;font-size:9.5pt;margin-left:6px}
+.d .it p{margin:1px 0;font-size:9.5pt}.d .it i{font-style:normal;font-size:8.5pt;color:#555;word-break:break-all}
+.d .fn{margin-top:14px;font-size:8.5pt;color:#555;border-top:1px solid #aaa;padding-top:6px}
+@page{size:A4;margin:16mm 15mm 18mm}
+@media print{
+  body>*:not(#pdlg){display:none!important}
+  #pdlg{position:static!important;display:block!important;background:none!important;padding:0!important;overflow:visible!important}
+  #pdlg .pnl{max-width:none;border:0;padding:0;background:none;margin:0}
+  #pdlg .nop{display:none!important}
+  #pdlg .sheetwrap{background:none;padding:0;max-height:none;overflow:visible;margin:0}
+  #pdlg .sheet{box-shadow:none;padding:0;max-width:none}
+}
+</style>
+
+<div class="site" id="site" data-fs="m">
+  <div class="tape" aria-hidden="true"></div>
+  <header class="hero"><div class="in">
+    <a class="back" href="./">‹ DWA防災情報センター(本体サイト)へ戻る</a><br><div class="eyebrow">DWA DISASTER GEAR SELECT ・ 2026.10</div>
+    <h1 id="siteName">DWAおすすめ防災グッズ</h1>
+    <p class="lead">備えを、選ぶ。停電・断水・避難に向けた防災グッズを、カテゴリ別・五十音順・ことばで探せます。</p>
+    <div class="tools" role="toolbar" aria-label="共有・印刷・表示の設定">
+      <button type="button" class="tb" id="bShare">共有</button>
+      <button type="button" class="tb" id="bPrint">印刷</button>
+      <button type="button" class="tb" id="bLink">リンク</button>
+      <button type="button" class="tb" id="bTheme" aria-label="表示の切り替え">☾ ダーク</button>
+      <span class="grp" role="group" aria-label="文字の大きさ">文字
+        <button type="button" class="tb" data-fs="s" aria-pressed="false">小</button>
+        <button type="button" class="tb" data-fs="m" aria-pressed="true">中</button>
+        <button type="button" class="tb" data-fs="l" aria-pressed="false">大</button>
+      </span>
+      <button type="button" class="tb" id="bMenu" aria-haspopup="dialog">☰ メニュー</button>
+    </div>
+  </div></header>
+
+  <div class="in">
+    <div class="ad" role="note"><b>【広告】</b> このページには、アフィリエイト広告(プロモーション)が含まれます。「販売ページを見る」から商品を購入すると、運営者に報酬が入ることがあります。商品の販売・発送・問い合わせは、各販売店が行います。並び順は、五十音順で、おすすめ順や優劣を示すものではありません。</div>
+
+    <section class="find" aria-label="商品を探す">
+      <div class="sbox"><input id="q" type="search" autocomplete="off" placeholder="ことばで探す(例:ポータブル電源、トイレ、非常食)" aria-label="ことばで探す"><button type="button" class="btn" id="qx">消す</button></div>
+      <div class="row">
+        <div class="seg" id="view" role="group" aria-label="並べ方"><button type="button" data-v="cat" aria-pressed="true">カテゴリ別</button><button type="button" data-v="aiu" aria-pressed="false">五十音順</button></div>
+      </div>
+      <div class="chips" id="chips" role="group" aria-label="カテゴリで絞り込む"></div>
+    </section>
+    <nav class="jump" id="jump" aria-label="ジャンプ"></nav>
+    <div class="count" id="count" aria-live="polite"></div>
+    <main id="list"></main>
+
+    <section class="about">
+      <h2>掲載について</h2>
+      <ul>
+        <li>掲載している商品は、広告主との提携にもとづくもので、すべての商品を調べたものではありません。</li>
+        <li>価格、在庫、仕様、キャンペーンは、変わります。購入の前に、販売ページで確認してください。</li>
+        <li>「選び方のポイント」は、一般的な考え方をもとに、運営者がまとめたもので、公的な基準ではありません。</li>
+        <li>防災グッズは、買うだけでなく、使い方の確認と、期限の点検が大切です。避難の判断は、自治体・気象庁の情報を、優先してください。</li>
+      </ul>
+    </section>
+    <footer class="foot">運営:<span id="fOrg"></span> ・ 更新:2026年10月15日 ・ <a href="#" id="fPriv">プライバシーポリシー</a> ・ <a href="#" id="fContact">お問い合わせ</a></footer>
+  </div>
+  <button type="button" class="top" id="toTop" aria-label="ページの上へ" hidden>↑</button>
+</div>
+
+<div class="ov" id="idlg" role="dialog" aria-modal="true" aria-labelledby="idT" hidden><div class="pnl"><div class="hd"><h2 id="idT"></h2><button type="button" class="x" data-close>閉じる</button></div><div id="idB"></div></div></div>
+<div class="ov" id="pdlg" role="dialog" aria-modal="true" aria-labelledby="pdT" hidden><div class="pnl">
+  <div class="hd nop"><h2 id="pdT">印刷用の書式</h2><button type="button" class="x" data-close>閉じる</button></div>
+  <div class="nop">
+    <p style="font-size:13px;color:var(--muted);margin:0 0 6px">いま画面に出ている一覧を、A4の文書の形にします。</p>
+    <div class="scope" id="pScope"><label><input type="radio" name="pw" value="cur" checked>いまの一覧(検索・絞り込みを反映)</label><label><input type="radio" name="pw" value="all">すべての商品</label></div>
+    <div class="act"><button type="button" class="pri" id="pGo">印刷する</button><button type="button" id="pSave">印刷用ファイルを保存(.html)</button></div>
+    <p style="font-size:12.5px;color:var(--muted);margin:0">アプリ内の表示などで、印刷の画面が開かないときは、「印刷用ファイルを保存」して、ブラウザで開き、印刷してください。PDFにするには、印刷の送信先で「PDFに保存」を選びます。</p>
+  </div>
+  <div class="sheetwrap"><div class="sheet d" id="pSheet"></div></div>
+</div></div>
+<div class="tn" id="tn" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+var SITE_NAME='DWAおすすめ防災グッズ';
+var SITE_URL='';
+var DESC='停電・断水・避難に向けた防災グッズを、カテゴリ別・五十音順・ことばで探せる紹介ページです(広告を含みます)。';
+var CFG={"org": "DWA防災情報センター", "kind": "長岡京市認定 市民活動団体", "rep": "古谷 浩二", "zip": "617-0833", "addr": "京都府長岡京市神足芝本19-2 アクエルド長岡京 305", "tel": "090-8126-3532", "mail": "dwa8791@bousai0111.info", "web": "http://bousai0111.info", "site": "https://mkms0822-ops.github.io/nagaokakyoushi_bousai_site/"};
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function safeUrl(u){return /^https?:\/\//i.test(u||'')?u:''}
+
+/* ---------- データ(url に、承認済みのアフィリエイトリンクを入れる) ---------- */
+var CATS=[
+ {id:'set',n:'防災セット・防災バッグ',y:'ぼうさいせっと',g:['人数分と日数分(まず3日分)が入っているか、中身の一覧を確認する','乳幼児、高齢者、持病の薬、アレルギー、ペットなど、家族の事情に合わせて、足りないものを足す','重すぎると持ち出せません。実際に背負って、確かめる','食料や電池の期限を、年に1回、点検する']},
+ {id:'pow',n:'電源・エネルギー',y:'でんげん',g:['使いたい機器の消費電力(W)と、使う時間から、必要な容量(Wh)を見積もる','充電の方法(家庭用コンセント、ソーラー、車)を確認する','ふだんから定期的に充電し、使えるかを確かめる','取扱説明書の、保管・使用の注意(高温、水濡れ、屋内での使い方)に従う','発電機は、屋内や換気の悪い場所で使わない(一酸化炭素中毒のおそれ)']},
+ {id:'food',n:'食料・調理',y:'しょくりょう',g:['水やお湯、火がなくても食べられるか、調理に何が必要かを確認する','賞味期限を一覧にし、ふだんの食事で食べて入れ替える(ローリングストック)','アレルギー、乳幼児、高齢者の食べやすさに合わせる','主食だけでなく、おかずや、栄養のバランスも考える']},
+ {id:'san',n:'トイレ・衛生',y:'といれ',g:['目安は、1人1日5回(東京都の資料)。人数と日数で、必要な数を計算する','凝固剤、ごみ袋、消臭の備えも、あわせて用意する','保管場所と使い方を、家族で確認する']},
+ {id:'com',n:'通信・情報',y:'つうしん',g:['手回し・ソーラー・電池で動くラジオで、情報を得る','モバイルバッテリーは、容量と、PSEマークなどの表示を確認し、膨らんだ・傷んだものは使い続けない','充電ケーブルが、使う機器に合うか確認する','災害用伝言ダイヤル(171)・災害用伝言板(web171)の使い方を、家族で決めておく']},
+ {id:'out',n:'アウトドア・ギア',y:'あうとどあ',g:['カセットコンロは、予備のボンベと、使い方を確認する','屋内や、換気の悪い場所で、火や炭を使わない(一酸化炭素中毒のおそれ)','ランタンやヘッドライトは、両手が空くものが便利','ふだんのキャンプなどで使って、慣れておく']},
+ {id:'shop',n:'専門店・ブランド',y:'せんもんてん',g:['セットの中身、期限、問い合わせ先を確認する','自分の家族に合うかを見て、足りないものを足す','評判だけでなく、仕様の表示を確認する']}
+];
+var P=[
+ {n:'アットレスキュー 防災セット ラピタ',y:'あっとれすきゅー ぼうさいせっと らぴた',c:'set',b:'LA・PITA(アットレスキュー)',d:'防災セットのメーカーが運営する直営サイトで、扱われている防災セット。',url:''},
+ {n:'Defend Future 防災セット(防災士監修)',y:'でぃふぇんど ふゅーちゃー ぼうさいせっと',c:'set',b:'Defend Future',d:'防災士が選んだ防災グッズ38点の、1人用のセット。',url:''},
+ {n:'Safetyplus 防災セット 1人用',y:'せーふてぃぷらす ぼうさいせっと',c:'set',b:'Safetyplus',d:'26種35点が入った、1人用の防災セット。',url:''},
+ {n:'防災バッグ OTE(On The Exit)',y:'ぼうさいばっぐ おーてぃーいー',c:'set',b:'OTE',d:'オリジナルの防災バッグ。防災グッズが入ったタイプがあります。',url:''},
+ {n:'防災セット 家族1人用 スタンダード',key:'rakuten',y:'ぼうさいせっと かぞくひとりよう すたんだーど',c:'set',b:'楽天市場',d:'非常用持ち出し袋・防災リュックのセット(保存食・避難用品入り)。',url:''},
+ {n:'EcoFlow ポータブル電源',key:'ecoflow',y:'えこふろー ぽーたぶるでんげん',c:'pow',b:'EcoFlow',d:'停電・災害時の電源確保に。「DELTA 2」などを扱うブランド。',url:''},
+ {n:'Jackery ポータブル電源',key:'jackery',y:'じゃっかりー ぽーたぶるでんげん',c:'pow',b:'Jackery',d:'太陽光でも充電できる防災電源。アウトドアや防災に使われています。',url:''},
+ {n:'ALLPOWERS ポータブル電源',y:'おーるぱわーず ぽーたぶるでんげん',c:'pow',b:'ALLPOWERS',d:'ポータブル電源とソーラーパネルを扱うブランド。',url:''},
+ {n:'Enernova ポータブル電源',y:'えねのば ぽーたぶるでんげん',c:'pow',b:'Enernova',d:'ポータブル電源を扱うブランド。',url:''},
+ {n:'アルファー食品 非常食・備蓄食料',y:'あるふぁーしょくひん ひじょうしょく びちくしょくりょう',c:'food',b:'アルファー食品',d:'非常食・備蓄食料を扱うメーカー。',url:''},
+ {n:'魔法のかまどごはん',key:'kamado',y:'まほうのかまどごはん',c:'food',b:'',d:'電気が止まっても、ごはんを。',url:''},
+ {n:'ラップポン 防災用簡易トイレ',y:'らっぷぽん ぼうさいようかんいといれ',c:'san',b:'ラップポン',d:'防災用の簡易トイレ。',url:''},
+ {n:'hinataストア キャンプ用品',key:'hinata',y:'ひなたすとあ きゃんぷようひん',c:'out',b:'hinata',d:'アウトドア・備えのギア選びに。キャンプ用品のストア。',url:''},
+ {n:'ピースアップ',y:'ぴーすあっぷ',c:'shop',b:'ピースアップ',d:'防災グッズ・防災セット・非常食・保存食を扱う、公式通販サイト。',url:''},
+ {n:'セイショップ',y:'せいしょっぷ',c:'shop',b:'セイショップ',d:'防災の専門店。',url:''},
+ {n:'防災ブランド スツーレ',key:'sture',y:'ぼうさいぶらんど すつーれ',c:'shop',b:'スツーレ',d:'ふだん使いできる防災ブランド。',url:''}
+];
+var CAT={};CATS.forEach(function(c){CAT[c.id]=c});
+var ROWS=[['あ行','あいうえお'],['か行','かきくけこ'],['さ行','さしすせそ'],['た行','たちつてと'],['な行','なにぬねの'],['は行','はひふへほ'],['ま行','まみむめも'],['や行','やゆよ'],['ら行','らりるれろ'],['わ行','わをん']];
+var SMALL={'ぁ':'あ','ぃ':'い','ぅ':'う','ぇ':'え','ぉ':'お','っ':'つ','ゃ':'や','ゅ':'ゆ','ょ':'よ','ゎ':'わ'};
+function rowOf(y){var c=String(y||'').normalize('NFD').charAt(0);c=SMALL[c]||c;for(var i=0;i<ROWS.length;i++)if(ROWS[i][1].indexOf(c)>=0)return ROWS[i][0];return '英数・その他'}
+function norm(s){return String(s||'').normalize('NFKC').toLowerCase().replace(/[ァ-ヶ]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0x60)})}
+function cmp(a,b){return a.y.localeCompare(b.y,'ja')||a.n.localeCompare(b.n,'ja')}
+var LINKS={"ecoflow": {"url": "https://px.a8.net/svt/ejp?a8mat=4B63GJ+F5YIIA+4VA0+5ZEMP", "img": "https://www29.a8.net/svt/bgt?aid=260624899917&wid=001&eno=01&mid=s00000022716001005000&mc=1", "w": 320, "h": 50, "px": "https://www16.a8.net/0.gif?a8mat=4B63GJ+F5YIIA+4VA0+5ZEMP"}, "sture": {"url": "https://px.a8.net/svt/ejp?a8mat=4B648K+70FT9U+5VK4+5YZ75", "img": "https://www23.a8.net/svt/bgt?aid=260625908424&wid=001&eno=01&mid=s00000027418001003000&mc=1", "w": 300, "h": 250, "px": "https://www11.a8.net/0.gif?a8mat=4B648K+70FT9U+5VK4+5YZ75"}, "jackery": {"url": "https://px.a8.net/svt/ejp?a8mat=4B7U0Y+57JKC2+4NJ4+6EER5", "img": "https://www22.a8.net/svt/bgt?aid=260705986315&wid=001&eno=01&mid=s00000021712001075000&mc=1", "w": 300, "h": 250, "px": "https://www17.a8.net/0.gif?a8mat=4B7U0Y+57JKC2+4NJ4+6EER5"}, "kamado": {"url": "https://px.a8.net/svt/ejp?a8mat=4B648K+8CNX9U+4OAC+HWAG1", "img": "https://www25.a8.net/svt/bgt?aid=260625908505&wid=001&eno=01&mid=s00000021810003006000&mc=1", "w": 250, "h": 250, "px": "https://www12.a8.net/0.gif?a8mat=4B648K+8CNX9U+4OAC+HWAG1"}, "hinata": {"url": "https://px.a8.net/svt/ejp?a8mat=4B648K+CBJYGI+4U5Q+BY641", "img": "https://www25.a8.net/svt/bgt?aid=260625908745&wid=001&eno=01&mid=s00000022571002007000&mc=1", "w": 300, "h": 250, "px": "https://www16.a8.net/0.gif?a8mat=4B648K+CBJYGI+4U5Q+BY641"}, "rakuten": {"url": "https://rpx.a8.net/svt/ejp?a8mat=4B5X8G+1OQ8HE+2HOM+BWGDT&rakuten=y&a8ejpredirect=https%3A%2F%2Fhb.afl.rakuten.co.jp%2Fhgc%2Fg00qums4.2bo11b09.g00qums4.2bo12ac7%2Fa26061626081_4B5X8G_1OQ8HE_2HOM_BWGDT%3Fpc%3Dhttps%253A%252F%252Fitem.rakuten.co.jp%252Fjisin-bousai-goods%252F381%252F%26m%3Dhttp%253A%252F%252Fm.rakuten.co.jp%252Fjisin-bousai-goods%252Fi%252F10000089%252F%26rafcid%3Dwsc_i_is_a9f492a7-8ef9-40e2-ab89-4bc43a1ee283", "img": "https://thumbnail.image.rakuten.co.jp/@0_mall/jisin-bousai-goods/cabinet/rakutenstn-r.jpg?_ex=128x128", "w": 128, "h": 128, "px": "https://www18.a8.net/0.gif?a8mat=4B5X8G+1OQ8HE+2HOM+BWGDT"}};var SHOW_PENDING=false;
+P.forEach(function(p){var l=p.key&&LINKS[p.key];if(l){p.url=l.url;p.img=l.img;p.iw=l.w;p.ih=l.h;p.px=l.px}});
+P=P.filter(function(p){return p.url||SHOW_PENDING});
+P.forEach(function(p){p.k=norm([p.n,p.y,p.b,p.d,CAT[p.c].n].join(' '))});
+
+/* ---------- 状態 ---------- */
+var st={q:'',cat:'all',view:'cat'};
+function pref(k,v){try{if(v===undefined)return localStorage.getItem('dwagoods.'+k);localStorage.setItem('dwagoods.'+k,v)}catch(e){}return null}
+function filtered(){
+  var ws=norm(st.q).split(/\s+/).filter(Boolean);
+  return P.filter(function(p){if(st.cat!=='all'&&p.c!==st.cat)return false;return ws.every(function(w){return p.k.indexOf(w)>=0})});
+}
+function groups(list){
+  var g=[];
+  if(st.view==='cat'){
+    CATS.slice().sort(cmp).forEach(function(c){
+      if(st.cat!=='all'&&c.id!==st.cat)return;
+      var it=list.filter(function(p){return p.c===c.id}).sort(cmp);
+      if(it.length||(!st.q&&c.id!==undefined))g.push({key:'c-'+c.id,t:c.n,cat:c,items:it});
+    });
+  }else{
+    var order=ROWS.map(function(r){return r[0]}).concat(['英数・その他']),m={};
+    list.slice().sort(cmp).forEach(function(p){var r=rowOf(p.y);(m[r]=m[r]||[]).push(p)});
+    order.forEach(function(r,i){if(m[r])g.push({key:'r-'+i,t:r,items:m[r]})});
+  }
+  return g;
+}
+function card(p){
+  var u=safeUrl(p.url),im=safeUrl(p.img),px=safeUrl(p.px);
+  var rel='sponsored nofollow noopener';
+  return '<article class="pc"><div class="r1"><span class="ct">'+esc(CAT[p.c].n)+'</span><span class="pr">PR</span></div><h3>'+esc(p.n)+'</h3>'+(p.b?'<div class="br">'+esc(p.b)+'</div>':'')+
+   (u&&im?'<a class="bn" href="'+esc(u)+'" target="_blank" rel="'+rel+'"><img src="'+esc(im)+'" width="'+(+p.iw||300)+'" height="'+(+p.ih||250)+'" alt="'+esc(p.n)+'(広告)" loading="lazy"></a>':'')+
+   '<p>'+esc(p.d)+'</p><div class="ac">'+
+   (u?'<a class="go" href="'+esc(u)+'" target="_blank" rel="'+rel+'">販売ページを見る ↗<small>広告</small></a>':'<span class="go off">販売ページ:準備中</span>')+'</div>'+
+   (px?'<img src="'+esc(px)+'" width="1" height="1" alt="" style="position:absolute;left:-9999px">':'')+'</article>';
+}
+function render(){
+  var list=filtered(),gs=groups(list);
+  $('count').textContent=list.length+'件'+(st.q||st.cat!=='all'?'(絞り込み中)':'')+' ・ '+(st.view==='cat'?'カテゴリ別、各カテゴリは五十音順':'五十音順');
+  var h='';
+  gs.forEach(function(g){
+    h+='<section aria-labelledby="h-'+g.key+'"><div class="gh" id="g-'+g.key+'"><h2 id="h-'+g.key+'">'+esc(g.t)+'</h2><span>'+g.items.length+'件</span></div>';
+    if(g.cat&&!st.q)h+='<details class="gd"><summary>選び方のポイント</summary><ul>'+g.cat.g.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul><p>一般的な考え方をもとに、運営者がまとめたものです。</p></details>';
+    h+=g.items.length?'<div class="grid">'+g.items.map(card).join('')+'</div>':'<div class="soon">このカテゴリの掲載商品は、準備中です。上の「選び方のポイント」を、参考にしてください。</div>';
+    h+='</section>';
+  });
+  if(!list.length&&(st.q||!gs.length))h='<div class="empty">「'+esc(st.q)+'」に合う商品が見つかりませんでした。<br>ほかのことば、または、カテゴリの絞り込みを、変えてみてください。<div class="act" style="justify-content:center"><button type="button" id="emptyClr">条件を消す</button></div></div>';
+  $('list').innerHTML=h;
+  // ジャンプ
+  var jh='';
+  if(st.view==='aiu'){var have={};gs.forEach(function(g){have[g.t]=g.key});ROWS.map(function(r){return r[0]}).concat(['英数・その他']).forEach(function(r){jh+='<button type="button"'+(have[r]?' data-j="'+have[r]+'"':' disabled')+'>'+esc(r.replace('行',''))+'</button>'})}
+  $('jump').innerHTML=jh;
+  // チップ
+  var cnt={};filteredNoCat().forEach(function(p){cnt[p.c]=(cnt[p.c]||0)+1});
+  var all=0;for(var k in cnt)all+=cnt[k];
+  $('chips').innerHTML='<button type="button" class="chip" data-c="all" aria-pressed="'+(st.cat==='all')+'">すべて<small>'+all+'</small></button>'+CATS.slice().sort(cmp).map(function(c){return '<button type="button" class="chip" data-c="'+c.id+'" aria-pressed="'+(st.cat===c.id)+'">'+esc(c.n)+'<small>'+(cnt[c.id]||0)+'</small></button>'}).join('');
+  [].forEach.call($('view').children,function(b){b.setAttribute('aria-pressed',b.getAttribute('data-v')===st.view?'true':'false')});
+}
+function filteredNoCat(){var c=st.cat;st.cat='all';var l=filtered();st.cat=c;return l}
+$('q').addEventListener('input',function(){st.q=this.value;render()});
+$('qx').onclick=function(){st.q='';$('q').value='';render();$('q').focus()};
+$('view').onclick=function(e){var b=e.target.closest('[data-v]');if(!b)return;st.view=b.getAttribute('data-v');pref('view',st.view);render()};
+$('chips').onclick=function(e){var b=e.target.closest('[data-c]');if(!b)return;st.cat=b.getAttribute('data-c');render()};
+$('jump').onclick=function(e){var b=e.target.closest('[data-j]');if(!b)return;var t=$('g-'+b.getAttribute('data-j'));if(t)try{t.scrollIntoView({block:'start'})}catch(x){}};
+$('list').onclick=function(e){if(e.target.id==='emptyClr'){st.q='';st.cat='all';$('q').value='';render()}};
+
+/* ---------- 表示(テーマ・文字) ---------- */
+function curTheme(){var t=document.documentElement.getAttribute('data-theme');if(t==='dark'||t==='light')return t;try{return matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch(e){return 'light'}}
+function setThemeLabel(){$('bTheme').textContent=curTheme()==='dark'?'☀ ライト':'☾ ダーク'}
+function setTheme(t){document.documentElement.setAttribute('data-theme',t);pref('theme',t);setThemeLabel()}
+$('bTheme').onclick=function(){setTheme(curTheme()==='dark'?'light':'dark')};
+function setFs(f){$('site').setAttribute('data-fs',f);pref('fs',f);[].forEach.call(document.querySelectorAll('[data-fs].tb'),function(b){b.setAttribute('aria-pressed',b.getAttribute('data-fs')===f?'true':'false')})}
+[].forEach.call(document.querySelectorAll('.tb[data-fs]'),function(b){b.onclick=function(){setFs(b.getAttribute('data-fs'))}});
+var pt=pref('theme');if(pt==='dark'||pt==='light')document.documentElement.setAttribute('data-theme',pt);
+setThemeLabel();
+var pf=pref('fs');setFs(pf==='s'||pf==='l'?pf:'m');
+var pv=pref('view');if(pv==='aiu'||pv==='cat')st.view=pv;
+$('fOrg').textContent=CFG.org;
+
+/* ---------- 共通 ---------- */
+var tT;function toast(m){var e=$('tn');e.textContent=m;e.classList.add('on');clearTimeout(tT);tT=setTimeout(function(){e.classList.remove('on')},2400)}
+function copy(text,msg){
+  function ok(){toast(msg||'コピーしました')}
+  function fb(){try{var ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.cssText='position:fixed;left:-9999px;top:0';document.body.appendChild(ta);ta.select();var r=document.execCommand('copy');document.body.removeChild(ta);r?ok():toast('コピーできませんでした。手動で選んでコピーしてください')}catch(e){toast('コピーできませんでした。手動で選んでコピーしてください')}}
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(ok,fb);return}}catch(e){}
+  fb();
+}
+var DL=null;try{if(window.claude&&window.claude.use){window.claude.use('downloads').then(function(d){DL=d}).catch(function(){})}}catch(e){}
+function saveFile(name,text,mime){
+  if(DL){DL.save({filename:name,data:text}).then(function(){toast('保存しました')}).catch(function(e){if(!e||e.code!=='declined')toast('保存できませんでした')});return}
+  try{var b=new Blob([text],{type:mime||'text/html'});var u=URL.createObjectURL(b);var a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(u)},1500);toast('保存しました')}catch(e){toast('保存できませんでした')}
+}
+function pageUrl(){var b=SITE_URL;if(!b){try{if(/^https?:/.test(location.href))b=location.href.split('#')[0]}catch(e){}}return b}
+
+var stack=[],opener=null;
+function openD(id,from){var d=$(id);opener=from||document.activeElement;d.hidden=false;stack.push(id);document.documentElement.style.overflow='hidden';var c=d.querySelector('[data-close]');if(c)c.focus()}
+function closeD(id){var d=$(id);d.hidden=true;stack=stack.filter(function(x){return x!==id});if(!stack.length)document.documentElement.style.overflow='';try{if(opener&&opener.focus)opener.focus()}catch(e){}}
+[].forEach.call(document.querySelectorAll('.ov'),function(o){o.addEventListener('click',function(e){if(e.target===o||(e.target.closest&&e.target.closest('[data-close]')&&o.contains(e.target)))closeD(o.id)})});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&stack.length)closeD(stack[stack.length-1])});
+
+/* ---------- リンク・共有 ---------- */
+function linkCopy(){var u=pageUrl();if(!u){toast('リンクを作れませんでした。アドレスバーのURLを使ってください');return}copy(u,'リンクをコピーしました')}
+$('bLink').onclick=linkCopy;
+function shareText(){var u=pageUrl();return SITE_NAME+':'+DESC+(u?'\n'+u:'')}
+function openShare(from){
+  var u=pageUrl(),enc=encodeURIComponent,t=SITE_NAME+':'+DESC;
+  var h='<p>リンクや紹介文を、ほかの人に送れます。</p><div class="pb"><button type="button" data-copy-link>リンクをコピー<small>'+esc(u||'リンクを取得できませんでした')+'</small></button><button type="button" data-copy-share>紹介文をコピー<small>名前、説明、リンクのセット</small></button>'+
+   (navigator.share?'<button type="button" data-native>端末の共有機能で共有</button>':'')+
+   (u?'<a class="bt" href="https://twitter.com/intent/tweet?text='+enc(t)+'&url='+enc(u)+'" target="_blank" rel="noopener">Xで共有<small>新しいタブで開きます</small></a><a class="bt" href="https://line.me/R/msg/text/?'+enc(t+'\n'+u)+'" target="_blank" rel="noopener">LINEで共有<small>新しいタブで開きます</small></a><a class="bt" href="mailto:?subject='+enc(SITE_NAME)+'&body='+enc(t+'\n'+u)+'">メールで共有<small>開かないときは、紹介文をコピーして、メールに貼り付けてください</small></a>':'')+
+   '</div><p style="font-size:12.5px;color:var(--muted)">リンクを受け取った人が開けるかは、このページの公開・共有の設定によります。XやLINEを選ぶと、文面とリンクが、そのサービスに渡ります。</p>';
+  $('idT').textContent='共有';$('idB').innerHTML=h;openD('idlg',from||$('bShare'));
+}
+$('bShare').onclick=function(){openShare(this)};
+
+/* ---------- 印刷 ---------- */
+function docOf(which){
+  var save=[st.q,st.cat],gs;
+  if(which==='all'){st.q='';st.cat='all'}
+  var list=filtered();gs=groups(list);st.q=save[0];st.cat=save[1];
+  var cond=[];if(which!=='all'){if(st.q)cond.push('検索:'+st.q);if(st.cat!=='all')cond.push('カテゴリ:'+CAT[st.cat].n)}
+  var h='<section class="doc"><h1>'+esc(SITE_NAME)+' 一覧</h1><div class="meta">出力日 '+new Date().toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric'})+' ・ '+list.length+'件 ・ '+(st.view==='cat'?'カテゴリ別(各カテゴリは五十音順)':'五十音順')+(cond.length?' ・ '+esc(cond.join(' / ')):'')+'</div>';
+  gs.forEach(function(g){if(!g.items.length)return;h+='<h2>'+esc(g.t)+'</h2>';g.items.forEach(function(p){h+='<div class="it"><b>'+esc(p.n)+'</b>'+(p.b?'<span>'+esc(p.b)+'</span>':'')+'<p>'+esc(p.d)+'</p></div>'})});
+  h+='<div class="fn">【広告】この一覧には、アフィリエイト広告が含まれます。並び順は、五十音順で、おすすめ順や優劣を示すものではありません。販売ページへのリンクは、ウェブ版のページからご利用ください。価格・在庫・仕様は、販売ページで確認してください。運営:'+esc(CFG.org)+'</div></section>';
+  return h;
+}
+function scope(){var r=document.querySelector('#pScope input:checked');return r?r.value:'cur'}
+function renderPrint(){$('pSheet').innerHTML=docOf(scope())}
+function openPrint(from){renderPrint();openD('pdlg',from||$('bPrint'))}
+$('bPrint').onclick=function(){openPrint(this)};
+$('pScope').addEventListener('change',renderPrint);
+$('pGo').onclick=function(){renderPrint();try{window.print()}catch(e){toast('印刷の画面を開けませんでした。印刷用ファイルを保存してください')}};
+$('pSave').onclick=function(){
+  renderPrint();var css=$('docCss').textContent;
+  var html='<!doctype html>\n<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(SITE_NAME)+' 一覧</title><style>'+css+'\nbody{margin:0;background:#e6e9ee;font-family:"Hiragino Sans","Yu Gothic","Meiryo",sans-serif}.sheet{background:#fff;color:#111;max-width:794px;margin:16px auto;padding:28px 32px}.pbtn{max-width:794px;margin:16px auto 0;padding:0 8px;font-size:14px}.pbtn button{font:inherit;padding:8px 16px;border-radius:8px;border:1px solid #888;background:#fff;cursor:pointer}@media print{body{background:#fff}.sheet{margin:0;padding:0;max-width:none}.pbtn{display:none}}</style></head><body><div class="pbtn"><button onclick="window.print()">印刷する</button> 　印刷の送信先で「PDFに保存」を選ぶと、PDFにできます。</div><div class="sheet d">'+$('pSheet').innerHTML+'</div></body></html>';
+  saveFile('bousai-goods-list.html',html,'text/html');
+};
+
+/* ---------- メニュー ---------- */
+function row(k,v){return v?'<dt>'+esc(k)+'</dt><dd>'+v+'</dd>':''}
+var INFO={
+ menu:function(){return['メニュー','<div class="mi"><button type="button" data-i="ad">広告・掲載について<small>アフィリエイト広告の表示、掲載の考え方</small></button><button type="button" data-i="org">運営者情報<small>'+esc(CFG.org)+'</small></button><button type="button" data-i="contact">お問い合わせ<small>電話・メール・フォーム</small></button><button type="button" data-i="privacy">プライバシーポリシー<small>入力内容、リンク先、保存について</small></button><button type="button" data-i="terms">免責事項<small>商品情報と、使うときの注意</small></button></div>']},
+ ad:function(){return['広告・掲載について',
+  '<h3>アフィリエイト広告</h3><p>このページには、アフィリエイト広告(プロモーション)が含まれます。「販売ページを見る」のリンクから、商品を購入・申し込みすると、運営者が、広告主から、報酬を受け取ることがあります。商品には、「PR」の表示をつけています。</p>'+
+  '<h3>掲載の考え方</h3><ul><li>掲載する商品は、広告主との提携にもとづくもので、市場のすべての商品を、調べたものではありません。</li><li>並び順は、五十音順(カテゴリ別の場合は、カテゴリも五十音順)で、おすすめ順や、優劣を示すものではありません。</li><li>「選び方のポイント」は、一般的な考え方をもとにした、運営者の整理で、公的な基準ではありません。</li></ul>'+
+  '<h3>販売について</h3><p>商品の販売、発送、返品、保証、問い合わせは、各販売店が行います。このページは、商品を、直接は販売していません。</p>'+
+  '<h3>価格・在庫・仕様</h3><p>価格、在庫、仕様、キャンペーンは、変わります。購入の前に、販売ページで、最新の情報を確認してください。</p>']},
+ org:function(){return['運営者情報',
+  '<dl class="dl">'+row('サイト名',esc(SITE_NAME))+row('運営',esc(CFG.org)+'('+esc(CFG.kind)+')')+row('運営責任者',esc(CFG.rep))+row('所在地','〒'+esc(CFG.zip)+' '+esc(CFG.addr))+row('WEB','<a href="'+esc(CFG.web)+'" target="_blank" rel="noopener">'+esc(CFG.web)+'</a>')+row('更新','2026年10月15日')+row('作成方法','AIアシスタント(Claude)の支援を受けて作成しています')+'</dl>'+
+  '<div class="act"><a class="bt" href="'+esc(CFG.site)+'staff.html" target="_blank" rel="noopener">スタッフ紹介 ↗</a><a class="bt" href="'+esc(CFG.site)+'activity.html" target="_blank" rel="noopener">活動と目標 ↗</a></div>']},
+ contact:function(){return['お問い合わせ',
+  '<p>掲載内容の誤り、リンク切れ、ご意見は、次の方法で、お送りください。</p><dl class="dl">'+row('電話','<span class="kb">'+esc(CFG.tel)+'</span>')+row('メール','<span class="kb">'+esc(CFG.mail)+'</span>')+row('フォーム','<a href="'+esc(CFG.site)+'contact.html" target="_blank" rel="noopener">お問い合わせフォーム ↗</a>')+'</dl>'+
+  '<div class="act"><button type="button" class="pri" data-copy-mail>メールアドレスをコピー</button><a class="bt" href="mailto:'+esc(CFG.mail)+'?subject='+encodeURIComponent('【'+SITE_NAME+'】お問い合わせ')+'">メールを書く</a><button type="button" data-copy-tel>電話番号をコピー</button></div>'+
+  '<p style="font-size:12.5px;color:var(--muted)">メールを書く、が開かないときは、アドレスをコピーして、お使いのメールで送ってください。商品の注文・配送・返品は、各販売店へ、お問い合わせください。</p>']},
+ privacy:function(){return['プライバシーポリシー',
+  '<p>このページ(以下「本サイト」)での、利用者の情報の取り扱いを、次のとおり定めます。制定日:2026年10月15日。運営:'+esc(CFG.org)+'。</p>'+
+  '<h3>1. 入力した内容</h3><p>検索のことばなどは、利用者の端末の中だけで使われ、本サイトの運営者のサーバーへ送信したり、収集したりしません。</p>'+
+  '<h3>2. 端末への保存</h3><p>表示の設定(ダーク・ライト、文字の大きさ、並び方)は、利用者の端末のブラウザに保存されることがあります。ブラウザのサイトデータを削除すると、消えます。</p>'+
+  '<h3>3. 広告リンクと外部サイト</h3><ul><li>「販売ページを見る」などのリンクを押すと、販売店や、アフィリエイトサービスの事業者のサイトに移動します。その際、広告の成果を確認するために、Cookieなどの技術で、閲覧や購入の情報が、取得されることがあります。取り扱いは、各事業者の方針によります。</li><li>文字の表示のために、Google Fontsのフォントを読み込みます。そのため、ページを開くと、利用者のIPアドレスなどの接続情報が、Googleのサーバーに送られることがあります。</li><li>「共有」で、XやLINEなどを選ぶと、そのサービスに移動し、共有する文面とリンクが、そのサービスに渡ります。</li></ul>'+
+  '<h3>4. アクセス解析・Cookie</h3><p>本サイトは、独自のアクセス解析、Cookieの利用をしていません。ただし、このページを配信するサービスや、利用者のブラウザ、通信事業者などが、配信や通信のために、記録を取ることがあります。</p>'+
+  '<h3>5. お問い合わせでお知らせいただく情報</h3><p>メールや電話、フォームでお知らせいただいた氏名、連絡先、内容は、返信と、本サイトの改善のためにだけ使い、ご本人の同意なく、第三者に提供しません(法令にもとづく場合を除く)。</p>'+
+  '<h3>6. 改定</h3><p>この方針は、必要に応じて改定します。改定後は、本サイトのこのページで、お知らせします。</p>'+
+  '<h3>7. お問い合わせ</h3><p>この方針についてのお問い合わせは、<a href="#" data-i="contact">お問い合わせ</a>をご覧ください。</p>']},
+ terms:function(){return['免責事項',
+  '<p>本サイトは、防災グッズの情報を、紹介するものです。掲載の内容には、正確を期していますが、商品の価格、在庫、仕様、販売の状況は、変わることがあります。購入の前に、販売ページで、確認してください。</p>'+
+  '<p>防災グッズは、使う人、住まい、地域によって、必要なものが違います。「選び方のポイント」は、一般的な考え方で、すべての人に合うことを、保証するものではありません。避難などの判断は、自治体・気象庁などの、最新の情報を、優先してください。</p>'+
+  '<p>本サイトの利用や、リンク先での購入により生じた損害について、運営者は、責任を負いかねます。商品や取引についての問い合わせは、各販売店へお願いします。</p>']}
+};
+function openInfo(k,from){var r=INFO[k]();$('idT').textContent=r[0];$('idB').innerHTML=r[1];openD('idlg',from);try{$('idlg').scrollTop=0}catch(e){}}
+$('idB').addEventListener('click',function(e){
+  var t=e.target.closest('button,a');if(!t)return;
+  if(t.hasAttribute('data-i')){e.preventDefault();openInfo(t.getAttribute('data-i'),opener)}
+  else if(t.hasAttribute('data-copy-mail'))copy(CFG.mail,'アドレスをコピーしました');
+  else if(t.hasAttribute('data-copy-tel'))copy(CFG.tel,'電話番号をコピーしました');
+  else if(t.hasAttribute('data-copy-share'))copy(shareText(),'紹介文をコピーしました');
+  else if(t.hasAttribute('data-copy-link'))linkCopy();
+  else if(t.hasAttribute('data-native')){try{navigator.share({title:SITE_NAME,text:DESC,url:pageUrl()||undefined}).catch(function(){toast('共有の画面を開けませんでした。リンクをコピーして使ってください')})}catch(x){toast('共有の画面を開けませんでした。リンクをコピーして使ってください')}}
+});
+$('bMenu').onclick=function(){openInfo('menu',this)};
+$('fPriv').onclick=function(e){e.preventDefault();openInfo('privacy',this)};
+$('fContact').onclick=function(e){e.preventDefault();openInfo('contact',this)};
+window.addEventListener('scroll',function(){$('toTop').hidden=window.scrollY<600},{passive:true});
+$('toTop').onclick=function(){try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}};
+
+render();
+})();
+</script>
+
+</body></html>
