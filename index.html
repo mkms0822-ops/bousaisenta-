@@ -805,6 +805,26 @@ html.dk #ofRoot a.of-btn{color:#0e141f}
 #ofRoot .of-pr{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.08em;padding:1px 7px;border-radius:5px;border:1px solid var(--of-line);color:var(--of-sub);margin-right:6px;vertical-align:1px}
 html.dk #ofRoot .of-btn.sub{color:var(--of-acc)}
 html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
+
+#gdRoot{--gd-card:#fff;--gd-bg:#f3f6fb;--gd-line:#dde4ed;--gd-ink:#1a2332;--gd-sub:#64748b;--gd-acc:#2c6fd1;--gd-warnbg:#fff6e5;--gd-warnbd:#f0d9a8;--gd-btn:#c76a00;color:var(--gd-ink)}
+html.dk #gdRoot{--gd-card:#222c3e;--gd-bg:#1a2332;--gd-line:#33425b;--gd-ink:#e2e8f0;--gd-sub:#9fb0c6;--gd-acc:#7ab0ff;--gd-warnbg:#2b2515;--gd-warnbd:#5c4c24;--gd-btn:#f0b25a}
+#gdRoot .gd-mk{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--gd-sub)}
+#gdRoot h2{margin:4px 0 8px;font-size:22px;line-height:1.4}
+#gdRoot p{line-height:1.8;font-size:13.5px;margin:6px 0}
+#gdRoot .gd-pr{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.08em;padding:1px 7px;border-radius:5px;border:1px solid var(--gd-line);color:var(--gd-sub);margin-right:6px;vertical-align:1px}
+#gdRoot .gd-disc{border:1px solid var(--gd-warnbd);background:var(--gd-warnbg);border-radius:14px;padding:12px 14px;margin:12px 0;font-size:12.5px;line-height:1.75}
+#gdRoot .gd-h{font-size:16px;font-weight:800;margin:20px 0 8px;padding-left:10px;border-left:4px solid var(--gd-acc);line-height:1.5}
+#gdRoot .gd-h small{display:block;font-size:11.5px;font-weight:400;color:var(--gd-sub)}
+#gdRoot .gd-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+#gdRoot .gd-card{border:1px solid var(--gd-line);background:var(--gd-card);border-radius:14px;padding:14px 15px;display:flex;flex-direction:column;gap:6px;min-width:0}
+#gdRoot .gd-card b{font-size:14.5px;line-height:1.5;overflow-wrap:anywhere}
+#gdRoot .gd-card .gd-by{font-size:11.5px;color:var(--gd-sub)}
+#gdRoot .gd-card ul{margin:2px 0 4px;padding-left:1.2em;font-size:12.5px;line-height:1.7}
+#gdRoot .gd-card .gd-go{margin-top:auto}
+#gdRoot a.gd-btn{display:inline-flex;align-items:center;gap:4px;text-decoration:none;font-weight:700;font-size:13px;padding:9px 14px;border-radius:10px;background:var(--gd-btn);color:#fff}
+html.dk #gdRoot a.gd-btn{color:#0e141f}
+#gdRoot .gd-sm{font-size:11.5px;color:var(--gd-sub);line-height:1.7}
+#gdRoot .gd-tip{border:1px solid var(--gd-line);background:var(--gd-card);border-radius:14px;padding:12px 14px;margin:10px 0;font-size:13px;line-height:1.8}
 </style>
 </head>
 <body>
@@ -1018,6 +1038,10 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
       <span class="ic">📡</span>
       <span class="tx">ネット切断対策ガイド<small>止まるものの一覧・原因別の対策・オフライン地図と「自分の地図」の端末保存</small></span></button>
 
+    <button type="button" class="mnu-i" onclick="openDlg('dlgGoods')">
+      <span class="ic">🛒</span>
+      <span class="tx">DWAおすすめ防災グッズ<small>防災トイレ・防災セットなど(広告を含みます)</small></span></button>
+
     <div class="mnu-sec">// 関連サイト</div>
     <a class="mnu-i" href="https://bousai0111.info/" target="_blank" rel="noopener">
       <span class="ic">🏠</span>
@@ -1095,7 +1119,7 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
     <a href="https://bousai0111.info/" target="_blank" rel="noopener"
        style="color:var(--blue);font-weight:700">bousai0111.info</a></p>
 
-    <p class="sm">制定日：2026年10月<br>最終更新：2026年10月17日（アフィリエイトリンクの掲載、ネット切断対策ガイドの追加にともなう改定）<br>内容は必要に応じて見直すことがあります。</p>
+    <p class="sm">制定日：2026年10月<br>最終更新：2026年10月17日（アフィリエイトリンクの掲載、DWAおすすめ防災グッズの追加、ネット切断対策ガイドの追加にともなう改定）<br>内容は必要に応じて見直すことがあります。</p>
   </div>
 </div>
 
@@ -1315,9 +1339,8 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
       
         <div class="of-box" id="ofAff" style="margin-top:12px">
           <span class="of-pr">PR</span><b>🛒 備えの買い物に</b>
-          <p>モバイルバッテリー、ラジオ、乾電池などをそろえるときの参考に、Amazonの特設ページへのリンクを載せています。<b>開催期間・対象商品・価格は、Amazonのページでご確認ください</b>(終了している場合があります)。</p>
-          <div class="of-row"><a class="of-btn" href="https://www.amazon.co.jp/primeappreciation?crid=V17JPFF5KW71&amp;sprefix=&amp;_encoding=UTF8&amp;dynamicBubble=%7B%2522collectionId%2522%3A%2522deals-contextual-link%2522%2C%2522departmentsIncluded%2522%3A%5B16245081%5D%7D&amp;bubble-id=deals-contextual-link&amp;linkCode=ll2&amp;tag=kf92843326-22&amp;linkId=00ca483d2df0a063faac1c0628fcb62c&amp;ref_=as_li_ss_tl" target="_blank" rel="noopener sponsored nofollow">Amazonの特設ページを見る ↗</a></div>
-          <p class="sm">Amazonのアソシエイトとして、DWA防災情報センターは適格販売により収入を得ています。このリンクから購入されると、当サイトに紹介料が入ることがあります(購入者の価格は変わりません)。</p>
+          <p>防災トイレ・防災セットなどは、<b>DWAおすすめ防災グッズ</b>のページにまとめています(Amazonへのリンク・広告を含みます)。</p>
+          <div class="of-row"><a class="of-btn" href="#goods" onclick="closeDlg('dlgOffline');openDlg('dlgGoods');return false">🛒 DWAおすすめ防災グッズを見る</a></div>
         </div>
       </section>
 
@@ -1526,6 +1549,49 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
 <div class="of-lbx" id="ofLbx" role="dialog" aria-label="画像の拡大">
   <div class="bar"><button type="button" onclick="ofLbClose()">✕ 閉じる</button><button type="button" onclick="ofLbZoom(1.4)">＋</button><button type="button" onclick="ofLbZoom(.7)">－</button><span id="ofLbT"></span></div>
   <div class="st" id="ofLbS"><img id="ofLbI" alt=""></div>
+</div>
+
+<div class="dlg dlg-wide" id="dlgGoods" onclick="if(event.target===this)closeDlg('dlgGoods')">
+  <div class="dlg-in">
+    <div id="gdRoot">
+      <div class="gd-mk">DWA RECOMMENDED GOODS</div>
+      <h2>🛒 DWAおすすめ防災グッズ</h2>
+      <p>停電・断水・通信の途絶に備えて、まず用意しておきたいもの(<b>トイレ</b>と<b>防災セット</b>)を、Amazonの商品ページへのリンクとしてまとめました。</p>
+      <div class="gd-disc"><span class="gd-pr">PR</span><b>広告(アフィリエイト)を含みます。</b><br>Amazonのアソシエイトとして、DWA防災情報センターは適格販売により収入を得ています。下のボタンから購入されると、当サイトに紹介料が入ることがあります(購入者の価格は変わりません)。<br><b>価格・在庫・セール・レビューは日々変わります。購入前にAmazonの商品ページで必ずご確認ください。</b>各商品の名称は出品者の表記に基づきます。</div>
+
+      <h3 class="gd-h">🚽 災害用トイレ<small>断水・停電で水洗が使えなくなる前に</small></h3>
+      <div class="gd-tip">トイレは「我慢できない」うえに、数日分の量が必要です。目安は<b>1人1日5回前後</b>×日数分(自治体の防災ガイドでは<b>最低3日、できれば1週間分</b>の備蓄が推奨されています)。家族の人数で計算し、<b>凝固剤・袋・消臭・手洗い用の水</b>も一緒にそろえると安心です。</div>
+      <div class="gd-grid">
+        <div class="gd-card"><div><span class="gd-pr">PR</span><b>防災トイレセット 12回分(campmemory)</b></div><div class="gd-by">Amazon掲載の商品名より</div><ul><li>簡易トイレのセット(12回分)</li><li>少人数・短期の備えや、車・職場の予備に</li></ul><div class="gd-go"><a class="gd-btn" href="https://link.amazon/B08vnutPY" target="_blank" rel="noopener sponsored nofollow">Amazonで見る ↗</a></div></div>
+        <div class="gd-card"><div><span class="gd-pr">PR</span><b>簡易トイレ 15年保存(PYKES PEAK「モグラ隊長」)</b></div><div class="gd-by">Amazon掲載の商品名より</div><ul><li>長期保存をうたう簡易トイレ</li><li>ローリングストックしにくい人の備蓄向け</li></ul><div class="gd-go"><a class="gd-btn" href="https://link.amazon/B027bjOXF" target="_blank" rel="noopener sponsored nofollow">Amazonで見る ↗</a></div></div>
+      </div>
+
+      <h3 class="gd-h">🎒 防災セット<small>最初の一式をまとめて</small></h3>
+      <div class="gd-grid">
+        <div class="gd-card"><div><span class="gd-pr">PR</span><b>防災グッズ 32点セット(Kindil)</b></div><div class="gd-by">Amazon掲載の商品名より</div><ul><li>まとめて一式をそろえたい人向けのセット</li><li>中身・人数・保存期間は商品ページで確認</li></ul><div class="gd-go"><a class="gd-btn" href="https://link.amazon/B0j3f3Dz5" target="_blank" rel="noopener sponsored nofollow">Amazonで見る ↗</a></div></div>
+        <div class="gd-card"><div><span class="gd-pr">PR</span><b>防災セット 1人用 ソーラーパネル付き(HIH)</b></div><div class="gd-by">Amazon掲載の商品名より</div><ul><li>1人用の防災セット</li><li>ソーラーパネル付き(発電量・使える機器は商品ページで確認)</li></ul><div class="gd-go"><a class="gd-btn" href="https://link.amazon/B00HeP7wh" target="_blank" rel="noopener sponsored nofollow">Amazonで見る ↗</a></div></div>
+      </div>
+
+      <h3 class="gd-h">🏬 防災用品の専門ストア<small>他の商品も探したい人へ</small></h3>
+      <div class="gd-grid">
+        <div class="gd-card"><div><span class="gd-pr">PR</span><b>防災ダイレクト(Amazonストア)</b></div><div class="gd-by">ストアページ(単品商品ではありません)</div><ul><li>防災用品を扱うストアの商品一覧</li><li>懐中電灯・ラジオ・保存食などを比較したいときに</li></ul><div class="gd-go"><a class="gd-btn" href="https://link.amazon/B0i4V4eKl" target="_blank" rel="noopener sponsored nofollow">ストアを見る ↗</a></div></div>
+      </div>
+
+      <div class="gd-tip" style="margin-top:16px"><b>選ぶときのポイント</b><br>
+        ・<b>人数×日数</b>で数える(目安は3日〜1週間)。<br>
+        ・中身は<b>賞味期限・使用期限</b>があるものが多いので、年1回の点検日を決める。<br>
+        ・セットは便利ですが、<b>常用薬・メガネ・乳幼児用品・ペット用品</b>は別に必要です。<br>
+        ・ネットが切れる前に、<a href="#" onclick="closeDlg('dlgGoods');openDlg('dlgOffline');return false">📡 ネット切断対策ガイド</a>の「停電・電源」も確認を。</div>
+
+      <h3 class="gd-h">⚡ そのほかの買い物に<small>Amazonの特設ページ</small></h3>
+      <div class="gd-card">
+        <div><span class="gd-pr">PR</span><b>Amazon 特設ページ</b></div>
+        <p class="gd-sm">モバイルバッテリー、ラジオ、乾電池などをそろえるときの参考に。<b>開催期間・対象商品・価格はAmazonのページでご確認ください</b>(終了している場合があります)。</p>
+        <div class="gd-go"><a class="gd-btn" href="https://www.amazon.co.jp/primeappreciation?crid=V17JPFF5KW71&amp;sprefix=&amp;_encoding=UTF8&amp;dynamicBubble=%7B%2522collectionId%2522%3A%2522deals-contextual-link%2522%2C%2522departmentsIncluded%2522%3A%5B16245081%5D%7D&amp;bubble-id=deals-contextual-link&amp;linkCode=ll2&amp;tag=kf92843326-22&amp;linkId=00ca483d2df0a063faac1c0628fcb62c&amp;ref_=as_li_ss_tl" target="_blank" rel="noopener sponsored nofollow">Amazonの特設ページを見る ↗</a></div>
+      </div>
+      <p class="gd-sm" style="margin-top:12px">※ 掲載は当サイトによる紹介であり、商品の品質・効果を保証するものではありません。リンク先の内容は予告なく変わることがあります。</p>
+    </div>
+  </div>
 </div>
 
 <div class="dlg dlg-wide" id="dlgPhish" onclick="if(event.target===this)closeDlg('dlgPhish')">
