@@ -5282,6 +5282,14 @@ html.panel-light .rk-note{ color:#5A6672; border-top-color:#DDE3EA; }
 @media (max-width:520px){ .qz-bar .tx{ display:none; } }
 </style>
 
+<style id="dwaPcScale">
+/* パソコンの大きな画面では、全体を拡大して見やすくする(スマホ・タブレットは変更なし) */
+@media (min-width:1100px){ body{zoom:1.25} }
+@media (min-width:1500px){ body{zoom:1.5} }
+@media (min-width:2000px){ body{zoom:1.8} }
+@media (min-width:2800px){ body{zoom:2.2} }
+@media print{ body{zoom:1} }
+</style>
 </head>
 
 <body>
@@ -6036,25 +6044,19 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       </div>
 
       <div class="ham-acc" id="hamAcc7">
-        <button type="button" class="ham-acc-head" onclick="toggleHamAcc(this)"><span class="ha-ico">🏢</span><span>団体案内</span><span class="ha-cnt">6</span><span class="ha-arw">▶</span></button>
+        <button type="button" class="ham-acc-head" onclick="toggleHamAcc(this)"><span class="ha-ico">🏢</span><span>団体案内</span><span class="ha-cnt">4</span><span class="ha-arw">▶</span></button>
         <div class="ham-acc-body">
       <a class="hamburger-link" href="https://mkms0822-ops.github.io/nagaokakyoushi_bousai_site/" target="_blank" rel="noopener" style="color:#1864ab;border-color:rgba(24,100,171,0.35);background:rgba(24,100,171,0.06);">
         <span class="h-link-icon">🏘️</span><span>DWA防災情報センター 長岡京市版<br><span style="font-size:11px;opacity:.75;">防災マップ・SOSビーコン・緊急対応マニュアルなど</span></span>
       </a>
-      <a class="hamburger-link" href="organization.html" data-org="organization.html" target="_blank" rel="noopener">
+      <button type="button" class="hamburger-link" onclick="closeHamburger();openOrgModal();" style="width:100%;text-align:left;cursor:pointer;">
         <span class="h-link-icon">🏢</span><span>組織概要・沿革<br><span style="font-size:11px;opacity:.75;">団体の概要・歩み・活動目標</span></span>
-      </a>
+      </button>
       <a class="hamburger-link" href="activity.html" data-org="activity.html" target="_blank" rel="noopener">
         <span class="h-link-icon">🎯</span><span>活動と目標<br><span style="font-size:11px;opacity:.75;">メッセージ・ビジョン・2030年に向けて</span></span>
       </a>
-      <a class="hamburger-link" href="staff.html#staff" data-org="staff.html#staff" target="_blank" rel="noopener">
-        <span class="h-link-icon">👤</span><span>スタッフ紹介<br><span style="font-size:11px;opacity:.75;">経歴・保有資格</span></span>
-      </a>
-      <a class="hamburger-link" href="staff.html#access" data-org="staff.html#access" target="_blank" rel="noopener">
-        <span class="h-link-icon">📍</span><span>アクセス方法<br><span style="font-size:11px;opacity:.75;">事務局の所在地・地図</span></span>
-      </a>
-      <a class="hamburger-link" href="staff.html#contact" data-org="staff.html#contact" target="_blank" rel="noopener">
-        <span class="h-link-icon">📞</span><span>問い合わせ窓口<br><span style="font-size:11px;opacity:.75;">電話・メールでのご連絡</span></span>
+      <a class="hamburger-link" href="staff.html" data-org="staff.html" target="_blank" rel="noopener">
+        <span class="h-link-icon">👤</span><span>スタッフ紹介・アクセス・問い合わせ<br><span style="font-size:11px;opacity:.75;">経歴・事務局の所在地と地図・電話とメール</span></span>
       </a></div>
       </div>
 
@@ -12126,7 +12128,7 @@ const tourSteps = [
   { sel:'[data-tour="live"]', title:'🟢 LIVE・現在時刻', text:'ヘッダー右の機器パネルです。赤いランプが点滅していれば「LIVE（リアルタイム配信中）」を表し、その下の窓に現在時刻が表示されます。地震データは自動で更新され続けます。' },
   { sel:'#siteRefreshBtn', title:'🔄 最新情報に更新', text:'パネル内の丸い矢印ボタンです。自動更新を待たずに、いますぐ最新の地震・気象情報を取り込みたいときにタップします。表示が古いと感じたらここを押してください。', fallbackToTop:true },
   { sel:'[data-tour="menu"]', title:'☰ メニュー（設定）', text:'パネル右側の三本線アイコンがメニューボタンです。タップで開くメニューの2番目のグループが「設定」です。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。お問い合わせとプライバシーポリシーは「サイト関連」にあります。テーマ・フォント・通知・警告音などはこの設定画面で変更でき、設定内の「ヘルプ」からこのチュートリアルもいつでも見直せます。' },
-  { sel:'[data-tour="menu"]', title:'☰ メニュー（リンク集）', text:'メニューは大きく8つのグループに畳まれています。見出しをタップすると中身が開きます。上から順に、設定・ご利用ガイド・公式アカウント・団体案内・サイト関連・画面モード・外部リンク・各種ツールです。「団体案内」には、長岡京市版サイトへのリンク、組織概要・沿革、活動と目標、スタッフ紹介、アクセス方法、問い合わせ窓口が入っています。見出しの右の数字は、その中に入っている項目の数です。「すべて開く」で一度に全部を表示することもできます。なお熊本地震の情報だけは、すぐ使えるよう畳まずに一番上へ置いています。', fallbackToTop:true },
+  { sel:'[data-tour="menu"]', title:'☰ メニュー（リンク集）', text:'メニューは大きく8つのグループに畳まれています。見出しをタップすると中身が開きます。上から順に、設定・ご利用ガイド・公式アカウント・団体案内・サイト関連・画面モード・外部リンク・各種ツールです。「団体案内」には、長岡京市版サイトへのリンク、組織概要・沿革、活動と目標、スタッフ紹介・アクセス・問い合わせが入っています。見出しの右の数字は、その中に入っている項目の数です。「すべて開く」で一度に全部を表示することもできます。なお熊本地震の情報だけは、すぐ使えるよう畳まずに一番上へ置いています。', fallbackToTop:true },
   { sel:'[data-tour="usage-guide"]', title:'📖 取扱説明書（ご利用ガイド）', text:'メニューの「サイトご利用ガイド」にある「取扱説明書」です。このサイトの全機能の使い方を、ひとつずつ丁寧に解説したガイドブックがサイト内でそのまま開きます。SOSビーコンの使い方、引き継ぎコードの説明、よくある質問まで揃っているので、使い方に迷ったらまずここを開いてください。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="quake-map"]', title:'🌍 グローバル地震マップ', text:'メニューの「各種ツール（地震・被害想定）」にある「グローバル地震マップ」です。1902年から2026年までの世界の地震737件を地図上で確認できます。震度や年代で絞り込めるほか、日本周辺の<b>活断層687本</b>、世界のプレート境界、南海トラフ・千島海溝の<b>想定震源域</b>も重ねて表示できます。お住まいの地域の地下に断層があるか、過去にどんな地震が起きたかを調べてみてください。', onShow:openHamburgerForTour, fallbackToTop:true },
   { sel:'[data-tour="ecs-timer"]', title:'🦵 エコノミークラス症候群 予防タイマー', text:'メニューの「各種ツール（避難生活・支援）」にあります。車中泊や避難所での生活が続くと、足に血のかたまりができて命に関わることがあります。このタイマーは、一定時間ごとに足を動かす合図を出してくれます。避難生活が長引きそうなときに使ってください。', onShow:openHamburgerForTour, fallbackToTop:true },
@@ -23382,6 +23384,137 @@ else qhHashBoot();
 </script>
 
 
+<!-- ===== 組織概要・沿革(ポップアップ) ===== -->
+<style id="orgModalCss">
+#orgModal{--ink:#16212b;--sub:#5b6b78;--line:#e2e8ee;--panel:#fff;--navy:#0f2c4a;--navy2:#173e63;--teal:#2f7d78;--flame:#e8541e;--flame2:#f5a623;
+ position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;display:none;background:rgba(8,20,34,.74);overflow-y:auto;-webkit-overflow-scrolling:touch}
+#orgModal.open{display:block}
+#orgModal *{box-sizing:border-box}
+#orgModal .org-card{max-width:820px;margin:20px auto;background:#eef2f5;color:var(--ink);border-radius:16px;overflow:hidden;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;line-height:1.8;font-size:16px;box-shadow:0 12px 44px rgba(0,0,0,.45);text-align:left}
+#orgModal .org-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;padding:10px 12px 10px 18px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff}
+#orgModal .org-head h2{flex:1;font-size:17px;margin:0;color:#fff;font-weight:800}
+#orgModal .org-x{min-width:44px;min-height:44px;border:0;border-radius:10px;background:rgba(255,255,255,.16);color:#fff;font-size:20px;cursor:pointer}
+#orgModal .org-body{padding:2px 6px 18px}
+#orgModal .org-foot{padding:6px 18px 22px;text-align:center;font-size:12.5px;color:var(--sub)}
+#orgModal section{margin:14px 8px}
+#orgModal .btn{text-decoration:none}
+#orgModal section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 18px 20px;margin:16px 0;box-shadow:0 2px 10px rgba(20,40,60,.05)}
+#orgModal .sec-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+#orgModal .sec-head .no{width:28px;height:28px;border-radius:7px;background:var(--teal);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px;flex:none}
+#orgModal .sec-head h2{font-size:16px;color:var(--navy)}
+#orgModal .lead{font-size:13.5px;color:#2a3540;margin-bottom:12px}
+#orgModal .note{font-size:12.5px;color:var(--sub);line-height:1.8;margin-top:10px}
+#orgModal table.info{width:100%;border-collapse:collapse;font-size:13.5px}
+#orgModal table.info th,#orgModal table.info td{padding:10px 10px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+#orgModal table.info th{width:7.5em;color:var(--navy);background:#f5f8fa;font-weight:700;white-space:nowrap}
+#orgModal a{color:#1864ab}
+#orgModal .tl .it{position:relative;margin:0 0 20px}
+#orgModal .tl .it:last-child{margin-bottom:0}
+#orgModal .tl .it:before{content:"";position:absolute;left:-34px;top:5px;width:13px;height:13px;border-radius:50%;background:#fff;border:3px solid var(--teal)}
+#orgModal .tl .it.now:before{background:var(--flame);border-color:var(--flame)}
+#orgModal .tl .it.goal:before{border-color:var(--flame2);background:var(--flame2)}
+#orgModal .tl .dt{font-weight:800;color:var(--navy);font-size:14px}
+#orgModal .tl .tx{font-size:13.5px;color:#28323c;margin-top:2px}
+#orgModal .tl .tx small{display:block;color:var(--sub);font-size:12px;margin-top:2px}
+#orgModal .goal{background:#f5f8fa;border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+#orgModal .goal b{display:block;color:var(--navy);font-size:13.5px;margin-bottom:2px}
+#orgModal .goal span{font-size:12.5px;color:#33404c;line-height:1.7}
+#orgModal .map-embed iframe{width:100%;height:260px;border:0;display:block}
+#orgModal .btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+#orgModal .btn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:9px 16px;border-radius:10px;font-weight:800;font-size:13.5px;text-decoration:none;border:2px solid var(--navy);color:var(--navy);background:#fff}
+#orgModal .btn.p{background:var(--navy);color:#fff}
+@media(max-width:520px){#orgModal .goals{grid-template-columns:1fr}#orgModal table.info th{width:6em}#orgModal .org-card{margin:0;border-radius:0;min-height:100%}}
+</style>
+<div id="orgModal" role="dialog" aria-modal="true" aria-labelledby="orgModalTitle" onclick="if(event.target===this)closeOrgModal()">
+  <div class="org-card">
+    <div class="org-head"><h2 id="orgModalTitle">🏢 組織概要・沿革</h2><button type="button" class="org-x" onclick="closeOrgModal()" aria-label="閉じる">✕</button></div>
+    <div class="org-body"><section data-sec="overview">
+      <div class="sec-head"><span class="no">1</span><h2>組織概要</h2></div>
+      <table class="info">
+        <tr><th>団体名</th><td>DWA防災情報センター</td></tr>
+        <tr><th>区分</th><td>長岡京市認定 市民活動団体</td></tr>
+        <tr><th>所在地</th><td>〒617-0833 京都府長岡京市神足芝本19-2　アクエルド長岡京 305</td></tr>
+        <tr><th>運営責任者</th><td>古谷 浩二（システム開発）</td></tr>
+        <tr><th>運営体制</th><td>運営責任者・広報マーケティング担当の2名<br><a href="staff.html#staff" data-orgp="staff.html#staff">スタッフ紹介（経歴・保有資格）を見る →</a></td></tr>
+        <tr><th>活動の起点</th><td>2018年1月　Twitter（現X）アカウントの開設</td></tr>
+        <tr><th>主な活動</th><td>災害情報の発信（地震・火山・津波・気象警報など）／安全・安心の見守り（事件・事故・国民保護の情報）／デジタル後方支援／福祉・介助の知見を活かした、支援が必要な方に寄り添う防災</td></tr>
+        <tr><th>連携</th><td>長岡京市災害ボランティアセンターとの「災害時パートナーシップ協定」の締結に向けて協議中</td></tr>
+        <tr><th>WEB</th><td><a href="http://bousai0111.info" target="_blank" rel="noopener">http://bousai0111.info</a></td></tr>
+        <tr><th>公式SNS</th><td><a href="https://x.com/DWAbousai0111" target="_blank" rel="noopener">公式X（旧Twitter）</a>　/　<a href="https://lin.ee/swjPxzv" target="_blank" rel="noopener">公式LINE</a></td></tr>
+        <tr><th>お問い合わせ</th><td><a href="staff.html#contact" data-orgp="staff.html#contact">問い合わせ窓口（電話・メール）→</a>　/　<a href="contact.html" data-orgp="contact.html">お問い合わせフォーム</a></td></tr>
+      </table>
+    </section><section data-sec="history">
+      <div class="sec-head"><span class="no">2</span><h2>沿革</h2></div>
+      <p class="lead">地震の情報発信と警鐘を行う、ひとつのアカウントから始まりました。</p>
+      <div class="tl">
+        <div class="it">
+          <div class="dt">2018年1月</div>
+          <div class="tx"><b>Twitter（現X）アカウントを開設</b><br>当初は、地震の情報発信と警鐘をするだけのアカウントとして活動を開始しました。</div>
+        </div>
+        <div class="it">
+          <div class="dt">約8年の歳月を経て</div>
+          <div class="tx"><b>「DWA防災情報センター」としてリスタート</b><br>市民活動団体として、更なる飛躍を目指す体制へ。地震・火山・気象警報から、事件・事故・国民保護まで、命に関わる情報を発信しています。</div>
+        </div>
+        <div class="it">
+          <div class="dt">2026年7月</div>
+          <div class="tx"><b>令和8年 熊本地震で、デジタル情報による後方支援</b><br>被災地を、デジタル情報で後方から支えました。大規模自然災害時には、同様の後方支援を行っています。</div>
+        </div>
+        <div class="it now">
+          <div class="dt">現在</div>
+          <div class="tx"><b>地域の防災パートナーへ</b><br>長岡京市災害ボランティアセンターとの「災害時パートナーシップ協定」の締結に向けて、協議中です。防災情報の発信に加え、防災マップや支援ツールの運用を続けています。</div>
+        </div>
+        <div class="it goal">
+          <div class="dt">2030年（目標）</div>
+          <div class="tx"><b>誰も取りこぼさない防災社会の実現へ</b><br>「発信」から「実装」へ。避難行動要支援者の個別避難計画について、自治体や消防と連携し、「誰が、どこで、誰を助けるか」を可視化するシステムの構築を目指します。<small><a href="activity.html" data-orgp="activity.html">活動と目標の詳細を見る →</a></small></div>
+        </div>
+      </div>
+    </section><section data-sec="goals">
+      <div class="sec-head"><span class="no">3</span><h2>活動目標</h2></div>
+      <p class="lead">「一人はみんなのために、みんなは一人のために」― One for all, All for one ―</p>
+      <div class="goals">
+        <div class="goal"><b>ミッション</b><span>多方面から最新の防災情報を収集し、分かりやすく、備えや緊急時の行動など役立つ最新情報を共有します。防災都市づくりに貢献します。</span></div>
+        <div class="goal"><b>見据える未来</b><span>刻々と変わる環境変化に適応すべく、システムのアップデートを続け、災害に負けない、安心して暮らせる社会の基盤を築きます。</span></div>
+        <div class="goal"><b>Resilience Together</b><span>高齢者・乳幼児、女性・妊産婦、障がい者・外国人など、避難行動要支援者の避難システムの構築を目指します。</span></div>
+        <div class="goal"><b>2030年のビジョン</b><span>誰も取りこぼさない防災社会の実現へ。デジタル技術で「誰が、どこで、誰を助けるか」を可視化します。</span></div>
+      </div>
+      <div class="btns"><a class="btn p" href="activity.html" data-orgp="activity.html">🎯 活動と目標を詳しく見る</a></div>
+    </section><section data-sec="access">
+      <div class="sec-head"><span class="no">4</span><h2>アクセス</h2></div>
+      <p class="lead">事務局所在地：〒617-0833 京都府長岡京市神足芝本19-2 アクエルド長岡京 305</p>
+      <div class="map-embed">
+        <iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+          src="https://www.google.com/maps?q=%E4%BA%AC%E9%83%BD%E5%BA%9C%E9%95%B7%E5%B2%A1%E4%BA%AC%E5%B8%82%E7%A5%9E%E8%B6%B3%E8%8A%9D%E6%9C%AC19-2&output=embed"
+          title="DWA防災情報センター 事務局の地図"></iframe>
+      </div>
+      <div class="btns">
+        <a class="btn p" href="https://www.google.com/maps/search/?api=1&query=%E4%BA%AC%E9%83%BD%E5%BA%9C%E9%95%B7%E5%B2%A1%E4%BA%AC%E5%B8%82%E7%A5%9E%E8%B6%B3%E8%8A%9D%E6%9C%AC19-2" target="_blank" rel="noopener">📍 地図アプリで開く</a>
+        <a class="btn" href="https://www.google.com/maps/dir/?api=1&destination=%E4%BA%AC%E9%83%BD%E5%BA%9C%E9%95%B7%E5%B2%A1%E4%BA%AC%E5%B8%82%E7%A5%9E%E8%B6%B3%E8%8A%9D%E6%9C%AC19-2" target="_blank" rel="noopener">🧭 経路を検索</a>
+        <a class="btn" href="tel:09081263532">📞 電話で連絡</a>
+      </div>
+      <div class="note">最寄りはJR「長岡京」駅周辺エリアです。お越しの際は、事前にお電話またはメールでご連絡いただけますと確実です。<br>
+        電話：090-8126-3532　/　メール：<a href="mailto:dwa8791@bousai0111.info">dwa8791@bousai0111.info</a><br>
+        ※ 災害時など緊急の場合は、状況に応じて 119番（消防・救急）・110番（警察）など公的機関へご連絡ください。</div>
+    </section>
+      <p class="org-foot">スタッフ紹介・アクセス・問い合わせは <a href="staff.html" data-orgp="staff.html">こちらのページ</a> にまとめています。<br>避難などの判断は、必ず気象庁・自治体などの公式発表もあわせてご確認ください。</p>
+    </div>
+  </div>
+</div>
+<script>
+function openOrgModal(){
+  var m=document.getElementById('orgModal'); if(!m) return;
+  var B=(typeof ORG_BASE!=='undefined')?ORG_BASE:'';
+  var as=m.querySelectorAll('a[data-orgp]');
+  for(var i=0;i<as.length;i++){ as[i].setAttribute('href', B+as[i].getAttribute('data-orgp')); as[i].setAttribute('target','_blank'); as[i].setAttribute('rel','noopener'); }
+  m.classList.add('open'); m.scrollTop=0;
+  document.addEventListener('keydown',orgEsc);
+  var x=m.querySelector('.org-x'); if(x) x.focus();
+}
+function closeOrgModal(){
+  var m=document.getElementById('orgModal'); if(m) m.classList.remove('open');
+  document.removeEventListener('keydown',orgEsc);
+}
+function orgEsc(e){ if(e.key==='Escape') closeOrgModal(); }
+</script>
 <script>
 /* 団体案内ページ(organization.html・activity.html・staff.html)は、長岡京市版サイトに置かれています。
    置き場所を変える場合は、ここを変更してください。同じフォルダに置くなら '' (空) にします。 */
