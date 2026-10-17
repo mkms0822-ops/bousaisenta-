@@ -6133,8 +6133,11 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       </div>
 
       <div class="ham-acc" id="hamAcc6">
-        <button type="button" class="ham-acc-head" onclick="toggleHamAcc(this)"><span class="ha-ico">🧰</span><span>各種ツール</span><span class="ha-cnt">11</span><span class="ha-arw">▶</span></button>
+        <button type="button" class="ham-acc-head" onclick="toggleHamAcc(this)"><span class="ha-ico">🧰</span><span>各種ツール</span><span class="ha-cnt">12</span><span class="ha-arw">▶</span></button>
         <div class="ham-acc-body">
+      <a class="hamburger-link" href="goods.html" target="_blank" rel="noopener" onclick="closeHamburger();" style="color:#ff9d3c;border-color:rgba(255,157,60,0.35);background:rgba(255,157,60,0.08);">
+        <span class="h-link-icon">🛒</span><span>おすすめ防災グッズ<span class="pr-badge" style="margin-left:6px;">PR</span><br><span style="font-size:11px;opacity:.75;">防災グッズをカテゴリ別・五十音順・検索で探せます(広告を含みます)</span></span>
+      </a>
       <a class="hamburger-link" data-tour="quake-map" href="earthquake-map.html" target="_blank" rel="noopener" onclick="closeHamburger();" style="color:#ff9d3c;border-color:rgba(255,157,60,0.35);background:rgba(255,157,60,0.08);width:100%;text-align:left;text-decoration:none;display:flex;align-items:center;">
         <span class="h-link-icon">🌍</span>グローバル地震マップ<br><span style="font-size:11px;opacity:.75;">1902〜2026年 世界737件・活断層・宇宙天気</span>
       </a>
@@ -6836,8 +6839,8 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
 <button type="button" class="sup-banner" onclick="openSupport()">
   <span class="sb-i">🤲</span>
   <span class="sb-t">
-    <span class="sb-title">サポート活動への資金援助のお願い</span>
-    <span class="sb-sub">給水所マップと情報センターを止めないために。専用サーバーの使用料など維持費のご支援をお願いしています</span>
+    <span class="sb-title">ツール開発費のご支援のお願い</span>
+    <span class="sb-sub">暮らしの身近なリスクに備える無料ツールを、これからも作り続けるために。開発・維持費のご支援をお願いしています</span>
   </span>
   <span class="sb-a">›</span>
 </button>
@@ -21471,7 +21474,7 @@ else qhHashBoot();
 
 
 <!-- ===== 活動サポートのお願い ===== -->
-<div id="supportModal" role="dialog" aria-modal="true" aria-label="活動サポートのお願い" onclick="if(event.target===this)closeSupport()">
+<div id="supportModal" role="dialog" aria-modal="true" aria-label="ツール開発費のご支援のお願い" onclick="if(event.target===this)closeSupport()">
   <div class="sup-inner">
     <div class="sup-bar">
       <span class="sup-brand">🤲 SUPPORT</span>
@@ -21483,38 +21486,46 @@ else qhHashBoot();
     </div>
 
     <div class="sup-body">
-      <h3>令和8年熊本地震<br>サポート活動 資金援助のお願い</h3>
-      <p class="sup-lead">当サイトは、令和8年熊本地震の被災地に向けて、デジタルツールを使った情報支援を続けています。この活動を止めずに続けるため、皆様のお力をお貸しいただけないでしょうか。</p>
+      <h3>暮らしの日常リスク支援ツール<br>開発費のご支援のお願い</h3>
+      <p class="sup-lead">災害だけでなく、サイバー攻撃、詐欺、停電、体調や心の不調など、暮らしの中には身近なリスクがたくさんあります。当サイトは、それらに備え、いざという時に迷わず動けるための無料ツールを開発しています。この開発を続けるために、皆様のお力をお貸しいただけないでしょうか。</p>
 
       <div class="sup-warn">
         <b>はじめにお読みください。</b><br>
-        こちらは<b>被災された方へお渡しする義援金ではありません</b>。当サイトが情報支援を継続するための<b>運営費</b>としてお預かりするものです。被災者の生活再建を直接支援されたい場合は、熊本県や日本赤十字社、中央共同募金会などの義援金・支援金の窓口をご利用ください。
+        こちらは<b>災害の被災者の方へお渡しする義援金ではありません</b>。当サイトのツールを開発・維持するための<b>費用</b>としてお預かりするものです。被災者の支援を直接されたい場合は、日本赤十字社、中央共同募金会、各自治体などの義援金・支援金の窓口をご利用ください。
       </div>
 
-      <h4>いま行っていること</h4>
+      <h4>いま提供しているもの</h4>
       <ul>
-        <li><b>給水所マップ</b>：7自治体34か所の場所・給水時間・住所・電話番号を掲載し、現在地から近い順に案内しています</li>
-        <li><b>熊本地震 情報センター</b>：被害状況、ライフライン、交通、医療、医薬品、罹災証明、相談窓口など15分野を1日2回更新しています</li>
-        <li><b>24時間の地震・気象情報配信</b>：地震速報、警報・注意報、熱中症情報などを自動で更新しています</li>
+        <li><b>地震・気象情報の配信</b>：地震速報、警報・注意報、熱中症情報などを自動で更新しています</li>
+        <li><b>各種の診断・チェックツール</b>：地震リスク・被害想定、南海トラフ津波避難、防災意識、モバイルバッテリー発火リスク、災害後の心のチェックなど</li>
+        <li><b>災害時に使えるツール</b>：災害用伝言板、足うごかしタイマー（エコノミークラス症候群の予防）など</li>
         <li><b>SNSでの情報発信</b>：毎日の天気概況と防災情報をお届けしています</li>
       </ul>
       <p>これらはすべて、どなたでも登録不要・無料でお使いいただけます。今後もその形を変えるつもりはありません。</p>
 
+      <h4>これから作りたいもの</h4>
+      <p>次のような、暮らしの中の「もしも」に備えるツールを、順次つくっていきたいと考えています。内容や時期は、開発の状況により変わることがあります。</p>
+      <ul>
+        <li>サイバー攻撃や情報漏えいに備える、事業者向けの対応手順ツール</li>
+        <li>災害時に事業を続けるための、事業継続（BCP）作成ツール</li>
+        <li>偽の解約ページや不審なサイトを見分けるための、詐欺対策ツール</li>
+        <li>停電・断水など、生活インフラが止まった時の備えと対応のツール</li>
+      </ul>
+
       <h4>なぜ費用がかかるのか</h4>
-      <p>災害時はアクセスが平常時の何倍にも増えます。止まらない運営のために、当サイトは共用の無料環境ではなく<b>専用サーバー</b>を使用しており、提供元へ<b>使用料をお支払い</b>しています。</p>
-      <p>また、地図の表示やデータの取得に外部サービスを利用しており、その他の支援ツールを維持するためにも継続的な費用が必要です。これらはすべて、災害の有無にかかわらず毎月発生します。</p>
+      <p>ツールをつくるには、設計・制作・動作確認に加えて、公開後も、サーバーの維持や内容の見直しが欠かせません。これらは、災害の有無にかかわらず継続して費用が発生します。</p>
       <div class="sup-note">
         <b>主な費用の内訳</b><br>
-        ・専用サーバーの使用料（提供元へ月額でお支払い）<br>
+        ・ツールの開発に使うソフトウェア・サービスの利用料<br>
+        ・サーバーの使用料、ドメインおよびSSL証明書の維持費<br>
         ・地図配信・データ取得など外部サービスの利用料<br>
-        ・ドメインおよびSSL証明書の維持費<br>
-        ・その他の支援ツールの維持費<br>
+        ・動作確認に必要な機器・資料の購入費<br>
         ・情報収集と更新に必要な実費
       </div>
-      <p>現在これらは運営者が個人で負担しています。活動を長く続けるため、また災害時にアクセスが集中しても止まらない体制を保つために、皆様のご支援をお願いする次第です。</p>
+      <p>現在これらは運営者が個人で負担しています。ツールを無料で公開し続け、数を増やしていくために、皆様のご支援をお願いする次第です。</p>
 
       <h4>いただいた資金の使いみち</h4>
-      <p>お預かりした資金は、上記の<b>運営費のみ</b>に充てます。運営者個人の報酬には充当いたしません。使途は責任をもって適切に管理し、当サイト上で定期的にご報告いたします。</p>
+      <p>お預かりした資金は、上記の<b>開発費・運営費のみ</b>に充てます。運営者個人の報酬には充当いたしません。使途は責任をもって適切に管理し、当サイト上で定期的にご報告いたします。</p>
 
       <h4>お振込先</h4>
       <div class="sup-card sup-bank">
@@ -21540,7 +21551,7 @@ else qhHashBoot();
         <li>フォームにご入力いただいた住所へ、お礼の品をお届けします。</li>
       </ol>
       <div class="sup-note">お礼の品が不要な方は、フォームの送信は不要です。お気持ちだけで十分に助かります。<br>
-      なお、発送は被災地の状況が落ち着いてからとなる場合がございます。お時間をいただくことをご了承ください。</div>
+      なお、発送には、お時間をいただく場合がございます。ご了承ください。</div>
       <a class="sup-cta" href="#" onclick="supportOpenContact();return false;">✉️ お問い合わせフォームを開く</a>
 
       <h4>個人情報の取り扱いについて</h4>
@@ -21576,7 +21587,7 @@ else qhHashBoot();
         当方がご案内する口座は、このページに記載のものだけです。当サイト以外の場所で当方や本活動を名乗り、別の口座への振込を求める案内があった場合は、絶対にお振込みにならないでください。また、当方からお電話やご訪問で寄付をお願いすることは一切ございません。
       </div>
 
-      <p class="sup-meta">最後に。ご支援をいただけなくても、サイトの機能が制限されることはありません。必要な方が必要な情報にたどり着けること。それがこの活動の目的です。まずは、必要な方へこのサイトを知らせていただくことが、何よりのご支援になります。</p>
+      <p class="sup-meta">最後に。ご支援をいただけなくても、サイトの機能が制限されることはありません。必要な方が、必要な備えにたどり着けること。それがこの活動の目的です。まずは、必要な方へこのサイトを知らせていただくことが、何よりのご支援になります。</p>
 
       <div class="sup-foot">
         <button type="button" class="sup-home-big" onclick="supportGoHome()">🏠 ホームに戻る</button>
@@ -21605,8 +21616,8 @@ else qhHashBoot();
   };
   window.shareSupport = function(){
     var url = location.origin + location.pathname + '#support';
-    var d = { title:'令和8年熊本地震 サポート活動 資金援助のお願い｜防災情報センター',
-              text:'給水所マップと情報センターの運営を続けるため、活動資金のご支援をお願いしています。', url:url };
+    var d = { title:'ツール開発費のご支援のお願い｜防災情報センター',
+              text:'暮らしの身近なリスクに備える無料ツールの開発を続けるため、開発費のご支援をお願いしています。', url:url };
     if(navigator.share){ navigator.share(d).catch(function(){}); }
     else if(navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(url).then(function(){ window.alert('リンクをコピーしました'); })
@@ -22061,7 +22072,7 @@ else qhHashBoot();
     clearTimeout(t._t); t._t=setTimeout(function(){ t.className=''; },2600);
   }
   var TITLE={quakeHub:'令和8年熊本地震 情報センター',kyusuiModal:'熊本 給水所・入浴マップ・災害ごみ仮置き場',
-             supportModal:'サポート活動 資金援助のお願い',nearPanel:'近くを探す',petGuide:'ペットと一緒に逃げる',
+             supportModal:'ツール開発費のご支援のお願い',nearPanel:'近くを探す',petGuide:'ペットと一緒に逃げる',
              volModal:'ボランティア後方支援ツール', rankModal:'あなたの称号'};
   var HASH ={quakeHub:'#quake',kyusuiModal:'#kyusui',supportModal:'#support',nearPanel:'#near',petGuide:'#pet',volModal:'#volunteer', rankModal:'#rank'};
 
