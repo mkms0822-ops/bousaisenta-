@@ -6133,7 +6133,7 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       </div>
 
       <div class="ham-acc" id="hamAcc6">
-        <button type="button" class="ham-acc-head" onclick="toggleHamAcc(this)"><span class="ha-ico">🧰</span><span>各種ツール</span><span class="ha-cnt">12</span><span class="ha-arw">▶</span></button>
+        <button type="button" class="ham-acc-head" onclick="toggleHamAcc(this)"><span class="ha-ico">🧰</span><span>各種ツール</span><span class="ha-cnt">13</span><span class="ha-arw">▶</span></button>
         <div class="ham-acc-body">
       <a class="hamburger-link" href="goods.html" target="_blank" rel="noopener" onclick="closeHamburger();" style="color:#ff9d3c;border-color:rgba(255,157,60,0.35);background:rgba(255,157,60,0.08);">
         <span class="h-link-icon">🛒</span><span>おすすめ防災グッズ<span class="pr-badge" style="margin-left:6px;">PR</span><br><span style="font-size:11px;opacity:.75;">防災グッズをカテゴリ別・五十音順・検索で探せます(広告を含みます)</span></span>
@@ -6171,6 +6171,9 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
       <a class="hamburger-link" href="kokoro.html" target="_blank" rel="noopener" style="color:#7ee0c0;border-color:rgba(0,192,96,0.3);background:rgba(0,192,96,0.07);">
         <span class="h-link-icon">🌿</span>こころのチェック<br><span style="font-size:11px;opacity:.75;">災害のあとの心の自己チェック</span>
       </a>
+      <button class="hamburger-link" data-tour="leak-guide" onclick="closeHamburger();openLeakGuide();" style="color:#ff8a80;border-color:rgba(255,138,128,0.35);background:rgba(255,138,128,0.07);width:100%;text-align:left;cursor:pointer;">
+        <span class="h-link-icon">🔐</span>個人情報が漏れたら<br><span style="font-size:11px;opacity:.75;">サイバー攻撃・情報漏洩の対処ガイド／漏洩企業一覧</span>
+      </button>
 
     </div>
       </div>
@@ -11748,7 +11751,7 @@ function closeSettings(){
 // ===================== ホーム画面に追加 (A2HS) =====================
 // Service Worker 登録（PWAインストール要件を満たす）
 /* このHTMLの版。sw.js の CACHE_NAME と揃えておくと管理しやすい */
-var SITE_BUILD = '2026-10-01-menu-reorg';
+var SITE_BUILD = '2026-10-20-leak-guide';
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function(){
@@ -14837,6 +14840,7 @@ function linkifyA(escapedBody){
     // サイト内機能を開く特別キーワード
     if(url === 'manual') return '<a href="Manual.html" onclick="return openEmgManual(event)">' + label + '</a>';
     if(url === 'sos')    return '<a href="#" onclick="sosOpenPanel();return false;">' + label + '</a>';
+    if(url === 'leak')   return '<a href="leak-guide/index.html" onclick="openLeakGuide();return false;">' + label + '</a>';
     if(url === 'guide')  return '<a href="guide.html" onclick="openUsageGuide();return false;">' + label + '</a>';
     // ページ内セクションへのスクロール（#section-map など）
     if(/^#[a-zA-Z0-9_-]+$/.test(url)) return '<a href="' + url + '">' + label + '</a>';
@@ -19925,6 +19929,10 @@ document.addEventListener('keydown', function(e){
     if (e && e.preventDefault) e.preventDefault();
     openDoc('🚨 緊急対応マニュアル', 'Manual.html', '緊急対応マニュアルを開く');
     return false;
+  };
+  // 個人情報が漏れたら 対処ガイド（メニュー「各種ツール」／緊急対応マニュアルから）
+  window.openLeakGuide = function () {
+    openDoc('🔐 個人情報が漏れたら 対処ガイド', 'leak-guide/index.html', '個人情報が漏れたらを開く');
   };
   // 取扱説明書（メニュー最上部から）
   window.openUsageGuide = function () {

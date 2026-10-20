@@ -1621,7 +1621,7 @@ const TREE = {
           {icon:'phone', head:'被害があれば相談', desc:'悪用されたと感じたら警察へ相談する。緊急時は110番。'},
         ],
         note:{type:'danger',text:'流出元が企業などの場合は、その企業のお詫び・問い合わせ窓口の案内に従ってください。'},
-        pageLinks:[{href:'https://mkms0822-ops.github.io/cyberattack-response-guide/', icon:'share', label:'対応ガイド（Web版）を開く'}],
+        pageLinks:[{href:'leak-guide/index.html', leak:true, icon:'share', label:'対応ガイド（個人情報が漏れたら）を開く'}],
         tels:[{num:'#9110', label:'#9110 警察相談に電話する', sub:'緊急でない相談', kind:'soft'}]
       }),
       secret: r({
@@ -1886,7 +1886,7 @@ function renderResult(catKey, res){
   // 別ファイルの対処ガイド（外部ページ）へのリンク
   if(Array.isArray(res.pageLinks)){
     linkBtns += res.pageLinks.map(p=>
-      `<a class="link-cta" href="${escapeAttr(p.href)}" target="_blank" rel="noopener">${ICON[p.icon]||ICON.check}<span>${p.label}</span></a>`
+      `<a class="link-cta" href="${escapeAttr(p.href)}" target="_blank" rel="noopener"${p.leak?' onclick="return openLeakGuide(event)"':''}>${ICON[p.icon]||ICON.check}<span>${p.label}</span></a>`
     ).join('');
   }
   // #7119 の対応地域・受付時間を確認するボタン
@@ -2540,6 +2540,18 @@ renderHome();</script>
     }, true);
   } catch (e) {}
 })();
+
+// 本体サイトの中で開いているときは、サイトを離れずに「個人情報が漏れたら」ガイドを開く。単独で開いているときは、新しいタブで開く
+function openLeakGuide(e){
+  try{
+    if(window.parent && window.parent!==window && typeof window.parent.openLeakGuide==='function'){
+      if(e && e.preventDefault) e.preventDefault();
+      window.parent.openLeakGuide();
+      return false;
+    }
+  }catch(err){}
+  return true;
+}
 </script>
 </body>
 </html>
