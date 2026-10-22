@@ -23543,5 +23543,38 @@ var ORG_BASE = 'https://mkms0822-ops.github.io/nagaokakyoushi_bousai_site/';
   for(var i = 0; i < els.length; i++) els[i].setAttribute('href', ORG_BASE + els[i].getAttribute('data-org'));
 })();
 </script>
+
+<style id="dwaModalFit">
+/* 【修正】PC幅(1100px以上)では body に zoom:1.25 が掛かり、vh 指定の高さが1.25倍に伸びて、
+   お知らせなどの窓が画面より縦に長くなり、「閉じる」ボタンや✕が画面の外に出ていた。
+   ・お知らせ/更新履歴:高さを vh ではなく「画面いっぱいの外枠に対する割合」で決める
+     (窓の中身だけがスクロールし、✕と「閉じる」は常に見える)
+   ・その他の窓:vh を body の拡大率(1.25/1.5/1.8)で割り、見かけ上の高さを元の指定どおりにする */
+.notice-overlay{box-sizing:border-box;}
+.notice-box{max-height:100%;}
+.notice-body{min-height:0;overflow-y:auto;}
+.notice-foot,.notice-head{flex:0 0 auto;}
+@media (min-width:1100px){ :root{--bz:1.25;} }
+@media (min-width:1500px){ :root{--bz:1.5;} }
+@media (min-width:2000px){ :root{--bz:1.8;} }
+@media (min-width:1100px){
+  .modal-box{max-height:calc(90vh / var(--bz,1.25));}
+  .settings-panel{max-height:calc(80vh / var(--bz,1.25));}
+  .guide-panel{max-height:calc(85vh / var(--bz,1.25));}
+  .ecs-sin{max-height:calc(92vh / var(--bz,1.25));}
+  .col-overlay-panel{height:calc(94vh / var(--bz,1.25));max-height:calc(94vh / var(--bz,1.25));}
+  .img-lightbox img{max-height:calc(90vh / var(--bz,1.25));}
+}
+</style>
+<script>
+/* お知らせ(NEWS)をEscキーでも閉じられるようにする。更新履歴が開いているときは履歴を先に閉じる */
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Escape') return;
+  var hist=document.getElementById('noticeHistoryOverlay');
+  if(hist&&hist.classList.contains('open')&&window.closeNoticeHistory){ window.closeNoticeHistory(); return; }
+  var n=document.getElementById('noticeOverlay');
+  if(n&&n.classList.contains('open')&&window.closeNotice) window.closeNotice();
+});
+</script>
 </body>
 </html>
