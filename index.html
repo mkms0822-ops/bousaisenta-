@@ -23565,6 +23565,10 @@ var ORG_BASE = 'https://mkms0822-ops.github.io/nagaokakyoushi_bousai_site/';
   .col-overlay-panel{height:calc(94vh / var(--bz,1.25));max-height:calc(94vh / var(--bz,1.25));}
   .img-lightbox img{max-height:calc(90vh / var(--bz,1.25));}
 }
+@media (min-width:1100px){
+  /* チュートリアルは getBoundingClientRect(実px)で配置するため、body zoom を打ち消す */
+  #tourOverlay{zoom:calc(1 / var(--bz,1.25));}
+}
 </style>
 <script>
 /* お知らせ(NEWS)をEscキーでも閉じられるようにする。更新履歴が開いているときは履歴を先に閉じる */
