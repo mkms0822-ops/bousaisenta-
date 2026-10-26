@@ -166,7 +166,7 @@
   <button type="button" class="hbtn" onclick="shareGlobe()" title="共有">🔗 共有</button>
 </div>
 
-<h1>2026年 マグニチュード7.0以上の地震（13件）</h1>
+<h1>2026年 マグニチュード7.0以上の地震（15件）</h1>
 <p class="sub">ドラッグで地球儀を回転、丸印をクリックすると詳細が表示されます</p>
 
 <div id="wrap">
@@ -220,7 +220,13 @@ const quakes = [
     damage:"死者136人・負傷1,776人、最大1.61mの津波を観測。日本への津波の影響はなし"},
   {n:13, name:"パナマ（エレーラ県・アスエロ半島）", date:"2026年10月9日(日本時間10/10 2時56分ごろ)", mag:7.7, depth:12.6, lat:7.59, lon:-80.77,
     intensity:"最大改正メルカリ震度IX（激しい）。首都パナマ市でもV（やや強い）の揺れ",
-    damage:"負傷者27人以上、死者の報告なし（10日時点）。ペノノメで大聖堂・州庁舎・ホテルが部分倒壊、道路も崩落。パナマ運河は通常運航。USGSは当初M8.0→7.6→確定7.7に修正。津波警報は後に解除"}
+    damage:"負傷者27人以上、死者の報告なし（10日時点）。ペノノメで大聖堂・州庁舎・ホテルが部分倒壊、道路も崩落。パナマ運河は通常運航。USGSは当初M8.0→7.6→確定7.7に修正。津波警報は後に解除"},
+  {n:14, name:"バヌアツ諸島",                   date:"2026年10月24日 11時31分ごろ", mag:7.2, depth:null, lat:-16.5, lon:167.5,
+    intensity:"震度情報の発表なし",
+    damage:"被害・津波の有無は未確認(速報)。※震源の位置は概略で、確定値で要修正"},
+  {n:15, name:"日本（小笠原諸島西方沖）",       date:"2026年10月25日 11時10分ごろ", mag:7.0, depth:470, lat:27.0, lon:139.5,
+    intensity:"最大震度3。深発地震のため、震源から遠い関東〜東北の太平洋側で揺れを観測（異常震域）",
+    damage:"被害の報告は未確認。震源が深く、津波の心配は小さい。※震源の位置は概略で、確定値で要修正"}
 ];
 
 const width = 600, height = 600;
@@ -298,7 +304,7 @@ function showInfo(d) {
   document.getElementById('info').innerHTML = `
     <h2>${d.n}. ${d.name}</h2>
     <div class="row"><span>日時</span><span>${d.date}</span></div>
-    <div class="row"><span>マグニチュード</span><span>M${d.mag}</span></div>
+    <div class="row"><span>マグニチュード</span><span>M${d.mag.toFixed(1)}</span></div>
     <div class="row"><span>深さ</span><span>${d.depth ? '約' + d.depth + 'km' : '不明（速報）'}</span></div>
     <div class="row"><span>震度</span><span>${d.intensity}</span></div>
     <div class="row"><span>被害内容</span><span>${d.damage}</span></div>
