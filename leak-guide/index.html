@@ -9,6 +9,8 @@
 <meta property="og:title" content="個人情報が漏れたら｜対処ガイド">
 <meta property="og:description" content="免許証やクレジット情報が流出したとき、いま何をすべきか。">
 <meta name="theme-color" content="#131a26">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   :root{
@@ -172,6 +174,12 @@
   .hero-img{margin:0 -13px;position:relative;line-height:0}
   .hero-img img{width:100%;height:auto;display:block}
 
+  .tb-php{border-color:#d93025;color:#d93025;font-weight:700}
+  .tb-php:hover{border-color:#b3261e;color:#b3261e}
+  html.dk .tb-php{border-color:#ff8a80;color:#ff8a80}
+  .php-fr{width:100%;height:68vh;min-height:360px;border:1px solid var(--line);border-radius:10px;background:#fff;display:block}
+  .php-act{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+  .php-act a,.php-act button{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:99px;background:var(--card);color:var(--blue);font-family:inherit;font-size:13px;text-decoration:none;cursor:pointer}
   /* ===== 上部の操作バー ===== */
   .topbar{
     position:sticky;top:0;z-index:40;
@@ -598,6 +606,18 @@ html.dk .ph-toc{border-color:#2e3b50}
   @media print{.dh-bar{display:none}}
   .dlg-wide .dlg-in{max-width:1350px}
   /* 最新情報 */
+
+  .lt-card{background:var(--card);border:1px solid var(--line,#d6dde6);border-radius:12px;padding:12px 14px;margin:10px 0}
+  .lt-card h3{font-size:15px;margin:0 0 6px;line-height:1.5}
+  .lt-card h3 small{display:block;font-size:11.5px;font-weight:400;opacity:.75}
+  .lt-card ul{margin:6px 0 0;padding-left:1.2em}
+  .lt-card li{margin:4px 0;line-height:1.7;font-size:13.5px}
+  .lt-card.lt-r{border-left:5px solid #d92b2b}.lt-card.lt-g{border-left:5px solid #1e8e3e}.lt-card.lt-o{border-left:5px solid #e8710a}.lt-card.lt-b{border-left:5px solid #1a73e8}
+  .ov-ol{margin:6px 0 0;padding-left:1.4em}.ov-ol li{margin:6px 0;line-height:1.75;font-size:13.5px}
+  .ov-chk{list-style:none;padding-left:0!important}.ov-chk label{display:flex;gap:8px;align-items:flex-start;min-height:32px}.ov-chk input{margin-top:5px;width:18px;height:18px;flex:none}
+  .lt-go{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+  .lt-tag{display:inline-block;font-size:11px;font-weight:700;border-radius:99px;padding:1px 8px;margin-right:6px;color:#fff;background:#5f6b7a}
+  .lt-tag.r{background:#d92b2b}.lt-tag.g{background:#1e8e3e}.lt-tag.o{background:#e8710a}
   .nw-card{background:var(--card);border:1px solid var(--line,#d6dde6);border-left:5px solid var(--red,#d92b2b);border-radius:12px;padding:14px 16px;margin-bottom:12px}
   .nw-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;color:#fff;background:var(--red,#d92b2b);border-radius:99px;padding:2px 10px;margin-bottom:8px}
   .nw-ti{font-size:16px;line-height:1.6;margin:0 0 6px;font-weight:700;color:var(--fg,inherit)}
@@ -813,6 +833,8 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
 <div class="wrap">
 
   <div class="topbar">
+    <button type="button" class="tb tb-php" onclick="openDlg('dlgPhp')" aria-label="PHP脆弱性 緊急パッチ 状況ボードを開く">
+      <span class="ic">🚨</span><span class="tx">PHP状況</span></button>
     <button type="button" class="tb" onclick="doRefresh()" aria-label="最新版に更新する">
       <span class="ic">🔄</span><span class="tx">更新</span></button>
     <button type="button" class="tb" onclick="doShare()" aria-label="共有する">
@@ -851,10 +873,10 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
   </div>
 
   <div class="alert">
-    <div class="al-h">⏳ いま、信用情報機関の受付が混み合っています</div>
+    <div class="al-h">⏳ いま、信用情報機関の受付に遅れが出ています</div>
     <p>タイムズカーの情報漏洩（2026年9月28日公表）を受けて申込が集中し、
-    <b>CIC・JICC・全国銀行個人信用情報センターの3機関すべてが、公式に遅延を告知</b>しています。
-    手順2に進む前に、次の3点をご確認ください。</p>
+    <b>CIC・JICC・全国銀行個人信用情報センターの3機関が、公式に遅延や休止を告知</b>しています。
+    手順2に進む前に、次の点をご確認ください。</p>
     <ul>
       <li><b>申込済みなら、出し直さないでください。</b>
       登録は<b>5年間</b>有効で、数日から数週間の遅れで効力が落ちるものではありません。
@@ -864,8 +886,12 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
       ステータスが「コメント登録完了」になっていれば、もう済んでいます</li>
       <li><b>待っている間に、手順3を先に済ませてください。</b>
       カードと銀行の利用通知をオンにするのが、いま<b>最も早く効きます</b></li>
+      <li><b>機関ごとの現状(10月23日に公式の告知を確認)</b><br>
+      ・<b>CIC</b>:郵送の開示・本人申告は結果の発送まで<b>1か月以上</b>かかることがある(10月16日の続報)。<b>インターネットの開示・本人申告は即時に受付可</b>と案内されています<br>
+      ・<b>JICC</b>:スマホアプリと郵送の申込が集中し、通常より時間がかかっている(10月8日掲載の告知。日数の目安は記載なし)<br>
+      ・<b>全国銀行個人信用情報センター</b>:Web申込は9月29日に一時休止し、9月30日に再開。郵送の手続きにかかる日数の告知が10月20日に出ています(本文は未確認)。また、<b>貸付自粛の申告手続きは10月23日〜26日が休止の予定</b>と見出しで確認(本人申告とは別の手続きです)</li>
     </ul>
-    <div class="al-f">この案内は<b>2026年10月17日</b>時点で、3機関の公式サイトに遅延の告知が掲載されていることを確認した内容にもとづいています。
+    <div class="al-f">この案内は<b>2026年10月23日</b>時点で、3機関の公式サイトの告知(CICとJICCは本文、全国銀行個人信用情報センターは見出し)を確認した内容にもとづいています。
     状況は日々変わりますので、申し込む前に公式ページでご確認ください。</div>
   </div>
 
@@ -906,7 +932,7 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
         <div><button type="button" class="tl-b" id="svClr">選択をすべて外す</button></div>
         <div class="tk-list" id="svList" style="max-height:260px;overflow:auto"></div>
         <div id="svOut" aria-live="polite"></div>
-        <p class="sm" style="font-size:12px;color:var(--sub)">掲載は主要な事案のみで、2026年10月10日時点です(日本郵便・デンマーク・アルカディア・銀のさらの事案は10月14日に追記、ソースネクスト・メドレー・吉野家HDは10月15日に追記、10月15〜16日に判明した事案(Eストアー、ファンケル・アテニア、ヤマト運輸、日本経済新聞社、バーガーキング、Studioなど)は10月16日に追記、ブックオフは10月13日の第2報に、VALXはコミューンの事案として10月15日に更新)。<b>一覧にないからといって、漏れていないとは限りません。</b>該当したら、その機関の公式サイトを自分で開いて、本人向けのお知らせを確認してください。</p>
+        <p class="sm" style="font-size:12px;color:var(--sub)">掲載は主要な事案のみで、2026年10月10日時点です(日本郵便・デンマーク・アルカディア・銀のさらの事案は10月14日に追記、ソースネクスト・メドレー・吉野家HDは10月15日に追記、10月15〜16日に判明した事案(Eストアー、ファンケル・アテニア、ヤマト運輸、日本経済新聞社、バーガーキング、Studioなど)は10月16日に追記、ブックオフは10月13日の第2報に、VALXはコミューンの事案として10月15日に更新、10月16〜20日に判明・更新した事案は10月20日追記、10月21〜23日に判明・更新した事案(カプコン、ブラストメール、バルテック、お名前.comデスクトップクラウド、NP後払い、OTOTOY、大阪大学など)は10月24日(7時時点)追記、10月23〜24日に判明・更新した事案(日本ピザハット、アンドエスティHD、タイムズカー第5報、ブラストメール344契約など)は10月25日(20時時点)追記)。<b>一覧にないからといって、漏れていないとは限りません。</b>該当したら、その機関の公式サイトを自分で開いて、本人向けのお知らせを確認してください。</p>
       </div></div>
 
     <div class="step" id="t2"><button type="button" class="step-h" onclick="toggleStep('t2')">
@@ -941,6 +967,9 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
     <button type="button" class="nw-link" onclick="openDlg('dlgNews')">
       <span style="font-size:24px">📰</span>
       <span><b>【新着】アプリ解析からのサーバ攻撃(A2B攻撃)の注意喚起</b><small>LETTICE(NICT・CYNEX)2026年10月13日 ・ 全7ページ+しくみの図解</small></span></button>
+    <button type="button" class="nw-link" onclick="openDlg('dlgPhp')">
+      <span style="font-size:24px">🚨</span>
+      <span><b>【新着】PHPの重大な脆弱性(PHP2Shell)の注意喚起と、停止・再開の状況</b><small>IPAが2026年10月22日に注意喚起(国家サイバー統括室の発信による) ・ 状況ボードで確認</small></span></button>
     <div class="lnk" id="links"></div>
   </div>
 
@@ -953,7 +982,7 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
     <b>このページについて</b><br>
     手数料や手続きの方法は変更されることがあります。<b>申し込む前に、必ず各機関の公式ページで最新の内容をご確認ください。</b><br><br>
     <b>最終確認日：2026年10月9日。</b>金額と申込方法は、この日にCIC・JICC・全国銀行個人信用情報センターの公式ページで確認したものです。
-    なお、遅延の告知は2026年10月17日にも3機関の公式サイトで掲載を確認しています（金額と申込方法の確認日は上記のとおりです）。<br><br>
+    なお、遅延や休止の告知は2026年10月23日にも3機関の公式サイトで確認しています（金額と申込方法の確認日は上記のとおりです）。<br><br>
     このページは一般的な情報の提供であり、法的な助言ではありません。実際の被害が生じた場合や、賠償請求をお考えの場合は、弁護士にご相談ください。<br><br>
     チェックの記録は、お使いのブラウザにのみ保存されます。外部へ送信されることはありません。
   </div>
@@ -972,6 +1001,224 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
 </div><!-- /wrap -->
 
 
+
+<!-- ===== 今日の最新まとめ ===== -->
+<div class="dlg dlg-wide" id="dlgLatest" onclick="if(event.target===this)closeDlg('dlgLatest')">
+  <div class="dlg-in">
+    <button class="dlg-x" onclick="closeDlg('dlgLatest')" aria-label="閉じる">✕</button>
+    <h2>📌 今日の最新まとめ</h2>
+    <div class="nw-card">
+      <span class="nw-tag">2026年10月27日 22時00分 時点</span>
+      <h3 class="nw-ti">PHPの脆弱性・停止と再開・サイバー攻撃・情報漏洩の最新</h3>
+      <p class="nw-sub">報道や各社の告知をもとにした要約です。多くは一次情報が未確認で、最新は各社の公式発表をご確認ください。</p>
+    </div>
+    <div class="lt-go">
+      <button type="button" class="tl-b" onclick="openDlg('dlgPhp')">🚨 状況ボードを開く</button>
+      <button type="button" class="tl-b" onclick="openList('')">🌏 情報漏洩一覧</button>
+      <button type="button" class="tl-b" onclick="openOut('')">🛠 攻撃・障害一覧</button>
+    </div>
+
+    <div class="lt-card lt-r">
+      <h3>① PHPの脆弱性「PHP2Shell」の最新</h3>
+      <ul>
+        <li><b>【27日夜の追加】</b>アシュアードの集計で、国内のサービス休止は累計<b>1,090件</b>(26日時点)、<b>約4割で再開が未確認</b>(ABEMA/テレビ朝日系の報道)。理由は記事に書かれていません。</li>
+        <li>Recorded Futureによると、PHPが動くホストはModat約188万・VirusTotal約510万IPで、多くがサポート終了系(PHP 7.4など)。ただし、両方のスキャンで<b>脆弱性が確認されたホストは検出されていません</b>。公開PoCの有効性も未検証。CPIはPHP 7.4.xの修正版を27日・29日に提供予定。</li>
+        <li><b>【27日の追加】</b>停止したサービスは累計1,000件超で、再開できない例も多い(ライブドアニュースの見出し。本文は未取得・未確認)。Trend AIの集計では、国内のインシデントは10月20日時点で723件(昨年の年間594件を超過)。</li>
+        <li>対象はCVE-2026-109618 / 109619(CVSS v4.0で9.2)。修正版は PHP 8.5.12 / 8.4.27 / 8.3.36 / 8.2.35。8.1以前は公式の修正版なし。</li>
+        <li>攻撃の試行は複数社が観測(Amazonは公開前の17日)。SophosはMirai系マルウェアの設置試行を観測したが、標的に届く前に止まったと説明(以前の『成功』報告は訂正)。</li>
+        <li>VulnCheckは、ASLR有効の一般的な本番環境でも動く悪用コードを作ったと発表(顧客限定で非公開)。</li>
+        <li><b>成功した侵害の報告は、確認できた範囲ではありません。</b>CISAのKEV(悪用が確認された脆弱性の一覧)は、23日朝時点で未登録。</li>
+        <li>Ubuntu・Debianなどは修正済み、RHEL 10・Rocky Linuxなどは当初未提供とされる(要確認)。PHP本体の更新が唯一の完全な対策で、更新後も10月20日以降のログの点検を。</li>
+        <li><b>【25日の追加】</b>攻撃は公開4日前の17日から観測。アシュアードの調査では国内のサービス停止が累計500件超、デロイトトーマツサイバーは利用サイトの約半数がサポート終了や休眠状態で修正が難しいと推計(要約記事ベース・一次情報は未確認)。Cloudflareの経営者は『同様の脆弱性は今後も出る』と述べたと報じられた(原文は取得できず未確認)。</li>
+        <li><b>停止の実態調査(個人):</b>.jpドメイン無作為2,000件を24日11:44に調べた結果、停止・メンテナンス表示は97件(4.8%)。うちPHPの脆弱性に触れていたのは4件のみで、<b>PHP2Shellによる停止と断定できる根拠は限られます</b>(平常時との比較なし)。</li>
+        <li>yamoryの調査(23日14:00時点):国内の停止告知502件・再開告知217件・再開告知の未確認285件。『285件』は停止が続く件数ではありません。</li>
+      </ul>
+    </div>
+
+    <div class="lt-card lt-g">
+      <h3>② 再開したサイト・サービス</h3>
+      <ul>
+        <li><span class="lt-tag g">再開</span><b>【27日確認】</b>文部科学省(全サービス・コンテンツの公開を再開。再開日の記載なし)、ウェルクル(特定保健指導。対応完了・再開。日付は未確認)</li>
+        <li><span class="lt-tag g">再開</span><b>【26日】</b>エムケイシステム(DirectHR・26日15:30)、ワッツ(26日8:32)。<b>【25日】</b>ソフトバンクの緊急地震速報・津波警報(9:25。国・自治体の災害・避難情報は停止が続く)、NTTドコモのエリアメール(20:01)</li>
+        <li><span class="lt-tag g">再開</span>ココペリ(Big Advance・BAポータル・BIG ADVANCE GLOBAL・BMポータル)全4サービス</li>
+        <li><span class="lt-tag g">再開</span>ロリポップ!(22日13時〜16:44に全て再開)、セガ製品情報サイト(23日11:30)、バンダイナムコID</li>
+        <li><span class="lt-tag g">再開</span>オムロン ヘルスケア(3サービスが22日19:30に復旧)、コドモン、あすけん、pixiv、BASE、Chatwork、グランブルーファンタジー、ウマ娘</li>
+        <li><span class="lt-tag g">再開</span>首相の個人サイト(22日13時)、JR九州の公式HP、CPIの管理系機能の大半</li>
+        <li><span class="lt-tag o">一部</span>エーアイ(A.I.VOICEの管理系2サイトのみ)、佐川急便(荷物追跡のみ。API・集荷受付などは停止)、DMM(順次)</li>
+      </ul>
+    </div>
+
+    <div class="lt-card lt-r">
+      <h3>①-2 新たな脆弱性:Brotliライブラリ(CVE-2026-111497)<small>『Node2Shell』『HTTP2Shell』とも呼ばれる</small></h3>
+      <ul>
+        <li>圧縮方式Brotliのデコーダーにあるバッファオーバーフロー(範囲外書き込み)。細工したデータで、メモリの破損・情報漏えい・サービス停止、場合によってはコード実行のおそれ。CVSS v4.0で9.2(Critical)。</li>
+        <li>影響:Brotli 1.0.3〜1.2.0。修正版は Brotli 1.2.1(旧系列は1.0.10・1.1.1)。Node.jsは 22.23.4 / 24.22.1 / 26.12.1。Pythonの Brotli・brotlicffi、curl/libcurl、Bun、Envoy、Istioなども対象または修正済み。ApacheとNginxは、既定ではBrotliを復号しない。</li>
+        <li>『ブラウザ(Chrome・Edge・Firefox)、Electronアプリ(Discord・Slack・VSCode)、iOSにも影響』とする要約もありますが、確認できた資料(Aikido・Semgrep・Debian)には記載がなく、<b>未確認</b>です。</li>
+        <li>悪用:2026年10月22日時点で『実際の攻撃は未確認』とする報道がある一方、Node.js 24.22.0で同じ部分を突けると報告した事業者もあり、PoCや悪用の状況は資料で割れています(一次情報は未確認)。</li>
+        <li>対策:一般の方は、OS・アプリ・ブラウザの自動更新を有効にして、更新後は再起動まで。開発者は、依存関係(Python・Node.js・curlなど)に含まれるBrotliの版を確認し、修正版へ更新して再起動を。</li>
+      </ul>
+    </div>
+
+    <div class="lt-card lt-o">
+      <h3>③ 停止が続く・再開未確認のサイト・サービス</h3>
+      <ul>
+        <li><span class="lt-tag o">予定</span><b>ダイナキャド(B@Net!)</b>:PHPの対応が完了しなかったとして、<b>10月30日18:00〜11月2日9:00に緊急メンテナンスを再実施</b>。CPIのセキュアファイルマネージャー・Get a fileは30日以降の見込み。サービス終了(廃止)の新規発表は、確認できた範囲ではありません。</li>
+        <li><span class="lt-tag r">廃止</span><b>サービス終了:</b>ワールドクエスト(旅行ゲーム。21日終了)、僕の魔界を救って!(22日に終了を告知。10年以上運営。終了日は未確認)。理由はいずれも、古いサーバーのPHPの脆弱性に対応できないため。ニトロプラスは旧オンラインストアを閉鎖し、新サイトを11月下旬に公開予定(注文済みの商品は発送)。</li>
+        <li><span class="lt-tag r">停止</span>神撃のバハムート(1週間超の見込み)、777CON-PASS・777Real、アークシステムワークス、プレミアムバンダイ、ファイテン、高槻市、エブリイ(電子マネー決済)など(25日前後の告知ベース・最新は未確認)</li>
+        <li><span class="lt-tag r">停止</span><b>ソフトバンク・ワイモバイル・LINEMOの緊急速報メール</b>(緊急地震速報・津波警報・避難情報)は23日6:47から26日まで停止の予定。Yahoo!防災速報などのアプリでの受信を。</li>
+        <li><span class="lt-tag r">停止</span>バルテック(MOT/Cloud・POSなど24サービス。26日中の復旧見込み。※原因はPHPではなく自社サービスの脆弱性と訂正)</li>
+        <li><span class="lt-tag r">停止</span>ブラストメール(21日から)、トレジャー・ファクトリーの出張買取・引越の申込(28日目途)、アンドエスティHDの会員ポイント、お名前.comのFX自動売買VPS</li>
+        <li><span class="lt-tag o">未確認</span>大阪市のPHP脆弱性対応による利用停止(対象不明)、三菱UFJ銀行の一部取引、ニコニコ、ブシロード、アルファポリス、CPIのセキュアファイルマネージャー(30日以降の見込み)など</li>
+      </ul>
+      <p class="sm">『停止中』の表示は、再開が確認できていないという意味を含みます。</p>
+    </div>
+
+    <div class="lt-card lt-g">
+      <h3>⑥ 政府・企業の対策・防衛策</h3>
+      <ul>
+        <li><b>政府:</b>高市首相は26日の関係閣僚会議で、<b>来週中をめどに緊急対策パッケージを取りまとめる</b>よう指示。「アクセス・無害化措置も含め、あらゆる対処オプションを戦略的に選択し、実行する」と述べた。国家サイバー統括室は、相次ぐ不正アクセスにAIが使われている可能性が高いと指摘。</li>
+        <li>ロイターによると、指示の中身は、<b>模擬攻撃で弱点を洗い出す検証</b>、<b>中小企業を含むサプライチェーン全体の攻撃監視網</b>、既存施策の前倒し。10月1日施行の法律で、警察と自衛隊が攻撃者のサーバーを無害化できる。</li>
+        <li><b>【27日】報じられた柱(4分野12項目)</b>:①被害企業の支援(IPA・警察の相談の充実、民間の専門力を初動から復旧まで使う仕組み、中小向け「お助け隊」の拡充)、②情報の集約・発信(各省が被害企業から情報を集め、国家サイバー統括室へ)、③アクセス・無害化措置、④未然防止(AIも使った模擬攻撃テストの前倒し、サプライチェーンの攻撃観測網)。細部は来週の決定待ちで、報道の要約です。</li>
+        <li><b>経産省(27日):</b>中小企業・小規模事業者向けの<b>無料「サイバーセキュリティ特別相談窓口」</b>を設置(各県の「よろず支援拠点」と、中小機構の「IT経営サポートセンター」)。IPAに来月中、ホワイトハッカーチームを立ち上げる予定。<b>富士通(27日):</b>弱点の洗い出しと対策の追跡を支援するソリューションを発表。</li>
+        <li><b>民間:</b>トレンドマイクロ(10/19発表)が、セキュリティ基盤のクレジットを最大100億円分提供し、専門人材の派遣を準備。中小企業には60日間の無料体験、個人にはスマホ詐欺対策アプリの90日間無償提供。サイバーセキュリティクラウドは、生成AI・AIエージェントの利用リスクを無償で確認する「AI Security Check 2026」を先着10社に提供(10/7付)。</li>
+        <li><b>GMO:</b>全利用者に見舞金5,000円、代替サービスを6か月間無償提供(25日の要約・未確認)。</li>
+      </ul>
+      <p class="sm">対策を実行するときは、各社・省庁の公式発表で条件を確認してください。</p>
+    </div>
+
+    <div class="lt-card lt-b">
+      <h3>④ 個人情報の漏洩・サイバー攻撃の最新(PHPとは別件を含む)</h3>
+      <ul>
+        <li><b>【27日夜の追加】お名前.com(GMO)</b>:攻撃者の予告した<b>27日正午</b>の期限後、12:30ごろに<b>攻撃者とみられる者が顧客データとみられる情報を公開</b>(GMOが確認。顧客データを含むかは未確認、事実と異なる内容を含むおそれも)。<b>公開先のサイトは見ない・広めない</b>よう要請。回収した端末の解析(11:59時点)では、ランサムウェアは見つかっていません。ランサム被害の顧客には同等性能の新PCを提供。公開が確認された人には、一律5,000円に加えて追加の見舞金を検討(額は未定)。</li>
+        <li><b>So-net・plala</b>:会員情報<b>約258万件</b>(So-net 214万件、plala 44万件)。氏名・電話・メール・生年月日など。別にメールのパスワード5.4万件も。会員DBのパスワードとカード情報は対象外。<b>沖縄ツーリスト</b>:最大約73万人(氏名・住所・免許証番号など)。<b>ジョーシン</b>:最大約623万件との見出し(項目は未確認)。モスフード:キャンペーン応募者約1.4万件(見出しのみ)。</li>
+        <li><b>ユミルリンク経由で影響を公表した組織</b>:JR東海・西日本・九州(メール・会員ID・氏名カナ・会員種別。住所・電話・カードは対象外)、毎日新聞社、サイボウズ、野村證券(i-Port)、大日本印刷(honto)、JMAM、バリューコマース、アスマーク、埼玉県など。SBI新生銀行などは『自社環境は未確認』。判定は変わりうるので続報を。</li>
+        <li><b>【27日の追加】ユミルリンク</b>:延べ約900万件→<b>5,162万件余りに拡大</b>(49システム。16システムは調査中)。これに伴い、<b>JR東海・JR西日本・JR九州の「エクスプレス予約」「スマートEX」会員情報が3社で計約17万件流出</b>と報じられた(委託先経由。項目・内訳は未確認)。</li>
+        <li><b>ジョーシン</b>:漏えいの可能性が<b>最大約600万件余り</b>に(10月26日の見出し。項目は未確認)。<b>楽天トラベル</b>:海外ホテル予約サイトの最大約260万件ほか(前回の追加を参照)。</li>
+        <li><b>ギフティグループ</b>(子会社のeギフト):約5.5億円分を不正に発行され、損失は約5.5億円の見込み。個人情報の漏えいは確認されていないと説明(PHPとは無関係と説明)。<b>グッドスマイルカンパニー</b>:不正アクセスで顧客情報が流出した可能性(26日追記。件数は未確認)。</li>
+        <li><b>お名前.com(GMO)</b>:政府へ能動的サイバー防御を要請。GMOの株価は26日に約15%下落と報じられた。不正取引は70社以上のFX会社に及ぶとの報道(数字は未検証)。岩井コスモ証券でも意図しない注文が発生。</li>
+        <li><b>【26日の追加】楽天トラベル</b>(海外ホテル予約サイト・多言語予約サイト):海外ホテル予約のログイン利用者 最大約260万件(氏名・メール・電話)、うち予約者 最大約4万件(最大約3万6千件はカードの下4桁・名義・有効期限など)。カード番号の全桁・セキュリティコード・パスワードは含まれないと説明。多言語予約サイトは利用者 最大約86万件・宿泊施設従業員 最大約4万件(メール・識別番号など)。楽天トラベルを装う連絡に注意(Impress Watch・TRAICYの報道ベース・一次情報は未確認)。</li>
+        <li><b>【26日の追加】ジョーシン</b>:10月16日に不正アクセスを認識し、一部サービスが停止。個人情報の漏えいは調査中で、有無・件数は未確定(10月19日付の告知ベース)。</li>
+        <li><b>【26日の追加】PSN(ソニー)</b>:10月6日以降、許可なくファミリーメンバーが追加される被害がSNSで報告(二段階認証も回避された例)。<b>情報漏えいの事実・原因・被害規模は未確認</b>で、ソニーの正式発表も確認できていません。PS5の「ファミリー管理」で身に覚えのないメンバーがいないか確認を。</li>
+        <li><b>ユミルリンク</b>(続報):専用ASP 5システムの延べ約900万件。サポート担当者の認証情報が取得され、セゾンカードを装う偽メールの報告も。</li>
+        <li><b>佐川急便</b>:最大約5,323万件(荷物追跡サービス。延べ件数で人数ではない)</li>
+        <li><b>日本ピザハット</b>:最大約448万件と報じられた(決済APIへの不正アクセス。同社の発表には件数なし)</li>
+        <li><b>アンドエスティHD</b>:顧客約250万件・取引先約1万件。<b>グリーンモンスター(FXなび)</b>:約619万件</li>
+        <li><b>タイムズカー</b>:外部送信の痕跡のある本人確認書類の画像が約146万件。脆弱性の悪用が原因と報じられた</li>
+        <li><b>ユミルリンク</b>:延べ約900万件。<b>ブラストメール</b>:344契約で契約者情報以外の漏えいを確認(24日10:00時点)</li>
+        <li><b>デジタル庁</b>(Studio経由):問い合わせ最大1万3,323件。<b>トレジャー・ファクトリー</b>:メールアドレス74万6,277件(PHPとは無関係と公式が説明)</li>
+        <li><b>お名前.com デスクトップクラウド</b>:影響の可能性があるサーバーは26,739件。GMOは政府に『能動的サイバー防御』を要請と報道</li>
+        <li><b>お名前.com デスクトップクラウド(第4報)</b>:全利用者に見舞金5,000円、代替サービスを6か月間無償で提供。不正取引の実現損失は補償(市場変動分は対象外)。政府へは『能動的サイバー防御』の発動第1号事案として緊急具申と報じられた(要約記事ベース)。</li>
+        <li><b>トレードワークス</b>:証券会社向けネット取引システムへの不正アクセスで、内藤証券と岩井コスモ証券の顧客情報が漏えい(件数は未確認)。<b>LiteLLM 1.107.0</b>:リリース工程の侵害でPyPI・Dockerイメージに不正コードが混入(認証情報・APIキー窃取の恐れ。21日判明)。<b>コドモン</b>:予防停止から約18時間後に職員用管理画面を再開と報じられた。</li>
+        <li>そのほか:モスバーガー(プリペイドカード約57万件)、パナソニックHD(生成AIへの入力約33万人分)、eMudhraの中間CA秘密鍵漏えい、Microsoftが報告したStorm-0940のAI悪用攻撃(いずれも要約記事ベースで未確認)</li>
+      </ul>
+      <p class="sm">件数は延べ件数の場合があり、人数ではありません。詳細・出典・注意書きは、各一覧と状況ボードをご覧ください。</p>
+    </div>
+
+    <div class="lt-card lt-b">
+      <h3>⑤ 政府・国際機関・民間セキュリティ機関の対応<small>個人情報の大規模漏えいを受けた各機関の動き</small></h3>
+      <ul>
+        <li><b>デジタル大臣(10/6)</b>:パスワードの使い回しをやめ、多要素認証を有効に。メール・SMSのリンクは開かず、公式サイトや公式アプリから確認を。</li>
+        <li><b>個人情報保護委員会(10/7)</b>:事業者向けに注意喚起。安全管理措置の再確認、フィッシング耐性のある多要素認証の前倒し、不要な個人データの消去、APIの棚卸しとレート制限などを要請。</li>
+        <li><b>警察庁(10/8)</b>:流出企業を装う偽メールに注意。不審な場合は相談窓口(#9110など)へ。</li>
+        <li><b>国家サイバー統括室(10/9)</b>:大量・機微な個人情報を扱う事業者に、ウェブシステム管理・サプライチェーン管理・データ管理の対策を求め、経営層の投資と人員確保を要請。<b>総務省・経済産業省</b>も同日に注意喚起(経産省は被害時の情報共有を依頼)。</li>
+        <li><b>IPA(10/9)</b>:外部公開アプリのログ点検(直近1か月から3か月へ拡大)、未適用パッチの適用、外部サービスとアカウントの洗い出し、保有データの最小化。異常があれば専門ベンダーによる詳細調査を推奨。</li>
+        <li><b>金融庁(10/9)</b>:金融機関に、サードパーティリスク管理の点検と、画像送信による本人確認をICチップ読み取りへ一本化する時期の前倒し(施行日2027年4月1日より前)を求めた。</li>
+        <li><b>PHP2Shell関連</b>:JPCERT/CCの注意喚起、米CISAの勧告(21日)が出たとされるが、今回は本文を取得できず<b>内容は未確認</b>。公式サイトで確認してください。</li>
+        <li><b>民間</b>:Amazonが攻撃の初観測(17日)を公表、Sophosは攻撃試行を観測、VulnCheckは悪用コードを作成(顧客限定)、yamory・アシュアードは停止状況を調査。LayerXはAIによる脆弱性診断の常時実施を提唱(要約記事ベース)。</li>
+      </ul>
+      <p class="sm">上段の10月6〜9日の対応は、まとめブログ(teriablog)の整理にもとづき、各機関の原文は未確認です。</p>
+    </div>
+
+    <p class="sm">※ 本ページは、公開された報道・公式告知をもとにした要約で、確認できなかった点は『未確認』と書いています。誤りに気づいた場合は、公式発表を優先してください。</p>
+  </div>
+</div>
+
+<!-- ===== オーバーレイ攻撃の対処手順 ===== -->
+<div class="dlg dlg-wide" id="dlgOverlay" onclick="if(event.target===this)closeDlg('dlgOverlay')">
+  <div class="dlg-in">
+    <button class="dlg-x" onclick="closeDlg('dlgOverlay')" aria-label="閉じる">✕</button>
+    <h2>📱 金融アプリのオーバーレイ攻撃｜対処手順</h2>
+    <div class="nw-card">
+      <span class="nw-tag">スマホの金融アプリ(銀行・証券・決済など)</span>
+      <h3 class="nw-ti">本物のアプリの上に「偽のログイン画面」を重ねて盗む手口</h3>
+      <p class="nw-sub">メールの怪しいURLを開かなくても、<b>いつもの正規アプリを開いた瞬間</b>に被害に遭うおそれがあります。IDや暗証番号、SMS認証のコードまで同時に盗まれる危険があります。</p>
+    </div>
+
+    <div class="lt-card lt-r">
+      <h3>🚨 まず確認:こんなサインがあったら疑う</h3>
+      <ul>
+        <li>普段は<b>指紋や顔認証</b>でログインできるのに、突然<b>パスワード入力</b>を求められた</li>
+        <li>アプリを開いた瞬間に、<b>画面が一瞬ちらつく</b></li>
+        <li><b>身に覚えのないアイコン</b>(アプリ)がある</li>
+        <li>入力してしまったあとで、おかしいと気づいた</li>
+      </ul>
+      <p class="sm">サインがあれば、下の「緊急対処」へ。入力してしまった場合は、特に急いでください。</p>
+    </div>
+
+    <div class="lt-card lt-r">
+      <h3>⏱ 緊急対処(不審なアプリを入れた・入力した疑いがあるとき)<small>この順番で。まず通信を切るのが先です</small></h3>
+      <ol class="ov-ol">
+        <li><b>機内モードにして、通信を遮断する</b>(Wi-Fiもオフ)。これ以上の情報の持ち出しを止めます。</li>
+        <li><b>セーフモードで起動し、不審なアプリを削除する</b>(主にAndroid)。見覚えのないアプリ、最近入れたアプリから確認します。操作は機種で異なります。不安なら、端末メーカーの案内に従うか、携帯ショップへ。</li>
+        <li><b>別の端末(家族のスマホ・パソコン)から、金融機関へ連絡する</b>。ログイン情報を入力した可能性があることを伝え、不正な送金・取引の有無を確認してもらいます。</li>
+        <li><b>パスワード・暗証番号を、別の端末から再設定する</b>。同じ情報を使い回しているサービスも、すべて変更します。</li>
+        <li><b>金融機関の案内に従い、利用停止や取引制限の手続きをする</b>。身に覚えのない送金があれば、すぐに伝えます。</li>
+        <li><b>相談する</b>(下の窓口)。1人で抱え込まず、早めに。</li>
+      </ol>
+      <p class="sm">削除したあとも、スマホ自体の安全が確認できるまでは、金融アプリへのログインを控えてください。心配なときは、端末の初期化も選択肢です(重要なデータは、事前に信頼できる方法でバックアップ)。</p>
+    </div>
+
+    <div class="lt-card lt-o">
+      <h3>🔍 どうやって入り込む?<small>攻撃の4ステップ</small></h3>
+      <ol class="ov-ol">
+        <li>宅配の不在通知・料金未納などを装った<b>SMS</b>で、偽サイトへ誘導</li>
+        <li><b>不正アプリ</b>をインストールさせ、画面の重ね表示などの<b>権限</b>を許可させる</li>
+        <li>金融アプリの起動を検知し、<b>偽の画面を最前面に重ねて表示</b></li>
+        <li><b>ID・暗証番号・SMS認証のコード</b>を盗み、不正送金</li>
+      </ol>
+      <p class="sm">仕組みは3段階です。①正規アプリを起動 → ②裏に潜んだ不正アプリが起動を検知 → ③偽の入力画面を最前面に表示。<br>従来のフィッシングは、URLの不審な文字列で見分けられました。この攻撃は<b>本物のアプリ上</b>で起きるため、URLでは見分けられません。</p>
+    </div>
+
+    <div class="lt-card lt-o">
+      <h3>⛔ 許可してはいけない3つの権限・設定</h3>
+      <ul>
+        <li><span class="lt-tag r">危険</span><b>他のアプリの上に重ねて表示する</b>権限(偽画面を重ねる直接の原因)</li>
+        <li><span class="lt-tag r">危険</span><b>ユーザー補助(アクセシビリティ)</b>機能の許可(画面の読み取りや遠隔操作に悪用される)</li>
+        <li><span class="lt-tag r">危険</span><b>提供元不明のアプリ</b>のインストール許可(公式ストア以外のアプリが入ってしまう)</li>
+      </ul>
+      <p class="sm">点検の場所は、機種により名称が違います。一般には、設定の「アプリ」や「特別なアプリアクセス」の中にあります。許可した覚えのないアプリは、権限をオフにして、削除を検討します。</p>
+    </div>
+
+    <div class="lt-card lt-g">
+      <h3>✅ 今日からできる4つのルール</h3>
+      <ul class="ov-chk">
+        <li><label><input type="checkbox"> アプリは<b>公式ストア以外</b>から入れない</label></li>
+        <li><label><input type="checkbox"> <b>権限の設定</b>を、定期的に点検する</label></li>
+        <li><label><input type="checkbox"> <b>セキュリティ機能</b>(ウイルス対策・不正アプリの検出機能など)を有効にする</label></li>
+        <li><label><input type="checkbox"> <b>OSとアプリ</b>を、常に最新の状態に保つ</label></li>
+      </ul>
+      <p class="sm">最後の3原則:<b>①怪しいURLから、アプリをインストールしない ②重ね表示の権限を、安易に許可しない ③違和感を覚えたら、すぐに通信を切って銀行へ連絡する</b></p>
+    </div>
+
+    <div class="lt-card lt-b">
+      <h3>📞 相談窓口</h3>
+      <ul>
+        <li><b>ご利用の金融機関の窓口</b>(まずここへ。公式アプリ・公式サイトに載っている番号を使う)</li>
+        <li><b>警察相談専用電話 #9110</b></li>
+        <li><b>消費者ホットライン 188</b></li>
+        <li><b>金融庁の相談窓口</b>(最新の連絡先は、金融庁の公式サイトで確認してください)</li>
+      </ul>
+      <p class="sm">SMSやメールに書かれた電話番号・URLは使わず、公式の連絡先からかけてください。</p>
+    </div>
+
+    <div class="lt-go">
+      <button type="button" class="tl-b" onclick="closeDlg('dlgOverlay');openDlg('dlgPhish')">🎣 フィッシング対策ガイドへ</button>
+      <button type="button" class="tl-b" onclick="closeDlg('dlgOverlay');goNotice()">📨 機関から連絡が来たら</button>
+    </div>
+    <p class="sm">※ DWA防災情報センターの解説動画(オーバーレイ攻撃の手口と対策)にもとづく内容です。操作の手順は、スマホの機種・OSによって異なります。不安なときは、端末メーカーや金融機関の案内に従ってください。</p>
+  </div>
+</div>
+
 <!-- ===== メニュー ===== -->
 <div class="mnu" id="mnu" onclick="if(event.target===this)closeMenu()">
   <nav class="mnu-in">
@@ -982,6 +1229,12 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
     </div>
 
     <div class="mnu-sec">// 最新情報</div>
+    <button type="button" class="mnu-i" onclick="openDlg('dlgLatest')">
+      <span class="ic">📌</span>
+      <span class="tx">今日の最新まとめ(10月27日 22時)<small>PHPの最新・停止と再開・サイバー攻撃・個人情報漏洩を1ページで</small></span></button>
+    <button type="button" class="mnu-i" onclick="openDlg('dlgPhp')">
+      <span class="ic">🚨</span>
+      <span class="tx">PHP脆弱性 緊急パッチ 状況ボード<small>停止・再開したサイトを、ほぼリアルタイムで確認</small></span></button>
     <button type="button" class="mnu-i" onclick="openDlg('dlgNews')">
       <span class="ic">📰</span>
       <span class="tx">最新情報<small>A2B攻撃の注意喚起と、しくみの図解</small></span></button>
@@ -1016,11 +1269,14 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
     <button type="button" class="mnu-i" onclick="openDlg('dlgPhish');setTimeout(function(){phGo('app')},120)">
       <span class="ic">📱</span>
       <span class="tx">偽アプリで、お金を抜かれる被害に注意<small>SNS広告・メールから入れた偽アプリで、スマホを乗っ取られる手口と守り方(2026年10月・日本サイバー犯罪対策センター JC3/警察庁)</small></span></button>
+    <button type="button" class="mnu-i" onclick="openDlg('dlgOverlay')">
+      <span class="ic">🪟</span>
+      <span class="tx">金融アプリのオーバーレイ攻撃｜対処手順<small>本物のアプリに偽画面を重ねて盗む手口。サインの見分け方と緊急対処</small></span></button>
 
     <div class="mnu-sec">// ネットが切れたら</div>
     <button type="button" class="mnu-i" onclick="openDlg('dlgOffline')">
       <span class="ic">📡</span>
-      <span class="tx">ネット切断対策ガイド<small>止まるものの一覧・原因別の対策・オフライン地図と「自分の地図」の端末保存</small></span></button>
+      <span class="tx">ネット切断対策ガイド<small>止まるものの一覧・原因別の対策・代わりの連絡手段(+メッセージ)・オフライン地図</small></span></button>
 
     <div class="mnu-sec">// 関連サイト</div>
     <a class="mnu-i" href="https://bousai0111.info/" target="_blank" rel="noopener">
@@ -1159,7 +1415,7 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
     <button class="dlg-x" onclick="closeDlg('dlgAI')" aria-label="閉じる">✕</button>
     <h2>🤖 主要AI一覧</h2>
     <p class="sm" style="line-height:1.7">いま使われている主要なAIを、系統別にまとめました。名前をタップすると、運営会社・公式サイト・版・料金・得意分野・使いやすさの点数が開きます。</p>
-    <p class="sm" style="line-height:1.7;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:8px"><b>ご注意</b> 2026年10月17日時点の情報です。版や料金は頻繁に変わるため、契約前に必ず公式サイトで確認してください。「使いやすさ」の点数は、日本語での使いやすさ・導入の手軽さ・無料で試せるかなどをもとにした<b>作者(AIのClaude)の主観的な目安</b>で、公式の評価ではありません。この一覧はClaudeが作成しているため、Claudeに関する評価に偏りが入る可能性があります。掲載は網羅ではなく、作者が選んだ主要なものです。</p>
+    <p class="sm" style="line-height:1.7;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:8px"><b>ご注意</b> 2026年10月17日時点の情報です(ChatGPT・Gemini・Grokは10月18日掲載の解説記事で再確認)。版や料金は頻繁に変わるため、契約前に必ず公式サイトで確認してください。「使いやすさ」の点数は、日本語での使いやすさ・導入の手軽さ・無料で試せるかなどをもとにした<b>作者(AIのClaude)の主観的な目安</b>で、公式の評価ではありません。この一覧はClaudeが作成しているため、Claudeに関する評価に偏りが入る可能性があります。掲載は網羅ではなく、作者が選んだ主要なものです。</p>
     <label for="aiQ" class="sm" style="font-weight:700;display:block;margin-top:10px">探す(名前・会社・得意分野)</label>
     <input id="aiQ" class="ai-q" type="text" autocomplete="off" placeholder="例:音楽、コード、Google、画像">
     <div class="ai-chips" id="aiChips" role="group" aria-label="系統"></div>
@@ -1183,7 +1439,7 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
           <button type="button" onclick="ofGo('diag')">🩺 原因の切り分け</button>
           <button type="button" onclick="ofGo('list')">📋 止まるもの一覧</button>
           <button type="button" onclick="ofGo('cause')">🔌 原因別の対策</button>
-          <button type="button" onclick="ofGo('comm')">📞 代わりの連絡手段</button>
+          <button type="button" onclick="ofGo('comm')">📞 代わりの連絡手段(+メッセージ)</button>
           <button type="button" onclick="ofGo('power')">🔋 電源・現金</button>
           <button type="button" onclick="ofGo('map')">🗺 オフライン地図</button>
           <button type="button" onclick="ofGo('my')">📍 自分の地図</button>
@@ -1284,6 +1540,7 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
           <tr><td><b>災害用伝言ダイヤル(171)</b></td><td>災害時に、音声で安否を録音・再生。固定電話・携帯電話から。</td><td>提供は災害時。<b>体験利用日</b>が毎月1日・15日、正月三が日、防災週間(8/30〜9/5)、防災とボランティア週間(1/15〜1/21)にあると、NTT東日本の2022年1月の発表にある。<b>最新の日程と操作は、NTTの公式ページで確認してください。</b></td></tr>
           <tr><td><b>災害用伝言板(web171)・各社の伝言板</b></td><td>文字で安否を登録・確認。</td><td>インターネット接続が必要。ネットが全断のときは使えない。</td></tr>
           <tr><td><b>公衆電話</b></td><td>携帯がつながらない・電池切れのとき。</td><td>災害時は無料になることがあるが、事業者の判断。小銭の用意。設置場所を事前に確認。</td></tr>
+          <tr><td><b>+メッセージ(RCS)</b></td><td>LINEが障害で使えないとき。電話番号だけで送れる。相手が未対応ならSMSで届く。</td><td>通常のやり取りはデータ通信を使う。モバイル回線そのものが止まる障害では使えない可能性。詳しくは下の「+メッセージ」の解説。</td></tr>
           <tr><td><b>SMS・短文メッセージ</b></td><td>音声通話が混雑しているとき、届く場合がある。</td><td>遅延することがある。キャリア障害時は使えない。</td></tr>
           <tr><td><b>別キャリアのSIM/eSIM・モバイルWi-Fi</b></td><td>1社の障害のとき。</td><td>契約が増える。普段は安いプランで、いざというときだけ使う方法もある。</td></tr>
           <tr><td><b>無料Wi-Fi「00000JAPAN」</b></td><td>大規模災害で、通信事業者が提供を決めたとき。</td><td>通常は使えない。接続先の偽Wi-Fiに注意。個人情報やパスワードは入力しない。</td></tr>
@@ -1291,6 +1548,60 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
           <tr><td><b>ラジオ(AM/FM)</b></td><td>情報を受け取る。</td><td>電池式・手回し式を用意。ネット配信のラジオは通信が必要なので、電波のラジオを使う。</td></tr>
           <tr><td><b>紙の連絡網・伝言・集合場所</b></td><td>全部だめなとき。</td><td>「災害時はここに集まる」を家族で決めておく。</td></tr>
         </table></div>
+        <div class="of-box" id="ofPlusMsg">
+          <b style="font-size:15px">💬 LINEが止まっても連絡できる備えに「+メッセージ」</b>
+          <p>LINEは便利ですが、サービス障害・通信障害・災害時の回線混雑などで使えなくなることがあります。連絡手段が一つだけだと、いざというときに家族や職場と連絡が取れません。その予備として、<b>「+メッセージ」</b>を入れておくことをおすすめします。</p>
+          <p><b>+メッセージとは</b>:ドコモ・au・ソフトバンクが提供する、電話番号宛てに送れるメッセージサービスです(RCSという規格にもとづく)。</p>
+          <ul>
+            <li>相手の電話番号さえ分かれば送れる(友だち登録が不要)</li>
+            <li>既読表示、グループチャット、画像・ファイル送信に対応</li>
+            <li>相手が+メッセージを使っていない場合は、SMSとして届く</li>
+            <li>LINEと同じ運営会社のサーバーに依存しない</li>
+          </ul>
+          <p><b>備えとして有効な理由</b></p>
+          <ol>
+            <li><b>LINEとは別系統の連絡手段になる。</b>LINE側の障害が起きても、キャリアの仕組みで動く+メッセージには影響しません。</li>
+            <li><b>電話番号だけで届く。</b>アカウント作成や友だち追加が不要なので、普段LINEを使わない親世代や取引先にも連絡できます。</li>
+            <li><b>届かなくてもSMSに切り替わる。</b>相手が未対応でも、最低限テキストは届きます。</li>
+          </ol>
+        </div>
+        <div class="of-warn"><b class="t">⚠ データ通信が遮断したとき・過信しないために</b>
+          <p>+メッセージの通常のやり取りは<b>データ通信</b>を使います。モバイル回線そのものが止まる大規模障害では、LINEと同様に使えない可能性があります。通信が不安定なときは、データ量の小さいSMSのほうが届きやすいことがあります。</p>
+          <p>通信料や、SMSに切り替わった場合の料金は、契約や相手の環境で変わります。ご契約のキャリアで確認してください。メッセージ系サービスには、キャリアやOS側の実装不備による脆弱性が見つかることがあるため、OSとアプリは常に最新にしておきましょう。</p>
+        </div>
+        <div class="of-box">
+          <b>SMSの料金(文字数別)</b>
+          <p class="sm">+メッセージが相手に届かずSMSに切り替わった場合や、通常のSMSで送る場合は、文字数に応じて送信料がかかります。ソフトバンク系(ワイモバイル)の公式案内では、全角70文字までが3.3円(税込)で、以降は67文字ごとに3.3円ずつ加算され、受信は無料とされています。以下は、その案内にもとづく目安です。</p>
+          <div class="of-tw"><table class="of-t">
+            <tr><th>全角の文字数</th><th>半角英数字のみ</th><th>送信料(税込)</th></tr>
+            <tr><td>1〜70文字</td><td>1〜160文字</td><td>3.3円</td></tr>
+            <tr><td>71〜134文字</td><td>161〜306文字</td><td>6.6円</td></tr>
+            <tr><td>135〜201文字</td><td>307〜459文字</td><td>9.9円</td></tr>
+            <tr><td>202〜268文字</td><td>460〜612文字</td><td>13.2円</td></tr>
+            <tr><td>269〜335文字</td><td>613〜765文字</td><td>16.5円</td></tr>
+            <tr><td>336〜402文字</td><td>766〜918文字</td><td>19.8円</td></tr>
+            <tr><td>403〜469文字</td><td>919〜1,071文字</td><td>23.1円</td></tr>
+            <tr><td>470〜536文字</td><td>1,072〜1,224文字</td><td>26.4円</td></tr>
+            <tr><td>537〜603文字</td><td>1,225〜1,377文字</td><td>29.7円</td></tr>
+            <tr><td>604〜670文字</td><td>1,378〜1,530文字</td><td>33円</td></tr>
+          </table></div>
+          <ul>
+            <li>絵文字は文字数を多く消費することがあり、思ったより早く次の料金段階に入ります。</li>
+            <li>楽天モバイルでは、Rakuten Linkを使えば送信料は0円で、通常のSMSは70文字までが3.3円とされています。</li>
+            <li>機種・アプリ・契約プラン、国際SMSかどうかで、送れる文字数や料金は変わります。</li>
+            <li>緊急時は、<b>70文字以内</b>の短い文面にすると、料金面でも通信面でも有利です。</li>
+          </ul>
+        </div>
+        <div class="of-ok"><b class="t">✅ 今日からできる準備</b>
+          <ul>
+            <li>+メッセージをインストールし、電話番号で初期設定をする</li>
+            <li>家族・親しい人に「LINEが使えないときはこちらで連絡する」と伝える</li>
+            <li>緊急時の文面を、70文字以内で決めておく(例:「無事。〇〇にいる。連絡待つ」)</li>
+            <li>通常の電話番号の控えと、災害用伝言ダイヤル(171)の使い方も確認しておく</li>
+            <li>可能なら、Wi-Fiが使える場所と、モバイルバッテリーも確保する</li>
+          </ul>
+          <p><b>まとめ</b>:連絡手段は「LINE」「+メッセージ(SMS)」「音声通話・171」と複数持つのが基本です。+メッセージは、その中で手軽に追加できる一つです。SMSの料金は短文なら数円なので、緊急時は短く要点だけ送りましょう。万能ではないことを理解した上で、備えの一部として入れておきましょう。</p>
+        </div>
       </section>
 
       <section class="of-sec" id="ofS-power">
@@ -1435,7 +1746,7 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
         <div class="of-box">
           <ol>
             <li>地図アプリで<b>オフライン地図を保存</b>する(「🗺 オフライン地図」の項の手順)。「自分の地図」にスポットを1つ以上登録する。</li>
-            <li>この画面の<b>下の「自己診断」を実行</b>して、「自分の地図」の保存ができているか確認する。</li>
+            <li>この画面の<b>下の「自己診断」を実行</b>して、「自分の地図」とページ本体の保存ができているか確認する。</li>
             <li>スマホを<b>機内モード</b>にし、<b>Wi-FiもOFF</b>にする(機内モードのままWi-Fiを入れ直す機種もあるので注意)。</li>
             <li>地図アプリで、保存した地図を開いて、<b>表示されるか</b>確認する。このページでは、「自分の地図」のスポットも見て確認する。</li>
             <li>つぎに<b>ブラウザを閉じて、もう一度開いて</b>、このページが開くか確認する。</li>
@@ -1445,12 +1756,18 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
             <button type="button" class="of-btn" onclick="ofSelfTest()">🔍 自己診断を実行</button></div>
           <ul class="of-test" id="ofTest"></ul>
         </div>
-        <div class="of-box" id="ofSwBox"><b class="of-big">📲 ネットなしで開けるようにしておく</b>
-          <p>このガイドは、公式サイト「DWA防災情報センター」の一部です。ネットがつながらないときに備えて、<b>公式サイト本体を、ホーム画面に追加</b>しておくと、アイコンからすぐ開けます(公式サイトの「設定」にあります)。</p>
+        <div class="of-box" id="ofSwBox"><b class="of-big">📲 このページ自体を、ネットなしで開けるようにする</b>
+          <p>公式サイト(https)で開いたときは、<b>初回の表示でページ本体も端末に自動で保存</b>され、ネットがなくても開けます(対応ブラウザ)。「自分の地図」は、同じ端末のブラウザに残ります。</p>
+          <div class="of-row"><span class="of-st" id="ofSw"><span>確認中…</span></span>
+            <button type="button" class="of-btn sub sm" onclick="ofSwSave()">今すぐ保存し直す</button>
+            <button type="button" class="of-btn dg sm" onclick="ofSwDel()">ページ本体の保存を削除</button></div>
           <ul>
-            <li>ネットなしで開けるかどうかは、機種・ブラウザ・設定で異なります。<b>機内モードにして、実際に開けるか</b>を、必ず確認してください。</li>
-            <li>「自分の地図」は、同じ端末のブラウザに残ります。ブラウザの「サイトデータ」を消すと消えます。iPhoneのSafariは、長く開かないと自動で消えることがあります。定期的に開いてください。</li>
-            <li>画面の「接続状態」はブラウザの判定で、実際につながるかは保証しません。外部サイトへのリンクは、ネットがないと表示できません。</li>
+            <li><b>確認のしかた</b>: 保存済みと表示されたら、ブラウザを一度閉じて、機内モードにし、ブックマークやホーム画面のアイコンから開き直す。ページが開くか確認します。</li>
+            <li>「ホーム画面に追加」(iPhone: 共有→ホーム画面に追加 / Android: メニュー→アプリをインストール)をしておくと、アイコンからすぐ開けます。操作名は機種・版で異なります。</li>
+            <li>HTMLファイルを端末に保存して開いている場合(file://)は、この自動保存は使えません。ファイルを端末に残しておけば、それ自体はネットなしで開けます。</li>
+            <li>サイトが更新されたとき、新しい内容は<b>ネットがあるときに開いた次の回</b>から反映されます。右上の「更新」ボタンで、すぐに入れ替えられます。</li>
+            <li>ブラウザの「サイトデータ」を消すと、ページ本体も「自分の地図」も消えます。iPhoneのSafariは、長く開かないと自動で消えることがあります。定期的に開いてください。</li>
+            <li>画面の「接続状態」はブラウザの判定で、実際につながるかは保証しません。外部サイトへのリンクや、メニューのLINE QR画像は、ネットがないと表示できません。</li>
           </ul></div>
       </section>
 
@@ -1851,6 +2168,20 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
 <div class="toast" id="toast"></div>
 
 <!-- ===== 最新情報 ===== -->
+<div class="dlg dlg-wide" id="dlgPhp" onclick="if(event.target===this)closeDlg('dlgPhp')">
+  <div class="dlg-in">
+    <button class="dlg-x" onclick="closeDlg('dlgPhp')" aria-label="閉じる">✕</button>
+    <h2>🚨 PHP脆弱性 緊急パッチ 状況ボード</h2>
+    <p class="sm" style="line-height:1.7">PHPの重大な脆弱性(PHP2Shell)に関連して、停止・再開したサイトを一覧にしたボードです。別のページを表示しており、内容は更新され続けます。表示されないときは、下のボタンから別のタブで開いてください。出典と未確認の事項は、ボード内の各項目に書かれています。</p>
+    <div class="php-act">
+      <a href="https://mkms0822-ops.github.io/PHPLIVE/" target="_blank" rel="noopener">別のタブで開く ↗</a>
+      <button type="button" onclick="phpReload()">再読み込み</button>
+    </div>
+    <iframe id="phpFr" class="php-fr" title="PHP脆弱性 緊急パッチ 状況ボード" loading="lazy" referrerpolicy="no-referrer" data-src="https://mkms0822-ops.github.io/PHPLIVE/"></iframe>
+    <p class="sm" id="phpOff" style="display:none;line-height:1.7">いまオフラインのため表示できません。接続してから、もう一度開いてください。</p>
+  </div>
+</div>
+
 <div class="dlg dlg-wide" id="dlgNews" onclick="if(event.target===this)closeDlg('dlgNews')">
   <div class="dlg-in">
     <button class="dlg-x" onclick="closeDlg('dlgNews')" aria-label="閉じる">✕</button>
@@ -1938,7 +2269,7 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
   <div class="dlg-in">
     <button class="dlg-x" onclick="closeDlg('dlgList')" aria-label="閉じる">✕</button>
     <h2>🌏 情報漏洩企業一覧2026 世界版</h2>
-    <p class="ls-sum">2026年10月10日時点の報道にもとづく主要事案です(日本郵便・デンマーク・アルカディア・銀のさらの事案は10月14日に追記、ソースネクスト・メドレー・吉野家HDは10月15日に追記、10月15〜16日に判明した事案(Eストアー、ファンケル・アテニア、ヤマト運輸、日本経済新聞社、バーガーキング、Studioなど)は10月16日に追記、ブックオフは10月13日の第2報に、VALXはコミューンの事案として10月15日に更新)。件数は人数ではなく件数・アカウント数の場合があります。「主張」は攻撃者側の数字で、確認されていません。</p>
+    <p class="ls-sum">2026年10月10日時点の報道にもとづく主要事案です(日本郵便・デンマーク・アルカディア・銀のさらの事案は10月14日に追記、ソースネクスト・メドレー・吉野家HDは10月15日に追記、10月15〜16日に判明した事案(Eストアー、ファンケル・アテニア、ヤマト運輸、日本経済新聞社、バーガーキング、Studioなど)は10月16日に追記、ブックオフは10月13日の第2報に、VALXはコミューンの事案として10月15日に更新、10月16〜20日に判明・更新した事案は10月20日追記、10月21〜23日に判明・更新した事案(カプコン、ブラストメール、バルテック、お名前.comデスクトップクラウド、NP後払い、OTOTOY、大阪大学など)は10月24日(7時時点)追記、10月23〜24日に判明・更新した事案(日本ピザハット、アンドエスティHD、タイムズカー第5報、ブラストメール344契約など)は10月25日(20時時点)追記)。件数は人数ではなく件数・アカウント数の場合があります。「主張」は攻撃者側の数字で、確認されていません。</p>
     <label for="lsQ" style="font-size:13px;font-weight:700">検索(機関名・国・漏洩内容)</label>
     <input id="lsQ" type="text" autocomplete="off" placeholder="例:JR東日本、医療、パスワード、米国" style="width:100%;min-height:44px;font-size:16px;padding:7px 11px;border:2px solid var(--line);border-radius:10px;background:transparent;color:inherit;font-family:inherit">
     <div class="ls-ctl"><span class="lb2" id="lsLb1">並べ替え</span><span class="seg" role="group" aria-labelledby="lsLb1" id="lsSort">
@@ -1964,7 +2295,7 @@ html.dk #ofRoot .of-btn.dg{color:var(--of-red)}
   <div class="dlg-in">
     <button class="dlg-x" onclick="closeDlg('dlgOut')" aria-label="閉じる">✕</button>
     <h2>🛠 サイバー攻撃・システム障害一覧2026</h2>
-    <p class="ls-sum">情報漏えいが主ではない攻撃(業務停止・サービス停止・遠隔操作・資産窃取など)のうち、2026年9月20日〜10月20日に報じられた主な事案です。<b>すべてを網羅した一覧ではありません。</b>米国の小規模な自治体・学校の事案は、事例集サイト(Dysruption Hub)の記載にもとづきます。</p>
+    <p class="ls-sum">情報漏えいが主ではない攻撃(業務停止・サービス停止・遠隔操作・資産窃取など)のうち、2026年9月20日〜10月23日に報じられた主な事案です。<b>すべてを網羅した一覧ではありません。</b>米国の小規模な自治体・学校の事案は、事例集サイト(Dysruption Hub)の記載にもとづきます。</p>
     <label for="otQ" style="font-size:13px;font-weight:700">検索(組織名・国・内容)</label>
     <input id="otQ" type="text" autocomplete="off" placeholder="例:ランサムウェア、フランス、学校、IDCF" style="width:100%;min-height:44px;font-size:16px;padding:7px 11px;border:2px solid var(--line);border-radius:10px;background:transparent;color:inherit;font-family:inherit">
     <div class="ls-ctl"><span class="lb2" id="otLb">範囲</span><span class="seg" role="group" aria-labelledby="otLb" id="otScope">
@@ -2125,8 +2456,8 @@ var STEPS = [
    '<p>登録すると、あなたの名義でカードやローンが申し込まれたとき、' +
    '審査する会社が<b>慎重に確認するようになります</b>。登録は<b>5年間</b>有効です。</p>' +
 
-   '<div class="warn">⏳ <b>3機関すべてが混み合っています（2026年10月17日時点）。</b><br>' +
-   '登録まで通常より日数がかかりますが、焦る必要はありません。' +
+   '<div class="warn">⏳ <b>3機関で受付に遅れが出ています（2026年10月23日時点）。</b><br>' +
+   'CICはインターネットなら即時に受付可、郵送は1か月以上かかることがあります。登録まで通常より日数がかかりますが、焦る必要はありません。' +
    '<b>出し直すと、かえって遅くなります。</b>' +
    '申込の控えや受付番号を残して、待ってください。</div>' +
 
@@ -2596,7 +2927,8 @@ function doCopyText(){
   t += '  JICC     700円  消費者金融・信販（アプリ。郵送は1,111円）\n';
   t += '  全銀協   500円  銀行（ネット。マイナカード必須）\n';
   t += '  ※3つとも登録すると、より確実です。登録は5年間有効\n\n';
-  t += '■ いま3機関とも受付が混み合っています（2026年10月17日時点）\n';
+  t += '■ いま3機関で受付に遅れが出ています（2026年10月23日時点）\n';
+  t += '  ・CIC:郵送は1か月以上かかることあり。ネットは即時受付\n';
   t += '  ・申込済みなら、出し直さないこと\n';
   t += '  ・JICCは完了通知が届かない場合あり。アプリの\n';
   t += '    「申込状況と登録結果の確認」でステータスを見る\n';
@@ -3013,7 +3345,7 @@ function goShield(){
   function lsText(){
     var k = q.trim();
     var t = '【情報漏洩企業一覧2026 世界版】\n条件:' + (k ? '検索「' + k + '」' : '検索なし') + ' / ' + NM[so] + ' / ' + (mo === 'all' ? '全体' : '国別') +
-      '\n該当 ' + last.length + ' 件(全 ' + BREACH_DATA.length + ' 件・2026年10月10日時点の報道、日本郵便・デンマーク・アルカディア・銀のさらは10月14日追記、ソースネクスト・メドレー・吉野家HDは10月15日追記、10月15〜16日に判明した事案は10月16日追記、10月16〜20日に判明・更新した事案は10月20日追記、ブックオフは第2報に、VALXはコミューンの事案として10月15日に更新)\n';
+      '\n該当 ' + last.length + ' 件(全 ' + BREACH_DATA.length + ' 件・2026年10月10日時点の報道、日本郵便・デンマーク・アルカディア・銀のさらは10月14日追記、ソースネクスト・メドレー・吉野家HDは10月15日追記、10月15〜16日に判明した事案は10月16日追記、10月16〜20日に判明・更新した事案は10月20日追記、ブックオフは第2報に、VALXはコミューンの事案として10月15日に更新、10月16〜20日に判明・更新した事案は10月20日追記、10月21〜23日に判明・更新した事案(カプコン、ブラストメール、バルテック、お名前.comデスクトップクラウド、NP後払い、OTOTOY、大阪大学など)は10月24日(7時時点)追記、10月23〜24日に判明・更新した事案(日本ピザハット、アンドエスティHD、タイムズカー第5報、ブラストメール344契約など)は10月25日(20時時点)追記)\n';
     function line(o, i){ return '\n' + i + '. [' + o.r + '] ' + o.o + '(' + o.k + '・' + o.d + ')\n   規模:' + scale(o) + '\n   漏洩:' + o.i + '\n   手口:' + o.w + '\n   対応:' + o.s + '\n'; }
     if(mo === 'all'){ last.forEach(function(o, i){ t += line(o, i + 1); }); }
     else{
@@ -3080,7 +3412,7 @@ function goShield(){
   $('otQ').oninput = function(){ q = $('otQ').value; render(); };
   $('otCopy').onclick = function(){
     if(!last.length){ toast('コピーする結果がありません'); return; }
-    var t = '【サイバー攻撃・システム障害一覧2026】\n該当 ' + last.length + ' 件(全 ' + OT.length + ' 件・2026年10月20日時点の報道)・' + SLB[so] + '\n';
+    var t = '【サイバー攻撃・システム障害一覧2026】\n該当 ' + last.length + ' 件(全 ' + OT.length + ' 件・2026年10月23日時点の報道)・' + SLB[so] + '\n';
     last.forEach(function(o, i){ t += '\n' + (i + 1) + '. [' + o.r + '] ' + o.o + '(' + o.k + '・' + o.d + '・' + o.c + ')\n   影響:' + o.i + '\n   原因・手口:' + o.w + '\n   対応・状況:' + o.s + '\n'; });
     t += '\n※ 主な事案のみで、網羅ではありません。影響度ランクは目安です。\n詳しくは → ' + location.href.split('#')[0] + '\nDWA防災情報センター';
     copy(t, last.length + '件の結果をコピーしました');
@@ -3280,7 +3612,7 @@ function cxOpen(id){
 
 <script>
 (function(){
-  var G=[{"c": "攻撃の種類", "t": [{"n": "ランサムウェア", "y": "らんさむうぇあ", "f": "Ransomware(Ransom=身代金 + Software)", "d": "パソコンやサーバーのデータを暗号化して使えなくし、元に戻す代わりに身代金を要求するウイルス。"}, {"n": "二重恐喝", "y": "にじゅうきょうかつ", "f": "", "d": "データの暗号化に加えて、盗んだ情報の公開をちらつかせて金銭を要求する手口。バックアップがあっても脅される点が厄介。"}, {"n": "マルウェア", "y": "まるうぇあ", "f": "Malware(Malicious=悪意のある + Software)", "d": "利用者に害を与える不正なプログラムの総称。ウイルス、ワーム、スパイウェア、ランサムウェアなどを含む。"}, {"n": "フィッシング", "y": "ふぃっしんぐ", "f": "Phishing(Fishing=釣り + 洗練を意味するsophisticatedから、と言われる)", "d": "銀行・通販・宅配などを装ったメールやSMSで偽サイトに誘導し、ID・パスワード・カード情報を入力させて盗む手口。"}, {"n": "ビッシング・スミッシング", "y": "びっしんぐ すみっしんぐ", "f": "Vishing(Voice Phishing) / Smishing(SMS Phishing)", "d": "ビッシングは電話(音声)、スミッシングはSMS(ショートメッセージ)を使うフィッシングの仲間。"}, {"n": "標的型攻撃", "y": "ひょうてきがたこうげき", "f": "", "d": "特定の組織や人を狙い、業務に見せかけたメールなどで時間をかけて侵入する攻撃。"}, {"n": "サプライチェーン攻撃", "y": "さぷらいちぇーんこうげき", "f": "Supply Chain Attack(供給網への攻撃)", "d": "本命の企業ではなく、取引先・委託先・ソフトの提供元など守りの弱い所から侵入する攻撃。"}, {"n": "リスト型攻撃(クレデンシャルスタッフィング)", "y": "りすとがたこうげき", "f": "Credential Stuffing(Credential=認証情報 + Stuffing=詰め込む)", "d": "他所で漏れたIDとパスワードの組を、別のサービスで次々に試してログインを狙う攻撃。パスワードの使い回しが狙われる。"}, {"n": "DoS攻撃・DDoS攻撃", "y": "でぃーどす", "f": "DoS = Denial of Service / DDoS = Distributed Denial of Service(分散型サービス妨害)", "d": "大量のアクセスを送りつけて、サイトやサービスを停止させる攻撃。DDoSは多数の機器から一斉に行う。情報は盗まれないが、業務は止まる。"}, {"n": "ソーシャルエンジニアリング", "y": "そーしゃるえんじにありんぐ", "f": "Social Engineering", "d": "システムではなく人の心理や行動の隙を突き、パスワードなどを聞き出す手口。なりすまし電話や、のぞき見など。"}, {"n": "サポート詐欺", "y": "さぽーとさぎ", "f": "", "d": "「ウイルスに感染した」という偽の警告画面と電話番号を表示し、電話させて遠隔操作や金銭の支払いに誘導する詐欺。"}, {"n": "QRコード詐欺(クイッシング)", "y": "くいっしんぐ", "f": "Quishing(QR + Phishing)", "d": "偽のQRコードを貼る・送るなどして、偽サイトに誘導する手口。読み取った先のURLを確認することが大切。"}, {"n": "バックドア", "y": "ばっくどあ", "f": "Backdoor(裏口)", "d": "侵入者が後から何度でも入れるように仕込む、正規の認証を通らない裏口。"}, {"n": "不正アクセス", "y": "ふせいあくせす", "f": "", "d": "他人のID・パスワードの利用や、システムの弱点を突くなどして、権限なく入り込むこと。不正アクセス禁止法で禁じられている。"}, {"n": "ディープフェイク", "y": "でぃーぷふぇいく", "f": "Deepfake(Deep Learning + Fake)", "d": "AIで作った本物そっくりの偽の顔・声・動画。なりすましや詐欺、偽情報に悪用される。"}]}, {"c": "弱点・技術用語", "t": [{"n": "脆弱性", "y": "ぜいじゃくせい", "f": "Vulnerability", "d": "ソフトや機器の設計・作りの不備で、攻撃に悪用され得る弱点。修正プログラム(パッチ)で塞ぐ。"}, {"n": "ゼロデイ攻撃", "y": "ぜろでいこうげき", "f": "Zero-day Attack(対策開始から「0日」の攻撃)", "d": "開発元が弱点を知る前、または修正が出る前に突かれる攻撃。対策が間に合わないため防ぎにくい。"}, {"n": "パッチ", "y": "ぱっち", "f": "Patch(継ぎ当て)", "d": "脆弱性や不具合を直す修正プログラム。早く適用するほど安全になる。"}, {"n": "CVE・CVSS", "y": "しーぶいいー しーぶいえすえす", "f": "CVE = Common Vulnerabilities and Exposures / CVSS = Common Vulnerability Scoring System", "d": "CVEは脆弱性ごとに付く共通の識別番号(例:CVE-2026-xxxx)。CVSSはその深刻さを0〜10の点数で表す尺度。"}, {"n": "SQLインジェクション", "y": "えすきゅーえるいんじぇくしょん", "f": "SQL Injection(SQL = Structured Query Language、データベースを操作する言語)", "d": "入力欄などに不正な命令文を紛れ込ませ、データベースの情報を盗んだり書き換えたりする攻撃。"}, {"n": "XSS(クロスサイトスクリプティング)", "y": "えっくすえすえす", "f": "Cross-Site Scripting(CSSと区別するためXSSと略す)", "d": "Webページに不正なスクリプトを紛れ込ませ、閲覧者のブラウザ上で実行させる攻撃。Cookieの盗用や偽の入力画面の表示などに使われる。"}, {"n": "CSRF", "y": "しーさーふ", "f": "Cross-Site Request Forgery(サイトをまたいだ要求の偽造)", "d": "ログイン中の利用者に、本人の意図しない操作(送金・設定変更など)を別サイト経由で実行させる攻撃。"}, {"n": "RCE(リモートコード実行)", "y": "あーるしーいー", "f": "Remote Code Execution", "d": "外部から任意のプログラムを相手のシステム上で実行できてしまう弱点。乗っ取りにつながる深刻なもの。"}, {"n": "SSRF", "y": "えすえすあーるえふ", "f": "Server-Side Request Forgery(サーバー側への要求の偽造)", "d": "サーバーを踏み台にして、外からは届かない内部のシステムへ不正に通信させる攻撃。"}, {"n": "IDOR", "y": "あいどー", "f": "Insecure Direct Object Reference(安全でない直接オブジェクト参照)", "d": "URLやIDの数字を書き換えるだけで、他人のデータを見られてしまう欠陥。アクセス権の確認漏れが原因。"}, {"n": "A2B攻撃", "y": "えーつーびーこうげき", "f": "App-to-Backend Attack(アプリから裏側のサーバーへの攻撃)", "d": "公開アプリを解析して、裏側のサーバー(API)を直接狙う攻撃。NICTが注意喚起した呼び名。詳しくはメニュー「最新情報」の解説を参照。"}, {"n": "API・APIキー", "y": "えーぴーあい", "f": "API = Application Programming Interface(アプリ同士をつなぐ窓口)", "d": "APIはソフト同士がデータをやり取りする窓口。APIキーはその利用を許可する合言葉で、流出すると他人に使われる。"}, {"n": "認証と認可", "y": "にんしょうとにんか", "f": "Authentication(認証) / Authorization(認可)", "d": "認証は「本人であることの確認」(ログイン)、認可は「その人に何を許すかの決定」(権限)。両方が正しくないと情報は守れない。"}, {"n": "ダークウェブ", "y": "だーくうぇぶ", "f": "Dark Web", "d": "通常の検索では出てこず、専用ソフトで接続する匿名性の高いネットの領域。盗まれた情報の売買に使われることがある。"}, {"n": "ログ", "y": "ろぐ", "f": "Log(記録)", "d": "システムの利用や操作の記録。侵入の有無や被害範囲を調べる手がかりになる。"}, {"n": "OSS・ライブラリ", "y": "おーえすえす", "f": "OSS = Open Source Software / Library(部品として使う既成プログラム)", "d": "OSSは設計図(ソースコード)が公開されたソフト。ライブラリは他のソフトが部品として組み込むプログラムで、部品の弱点がそのまま製品の弱点になる。"}]}, {"c": "守り・対策", "t": [{"n": "多要素認証(MFA)", "y": "たようそにんしょう", "f": "Multi-Factor Authentication", "d": "パスワードに加え、スマホのコードや生体情報など別の要素も使って本人確認する仕組み。パスワードが漏れても突破されにくい。"}, {"n": "パスキー", "y": "ぱすきー", "f": "Passkey", "d": "パスワードの代わりに、端末の指紋・顔認証などでログインする新しい方式。偽サイトに入力させられにくい。"}, {"n": "ハッシュ化・ソルト", "y": "はっしゅか", "f": "Hash(細かく刻む) / Salt(塩)", "d": "ハッシュ化はパスワードを元に戻せない文字列に変えて保存すること。ソルトはそこに加える乱数で、まとめて解読されるのを防ぐ。"}, {"n": "暗号化", "y": "あんごうか", "f": "Encryption", "d": "データを鍵がないと読めない形に変えること。盗まれても中身を読まれにくい。鍵も一緒に盗まれると意味が薄れる。"}, {"n": "ファイアウォール", "y": "ふぁいあうぉーる", "f": "Firewall(防火壁)", "d": "ネットワークの出入口で通信を監視し、不審なものを遮断する仕組み。"}, {"n": "WAF", "y": "わふ", "f": "Web Application Firewall(ウェブ・アプリケーション・ファイアウォール)", "d": "Webサイトへの攻撃(SQLインジェクションなど)に特化して通信を検査・遮断する仕組み。"}, {"n": "EDR", "y": "いーでぃーあーる", "f": "Endpoint Detection and Response(端末の検知と対応)", "d": "パソコンやサーバーなどの端末の挙動を常時監視し、不審な動きを見つけて対処を助ける仕組み。"}, {"n": "ペネトレーションテスト", "y": "ぺねとれーしょんてすと", "f": "Penetration Test(侵入テスト)", "d": "自社のシステムに、攻撃者の視点で実際に侵入を試みて弱点を洗い出す検査。弱点を一覧で調べる「脆弱性診断」とは区別される。"}, {"n": "フォレンジック調査", "y": "ふぉれんじっくちょうさ", "f": "Forensics(科学捜査・鑑識)", "d": "ログや機器のデータを分析して、侵入経路・被害範囲・流出した情報を突き止める調査。"}, {"n": "IoC", "y": "あいおーしー", "f": "Indicator of Compromise(侵害の指標)", "d": "攻撃の痕跡を示す手がかり(不審なIPアドレス、ファイルの特徴など)。共有して他の被害防止に使う。"}, {"n": "IP遮断", "y": "あいぴーしゃだん", "f": "IP = Internet Protocol", "d": "不審な通信元(IPアドレスや国)からのアクセスを拒否する対策。"}, {"n": "バックアップ", "y": "ばっくあっぷ", "f": "Backup", "d": "データの控えを別の場所に保存すること。ランサムウェア対策では、ネットから切り離して保管するのが基本。"}, {"n": "サンドボックス", "y": "さんどぼっくす", "f": "Sandbox(砂場)", "d": "プログラムを外から隔離した囲いの中で動かし、他のデータや機能に触れさせない仕組み。ブラウザやスマホOSが使っている。"}]}, {"c": "インターネット用語", "t": [{"n": "インターネット", "y": "いんたーねっと", "f": "Internet(Inter = 相互の + Network)", "d": "世界中のネットワークを相互につないだ巨大な通信網。Webやメールは、この上で動くサービス。"}, {"n": "Web(ウェブ)", "y": "うぇぶ", "f": "World Wide Web(WWW)", "d": "インターネット上でページ(HTML)を閲覧できる仕組み。インターネットそのものではなく、その上のサービスの一つ。"}, {"n": "ブラウザ", "y": "ぶらうざ", "f": "Browser(閲覧するもの)", "d": "Webページを表示するソフト(Chrome、Safari、Edgeなど)。"}, {"n": "URL", "y": "ゆーあーるえる", "f": "Uniform Resource Locator(統一的な資源の位置指定)", "d": "Webページなどの場所を示す住所。偽サイトは、本物に似たURLを使う。"}, {"n": "ドメイン", "y": "どめいん", "f": "Domain(領域)", "d": "URLの中のサイト名にあたる部分(例:example.jp)。ネット上の住所の「町名」のようなもの。"}, {"n": "DNS", "y": "でぃーえぬえす", "f": "Domain Name System(ドメイン名の仕組み)", "d": "ドメイン名(文字)を、通信に必要なIPアドレス(数字)に変換する、ネットの電話帳。"}, {"n": "IPアドレス", "y": "あいぴーあどれす", "f": "IP = Internet Protocol(インターネットの通信規約)", "d": "ネットにつながる機器に割り当てられる番号。通信の相手先や送信元の見分けに使われる。"}, {"n": "HTTP・HTTPS", "y": "えいちてぃーてぃーぴー", "f": "HyperText Transfer Protocol (Secure)", "d": "Webの通信の約束事。HTTPSは通信を暗号化したもの。鍵マークは「通信が暗号化されている」印で、サイトが安全という意味ではない。"}, {"n": "SSL/TLS", "y": "えすえすえる", "f": "Secure Sockets Layer / Transport Layer Security", "d": "HTTPSで通信を暗号化し、相手が本物かを確かめる仕組み。現在使われているのは新しいTLSで、慣習的にSSLとも呼ばれる。"}, {"n": "Cookie(クッキー)", "y": "くっきー", "f": "Cookie", "d": "サイトが閲覧者のブラウザに保存する小さなデータ。ログイン状態の維持などに使われるが、盗まれると本人になりすまされ得る。"}, {"n": "クラウド", "y": "くらうど", "f": "Cloud Computing(雲の中のコンピューター)", "d": "自分の機器ではなく、事業者のサーバーをネット経由で借りて使う方式。設定ミスによる情報の公開状態が漏えいの原因になりやすい。"}, {"n": "SaaS", "y": "さーす", "f": "Software as a Service(サービスとしてのソフトウェア)", "d": "ソフトを買わず、ネット経由で使う形態(メール、会計、顧客管理など)。"}, {"n": "サーバー", "y": "さーばー", "f": "Server(提供するもの)", "d": "データやサービスを提供する側のコンピューター。アプリやWebサイトの裏側で動く。"}, {"n": "SNS", "y": "えすえぬえす", "f": "Social Networking Service", "d": "人と人がつながって情報をやり取りするサービス(X、Instagram、LINEなど)。"}, {"n": "ISP(プロバイダ)", "y": "あいえすぴー", "f": "Internet Service Provider(インターネット接続事業者)", "d": "家庭や会社をインターネットにつなぐ事業者。"}, {"n": "ダウンロード・アップロード", "y": "だうんろーど", "f": "Download / Upload", "d": "ネットから端末へデータを受け取るのがダウンロード、端末からネットへ送るのがアップロード。"}, {"n": "キャッシュ", "y": "きゃっしゅ", "f": "Cache(一時的な蓄え)", "d": "一度見たデータを端末に一時保存して、次の表示を速くする仕組み。"}]}, {"c": "接続・ネットワーク用語", "t": [{"n": "LAN・WAN", "y": "らん わん", "f": "LAN = Local Area Network / WAN = Wide Area Network", "d": "LANは家や会社の中のネットワーク、WANはそれらを離れた場所同士でつなぐ広いネットワーク。"}, {"n": "ルーター", "y": "るーたー", "f": "Router(経路を決めるもの)", "d": "ネットワーク同士をつなぎ、通信の通り道を決める機器。家庭では、インターネットの入口になる。初期パスワードのままだと危険。"}, {"n": "Wi-Fi", "y": "わいふぁい", "f": "Wi-Fi(無線LANの商標名。Wireless Fidelityの略とされることもあるが、公式にはブランド名)", "d": "電波でLANにつなぐ無線通信。暗号化(WPA2/WPA3)が設定されていないと、通信を盗み見られる。"}, {"n": "SSID", "y": "えすえすあいでぃー", "f": "Service Set Identifier", "d": "Wi-Fiの名前(接続先の識別名)。"}, {"n": "WPA2・WPA3", "y": "だぶりゅぴーえー", "f": "Wi-Fi Protected Access", "d": "Wi-Fiの暗号化方式。WPA3のほうが新しく強い。古いWEPは破られやすく、使うべきでない。"}, {"n": "VPN(仮想専用線)", "y": "ぶいぴーえぬ ぶいぴーえん", "f": "VPN = Virtual Private Network(バーチャル・プライベート・ネットワーク)", "d": "インターネットの途中に、暗号化した「専用の通り道」(トンネル)を作り、離れた場所から会社や家のネットワークに安全につなぐ技術。\n・使い道:テレワークで社内システムに入る、公衆Wi-Fiでの通信を暗号化する、拠点同士をつなぐ、など。\n・注意点1:VPN機器やソフトに脆弱性があると、そこが侵入口になる。更新(パッチ適用)を怠らない。\n・注意点2:VPNは「通信の暗号化」であり、完全な匿名化やウイルス対策ではない。\n・注意点3:提供事業者を信頼できるか(通信内容や接続記録の扱い)を確認する。無料VPNは特に注意。\n・関連:多要素認証(MFA)と併用して、ID・パスワードだけで入れないようにする。"}, {"n": "公衆Wi-Fi", "y": "こうしゅうわいふぁい", "f": "Public Wi-Fi", "d": "駅・カフェなど誰でも使えるWi-Fi。偽のアクセスポイントや盗み見の危険があり、重要な入力は避けるかVPNを使う。"}, {"n": "Bluetooth", "y": "ぶるーとぅーす", "f": "Bluetooth", "d": "イヤホンやキーボードなどを近距離で無線接続する規格。使わない時はオフにし、見知らぬ機器とのペアリングは断る。"}, {"n": "USB", "y": "ゆーえすびー", "f": "Universal Serial Bus", "d": "機器をつなぐ標準の接続規格。拾ったUSBメモリを挿すとマルウェア感染のおそれがある。"}, {"n": "ポート", "y": "ぽーと", "f": "Port(港・出入口)", "d": "1台の機器が複数の通信を同時に行うための出入口の番号。不要なポートを開けたままだと侵入口になる。"}, {"n": "プロトコル", "y": "ぷろとこる", "f": "Protocol(約束事)", "d": "機器同士が通信するための取り決め。HTTP、TCP/IPなど。"}, {"n": "TCP/IP", "y": "てぃーしーぴーあいぴー", "f": "Transmission Control Protocol / Internet Protocol", "d": "インターネットの基本となる通信の約束事の組。"}, {"n": "MACアドレス", "y": "まっくあどれす", "f": "Media Access Control Address", "d": "ネットワーク機器ごとに付けられた固有の識別番号。"}, {"n": "テザリング", "y": "てざりんぐ", "f": "Tethering(つなぎとめる)", "d": "スマホの回線を使って、パソコンなど別の機器をネットにつなぐ機能。"}, {"n": "光回線(FTTH)", "y": "ひかりかいせん", "f": "Fiber To The Home(家まで光ファイバー)", "d": "光ファイバーを家庭まで引くインターネット回線。"}, {"n": "5G", "y": "ごーじー", "f": "5th Generation(第5世代移動通信システム)", "d": "高速・大容量・低遅延が特徴の携帯電話の通信方式。"}, {"n": "IoT", "y": "あいおーてぃー", "f": "Internet of Things(モノのインターネット)", "d": "家電・カメラ・センサーなどがネットにつながる仕組み。初期設定のまま、更新なしだと乗っ取られやすい。"}, {"n": "NAS", "y": "なす", "f": "Network Attached Storage(ネットワーク接続ストレージ)", "d": "ネットワークにつなぐ共有の保存装置。外部に公開した設定のままだと、攻撃の対象になりやすい。"}]}, {"c": "AI用語", "t": [{"n": "AI(人工知能)", "y": "えーあい", "f": "Artificial Intelligence", "d": "人の知的な作業(認識・判断・文章や画像の作成など)をコンピューターに行わせる技術の総称。定義は研究者や文脈により幅がある。"}, {"n": "機械学習・深層学習", "y": "きかいがくしゅう", "f": "Machine Learning / Deep Learning(ディープラーニング)", "d": "機械学習は、データからパターンを学ぶ方法。深層学習は、人の脳を参考にした多層のモデルで学ぶ機械学習の一種で、現在のAIの中核。"}, {"n": "生成AI", "y": "せいせいえーあい", "f": "Generative AI", "d": "文章・画像・音声・動画などを新しく作り出すAI。ChatGPTやClaudeなどが代表例。"}, {"n": "LLM(大規模言語モデル)", "y": "えるえるえむ", "f": "Large Language Model", "d": "大量の文章で学習し、言葉を理解・生成する大規模なAIモデル。チャットAIの土台。"}, {"n": "プロンプト", "y": "ぷろんぷと", "f": "Prompt(促し・指示)", "d": "AIに与える指示や質問の文章。"}, {"n": "ハルシネーション", "y": "はるしねーしょん", "f": "Hallucination(幻覚)", "d": "AIがもっともらしい誤りや、存在しないことを事実のように答えてしまう現象。重要な内容は出典で確認する。"}, {"n": "プロンプトインジェクション", "y": "ぷろんぷといんじぇくしょん", "f": "Prompt Injection", "d": "文書やWebページに隠した指示で、AIに意図しない動作をさせる攻撃。AIが外部の情報を読む場面で問題になる。"}, {"n": "AIエージェント", "y": "えーあいえーじぇんと", "f": "AI Agent(代理人)", "d": "指示された目標のために、自分で手順を考え、ツールを使って作業を進めるAI。権限を与えすぎない設計が重要。"}, {"n": "AIオーケストレーション", "y": "えーあいおーけすとれーしょん", "f": "AI Orchestration(Orchestration = オーケストラの指揮・編成・調整)", "d": "複数のAIモデルやAIエージェント、ツール、データなどを、指揮者のように調整して、一つの仕事を最後まで進める仕組み。\n・例:調査担当・執筆担当・確認担当のAIに役割を分け、順番や並行で動かし、結果をまとめる(マルチエージェント)。\n・役割:仕事の振り分け、実行順序の管理、AI同士の情報の受け渡し、失敗時のやり直し、人の確認を挟む場面の制御など。\n・利点:1つのAIでは難しい複雑な作業を、分担して進められる。\n・注意点:権限を持つAIが増えるほど、1か所の誤りや不正な指示(プロンプトインジェクション)が全体に広がるおそれがある。AIごとに権限を最小限にし、重要な操作は人が確認し、動作の記録(ログ)を残すことが大切。\n・補足:IT分野では、サーバーやコンテナを自動で配置・管理する「オーケストレーション」(例:Kubernetes)という別の使い方もある。"}, {"n": "AGI(汎用人工知能)", "y": "えーじーあい", "f": "Artificial General Intelligence", "d": "特定の作業だけでなく、人間のように幅広い知的作業をこなせるとされる、仮説上のAI。定義も実現の時期も専門家の間で議論が分かれている。"}, {"n": "ASI(超知能)", "y": "えーえすあい", "f": "Artificial Super Intelligence", "d": "あらゆる面で人間の知能を大きく上回るとされる、さらに先の仮説上のAI。現在は実現していない。"}, {"n": "フィジカルAI", "y": "ふぃじかるえーあい", "f": "Physical AI(物理的なAI)", "d": "AIが、ロボット・自動運転車・ドローンなどの体を通じて、現実の物理世界を認識し、判断して動くこと。画面の中で完結する生成AIと対比される。"}, {"n": "AI学習データ", "y": "えーあいがくしゅうでーた", "f": "Training Data", "d": "AIが学ぶために使うデータ。個人情報や機密を入力するとどう扱われるかは、サービスの規約・設定を確認する。"}]}, {"c": "安全性の解説", "t": [{"n": "Webアプリの危険性", "y": "うぇぶあぷりのきけんせい", "f": "Web Application(ブラウザで動くアプリ)", "d": "ブラウザから使うサービス(通販・予約・会員サイトなど)の主な危険は、次のとおりです。\n・入力欄を悪用される(SQLインジェクション、XSS)\n・認証・認可の不備で、他人の情報が見える(IDOR)\n・部品(ライブラリ)の古い弱点や、クラウドの設定ミス\n・利用者側では、偽サイトでの入力や、同じパスワードの使い回し\n守るのは主に事業者側ですが、利用者はMFAとパスワードの使い分けで被害を減らせます。"}, {"n": "スマホ・PCアプリの危険性", "y": "あぷりのきけんせい", "f": "Application / Native App(端末に入れるアプリ)", "d": "端末にインストールするアプリの主な危険は、次のとおりです。\n・偽アプリ・改ざんアプリ(公式ストア以外や、よく似た名前のもの)\n・不要に広い権限(連絡先・位置情報・カメラ・ファイル)\n・更新されず、弱点が残ったままの古いアプリ\n・アプリを解析されて、裏側のサーバーを直接狙われる(A2B攻撃)\n公式ストアから入れる、権限を確認する、使わないアプリは消す、更新を続ける、が基本です。"}, {"n": "HTMLとは・HTMLは安全か", "y": "えいちてぃーえむえる", "f": "HyperText Markup Language(ハイパーテキスト・マークアップ・ランゲージ)", "d": "HTMLはWebページの構造を書く「マークアップ言語」で、それ自体は命令を実行するプログラムではありません。そのため、文字と見出しだけのHTMLは、通常は端末を操作できません。\nただし、HTMLの中にはJavaScriptを埋め込めるため、「HTMLだから絶対に安全」とは言えません。注意点は次のとおりです。\n・偽のログイン画面を作れる(フィッシング)。メール添付のHTMLファイルは開かない。\n・通信するスクリプトが入っていれば、入力した内容を外部に送れる。\n・パスワードやカード番号の入力を求められたら、URLと提供元を確認する。"}, {"n": "なぜブラウザ上のHTMLは比較的安全なのか", "y": "ぶらうざのあんぜんせい", "f": "Same-Origin Policy / Sandbox", "d": "ブラウザには、次のような制限があります。\n・サンドボックス:ページの中のプログラムを囲いの中で動かし、端末のファイルや他のアプリを勝手に操作させない。\n・同一オリジンポリシー:別のサイトのデータを、勝手に読ませない。\n・許可制:カメラ、位置情報、通知などは、利用者が許可して初めて使える。\nこの仕組みがあるため、ブラウザで普通にページを見るだけなら、被害にあいにくくなっています。ただし、ブラウザの弱点(脆弱性)が見つかることもあるため、ブラウザの更新は欠かせません。"}]}, {"c": "公的機関・制度", "t": [{"n": "JPCERT/CC", "y": "じぇいぴーさーと", "f": "Japan Computer Emergency Response Team Coordination Center(一般社団法人JPCERTコーディネーションセンター)", "d": "国内のサイバーセキュリティ事案の調整や注意喚起を行う民間の非営利組織。"}, {"n": "IPA(情報処理推進機構)", "y": "あいぴーえー", "f": "Information-technology Promotion Agency, Japan", "d": "情報セキュリティの啓発、相談窓口、脆弱性情報の取りまとめなどを行う独立行政法人。"}, {"n": "NICT(情報通信研究機構)", "y": "えぬあいしーてぃー", "f": "National Institute of Information and Communications Technology", "d": "情報通信分野の研究機関。サイバー攻撃の観測・分析も行っている。"}, {"n": "NISC", "y": "にすく", "f": "National center of Incident readiness and Strategy for Cybersecurity(内閣サイバーセキュリティセンター)", "d": "政府のサイバーセキュリティ施策を担ってきた組織。現在は「国家サイバー統括室」に改組されたと報じられている(要確認)。"}, {"n": "個人情報保護委員会", "y": "こじんじょうほうほごいいんかい", "f": "Personal Information Protection Commission(PPC)", "d": "個人情報保護法を所管する国の機関。漏えいが起きた事業者は、一定の場合に同委員会への報告と本人への通知が求められる。"}]}], cat='', q='';
+  var G=[{"c": "攻撃の種類", "t": [{"n": "ランサムウェア", "y": "らんさむうぇあ", "f": "Ransomware(Ransom=身代金 + Software)", "d": "パソコンやサーバーのデータを暗号化して使えなくし、元に戻す代わりに身代金を要求するウイルス。"}, {"n": "二重恐喝", "y": "にじゅうきょうかつ", "f": "", "d": "データの暗号化に加えて、盗んだ情報の公開をちらつかせて金銭を要求する手口。バックアップがあっても脅される点が厄介。"}, {"n": "マルウェア", "y": "まるうぇあ", "f": "Malware(Malicious=悪意のある + Software)", "d": "利用者に害を与える不正なプログラムの総称。ウイルス、ワーム、スパイウェア、ランサムウェアなどを含む。"}, {"n": "フィッシング", "y": "ふぃっしんぐ", "f": "Phishing(Fishing=釣り + 洗練を意味するsophisticatedから、と言われる)", "d": "銀行・通販・宅配などを装ったメールやSMSで偽サイトに誘導し、ID・パスワード・カード情報を入力させて盗む手口。"}, {"n": "ビッシング・スミッシング", "y": "びっしんぐ すみっしんぐ", "f": "Vishing(Voice Phishing) / Smishing(SMS Phishing)", "d": "ビッシングは電話(音声)、スミッシングはSMS(ショートメッセージ)を使うフィッシングの仲間。"}, {"n": "標的型攻撃", "y": "ひょうてきがたこうげき", "f": "", "d": "特定の組織や人を狙い、業務に見せかけたメールなどで時間をかけて侵入する攻撃。"}, {"n": "サプライチェーン攻撃", "y": "さぷらいちぇーんこうげき", "f": "Supply Chain Attack(供給網への攻撃)", "d": "本命の企業ではなく、取引先・委託先・ソフトの提供元など守りの弱い所から侵入する攻撃。"}, {"n": "リスト型攻撃(クレデンシャルスタッフィング)", "y": "りすとがたこうげき", "f": "Credential Stuffing(Credential=認証情報 + Stuffing=詰め込む)", "d": "他所で漏れたIDとパスワードの組を、別のサービスで次々に試してログインを狙う攻撃。パスワードの使い回しが狙われる。"}, {"n": "DoS攻撃・DDoS攻撃", "y": "でぃーどす", "f": "DoS = Denial of Service / DDoS = Distributed Denial of Service(分散型サービス妨害)", "d": "大量のアクセスを送りつけて、サイトやサービスを停止させる攻撃。DDoSは多数の機器から一斉に行う。情報は盗まれないが、業務は止まる。"}, {"n": "ソーシャルエンジニアリング", "y": "そーしゃるえんじにありんぐ", "f": "Social Engineering", "d": "システムではなく人の心理や行動の隙を突き、パスワードなどを聞き出す手口。なりすまし電話や、のぞき見など。"}, {"n": "サポート詐欺", "y": "さぽーとさぎ", "f": "", "d": "「ウイルスに感染した」という偽の警告画面と電話番号を表示し、電話させて遠隔操作や金銭の支払いに誘導する詐欺。"}, {"n": "QRコード詐欺(クイッシング)", "y": "くいっしんぐ", "f": "Quishing(QR + Phishing)", "d": "偽のQRコードを貼る・送るなどして、偽サイトに誘導する手口。読み取った先のURLを確認することが大切。"}, {"n": "バックドア", "y": "ばっくどあ", "f": "Backdoor(裏口)", "d": "侵入者が後から何度でも入れるように仕込む、正規の認証を通らない裏口。"}, {"n": "不正アクセス", "y": "ふせいあくせす", "f": "", "d": "他人のID・パスワードの利用や、システムの弱点を突くなどして、権限なく入り込むこと。不正アクセス禁止法で禁じられている。"}, {"n": "ディープフェイク", "y": "でぃーぷふぇいく", "f": "Deepfake(Deep Learning + Fake)", "d": "AIで作った本物そっくりの偽の顔・声・動画。なりすましや詐欺、偽情報に悪用される。"}]}, {"c": "弱点・技術用語", "t": [{"n": "脆弱性", "y": "ぜいじゃくせい", "f": "Vulnerability", "d": "ソフトや機器の設計・作りの不備で、攻撃に悪用され得る弱点。修正プログラム(パッチ)で塞ぐ。"}, {"n": "ゼロデイ攻撃", "y": "ぜろでいこうげき", "f": "Zero-day Attack(対策開始から「0日」の攻撃)", "d": "開発元が弱点を知る前、または修正が出る前に突かれる攻撃。対策が間に合わないため防ぎにくい。"}, {"n": "パッチ", "y": "ぱっち", "f": "Patch(継ぎ当て)", "d": "脆弱性や不具合を直す修正プログラム。早く適用するほど安全になる。"}, {"n": "CVE・CVSS", "y": "しーぶいいー しーぶいえすえす", "f": "CVE = Common Vulnerabilities and Exposures / CVSS = Common Vulnerability Scoring System", "d": "CVEは脆弱性ごとに付く共通の識別番号(例:CVE-2026-xxxx)。CVSSはその深刻さを0〜10の点数で表す尺度。"}, {"n": "SQLインジェクション", "y": "えすきゅーえるいんじぇくしょん", "f": "SQL Injection(SQL = Structured Query Language、データベースを操作する言語)", "d": "入力欄などに不正な命令文を紛れ込ませ、データベースの情報を盗んだり書き換えたりする攻撃。"}, {"n": "XSS(クロスサイトスクリプティング)", "y": "えっくすえすえす", "f": "Cross-Site Scripting(CSSと区別するためXSSと略す)", "d": "Webページに不正なスクリプトを紛れ込ませ、閲覧者のブラウザ上で実行させる攻撃。Cookieの盗用や偽の入力画面の表示などに使われる。"}, {"n": "CSRF", "y": "しーさーふ", "f": "Cross-Site Request Forgery(サイトをまたいだ要求の偽造)", "d": "ログイン中の利用者に、本人の意図しない操作(送金・設定変更など)を別サイト経由で実行させる攻撃。"}, {"n": "RCE(リモートコード実行)", "y": "あーるしーいー", "f": "Remote Code Execution", "d": "外部から任意のプログラムを相手のシステム上で実行できてしまう弱点。乗っ取りにつながる深刻なもの。"}, {"n": "SSRF", "y": "えすえすあーるえふ", "f": "Server-Side Request Forgery(サーバー側への要求の偽造)", "d": "サーバーを踏み台にして、外からは届かない内部のシステムへ不正に通信させる攻撃。"}, {"n": "IDOR", "y": "あいどー", "f": "Insecure Direct Object Reference(安全でない直接オブジェクト参照)", "d": "URLやIDの数字を書き換えるだけで、他人のデータを見られてしまう欠陥。アクセス権の確認漏れが原因。"}, {"n": "A2B攻撃", "y": "えーつーびーこうげき", "f": "App-to-Backend Attack(アプリから裏側のサーバーへの攻撃)", "d": "公開アプリを解析して、裏側のサーバー(API)を直接狙う攻撃。NICTが注意喚起した呼び名。詳しくはメニュー「最新情報」の解説を参照。"}, {"n": "API・APIキー", "y": "えーぴーあい", "f": "API = Application Programming Interface(アプリ同士をつなぐ窓口)", "d": "APIはソフト同士がデータをやり取りする窓口。APIキーはその利用を許可する合言葉で、流出すると他人に使われる。"}, {"n": "認証と認可", "y": "にんしょうとにんか", "f": "Authentication(認証) / Authorization(認可)", "d": "認証は「本人であることの確認」(ログイン)、認可は「その人に何を許すかの決定」(権限)。両方が正しくないと情報は守れない。"}, {"n": "ダークウェブ", "y": "だーくうぇぶ", "f": "Dark Web", "d": "通常の検索では出てこず、専用ソフトで接続する匿名性の高いネットの領域。盗まれた情報の売買に使われることがある。"}, {"n": "ログ", "y": "ろぐ", "f": "Log(記録)", "d": "システムの利用や操作の記録。侵入の有無や被害範囲を調べる手がかりになる。"}, {"n": "OSS・ライブラリ", "y": "おーえすえす", "f": "OSS = Open Source Software / Library(部品として使う既成プログラム)", "d": "OSSは設計図(ソースコード)が公開されたソフト。ライブラリは他のソフトが部品として組み込むプログラムで、部品の弱点がそのまま製品の弱点になる。"}]}, {"c": "守り・対策", "t": [{"n": "多要素認証(MFA)", "y": "たようそにんしょう", "f": "Multi-Factor Authentication", "d": "パスワードに加え、スマホのコードや生体情報など別の要素も使って本人確認する仕組み。パスワードが漏れても突破されにくい。"}, {"n": "パスキー", "y": "ぱすきー", "f": "Passkey", "d": "パスワードの代わりに、端末の指紋・顔認証などでログインする新しい方式。偽サイトに入力させられにくい。"}, {"n": "ハッシュ化・ソルト", "y": "はっしゅか", "f": "Hash(細かく刻む) / Salt(塩)", "d": "ハッシュ化はパスワードを元に戻せない文字列に変えて保存すること。ソルトはそこに加える乱数で、まとめて解読されるのを防ぐ。"}, {"n": "暗号化", "y": "あんごうか", "f": "Encryption", "d": "データを鍵がないと読めない形に変えること。盗まれても中身を読まれにくい。鍵も一緒に盗まれると意味が薄れる。"}, {"n": "ファイアウォール", "y": "ふぁいあうぉーる", "f": "Firewall(防火壁)", "d": "ネットワークの出入口で通信を監視し、不審なものを遮断する仕組み。"}, {"n": "WAF", "y": "わふ", "f": "Web Application Firewall(ウェブ・アプリケーション・ファイアウォール)", "d": "Webサイトへの攻撃(SQLインジェクションなど)に特化して通信を検査・遮断する仕組み。"}, {"n": "EDR", "y": "いーでぃーあーる", "f": "Endpoint Detection and Response(端末の検知と対応)", "d": "パソコンやサーバーなどの端末の挙動を常時監視し、不審な動きを見つけて対処を助ける仕組み。"}, {"n": "ペネトレーションテスト", "y": "ぺねとれーしょんてすと", "f": "Penetration Test(侵入テスト)", "d": "自社のシステムに、攻撃者の視点で実際に侵入を試みて弱点を洗い出す検査。弱点を一覧で調べる「脆弱性診断」とは区別される。"}, {"n": "フォレンジック調査", "y": "ふぉれんじっくちょうさ", "f": "Forensics(科学捜査・鑑識)", "d": "ログや機器のデータを分析して、侵入経路・被害範囲・流出した情報を突き止める調査。"}, {"n": "IoC", "y": "あいおーしー", "f": "Indicator of Compromise(侵害の指標)", "d": "攻撃の痕跡を示す手がかり(不審なIPアドレス、ファイルの特徴など)。共有して他の被害防止に使う。"}, {"n": "IP遮断", "y": "あいぴーしゃだん", "f": "IP = Internet Protocol", "d": "不審な通信元(IPアドレスや国)からのアクセスを拒否する対策。"}, {"n": "バックアップ", "y": "ばっくあっぷ", "f": "Backup", "d": "データの控えを別の場所に保存すること。ランサムウェア対策では、ネットから切り離して保管するのが基本。"}, {"n": "サンドボックス", "y": "さんどぼっくす", "f": "Sandbox(砂場)", "d": "プログラムを外から隔離した囲いの中で動かし、他のデータや機能に触れさせない仕組み。ブラウザやスマホOSが使っている。"}, {"n": "多層防御", "y": "たそうぼうぎょ", "f": "Defense in depth", "d": "入口、サーバー、データ、運用を何重にも守り、1つが破られても被害を広げない考え方。WAF、アクセス制限、バックアップ、ログ監視などを組み合わせます。"}, {"n": "ゼロトラスト", "y": "ぜろとらすと", "f": "Zero Trust", "d": "社内か社外かに関わらず、すべての接続を信頼せず、毎回確認する考え方。認証、端末の状態、権限を常に確かめます。"}, {"n": "最小権限の原則", "y": "さいしょうけんげんのげんそく", "f": "Least privilege", "d": "人やプログラムに、必要な操作だけを許可すること。侵入されても、使える範囲を狭くして被害を抑えられます。"}, {"n": "脆弱性管理(資産管理)", "y": "ぜいじゃくせいかんり", "f": "Vulnerability management", "d": "どの機器・ソフトが、どの版で動いているかを把握し、脆弱性が出たらすぐ確認・更新する活動。PHP2Shellでは、PHPを使っている場所が分からないことが、対応の遅れの要因になりました。"}, {"n": "仮想パッチ", "y": "かそうぱっち", "f": "Virtual patching", "d": "WAFなどで、脆弱性を突く通信を止めて、修正版を適用するまでの時間を稼ぐ方法。完全な対策ではなく、更新までのつなぎとして使います。Cloudflareは、PHP2Shell向けのルールを提供したと報じられました。"}, {"n": "SOC・SIEM", "y": "えすおーしー・しーむ", "f": "Security Operations Center / SIEM", "d": "SOCは、攻撃の兆候を24時間見張る組織。SIEMは、多数のログを集めて異常を見つける仕組み。"}, {"n": "CSIRT・インシデント対応", "y": "しーさーと", "f": "Computer Security Incident Response Team", "d": "事故が起きたときに、被害の確認、封じ込め、復旧、公表、再発防止を担う組織や手順。対応計画が、事前に決まっているかで復旧の速さが変わります。"}, {"n": "責任ある開示(CVD)", "y": "せきにんあるかいじ", "f": "Coordinated Vulnerability Disclosure", "d": "脆弱性を見つけた人が、すぐ公開せず、開発元に知らせて修正を待ってから公表する進め方。公開前に情報が漏れると、悪用が先行するおそれがあります。"}, {"n": "パスワード管理ツール", "y": "ぱすわーどかんりつーる", "f": "Password manager", "d": "サイトごとに長くて違うパスワードを作り、安全に保管するツール。使い回しによるリスト型攻撃の被害を減らせます。"}, {"n": "通報・相談の窓口(#9110・警察のサイバー窓口)", "y": "つうほう・そうだん", "f": "Reporting", "d": "被害に遭ったら、証拠(画面、メール、日時)を残して、警察相談専用電話 #9110 や、各都道府県警察のサイバー犯罪の窓口、IPAの相談窓口に連絡します。"}]}, {"c": "インターネット用語", "t": [{"n": "インターネット", "y": "いんたーねっと", "f": "Internet(Inter = 相互の + Network)", "d": "世界中のネットワークを相互につないだ巨大な通信網。Webやメールは、この上で動くサービス。"}, {"n": "Web(ウェブ)", "y": "うぇぶ", "f": "World Wide Web(WWW)", "d": "インターネット上でページ(HTML)を閲覧できる仕組み。インターネットそのものではなく、その上のサービスの一つ。"}, {"n": "ブラウザ", "y": "ぶらうざ", "f": "Browser(閲覧するもの)", "d": "Webページを表示するソフト(Chrome、Safari、Edgeなど)。"}, {"n": "URL", "y": "ゆーあーるえる", "f": "Uniform Resource Locator(統一的な資源の位置指定)", "d": "Webページなどの場所を示す住所。偽サイトは、本物に似たURLを使う。"}, {"n": "ドメイン", "y": "どめいん", "f": "Domain(領域)", "d": "URLの中のサイト名にあたる部分(例:example.jp)。ネット上の住所の「町名」のようなもの。"}, {"n": "DNS", "y": "でぃーえぬえす", "f": "Domain Name System(ドメイン名の仕組み)", "d": "ドメイン名(文字)を、通信に必要なIPアドレス(数字)に変換する、ネットの電話帳。"}, {"n": "IPアドレス", "y": "あいぴーあどれす", "f": "IP = Internet Protocol(インターネットの通信規約)", "d": "ネットにつながる機器に割り当てられる番号。通信の相手先や送信元の見分けに使われる。"}, {"n": "HTTP・HTTPS", "y": "えいちてぃーてぃーぴー", "f": "HyperText Transfer Protocol (Secure)", "d": "Webの通信の約束事。HTTPSは通信を暗号化したもの。鍵マークは「通信が暗号化されている」印で、サイトが安全という意味ではない。"}, {"n": "SSL/TLS", "y": "えすえすえる", "f": "Secure Sockets Layer / Transport Layer Security", "d": "HTTPSで通信を暗号化し、相手が本物かを確かめる仕組み。現在使われているのは新しいTLSで、慣習的にSSLとも呼ばれる。"}, {"n": "Cookie(クッキー)", "y": "くっきー", "f": "Cookie", "d": "サイトが閲覧者のブラウザに保存する小さなデータ。ログイン状態の維持などに使われるが、盗まれると本人になりすまされ得る。"}, {"n": "クラウド", "y": "くらうど", "f": "Cloud Computing(雲の中のコンピューター)", "d": "自分の機器ではなく、事業者のサーバーをネット経由で借りて使う方式。設定ミスによる情報の公開状態が漏えいの原因になりやすい。"}, {"n": "SaaS", "y": "さーす", "f": "Software as a Service(サービスとしてのソフトウェア)", "d": "ソフトを買わず、ネット経由で使う形態(メール、会計、顧客管理など)。"}, {"n": "サーバー", "y": "さーばー", "f": "Server(提供するもの)", "d": "データやサービスを提供する側のコンピューター。アプリやWebサイトの裏側で動く。"}, {"n": "SNS", "y": "えすえぬえす", "f": "Social Networking Service", "d": "人と人がつながって情報をやり取りするサービス(X、Instagram、LINEなど)。"}, {"n": "ISP(プロバイダ)", "y": "あいえすぴー", "f": "Internet Service Provider(インターネット接続事業者)", "d": "家庭や会社をインターネットにつなぐ事業者。"}, {"n": "ダウンロード・アップロード", "y": "だうんろーど", "f": "Download / Upload", "d": "ネットから端末へデータを受け取るのがダウンロード、端末からネットへ送るのがアップロード。"}, {"n": "キャッシュ", "y": "きゃっしゅ", "f": "Cache(一時的な蓄え)", "d": "一度見たデータを端末に一時保存して、次の表示を速くする仕組み。"}]}, {"c": "接続・ネットワーク用語", "t": [{"n": "LAN・WAN", "y": "らん わん", "f": "LAN = Local Area Network / WAN = Wide Area Network", "d": "LANは家や会社の中のネットワーク、WANはそれらを離れた場所同士でつなぐ広いネットワーク。"}, {"n": "ルーター", "y": "るーたー", "f": "Router(経路を決めるもの)", "d": "ネットワーク同士をつなぎ、通信の通り道を決める機器。家庭では、インターネットの入口になる。初期パスワードのままだと危険。"}, {"n": "Wi-Fi", "y": "わいふぁい", "f": "Wi-Fi(無線LANの商標名。Wireless Fidelityの略とされることもあるが、公式にはブランド名)", "d": "電波でLANにつなぐ無線通信。暗号化(WPA2/WPA3)が設定されていないと、通信を盗み見られる。"}, {"n": "SSID", "y": "えすえすあいでぃー", "f": "Service Set Identifier", "d": "Wi-Fiの名前(接続先の識別名)。"}, {"n": "WPA2・WPA3", "y": "だぶりゅぴーえー", "f": "Wi-Fi Protected Access", "d": "Wi-Fiの暗号化方式。WPA3のほうが新しく強い。古いWEPは破られやすく、使うべきでない。"}, {"n": "VPN(仮想専用線)", "y": "ぶいぴーえぬ ぶいぴーえん", "f": "VPN = Virtual Private Network(バーチャル・プライベート・ネットワーク)", "d": "インターネットの途中に、暗号化した「専用の通り道」(トンネル)を作り、離れた場所から会社や家のネットワークに安全につなぐ技術。\n・使い道:テレワークで社内システムに入る、公衆Wi-Fiでの通信を暗号化する、拠点同士をつなぐ、など。\n・注意点1:VPN機器やソフトに脆弱性があると、そこが侵入口になる。更新(パッチ適用)を怠らない。\n・注意点2:VPNは「通信の暗号化」であり、完全な匿名化やウイルス対策ではない。\n・注意点3:提供事業者を信頼できるか(通信内容や接続記録の扱い)を確認する。無料VPNは特に注意。\n・関連:多要素認証(MFA)と併用して、ID・パスワードだけで入れないようにする。"}, {"n": "公衆Wi-Fi", "y": "こうしゅうわいふぁい", "f": "Public Wi-Fi", "d": "駅・カフェなど誰でも使えるWi-Fi。偽のアクセスポイントや盗み見の危険があり、重要な入力は避けるかVPNを使う。"}, {"n": "Bluetooth", "y": "ぶるーとぅーす", "f": "Bluetooth", "d": "イヤホンやキーボードなどを近距離で無線接続する規格。使わない時はオフにし、見知らぬ機器とのペアリングは断る。"}, {"n": "USB", "y": "ゆーえすびー", "f": "Universal Serial Bus", "d": "機器をつなぐ標準の接続規格。拾ったUSBメモリを挿すとマルウェア感染のおそれがある。"}, {"n": "ポート", "y": "ぽーと", "f": "Port(港・出入口)", "d": "1台の機器が複数の通信を同時に行うための出入口の番号。不要なポートを開けたままだと侵入口になる。"}, {"n": "プロトコル", "y": "ぷろとこる", "f": "Protocol(約束事)", "d": "機器同士が通信するための取り決め。HTTP、TCP/IPなど。"}, {"n": "TCP/IP", "y": "てぃーしーぴーあいぴー", "f": "Transmission Control Protocol / Internet Protocol", "d": "インターネットの基本となる通信の約束事の組。"}, {"n": "MACアドレス", "y": "まっくあどれす", "f": "Media Access Control Address", "d": "ネットワーク機器ごとに付けられた固有の識別番号。"}, {"n": "テザリング", "y": "てざりんぐ", "f": "Tethering(つなぎとめる)", "d": "スマホの回線を使って、パソコンなど別の機器をネットにつなぐ機能。"}, {"n": "光回線(FTTH)", "y": "ひかりかいせん", "f": "Fiber To The Home(家まで光ファイバー)", "d": "光ファイバーを家庭まで引くインターネット回線。"}, {"n": "5G", "y": "ごーじー", "f": "5th Generation(第5世代移動通信システム)", "d": "高速・大容量・低遅延が特徴の携帯電話の通信方式。"}, {"n": "IoT", "y": "あいおーてぃー", "f": "Internet of Things(モノのインターネット)", "d": "家電・カメラ・センサーなどがネットにつながる仕組み。初期設定のまま、更新なしだと乗っ取られやすい。"}, {"n": "NAS", "y": "なす", "f": "Network Attached Storage(ネットワーク接続ストレージ)", "d": "ネットワークにつなぐ共有の保存装置。外部に公開した設定のままだと、攻撃の対象になりやすい。"}]}, {"c": "AI用語", "t": [{"n": "AI(人工知能)", "y": "えーあい", "f": "Artificial Intelligence", "d": "人の知的な作業(認識・判断・文章や画像の作成など)をコンピューターに行わせる技術の総称。定義は研究者や文脈により幅がある。"}, {"n": "機械学習・深層学習", "y": "きかいがくしゅう", "f": "Machine Learning / Deep Learning(ディープラーニング)", "d": "機械学習は、データからパターンを学ぶ方法。深層学習は、人の脳を参考にした多層のモデルで学ぶ機械学習の一種で、現在のAIの中核。"}, {"n": "生成AI", "y": "せいせいえーあい", "f": "Generative AI", "d": "文章・画像・音声・動画などを新しく作り出すAI。ChatGPTやClaudeなどが代表例。"}, {"n": "LLM(大規模言語モデル)", "y": "えるえるえむ", "f": "Large Language Model", "d": "大量の文章で学習し、言葉を理解・生成する大規模なAIモデル。チャットAIの土台。"}, {"n": "プロンプト", "y": "ぷろんぷと", "f": "Prompt(促し・指示)", "d": "AIに与える指示や質問の文章。"}, {"n": "ハルシネーション", "y": "はるしねーしょん", "f": "Hallucination(幻覚)", "d": "AIがもっともらしい誤りや、存在しないことを事実のように答えてしまう現象。重要な内容は出典で確認する。"}, {"n": "プロンプトインジェクション", "y": "ぷろんぷといんじぇくしょん", "f": "Prompt Injection", "d": "文書やWebページに隠した指示で、AIに意図しない動作をさせる攻撃。AIが外部の情報を読む場面で問題になる。"}, {"n": "AIエージェント", "y": "えーあいえーじぇんと", "f": "AI Agent(代理人)", "d": "指示された目標のために、自分で手順を考え、ツールを使って作業を進めるAI。権限を与えすぎない設計が重要。"}, {"n": "AIオーケストレーション", "y": "えーあいおーけすとれーしょん", "f": "AI Orchestration(Orchestration = オーケストラの指揮・編成・調整)", "d": "複数のAIモデルやAIエージェント、ツール、データなどを、指揮者のように調整して、一つの仕事を最後まで進める仕組み。\n・例:調査担当・執筆担当・確認担当のAIに役割を分け、順番や並行で動かし、結果をまとめる(マルチエージェント)。\n・役割:仕事の振り分け、実行順序の管理、AI同士の情報の受け渡し、失敗時のやり直し、人の確認を挟む場面の制御など。\n・利点:1つのAIでは難しい複雑な作業を、分担して進められる。\n・注意点:権限を持つAIが増えるほど、1か所の誤りや不正な指示(プロンプトインジェクション)が全体に広がるおそれがある。AIごとに権限を最小限にし、重要な操作は人が確認し、動作の記録(ログ)を残すことが大切。\n・補足:IT分野では、サーバーやコンテナを自動で配置・管理する「オーケストレーション」(例:Kubernetes)という別の使い方もある。"}, {"n": "AGI(汎用人工知能)", "y": "えーじーあい", "f": "Artificial General Intelligence", "d": "特定の作業だけでなく、人間のように幅広い知的作業をこなせるとされる、仮説上のAI。定義も実現の時期も専門家の間で議論が分かれている。"}, {"n": "ASI(超知能)", "y": "えーえすあい", "f": "Artificial Super Intelligence", "d": "あらゆる面で人間の知能を大きく上回るとされる、さらに先の仮説上のAI。現在は実現していない。"}, {"n": "フィジカルAI", "y": "ふぃじかるえーあい", "f": "Physical AI(物理的なAI)", "d": "AIが、ロボット・自動運転車・ドローンなどの体を通じて、現実の物理世界を認識し、判断して動くこと。画面の中で完結する生成AIと対比される。"}, {"n": "AI学習データ", "y": "えーあいがくしゅうでーた", "f": "Training Data", "d": "AIが学ぶために使うデータ。個人情報や機密を入力するとどう扱われるかは、サービスの規約・設定を確認する。"}]}, {"c": "安全性の解説", "t": [{"n": "Webアプリの危険性", "y": "うぇぶあぷりのきけんせい", "f": "Web Application(ブラウザで動くアプリ)", "d": "ブラウザから使うサービス(通販・予約・会員サイトなど)の主な危険は、次のとおりです。\n・入力欄を悪用される(SQLインジェクション、XSS)\n・認証・認可の不備で、他人の情報が見える(IDOR)\n・部品(ライブラリ)の古い弱点や、クラウドの設定ミス\n・利用者側では、偽サイトでの入力や、同じパスワードの使い回し\n守るのは主に事業者側ですが、利用者はMFAとパスワードの使い分けで被害を減らせます。"}, {"n": "スマホ・PCアプリの危険性", "y": "あぷりのきけんせい", "f": "Application / Native App(端末に入れるアプリ)", "d": "端末にインストールするアプリの主な危険は、次のとおりです。\n・偽アプリ・改ざんアプリ(公式ストア以外や、よく似た名前のもの)\n・不要に広い権限(連絡先・位置情報・カメラ・ファイル)\n・更新されず、弱点が残ったままの古いアプリ\n・アプリを解析されて、裏側のサーバーを直接狙われる(A2B攻撃)\n公式ストアから入れる、権限を確認する、使わないアプリは消す、更新を続ける、が基本です。"}, {"n": "HTMLとは・HTMLは安全か", "y": "えいちてぃーえむえる", "f": "HyperText Markup Language(ハイパーテキスト・マークアップ・ランゲージ)", "d": "HTMLはWebページの構造を書く「マークアップ言語」で、それ自体は命令を実行するプログラムではありません。そのため、文字と見出しだけのHTMLは、通常は端末を操作できません。\nただし、HTMLの中にはJavaScriptを埋め込めるため、「HTMLだから絶対に安全」とは言えません。注意点は次のとおりです。\n・偽のログイン画面を作れる(フィッシング)。メール添付のHTMLファイルは開かない。\n・通信するスクリプトが入っていれば、入力した内容を外部に送れる。\n・パスワードやカード番号の入力を求められたら、URLと提供元を確認する。"}, {"n": "なぜブラウザ上のHTMLは比較的安全なのか", "y": "ぶらうざのあんぜんせい", "f": "Same-Origin Policy / Sandbox", "d": "ブラウザには、次のような制限があります。\n・サンドボックス:ページの中のプログラムを囲いの中で動かし、端末のファイルや他のアプリを勝手に操作させない。\n・同一オリジンポリシー:別のサイトのデータを、勝手に読ませない。\n・許可制:カメラ、位置情報、通知などは、利用者が許可して初めて使える。\nこの仕組みがあるため、ブラウザで普通にページを見るだけなら、被害にあいにくくなっています。ただし、ブラウザの弱点(脆弱性)が見つかることもあるため、ブラウザの更新は欠かせません。"}]}, {"c": "公的機関・制度", "t": [{"n": "JPCERT/CC", "y": "じぇいぴーさーと", "f": "Japan Computer Emergency Response Team Coordination Center(一般社団法人JPCERTコーディネーションセンター)", "d": "国内のサイバーセキュリティ事案の調整や注意喚起を行う民間の非営利組織。"}, {"n": "IPA(情報処理推進機構)", "y": "あいぴーえー", "f": "Information-technology Promotion Agency, Japan", "d": "情報セキュリティの啓発、相談窓口、脆弱性情報の取りまとめなどを行う独立行政法人。"}, {"n": "NICT(情報通信研究機構)", "y": "えぬあいしーてぃー", "f": "National Institute of Information and Communications Technology", "d": "情報通信分野の研究機関。サイバー攻撃の観測・分析も行っている。"}, {"n": "NISC", "y": "にすく", "f": "National center of Incident readiness and Strategy for Cybersecurity(内閣サイバーセキュリティセンター)", "d": "政府のサイバーセキュリティ施策を担ってきた組織。現在は「国家サイバー統括室」に改組されたと報じられている(要確認)。"}, {"n": "個人情報保護委員会", "y": "こじんじょうほうほごいいんかい", "f": "Personal Information Protection Commission(PPC)", "d": "個人情報保護法を所管する国の機関。漏えいが起きた事業者は、一定の場合に同委員会への報告と本人への通知が求められる。"}]}, {"c": "PHP・サーバー用語", "t": [{"n": "PHP", "y": "ぴーえいちぴー", "f": "PHP: Hypertext Preprocessor", "d": "Webサイトの「裏側」でページを組み立てるプログラミング言語。WordPressなど多くのWebサイトやWebサービスで使われ、世界のサイトの約7割で使われると報じられています。PHP本体に弱点があると、その上で動く多数のサイトが影響を受けます。"}, {"n": "PHP2Shell(php2shell)", "y": "ぴーえいちぴーつーしぇる", "f": "CVE-2026-109618・CVE-2026-109619", "d": "2026年10月21日に修正版が公開された、PHP本体の重大な脆弱性2件の通称。認証なしでリモートからコードを実行されるおそれがあり、CVSS v4.0は9.2。国内では予防のためのサイト停止が相次ぎました。完全な対策はPHPの更新です。"}, {"n": "修正版(PHP 8.5.12・8.4.27・8.3.36・8.2.35)", "y": "しゅうせいばん", "f": "Fixed versions", "d": "PHP2Shellを修正したバージョン。8.1・8.0・7.4には公式の修正版ではなく、ソースの修正パッチのみが提供されました。それ以前の版は対象外で、更新できない環境は、サイトの停止や移行を検討します。"}, {"n": "mod_php・PHP-FPM", "y": "えむおーでぃーぴーえいちぴー", "f": "PHPをWebサーバーで動かす方式", "d": "PHPをWebサーバーに組み込む方式(mod_php)と、別のプロセスで動かす方式(PHP-FPM)。PHP2Shellでは、mod_phpのほうが危険度が高いとされています。使っている方式は、サーバーの管理者や、レンタルサーバーの事業者が把握します。"}, {"n": "バックポート", "y": "ばっくぽーと", "f": "Backport", "d": "新しい版で直した修正を、古い版に移植すること。OSの配布パッケージでは、版番号が古いままでも修正済みの場合があるため、変更履歴でCVE番号を確認します。"}, {"n": "EOL(サポート終了)", "y": "いーおーえる", "f": "End of Life", "d": "開発元が、修正や更新の提供をやめた状態。EOLのPHPやCMSは、新しい脆弱性が見つかっても公式の修正版が出ないため、攻撃されやすくなります。PHP 8.2は2026年12月31日に終了予定です。"}, {"n": "予防的な公開停止・緊急メンテナンス", "y": "よぼうてきなこうかいていし", "f": "Precautionary shutdown", "d": "攻撃を受けていなくても、修正が間に合わない間は、サイトの公開を止めて被害を防ぐ措置。国家サイバー統括室も、パッチを直ちに適用できない場合の一時停止はリスク低減策になり得ると発信しました。停止=攻撃を受けた、とは限りません。"}, {"n": "暫定対策(ワークアラウンド)", "y": "ざんていたいさく", "f": "Workaround", "d": "修正版を適用するまでの、一時的な回避策。PHP2Shellでは、設定の変更(memory_limit=-1、session.upload_progress.enabled=0など)や、リクエストサイズの制限が挙げられましたが、完全な対策はアップデートのみとされています。"}, {"n": "PoC(概念実証コード)", "y": "ぴーおーしー", "f": "Proof of Concept", "d": "脆弱性が実際に悪用できることを示すためのコードや動画。公開されると攻撃者が使いやすくなる一方、有効性が確認されていないものも出回ります。"}, {"n": "KEV(悪用が確認された脆弱性カタログ)", "y": "けーいーぶい", "f": "Known Exploited Vulnerabilities", "d": "米国のCISAが公開する、実際に悪用されていることが確認された脆弱性の一覧。載っているかどうかは、優先して修正する目安になります。"}, {"n": "Webシェル", "y": "うぇぶしぇる", "f": "Web shell", "d": "攻撃者がサーバーに置く、遠隔操作用の小さなプログラム。PHPなどで書かれた1ファイルのことが多く、置かれると、侵入後に何度でも操作されるおそれがあります。不審なPHPファイルがないか確認します。"}, {"n": "認証情報の入れ替え(ローテーション)", "y": "にんしょうじょうほうのいれかえ", "f": "Credential rotation", "d": "パスワード、APIキー、トークンなどを新しく作り直して古いものを無効にすること。PHP2Shellでは、修正前にサーバーのメモリから読み取られた可能性のある情報は、更新だけでは無効にならないため、運営者が入れ替えを判断します。"}, {"n": "WordPress", "y": "わーどぷれす", "f": "WordPress", "d": "PHPで作られた、世界で広く使われるサイト作成ソフト(CMS)。PHP本体の更新に加えて、本体・テーマ・プラグインの更新も必要です。"}, {"n": "レンタルサーバー", "y": "れんたるさーばー", "f": "Shared hosting", "d": "事業者のサーバーの一部を借りてサイトを公開するサービス。PHPの更新は、多くの場合、事業者か契約者が管理画面で行います。対応状況は事業者のお知らせで確認します。"}]}, {"c": "サイバー犯罪・法律", "t": [{"n": "サイバー犯罪", "y": "さいばーはんざい", "f": "Cybercrime", "d": "コンピューターやネットワークを使う、または標的にする犯罪の総称。不正アクセス、ウイルスの作成・提供、ランサムウェアによる恐喝、フィッシングによる詐欺、不正送金などが含まれます。"}, {"n": "不正アクセス禁止法", "y": "ふせいあくせすきんしほう", "f": "Unauthorized Computer Access Law", "d": "他人のID・パスワードを使ってログインしたり、セキュリティの弱点を突いて侵入したりする行為を罰する法律。他人の認証情報を不正に取得・保管・提供する行為なども対象になります。"}, {"n": "不正指令電磁的記録に関する罪(ウイルス作成・供用)", "y": "ふせいしれいでんじてききろくにかんするつみ", "f": "刑法168条の2・3", "d": "正当な理由なく、ウイルスなどを作ったり、他人のパソコンで動かそうとしたり、取得・保管したりすることを罰する罪。"}, {"n": "電子計算機損壊等業務妨害罪", "y": "でんしけいさんきそんかいとうぎょうむぼうがいざい", "f": "刑法234条の2", "d": "DDoS攻撃やランサムウェアによるシステムの停止など、コンピューターを使えなくして業務を妨げる行為を罰する罪。"}, {"n": "電子計算機使用詐欺罪", "y": "でんしけいさんきしようさぎざい", "f": "刑法246条の2", "d": "他人のID・パスワードなどを使って、ネットバンキングやFX口座を不正操作し、不正に利益を得る行為を罰する罪。不正送金や不正取引に適用されます。"}, {"n": "不正送金・不正取引", "y": "ふせいそうきん・ふせいとりひき", "f": "Unauthorized transfer/trade", "d": "盗んだ認証情報で口座に入り、お金を送ったり、売買をしたりすること。被害に気づいたら、すぐに金融機関・証券会社・FX会社へ連絡し、警察に相談します。"}, {"n": "闇バイト(犯罪実行者の募集)", "y": "やみばいと", "f": "Illegal gig recruitment", "d": "「高額報酬」「簡単な仕事」とうたってSNSで募り、詐欺や強盗などの実行役にさせる手口。応募時に送った身分証や個人情報で脅され、抜け出せなくなる例があります。応募しない、すでに応募した場合はすぐ警察(#9110)に相談します。"}, {"n": "口座の売買・不正譲渡", "y": "こうざのばいばい・ふせいじょうと", "f": "Account trafficking", "d": "自分の預貯金口座や、そのキャッシュカードを他人に売ったり渡したりすること。詐欺の資金の受け皿に使われ、犯罪収益移転防止法などで処罰されることがあります。"}, {"n": "SNS型投資詐欺・ロマンス詐欺", "y": "えすえぬえすがたとうしさぎ", "f": "Investment / romance scam", "d": "SNSやマッチングアプリで親しくなり、投資や暗号資産の話に誘って送金させる詐欺。「必ず儲かる」「海外送金が必要」と言われたら、いったん立ち止まって家族や警察に相談します。"}, {"n": "RaaS(ランサムウェア・アズ・ア・サービス)", "y": "あーるえーえーえす", "f": "Ransomware as a Service", "d": "ランサムウェアの道具や攻撃基盤を、犯罪者の仲間に貸し出して分け前を取る仕組み。技術がなくても攻撃でき、被害が広がる要因になります。"}, {"n": "初期アクセスブローカー", "y": "しょきあくせすぶろーかー", "f": "Initial Access Broker", "d": "企業のネットワークに入るための情報(ID・パスワードや侵入口)を手に入れ、ほかの犯罪者に売る業者。買った側が、ランサムウェアなどの攻撃を実行します。"}, {"n": "インフォスティーラー", "y": "いんふぉすてぃーらー", "f": "Infostealer", "d": "パソコンやスマホから、保存されたパスワード、Cookie、暗号資産のウォレット情報などを盗むウイルス。盗まれた情報は売買され、不正ログインに使われます。"}, {"n": "ボットネット", "y": "ぼっとねっと", "f": "Botnet", "d": "ウイルスに感染して、遠隔操作される機器の集まり。DDoS攻撃、迷惑メールの送信、攻撃の踏み台に使われます。ルーターやカメラなどのIoT機器も狙われます。"}, {"n": "踏み台", "y": "ふみだい", "f": "Stepping stone", "d": "他人のパソコンやサーバーを乗っ取って、攻撃や不正な送信の経由地に使うこと。自分の機器が、知らない間に犯罪に使われる場合があります。"}, {"n": "暗号資産のマネーロンダリング", "y": "あんごうしさんのまねーろんだりんぐ", "f": "Crypto laundering", "d": "盗んだ暗号資産を、複数の口座や取引所を経由して出所を分からなくすること。ランサムウェアの身代金の受け取りにも使われます。"}, {"n": "個人情報漏えい時の報告義務", "y": "こじんじょうほうろうえいじのほうこくぎむ", "f": "個人情報保護法", "d": "漏えいで個人の権利利益を害するおそれが大きい場合、事業者は個人情報保護委員会へ、速報(おおむね3〜5日以内)と確報(原則30日以内。不正の目的による場合は60日以内)を行い、本人へも通知する必要があります。"}, {"n": "二次被害", "y": "にじひがい", "f": "Secondary damage", "d": "漏えいした情報を使った、なりすましメール、フィッシング、不正ログイン、詐欺電話などの被害。「お詫びとお知らせ」を装うメールも多いため、リンクは開かず、公式サイトで確認します。"}]}], cat='', q='';
   var body=document.getElementById('glBody'), chips=document.getElementById('glChips'), inp=document.getElementById('glQ');
   function norm(x){return (x||'').toLowerCase().replace(/[\u30a1-\u30f6]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-96)});}
   function esc(x){return x.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -3307,7 +3639,7 @@ function cxOpen(id){
 </script>
 <script>
 (function(){
-  var AI=[{"c": "chat", "n": "ChatGPT", "co": "OpenAI(米国)", "u": "https://chatgpt.com/", "v": "GPT-6 Sol(Plus以上)/ GPT-6 Luna(無料・Go)。2026年10月に順次切り替えと解説記事が伝えている。", "p": "Free 0円 / Go 1,400円 / Plus 3,000円 / Pro 16,800円〜(100・200・500ドル相当の3段階と解説記事にある)。", "s": "文章・相談・要約・分析の万能型。画像生成、音声会話、コード(Codex)も同じ画面で使える。", "e": 9, "er": "日本語が自然で、無料で試せ、画面が分かりやすい。", "w": "モデル名は頻繁に入れ替わる。無料枠は上限がある。", "src": "モデル名と料金は2026年10月の解説記事にもとづく(公式ページは金額を取得できなかった)。"}, {"c": "chat", "n": "Gemini", "co": "Google(米国)", "u": "https://gemini.google.com/", "v": "Gemini 4 Argon(Pro・Ultraなど)、Gemini 3.x Flash系。", "p": "Google AI Plus 725円 / Pro 2,900円 / Ultra 14,500円・32,000円(いずれも月額・税込。ストレージ付き)。無料版あり。", "s": "Google検索・Gmail・ドキュメントなどとの連携、長い資料の読み込み、画像(Nano Banana)・動画(Veo)の生成。", "e": 9, "er": "Googleアカウントですぐ使え、無料版も充実。スマホとの親和性が高い。", "w": "プラン名・含まれるモデルの表記が変わっている最中で、既存加入者への適用日は案内メールの確認が必要。", "src": "モデル名はGoogle公式ページ、料金は2026年10月14日更新の解説記事にもとづく。"}, {"c": "chat", "n": "Claude", "co": "Anthropic(米国)", "u": "https://claude.ai/", "v": "Fable 5.1 / Opus 5.5 / Sonnet 5.5 / Haiku 5.5(公式料金ページ掲載)。", "p": "Free 0ドル / Pro 20ドル(年払いは月換算17ドル) / Max 100ドルから。", "s": "長文の読み書き、資料の分析、コードの作成と修正。落ち着いた丁寧な文章。", "e": 8, "er": "日本語が自然で画面もシンプル。ただし無料枠は小さめで、この一覧の作成者自身でもあるため、評価に偏りがある可能性。", "w": "Fableは別枠のクレジットや週間上限の対象になる(Pro/Max)。", "src": "公式料金ページ(2026年10月17日に取得)。"}, {"c": "chat", "n": "Grok", "co": "xAI(米国。2026年にSpaceX傘下となり社名がSpaceXAIに変わったと報じられている)", "u": "https://grok.com/", "v": "Grok 4.6〜4.7(解説記事で表記が分かれる。4.7は2026年9月公開と報じられている)。", "p": "Free 0ドル / SuperGrok Lite 10ドル / SuperGrok 30ドル / Plus 100ドル / Heavy 300ドル。", "s": "X(旧Twitter)の話題との連携、会話、画像・動画生成。", "e": 7, "er": "Xのアカウントがあれば手軽。無料枠は回数制限が厳しめとの解説がある。", "w": "料金体系をXと統合する再編が検討中と報じられているが、未確定。", "src": "2026年10月の解説記事にもとづく(公式ページは未確認)。"}, {"c": "chat", "n": "Microsoft Copilot", "co": "Microsoft(米国)", "u": "https://copilot.microsoft.com/", "v": "モデル名の固定表記は確認できなかった。", "p": "Copilot無料 0ドル / Microsoft 365 Personal 9.99ドル / Family 12.99ドル / Premium 19.99ドル(月払い)。法人向けは1ユーザー月18〜30ドル。", "s": "Word・Excel・PowerPointなどOfficeアプリとの連携、Windows上での利用。", "e": 8, "er": "WindowsやEdgeからすぐ呼び出せ、Officeを使う人には自然。", "w": "個人向け・法人向けで名前が似たプランが多く、混同しやすい。", "src": "解説記事(2026年9月23日更新)。料金はMicrosoft公式ページの2026年6月8日時点の確認とされる。"}, {"c": "chat", "n": "DeepSeek", "co": "DeepSeek(中国・杭州)", "u": "https://www.deepseek.com/", "v": "DeepSeek V4.1 Flash / V4 Pro(API上の名称)。", "p": "アプリは無料と案内されている。APIは従量課金(100万トークンあたり出力0.6〜1.2ドル程度)。", "s": "低価格で高性能。モデルの重みが公開され、自社環境で動かせる。", "e": 7, "er": "無料で使えるが、日本語の自然さや機能の安定性は他社より幅がある。", "w": "個人情報保護委員会は、入力データが中国のサーバーに保存され、中国の法令が適用される点に注意を促している。個人情報・機密・APIキーは入力しない。", "src": "2026年10月の解説記事と、同記事が引用する個人情報保護委員会の注意喚起にもとづく。"}, {"c": "search", "n": "Perplexity", "co": "Perplexity AI(米国)", "u": "https://www.perplexity.ai/", "v": "特定の1モデルではなく、複数社のモデルから選べる形(固有の版数表記は確認できなかった)。", "p": "Free 0ドル / Pro 20ドル / Max 200ドル(月額)。", "s": "出典リンク付きで答える検索型AI。調べものやディープリサーチ。", "e": 9, "er": "質問するだけで出典つきの答えが返る。画面もシンプル。", "w": "プランが2026年に何度か変わっている。出典の中身は自分で確認する。", "src": "2026年9月21日の解説記事にもとづく。"}, {"c": "image", "n": "Midjourney", "co": "Midjourney, Inc.(米国)", "u": "https://www.midjourney.com/", "v": "V8.2(2026年7月24日から標準)。", "p": "Basic 10ドル / Standard 30ドル / Pro 60ドル / Mega 120ドル(月払い。年払いは約20%安い)。", "s": "芸術性・雰囲気のある画像。イラスト、コンセプトアート、広告ビジュアル。", "e": 6, "er": "仕上がりは美しいが、操作や指示の出し方に慣れが要る。", "w": "無料プランは確認できなかった。商用利用はプランの条件を確認する。", "src": "2026年10月8日時点の解説記事にもとづく。"}, {"c": "image", "n": "Adobe Firefly", "co": "Adobe(米国)", "u": "https://firefly.adobe.com/", "v": "Firefly Image 5。Google・OpenAIなど他社モデルも選択できる。", "p": "Standard 1,580円 / Pro 3,180円 / Pro Plus 6,600円 / Premium 31,680円(月額・税込)。無料プランは1日の回数制限つき。", "s": "商用利用を意識した画像生成。Photoshop・Illustratorとの連携。", "e": 8, "er": "日本語UIで分かりやすく、Adobe製品を使う人には自然。", "w": "他社モデルで作った画像が案件に合うかは自分で判断する。知的財産の補償は対象のエンタープライズ顧客向けで、個人向けは記事に記載がない。", "src": "2026年10月の解説記事にもとづく。"}, {"c": "image", "n": "FLUX", "co": "Black Forest Labs(ドイツ)", "u": "https://bfl.ai/", "v": "FLUX 3 Image / FLUX.2 [pro]・[flex]・[max]・[klein]など。", "p": "従量課金のクレジット制(サブスク・席料金なし)。料金計算ツールの例は1枚0.048ドル。", "s": "高品質で速い画像生成。開発者向けのAPIと、自社運用向けのオープンウェイト。", "e": 4, "er": "開発者・制作会社向けの作りで、一般の人が気軽に使う画面ではない。", "w": "オープンウェイトの商用利用は、ライセンスの種類で条件が異なる。", "src": "公式サイト(2026年10月17日に取得)。"}, {"c": "image", "n": "Stable Diffusion", "co": "Stability AI(英国)", "u": "https://stability.ai/", "v": "今回、最新版を確認できなかった(SD 3.5は2024年10月公開)。", "p": "モデルは無料で入手でき、ライセンスの条件がある。利用サービスにより料金は異なる。", "s": "自分のパソコンで動かせる自由度。細かなカスタマイズ。", "e": 4, "er": "導入や設定に知識が要る。", "w": "最新版・ライセンス条件は公式で確認してください。", "src": "版数は確認できていない(2026年1月時点の解説記事の記載)。"}, {"c": "video", "n": "Veo", "co": "Google DeepMind(英国・米国)", "u": "https://deepmind.google/models/veo/", "v": "Veo 3.1(解説記事により3.2の表記もある)。Googleの新しい動画モデルとして別名も発表されたと報じられている。", "p": "Gemini・Flowの利用に、Google AI Plus 725円〜Pro 2,900円〜Ultraの契約が必要。", "s": "音付きの高画質な短い動画。Geminiから使える。", "e": 8, "er": "Geminiの画面から指示するだけ。", "w": "モデル名の入れ替わりが早く、旧版はAPIが終了している例がある。", "src": "2026年9〜10月の解説記事にもとづく(表記が記事で異なる)。"}, {"c": "video", "n": "Kling", "co": "快手(Kuaishou・中国)", "u": "https://klingai.com/", "v": "Kling 3.0(2026年2月公開)。4.0は10月に公開予定と報じられている。", "p": "Free(毎日クレジット、透かしあり、非商用) / Standard 約9〜10ドル / Pro 約33〜37ドル(記事により差がある)。", "s": "人の動きや表情が自然な動画生成。", "e": 7, "er": "Webで試しやすい。無料枠は透かしあり。", "w": "記事ごとに料金が異なる。契約前に公式で確認する。", "src": "2026年6月〜10月の解説記事にもとづく。"}, {"c": "video", "n": "Runway", "co": "Runway(米国)", "u": "https://runwayml.com/", "v": "Gen-4.5。2026年5月にAleph 2.0も発表。", "p": "Standard 15ドル / Pro 35ドル / Max 95ドル(月額)。", "s": "映像制作向け。動画の編集・差し替えなど細かい制御。", "e": 7, "er": "制作者向けの機能が多く、慣れが要る。", "w": "クレジットを使い切ると追加費用がかかる。", "src": "2026年10月4日時点の解説記事にもとづく。"}, {"c": "music", "n": "Suno", "co": "Suno, Inc.(米国)", "u": "https://suno.com/", "v": "v6 / v6-wild(有料)、v6-mini(無料)。", "p": "Free 0ドル / Pro 8ドル / Premier 24ドル(公式ページの月払い表示。解説記事には10ドル・30ドルの記載もある)。", "s": "歌詞付きの曲を文章から作る。日本語の歌にも対応。", "e": 9, "er": "文章を書くだけで曲ができ、最も手軽。", "w": "商用利用や配信は、プランと規約の条件を確認する。", "src": "公式料金ページ(2026年10月17日に取得)。"}, {"c": "music", "n": "Udio", "co": "Udio(米国)", "u": "https://www.udio.com/", "v": "今回、最新版を確認できなかった。", "p": "今回、料金を確認できなかった。公式料金ページで確認する。", "s": "音楽生成。Sunoと並ぶ代表的なサービス。", "e": 7, "er": "Sunoと同様に文章から作れるが、今回は仕様を確認できていないため仮の目安。", "w": "一部の解説では、ダウンロードや商用利用に制限があると指摘されている(今回は未確認)。", "src": "公式ページから数値を取得できなかった。"}, {"c": "music", "n": "ElevenLabs", "co": "ElevenLabs(米国)", "u": "https://elevenlabs.io/", "v": "Eleven v3(2026年2月)、Music v2(2026年5月26日発表)。", "p": "Free 0ドル / Starter 6ドル / Creator 22ドル / Pro 99ドル / Scale 299ドル(月額)。", "s": "自然な音声合成(ナレーション・読み上げ)。日本語に対応。音楽生成も追加。", "e": 8, "er": "テキストを貼るだけで音声が作れる。", "w": "無料プランは非商用。商用はStarter以上。声の権利・なりすまし悪用に注意。", "src": "2026年9月6日時点の解説記事にもとづく。"}, {"c": "code", "n": "Claude Code", "co": "Anthropic(米国)", "u": "https://claude.com/product/claude-code", "v": "Claudeのモデル(Opus 5.5、Sonnet 5.5など)を利用。", "p": "有料プランに含まれる(Freeは対象外)。Pro 20ドル〜、Max 100ドル〜。", "s": "ターミナルなどで動く開発支援。複数ファイルにわたる修正や調査を任せられる。", "e": 6, "er": "開発の知識が前提。慣れると強力。", "w": "この一覧の作成者と同じ系統のため、評価に偏りがある可能性。", "src": "公式料金ページ(2026年10月17日に取得)と解説記事。"}, {"c": "code", "n": "Codex", "co": "OpenAI(米国)", "u": "https://openai.com/codex/", "v": "GPT系モデル(GPT-6 Astraなど)を利用。", "p": "ChatGPTのプランに含まれる(Plus 3,000円、Pro 16,800円〜)。Free・Goは上限つきで、クラウド機能は対象外。", "s": "コードの作成・修正・レビューを自動で進める。", "e": 7, "er": "ChatGPT契約者はすぐ試せる。", "w": "使用量の上限で実質の費用が決まる。", "src": "2026年10月8日時点の解説記事にもとづく。"}, {"c": "code", "n": "GitHub Copilot", "co": "GitHub(Microsoft傘下・米国)", "u": "https://github.com/features/copilot", "v": "複数社のモデルを選択可(Claude Opus 5.5、GPT-6 Astraなど。一部はPro+以上)。", "p": "個人: Free 0ドル / Pro 10ドル / Pro+ 39ドル / Max 100ドル。法人: Business 19ドル / Enterprise 39ドル(1席・月額)。2026年6月から使用量ベースの課金。", "s": "エディタ内のコード補完とチャット。企業の開発現場で広く使われる。", "e": 8, "er": "VS Codeなどに追加するだけで使える。", "w": "含まれるAIクレジットを超えると追加費用(1クレジット0.01ドル)。", "src": "2026年10月の解説記事にもとづく。"}, {"c": "code", "n": "Cursor", "co": "Anysphere(米国)", "u": "https://cursor.com/", "v": "複数社のモデルを選択可(別途の利用料が請求される場合あり)。", "p": "Free 0ドル / Plus 8ドル / Premium 30ドル / Super 100ドル / Ultra 200ドル(月額、税別)。", "s": "AIを中心に設計されたコードエディタ。", "e": 8, "er": "エディタを入れ替えるだけで使い始められる。", "w": "料金は税別で、第三者モデルの利用料が別に請求される。", "src": "公式料金ページ(2026年10月17日に取得)。"}], CATS=[["chat", "対話・汎用"], ["search", "検索・調べもの"], ["image", "画像生成"], ["video", "動画生成"], ["music", "音楽・音声"], ["code", "コード・開発"]], ENDED=[["Sora(OpenAI)", "動画生成。Web版とアプリは2026年4月26日、APIは2026年9月24日に終了したと解説記事が伝えている。"]], cat='', q='';
+  var AI=[{"c": "chat", "n": "ChatGPT", "co": "OpenAI(米国)", "u": "https://chatgpt.com/", "v": "GPT-6.1 Sol(9月29日)、GPT-6 Sol・Luna(9月22日)、GPT-6 Astra(9月3日)など。無料・Goと有料で使えるモデルが分かれる。", "p": "Free 0円 / Go 1,400円 / Plus 3,000円 / Pro 16,800円〜(100・200・500ドル相当の3段階と解説記事にある)。", "s": "文章・相談・要約・分析の万能型。画像生成、音声会話、コード(Codex)も同じ画面で使える。", "e": 9, "er": "日本語が自然で、無料で試せ、画面が分かりやすい。", "w": "モデル名は頻繁に入れ替わる。無料枠は上限がある。", "src": "モデル名と料金は、2026年10月18日掲載(料金の基準日は10月15日)の解説記事にもとづく(公式ページは金額を取得できなかった)。"}, {"c": "chat", "n": "Gemini", "co": "Google(米国)", "u": "https://gemini.google.com/", "v": "Gemini 4 Argon(Pro・Ultraなど)、Gemini 3.x Flash系。", "p": "Google AI Plus 725円 / Pro 2,900円 / Ultra 14,500円・32,000円(いずれも月額・税込。ストレージ付き)。無料版あり。", "s": "Google検索・Gmail・ドキュメントなどとの連携、長い資料の読み込み、画像(Nano Banana)・動画(Veo)の生成。", "e": 9, "er": "Googleアカウントですぐ使え、無料版も充実。スマホとの親和性が高い。", "w": "プラン名・含まれるモデルの表記が変わっている最中で、既存加入者への適用日は案内メールの確認が必要。解説記事では、Google AI Plusは今後Geminiの「Pro」モデルが使えなくなると案内されている。", "src": "モデル名はGoogle公式ページ、料金は2026年10月18日掲載の解説記事(10月14日のGemini 4 Argon公開を含む)にもとづく。"}, {"c": "chat", "n": "Claude", "co": "Anthropic(米国)", "u": "https://claude.ai/", "v": "Fable 5.1 / Opus 5.5 / Sonnet 5.5 / Haiku 5.5(公式料金ページ掲載)。", "p": "Free 0ドル / Pro 20ドル(年払いは月換算17ドル) / Max 100ドルから。", "s": "長文の読み書き、資料の分析、コードの作成と修正。落ち着いた丁寧な文章。", "e": 8, "er": "日本語が自然で画面もシンプル。ただし無料枠は小さめで、この一覧の作成者自身でもあるため、評価に偏りがある可能性。", "w": "Fableは別枠のクレジットや週間上限の対象になる(Pro/Max)。", "src": "公式料金ページ(2026年10月17日に取得)。"}, {"c": "chat", "n": "Grok", "co": "xAI(米国。2026年にSpaceX傘下となり社名がSpaceXAIに変わったと報じられている)", "u": "https://grok.com/", "v": "Grok 4.7(2026年9月21日)、Grok Voice 3.0(10月14日)と報じられている。", "p": "Free 0ドル / SuperGrok Lite 10ドル / SuperGrok 30ドル / Plus 100ドル / Heavy 300ドル。", "s": "X(旧Twitter)の話題との連携、会話、画像・動画生成。", "e": 7, "er": "Xのアカウントがあれば手軽。無料枠は回数制限が厳しめとの解説がある。", "w": "料金体系をXと統合する再編が検討中と報じられているが、未確定。", "src": "2026年10月18日掲載の解説記事にもとづく(公式ページは未確認)。"}, {"c": "chat", "n": "Microsoft Copilot", "co": "Microsoft(米国)", "u": "https://copilot.microsoft.com/", "v": "モデル名の固定表記は確認できなかった。", "p": "Copilot無料 0ドル / Microsoft 365 Personal 9.99ドル / Family 12.99ドル / Premium 19.99ドル(月払い)。法人向けは1ユーザー月18〜30ドル。", "s": "Word・Excel・PowerPointなどOfficeアプリとの連携、Windows上での利用。", "e": 8, "er": "WindowsやEdgeからすぐ呼び出せ、Officeを使う人には自然。", "w": "個人向け・法人向けで名前が似たプランが多く、混同しやすい。", "src": "解説記事(2026年9月23日更新)。料金はMicrosoft公式ページの2026年6月8日時点の確認とされる。"}, {"c": "chat", "n": "DeepSeek", "co": "DeepSeek(中国・杭州)", "u": "https://www.deepseek.com/", "v": "DeepSeek V4.1 Flash / V4 Pro(API上の名称)。", "p": "アプリは無料と案内されている。APIは従量課金(100万トークンあたり出力0.6〜1.2ドル程度)。", "s": "低価格で高性能。モデルの重みが公開され、自社環境で動かせる。", "e": 7, "er": "無料で使えるが、日本語の自然さや機能の安定性は他社より幅がある。", "w": "個人情報保護委員会は、入力データが中国のサーバーに保存され、中国の法令が適用される点に注意を促している。個人情報・機密・APIキーは入力しない。", "src": "2026年10月の解説記事と、同記事が引用する個人情報保護委員会の注意喚起にもとづく。"}, {"c": "search", "n": "Perplexity", "co": "Perplexity AI(米国)", "u": "https://www.perplexity.ai/", "v": "特定の1モデルではなく、複数社のモデルから選べる形(固有の版数表記は確認できなかった)。", "p": "Free 0ドル / Pro 20ドル / Max 200ドル(月額)。", "s": "出典リンク付きで答える検索型AI。調べものやディープリサーチ。", "e": 9, "er": "質問するだけで出典つきの答えが返る。画面もシンプル。", "w": "プランが2026年に何度か変わっている。出典の中身は自分で確認する。", "src": "2026年9月21日の解説記事にもとづく。"}, {"c": "image", "n": "Midjourney", "co": "Midjourney, Inc.(米国)", "u": "https://www.midjourney.com/", "v": "V8.2(2026年7月24日から標準)。", "p": "Basic 10ドル / Standard 30ドル / Pro 60ドル / Mega 120ドル(月払い。年払いは約20%安い)。", "s": "芸術性・雰囲気のある画像。イラスト、コンセプトアート、広告ビジュアル。", "e": 6, "er": "仕上がりは美しいが、操作や指示の出し方に慣れが要る。", "w": "無料プランは確認できなかった。商用利用はプランの条件を確認する。", "src": "2026年10月8日時点の解説記事にもとづく。"}, {"c": "image", "n": "Adobe Firefly", "co": "Adobe(米国)", "u": "https://firefly.adobe.com/", "v": "Firefly Image 5。Google・OpenAIなど他社モデルも選択できる。", "p": "Standard 1,580円 / Pro 3,180円 / Pro Plus 6,600円 / Premium 31,680円(月額・税込)。無料プランは1日の回数制限つき。", "s": "商用利用を意識した画像生成。Photoshop・Illustratorとの連携。", "e": 8, "er": "日本語UIで分かりやすく、Adobe製品を使う人には自然。", "w": "他社モデルで作った画像が案件に合うかは自分で判断する。知的財産の補償は対象のエンタープライズ顧客向けで、個人向けは記事に記載がない。", "src": "2026年10月の解説記事にもとづく。"}, {"c": "image", "n": "FLUX", "co": "Black Forest Labs(ドイツ)", "u": "https://bfl.ai/", "v": "FLUX 3 Image / FLUX.2 [pro]・[flex]・[max]・[klein]など。", "p": "従量課金のクレジット制(サブスク・席料金なし)。料金計算ツールの例は1枚0.048ドル。", "s": "高品質で速い画像生成。開発者向けのAPIと、自社運用向けのオープンウェイト。", "e": 4, "er": "開発者・制作会社向けの作りで、一般の人が気軽に使う画面ではない。", "w": "オープンウェイトの商用利用は、ライセンスの種類で条件が異なる。", "src": "公式サイト(2026年10月17日に取得)。"}, {"c": "image", "n": "Stable Diffusion", "co": "Stability AI(英国)", "u": "https://stability.ai/", "v": "今回、最新版を確認できなかった(SD 3.5は2024年10月公開)。", "p": "モデルは無料で入手でき、ライセンスの条件がある。利用サービスにより料金は異なる。", "s": "自分のパソコンで動かせる自由度。細かなカスタマイズ。", "e": 4, "er": "導入や設定に知識が要る。", "w": "最新版・ライセンス条件は公式で確認してください。", "src": "版数は確認できていない(2026年1月時点の解説記事の記載)。"}, {"c": "video", "n": "Veo", "co": "Google DeepMind(英国・米国)", "u": "https://deepmind.google/models/veo/", "v": "Veo 3.1(解説記事により3.2の表記もある)。Googleの新しい動画モデルとして別名も発表されたと報じられている。", "p": "Gemini・Flowの利用に、Google AI Plus 725円〜Pro 2,900円〜Ultraの契約が必要。", "s": "音付きの高画質な短い動画。Geminiから使える。", "e": 8, "er": "Geminiの画面から指示するだけ。", "w": "モデル名の入れ替わりが早く、旧版はAPIが終了している例がある。", "src": "2026年9〜10月の解説記事にもとづく(表記が記事で異なる)。"}, {"c": "video", "n": "Kling", "co": "快手(Kuaishou・中国)", "u": "https://klingai.com/", "v": "Kling 3.0(2026年2月公開)。4.0は10月に公開予定と報じられている。", "p": "Free(毎日クレジット、透かしあり、非商用) / Standard 約9〜10ドル / Pro 約33〜37ドル(記事により差がある)。", "s": "人の動きや表情が自然な動画生成。", "e": 7, "er": "Webで試しやすい。無料枠は透かしあり。", "w": "記事ごとに料金が異なる。契約前に公式で確認する。", "src": "2026年6月〜10月の解説記事にもとづく。"}, {"c": "video", "n": "Runway", "co": "Runway(米国)", "u": "https://runwayml.com/", "v": "Gen-4.5。2026年5月にAleph 2.0も発表。", "p": "Standard 15ドル / Pro 35ドル / Max 95ドル(月額)。", "s": "映像制作向け。動画の編集・差し替えなど細かい制御。", "e": 7, "er": "制作者向けの機能が多く、慣れが要る。", "w": "クレジットを使い切ると追加費用がかかる。", "src": "2026年10月4日時点の解説記事にもとづく。"}, {"c": "music", "n": "Suno", "co": "Suno, Inc.(米国)", "u": "https://suno.com/", "v": "v6 / v6-wild(有料)、v6-mini(無料)。", "p": "Free 0ドル / Pro 8ドル / Premier 24ドル(公式ページの月払い表示。解説記事には10ドル・30ドルの記載もある)。", "s": "歌詞付きの曲を文章から作る。日本語の歌にも対応。", "e": 9, "er": "文章を書くだけで曲ができ、最も手軽。", "w": "商用利用や配信は、プランと規約の条件を確認する。", "src": "公式料金ページ(2026年10月17日に取得)。"}, {"c": "music", "n": "Udio", "co": "Udio(米国)", "u": "https://www.udio.com/", "v": "今回、最新版を確認できなかった。", "p": "今回、料金を確認できなかった。公式料金ページで確認する。", "s": "音楽生成。Sunoと並ぶ代表的なサービス。", "e": 7, "er": "Sunoと同様に文章から作れるが、今回は仕様を確認できていないため仮の目安。", "w": "一部の解説では、ダウンロードや商用利用に制限があると指摘されている(今回は未確認)。", "src": "公式ページから数値を取得できなかった。"}, {"c": "music", "n": "ElevenLabs", "co": "ElevenLabs(米国)", "u": "https://elevenlabs.io/", "v": "Eleven v3(2026年2月)、Music v2(2026年5月26日発表)。", "p": "Free 0ドル / Starter 6ドル / Creator 22ドル / Pro 99ドル / Scale 299ドル(月額)。", "s": "自然な音声合成(ナレーション・読み上げ)。日本語に対応。音楽生成も追加。", "e": 8, "er": "テキストを貼るだけで音声が作れる。", "w": "無料プランは非商用。商用はStarter以上。声の権利・なりすまし悪用に注意。", "src": "2026年9月6日時点の解説記事にもとづく。"}, {"c": "code", "n": "Claude Code", "co": "Anthropic(米国)", "u": "https://claude.com/product/claude-code", "v": "Claudeのモデル(Opus 5.5、Sonnet 5.5など)を利用。", "p": "有料プランに含まれる(Freeは対象外)。Pro 20ドル〜、Max 100ドル〜。", "s": "ターミナルなどで動く開発支援。複数ファイルにわたる修正や調査を任せられる。", "e": 6, "er": "開発の知識が前提。慣れると強力。", "w": "この一覧の作成者と同じ系統のため、評価に偏りがある可能性。", "src": "公式料金ページ(2026年10月17日に取得)と解説記事。"}, {"c": "code", "n": "Codex", "co": "OpenAI(米国)", "u": "https://openai.com/codex/", "v": "GPT系モデル(GPT-6 Astraなど)を利用。", "p": "ChatGPTのプランに含まれる(Plus 3,000円、Pro 16,800円〜)。Free・Goは上限つきで、クラウド機能は対象外。", "s": "コードの作成・修正・レビューを自動で進める。", "e": 7, "er": "ChatGPT契約者はすぐ試せる。", "w": "使用量の上限で実質の費用が決まる。", "src": "2026年10月8日時点の解説記事にもとづく。"}, {"c": "code", "n": "GitHub Copilot", "co": "GitHub(Microsoft傘下・米国)", "u": "https://github.com/features/copilot", "v": "複数社のモデルを選択可(Claude Opus 5.5、GPT-6 Astraなど。一部はPro+以上)。", "p": "個人: Free 0ドル / Pro 10ドル / Pro+ 39ドル / Max 100ドル。法人: Business 19ドル / Enterprise 39ドル(1席・月額)。2026年6月から使用量ベースの課金。", "s": "エディタ内のコード補完とチャット。企業の開発現場で広く使われる。", "e": 8, "er": "VS Codeなどに追加するだけで使える。", "w": "含まれるAIクレジットを超えると追加費用(1クレジット0.01ドル)。", "src": "2026年10月の解説記事にもとづく。"}, {"c": "code", "n": "Cursor", "co": "Anysphere(米国)", "u": "https://cursor.com/", "v": "複数社のモデルを選択可(別途の利用料が請求される場合あり)。", "p": "Free 0ドル / Plus 8ドル / Premium 30ドル / Super 100ドル / Ultra 200ドル(月額、税別)。", "s": "AIを中心に設計されたコードエディタ。", "e": 8, "er": "エディタを入れ替えるだけで使い始められる。", "w": "料金は税別で、第三者モデルの利用料が別に請求される。", "src": "公式料金ページ(2026年10月17日に取得)。"}], CATS=[["chat", "対話・汎用"], ["search", "検索・調べもの"], ["image", "画像生成"], ["video", "動画生成"], ["music", "音楽・音声"], ["code", "コード・開発"]], ENDED=[["Sora(OpenAI)", "動画生成。Web版とアプリは2026年4月26日、APIは2026年9月24日に終了したと解説記事が伝えている。"]], cat='', q='';
   var body=document.getElementById('aiBody'), chips=document.getElementById('aiChips'), inp=document.getElementById('aiQ'), det=document.getElementById('aiDet'), dd=document.getElementById('dlgAIdet');
   function esc(x){return String(x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
   function catName(k){for(var i=0;i<CATS.length;i++)if(CATS[i][0]===k)return CATS[i][1];return k}
@@ -4043,6 +4375,7 @@ window.ofSelfTest=function(){
   add('ℹ',navigator.onLine===false?'いまはオフラインの状態です。この状態で上の項目がすべて✅なら、オフラインで見られます。':'いまはオンラインです。機内モードにしてから、もう一度この診断を実行すると、オフラインでの確認になります。');
   add('ℹ','この診断は「保存されているか」の確認です。ページそのものが、ネットなしで開けるかは、実際に機内モードで開き直して確認してください。');
   $('ofTest').innerHTML=r.join('');
+  if(window.nkSwInfo)window.nkSwInfo(function(i){var t={ok:'✅ ページ本体が、端末に保存されている',none:'❌ ページ本体は、まだ端末に保存されていません(ネットがあるときに、公式サイトで開いてください)',file:'ℹ ファイルとして開いているため、ページ本体の自動保存は使えません(ファイルを端末に残しておけば開けます)',nosupport:'❌ このブラウザ・開き方では、ページ本体の保存が使えません(https のサイトで、対応ブラウザが必要です)'}[i.s]||'';var li=document.createElement('li');li.textContent=t;$('ofTest').insertBefore(li,$('ofTest').children[$('ofTest').children.length-2]||null)});
 };
 
 /* ---------- 共通 ---------- */
@@ -4072,7 +4405,72 @@ window.openDlg=function(id){_od(id);if(id==='dlgOffline'){safeInit();netUp();set
 var d0=$('dlgOffline');if(d0&&d0.classList.contains('open')){safeInit();netUp()}
 })();
 </script>
-
+<script>
+(function(){
+  var CN='nk-offline-v1', K='nkSw_v1';
+  var sup=('serviceWorker' in navigator)&&('caches' in window);
+  var secure=(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1');
+  var ASSETS=['manifest.webmanifest','icon-192.png','icon-512.png','leak-hero.jpg','data/breach-data.js','data/cyber-data.js','img/jc3-fake-app-flow.webp','img/jc3-fake-app-examples.webp','img/jc3-fake-app-locked.webp'];
+  function base(){ return location.href.split('#')[0].split('?')[0]; }
+  function shellKey(){ return new URL('__nk_shell__', new URL('sw.js', location.href)).href; }
+  function avail(){ return location.protocol!=='file:' && sup && secure; }
+  window.nkSwInfo=function(cb){
+    if(location.protocol==='file:') return cb({s:'file'});
+    if(!avail()) return cb({s:'nosupport'});
+    caches.open(CN).then(function(c){
+      return Promise.all([c.match(base()),c.match(shellKey())]).then(function(a){
+        var at=0; try{ at=+localStorage.getItem(K)||0; }catch(e){}
+        cb({s:(a[0]||a[1])?'ok':'none',at:at});
+      });
+    }).catch(function(){ cb({s:'nosupport'}); });
+  };
+  function save(){
+    if(!avail()) return Promise.reject(new Error('unsupported'));
+    var b=base(), sk=shellKey();
+    return caches.open(CN).then(function(c){
+      return fetch(b,{cache:'reload'}).then(function(r){
+        if(!r.ok) throw new Error('http '+r.status);
+        return Promise.all([c.put(b,r.clone()),c.put(sk,r)]);
+      }).then(function(){
+        return Promise.all(ASSETS.map(function(u){
+          var abs=new URL(u,location.href).href;
+          return fetch(abs,{cache:'reload'}).then(function(r){ if(r.ok) return c.put(abs,r); }).catch(function(){});
+        }));
+      });
+    }).then(function(){ try{ localStorage.setItem(K,String(Date.now())); }catch(e){} return true; });
+  }
+  window.nkSwSave=save;
+  function fmt(t){ var d=new Date(t),z=function(n){return (n<10?'0':'')+n}; return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 '+z(d.getHours())+':'+z(d.getMinutes()); }
+  window.ofSwShow=function(){
+    var e=document.getElementById('ofSw'); if(!e) return;
+    window.nkSwInfo(function(i){
+      var t={ok:'✅ ページ本体が、端末に保存済み'+(i.at?'('+fmt(i.at)+')':''),
+        none:'未保存(ネットがあるときに、公式サイトで開くと自動で保存されます)',
+        file:'ℹ ファイルとして開いています(自動保存は使えません)',
+        nosupport:'⚠ このブラウザ・開き方では使えません(https のサイトで、対応ブラウザが必要)'}[i.s];
+      e.innerHTML='<span>'+t+'</span>';
+    });
+  };
+  window.ofSwSave=function(){
+    if(!avail()){ toast('このブラウザ・開き方では、ページ本体の保存は使えません'); window.ofSwShow(); return; }
+    if(navigator.onLine===false){ toast('いまはオフラインです。ネットがあるときに保存してください'); return; }
+    save().then(function(){ toast('ページ本体を端末に保存しました'); window.ofSwShow(); },function(){ toast('保存できませんでした。通信状態を確認して、もう一度お試しください'); });
+  };
+  window.ofSwDel=function(){
+    if(!sup){ return; }
+    caches.delete(CN).then(function(){ try{ localStorage.removeItem(K); }catch(e){} toast('ページ本体の保存を削除しました'); window.ofSwShow(); });
+  };
+  if(avail()){
+    window.addEventListener('load',function(){
+      navigator.serviceWorker.register('sw.js').then(function(){ return navigator.serviceWorker.ready; }).then(function(){
+        return caches.open(CN).then(function(c){ return c.match(base()); });
+      }).then(function(hit){
+        if(!hit && navigator.onLine!==false) return save();
+      }).then(function(){ if(window.ofSwShow) window.ofSwShow(); }).catch(function(){ if(window.ofSwShow) window.ofSwShow(); });
+    });
+  }
+})();
+</script>
 
 <!-- ===== 音声読み上げ(ブラウザの読み上げ機能。文章は端末の外へ送りません) ===== -->
 <style>
@@ -4424,5 +4822,23 @@ body.tts-picking #ttsHint{display:block}
 })();
 </script>
 
+<script>
+(function(){
+  function fr(){return document.getElementById('phpFr')}
+  function load(force){
+    var f=fr(); if(!f) return;
+    var off=document.getElementById('phpOff'), on=(navigator.onLine!==false);
+    if(off) off.style.display=on?'none':'block';
+    if(!on){ f.style.display='none'; return; }
+    f.style.display='block';
+    if(force||!f.getAttribute('src')){
+      var u=f.getAttribute('data-src'); f.setAttribute('src',force?u+'?t='+Date.now():u);
+    }
+  }
+  window.phpReload=function(){ load(true); };
+  var _o=window.openDlg;
+  window.openDlg=function(id){ var r=_o.apply(this,arguments); if(id==='dlgPhp') load(false); return r; };
+})();
+</script>
 </body>
 </html>
