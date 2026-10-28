@@ -1270,6 +1270,8 @@ const TREE = {
         {label:'外でつけられている', sub:'尾行・待ち伏せの不安', icon:'eye', next:'follow'},
         {label:'声をかけられ怖い', sub:'子ども・女性など', icon:'hush', next:'approach'},
         {label:'不審な電話・訪問', sub:'詐欺かもしれない', icon:'phone', next:'fraud'},
+        {label:'強盗・訪問(トクリュウ)', sub:'玄関・アポ電・受け渡しなど、対面が最も危険', icon:'door', next:'tokuryu'},
+        {label:'闇バイトに誘われた・応募した', sub:'抜けたい・脅されている', icon:'warn', next:'yamibaito'},
       ]
     },
     nodes:{
@@ -1318,7 +1320,39 @@ const TREE = {
           {icon:'ear', head:'家族・周囲に相談', desc:'一人で判断せず、必ず家族や周りの人に話す。'},
           {icon:'phone', head:'警察相談 #9110', desc:'詐欺かもと思ったら、緊急でなければ警察相談専用電話#9110へ。'},
         ],
-        note:{type:'',text:'訪問販売はドアを開けず対応。不安ならインターホン越しに断る。'}
+        note:{type:'',text:'訪問販売はドアを開けず対応。不安ならインターホン越しに断る。'},
+        pageLinks:[{href:'leak-guide/index.html#toku', icon:'share', label:'トクリュウ(匿名・流動型犯罪)対策を開く'}]
+      }),
+      tokuryu: r({
+        level:'crit', badge:'強盗・訪問(トクリュウ)', title:'不審な訪問・アポ電・現金の要求(トクリュウ警戒)',
+        sub:'人と直接会う「対面」が最も危険です。ドアを開けず、自分の安全と通報を最優先にします。',
+        steps:[
+          {icon:'lock', head:'ドアを開けない', desc:'宅配・点検・工事・警察・役所を名乗っても、予定にない人にはドアを開けない。インターホン越し、ドアスコープで確認する。', type:'crit'},
+          {icon:'phone', head:'不審なら110番', desc:'しつこい訪問、下見のような様子、押し入られそうなときは、ためらわず110番。', type:'crit'},
+          {icon:'phone', head:'電話は一度切る', desc:'警察・銀行を名乗る電話は切って、自分で調べた正規の番号にかけ直す。現金の置き場所・資産・留守の時間・家族構成は話さない。', type:'do'},
+          {icon:'lock', head:'現金・カード・暗証番号は渡さない', desc:'警察官が電話で「あなたは捜査対象」と伝えたり、カードや暗証番号を預かったりすることはない。その場で渡さず、110番か#9110へ。'},
+          {icon:'ear', head:'家族で合言葉・共有', desc:'家族で合言葉を決め、留守番電話を常に設定する。旅行・不在のSNS投稿は帰宅後に。'},
+        ],
+        note:{type:'danger',text:'押し入られたら、抵抗せず安全の確保を最優先に(一般的な目安)。金品より命。可能になったらすぐ110番。'},
+        links:[{to:'intruder', icon:'lock', label:'家に押し入られた・物音がするとき'}],
+        pageLinks:[{href:'leak-guide/index.html#toku', icon:'share', label:'トクリュウ対策の詳しい内容を開く'}],
+        tels:[{num:'#9110', label:'#9110 警察相談に電話する', sub:'緊急でない相談', kind:'soft'}],
+        call110:true
+      }),
+      yamibaito: r({
+        level:'crit', badge:'闇バイト', title:'闇バイトに応募した・誘われた・脅されている',
+        sub:'犯行に加わる前に、すぐ警察へ。一人で抱えないことが最優先です。',
+        steps:[
+          {icon:'warn', head:'犯行には加わらない', desc:'「運ぶだけ」「受け取るだけ」でも犯罪の一部です。指示役に言われても、やらない。', type:'crit'},
+          {icon:'phone', head:'すぐ警察へ(#9110か110番)', desc:'応募や誘いの段階でも相談できる。脅されている、身の危険があるときは110番。', type:'crit'},
+          {icon:'lock', head:'やりとりを残す', desc:'メッセージやアプリの画面は消さず、スクリーンショットで残して警察に見せる。'},
+          {icon:'ear', head:'家族・信頼できる人に話す', desc:'身分証や顔写真を送ってしまっても、一人で抱えない。警察は少年の保護・離脱の支援にも取り組んでいる(報道)。'},
+          {icon:'hush', head:'これ以上、個人情報を送らない', desc:'身分証・顔写真・家族の情報は、これ以上送らない。', type:'do'},
+        ],
+        note:{type:'',text:'「高収入」「即金」「だれでもできる」「運ぶだけ・受け取るだけ」は、犯罪の入り口の言葉です。'},
+        pageLinks:[{href:'leak-guide/index.html#toku', icon:'share', label:'トクリュウ対策の詳しい内容を開く'}],
+        tels:[{num:'#9110', label:'#9110 警察相談に電話する', sub:'闇バイトの誘い・脅しの相談', kind:'soft'}],
+        call110:true
       }),
     }
   },
@@ -1621,7 +1655,7 @@ const TREE = {
           {icon:'phone', head:'被害があれば相談', desc:'悪用されたと感じたら警察へ相談する。緊急時は110番。'},
         ],
         note:{type:'danger',text:'流出元が企業などの場合は、その企業のお詫び・問い合わせ窓口の案内に従ってください。'},
-        pageLinks:[{href:'leak-guide/index.html', leak:true, icon:'share', label:'対応ガイド（個人情報が漏れたら）を開く'}],
+        pageLinks:[{href:'leak-guide/index.html', leak:true, icon:'share', label:'対応ガイド（個人情報が漏れたら）を開く'},{href:'leak-guide/index.html#toku', icon:'share', label:'なりすまし訪問・アポ電に注意:トクリュウ対策'}],
         tels:[{num:'#9110', label:'#9110 警察相談に電話する', sub:'緊急でない相談', kind:'soft'}]
       }),
       secret: r({
