@@ -218,6 +218,21 @@ select.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Cs
 .qz-send-btn:disabled{opacity:0.5;cursor:default}
 .qz-sent-msg{display:none;text-align:center;padding:26px 10px;font-size:15px;font-weight:700;color:var(--green-main)}
 
+/* ===防災グッズリンク集=== */
+.goods-box{margin-top:14px;background:#fff7e6;border-radius:12px;padding:14px 16px;border-left:4px solid #dd6b20}
+.goods-btn{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;background:#dd6b20;color:#fff;padding:12px 18px;border-radius:24px;font-size:14px;font-weight:700;box-shadow:0 2px 8px rgba(221,107,32,0.3);user-select:none}
+.goods-btn::-webkit-details-marker{display:none}
+.goods-btn:hover{background:#c05621}
+.goods-pr{padding:0 6px;border:1px solid rgba(255,255,255,.8);border-radius:4px;font-size:10px;font-weight:600}
+.goods-caret{font-size:11px;transition:transform .2s}
+.goods-box[open] .goods-caret{transform:rotate(180deg)}
+.goods-desc{font-size:12px;color:#9c4221;margin:12px 2px 10px;line-height:1.6}
+.goods-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.goods-link{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #fbd38d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#2d3748;transition:border-color .15s,transform .15s}
+.goods-link:hover{border-color:#dd6b20;transform:translateY(-1px)}
+.gl-ico{font-size:20px;flex:none}
+.gl-name{flex:1;font-size:13px;font-weight:700;line-height:1.4}
+.gl-arrow{flex:none;font-size:14px;font-weight:700;color:#dd6b20}
 </style>
 </head>
 <body>
@@ -523,13 +538,20 @@ select.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Cs
         🔗 備蓄診断ツールへ →
       </a>
     </div>
-    <div style="margin-top:14px;background:#fff7e6;border-radius:12px;padding:16px 18px;border-left:4px solid #dd6b20">
-      <div style="font-size:13px;font-weight:700;color:#c05621;margin-bottom:8px">🛒 診断結果をもとに、足りない防災グッズをそろえましょう <span style="display:inline-block;margin-left:4px;padding:0 6px;border:1px solid #a0aec0;border-radius:4px;font-size:10px;font-weight:600;color:#718096;vertical-align:1px">PR</span></div>
-      <a href="https://link.amazon/B05td5ZPn" target="_blank" rel="noopener sponsored"
-         style="display:inline-flex;align-items:center;gap:6px;background:#dd6b20;color:#fff;padding:10px 18px;border-radius:24px;text-decoration:none;font-size:13px;font-weight:700;box-shadow:0 2px 8px rgba(221,107,32,0.3)">
-        🎒 Amazon 防災グッズ特集を見る →
-      </a>
-    </div>
+    <details class="goods-box">
+      <summary class="goods-btn">🛒 防災グッズリンク集 <span class="goods-pr">PR</span><span class="goods-caret">▼</span></summary>
+      <div class="goods-desc">診断結果をもとに、足りない防災グッズをそろえましょう（Amazonの特集・商品ページが新しいタブで開きます）</div>
+      <div class="goods-list">
+        <a class="goods-link" href="https://link.amazon/B05td5ZPn" target="_blank" rel="noopener sponsored"><span class="gl-ico">🎒</span><span class="gl-name">防災グッズ特集</span><span class="gl-arrow">→</span></a>
+        <a class="goods-link" href="https://link.amazon/B06R84Kao" target="_blank" rel="noopener sponsored"><span class="gl-ico">🍙</span><span class="gl-name">非常食特集</span><span class="gl-arrow">→</span></a>
+        <a class="goods-link" href="https://link.amazon/B04qN55Mt" target="_blank" rel="noopener sponsored"><span class="gl-ico">🚽</span><span class="gl-name">簡易トイレ特集</span><span class="gl-arrow">→</span></a>
+        <a class="goods-link" href="https://link.amazon/B00zx9L4t" target="_blank" rel="noopener sponsored"><span class="gl-ico">🔋</span><span class="gl-name">ポータブル電源特集</span><span class="gl-arrow">→</span></a>
+        <a class="goods-link" href="https://link.amazon/B03m3Ps4v" target="_blank" rel="noopener sponsored"><span class="gl-ico">⛺</span><span class="gl-name">アウトドア用品特集</span><span class="gl-arrow">→</span></a>
+        <a class="goods-link" href="https://link.amazon/B044G8ON2" target="_blank" rel="noopener sponsored"><span class="gl-ico">🔦</span><span class="gl-name">10年保存 単三アルカリ電池</span><span class="gl-arrow">→</span></a>
+        <a class="goods-link" href="https://link.amazon/B07aPimav" target="_blank" rel="noopener sponsored"><span class="gl-ico">🔦</span><span class="gl-name">10年保存 単四アルカリ電池</span><span class="gl-arrow">→</span></a>
+        <a class="goods-link" href="https://link.amazon/B021nht5l" target="_blank" rel="noopener sponsored"><span class="gl-ico">🧻</span><span class="gl-name">10年保存 ウエットティッシュ</span><span class="gl-arrow">→</span></a>
+      </div>
+    </details>
   </div>
 </div>
 
