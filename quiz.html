@@ -175,6 +175,19 @@ select.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Cs
 #confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999}
 
 /* ===診断結果（家族情報から）=== */
+.diag-tap-hint{font-size:12px;color:var(--text-light);margin-top:10px}
+.diag-tap summary{list-style:none;cursor:pointer;position:relative;padding-right:56px;-webkit-tap-highlight-color:transparent}
+.diag-tap summary::-webkit-details-marker{display:none}
+.diag-tap{transition:box-shadow .15s,border-color .15s}
+.diag-tap:hover{box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.diag-tap[open]{border-color:var(--green-dark)}
+.diag-caret{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:11px;font-weight:700;color:var(--green-dark);background:#fff;border:1px solid var(--green-light);border-radius:10px;padding:2px 8px;white-space:nowrap}
+.diag-tap[open] .diag-caret{font-size:0}
+.diag-tap[open] .diag-caret::after{content:"閉じる ▲";font-size:11px}
+.diag-sub{display:block;font-size:11px;font-weight:600;color:var(--text-light);margin-top:2px}
+.diag-reason{margin-top:12px;padding-top:10px;border-top:1px dashed var(--green-light);font-size:13px;line-height:1.75;color:#444}
+.diag-reason strong{color:var(--green-dark)}
+.diagnosis-grid{align-items:start}
 .diagnosis-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:16px}
 .diagnosis-item{background:var(--green-pale);border-radius:12px;padding:16px;border:1.5px solid var(--green-light)}
 .diag-label{font-size:12px;color:var(--text-light);margin-bottom:4px}
@@ -232,6 +245,11 @@ select.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Cs
 .goods-link:hover{border-color:#dd6b20;transform:translateY(-1px)}
 .gl-ico{font-size:20px;flex:none}
 .gl-name{flex:1;font-size:13px;font-weight:700;line-height:1.4}
+.goods-count{font-size:11px;font-weight:600;background:rgba(255,255,255,.22);padding:1px 8px;border-radius:10px}
+.goods-body{max-height:none}
+.goods-cat{font-size:12.5px;font-weight:800;color:#9c4221;margin:14px 2px 6px;padding-bottom:4px;border-bottom:1px dashed #fbd38d}
+.goods-cat:first-child{margin-top:4px}
+@media (max-width:420px){.goods-list{grid-template-columns:1fr}.goods-btn{font-size:13.5px;padding:12px 14px}}
 .gl-arrow{flex:none;font-size:14px;font-weight:700;color:#dd6b20}
 </style>
 </head>
@@ -539,17 +557,64 @@ select.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Cs
       </a>
     </div>
     <details class="goods-box">
-      <summary class="goods-btn">🛒 防災グッズリンク集 <span class="goods-pr">PR</span><span class="goods-caret">▼</span></summary>
+      <summary class="goods-btn">🛒 防災グッズリンク集 <span class="goods-count">34件</span><span class="goods-pr">PR</span><span class="goods-caret">▼</span></summary>
       <div class="goods-desc">診断結果をもとに、足りない防災グッズをそろえましょう（Amazonの特集・商品ページが新しいタブで開きます）</div>
-      <div class="goods-list">
-        <a class="goods-link" href="https://link.amazon/B05td5ZPn" target="_blank" rel="noopener sponsored"><span class="gl-ico">🎒</span><span class="gl-name">防災グッズ特集</span><span class="gl-arrow">→</span></a>
-        <a class="goods-link" href="https://link.amazon/B06R84Kao" target="_blank" rel="noopener sponsored"><span class="gl-ico">🍙</span><span class="gl-name">非常食特集</span><span class="gl-arrow">→</span></a>
-        <a class="goods-link" href="https://link.amazon/B04qN55Mt" target="_blank" rel="noopener sponsored"><span class="gl-ico">🚽</span><span class="gl-name">簡易トイレ特集</span><span class="gl-arrow">→</span></a>
-        <a class="goods-link" href="https://link.amazon/B00zx9L4t" target="_blank" rel="noopener sponsored"><span class="gl-ico">🔋</span><span class="gl-name">ポータブル電源特集</span><span class="gl-arrow">→</span></a>
-        <a class="goods-link" href="https://link.amazon/B03m3Ps4v" target="_blank" rel="noopener sponsored"><span class="gl-ico">⛺</span><span class="gl-name">アウトドア用品特集</span><span class="gl-arrow">→</span></a>
-        <a class="goods-link" href="https://link.amazon/B044G8ON2" target="_blank" rel="noopener sponsored"><span class="gl-ico">🔦</span><span class="gl-name">10年保存 単三アルカリ電池</span><span class="gl-arrow">→</span></a>
-        <a class="goods-link" href="https://link.amazon/B07aPimav" target="_blank" rel="noopener sponsored"><span class="gl-ico">🔦</span><span class="gl-name">10年保存 単四アルカリ電池</span><span class="gl-arrow">→</span></a>
-        <a class="goods-link" href="https://link.amazon/B021nht5l" target="_blank" rel="noopener sponsored"><span class="gl-ico">🧻</span><span class="gl-name">10年保存 ウエットティッシュ</span><span class="gl-arrow">→</span></a>
+      <div class="goods-body">
+        <div class="goods-cat">⭐ 特集</div>
+        <div class="goods-list">
+          <a class="goods-link" href="https://link.amazon/B05td5ZPn" target="_blank" rel="noopener sponsored"><span class="gl-ico">🎒</span><span class="gl-name">防災グッズ特集</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B06R84Kao" target="_blank" rel="noopener sponsored"><span class="gl-ico">🍙</span><span class="gl-name">非常食特集</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B04qN55Mt" target="_blank" rel="noopener sponsored"><span class="gl-ico">🚽</span><span class="gl-name">簡易トイレ特集</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B00zx9L4t" target="_blank" rel="noopener sponsored"><span class="gl-ico">🔋</span><span class="gl-name">ポータブル電源特集</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B03m3Ps4v" target="_blank" rel="noopener sponsored"><span class="gl-ico">⛺</span><span class="gl-name">アウトドア用品特集</span><span class="gl-arrow">→</span></a>
+        </div>
+        <div class="goods-cat">💧 水・食事・調理</div>
+        <div class="goods-list">
+          <a class="goods-link" href="https://link.amazon/B09A2hsak" target="_blank" rel="noopener sponsored"><span class="gl-ico">💧</span><span class="gl-name">10年保存水</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B0dXjda9c" target="_blank" rel="noopener sponsored"><span class="gl-ico">🫖</span><span class="gl-name">ポータブルケトル</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B0gU5tP3g" target="_blank" rel="noopener sponsored"><span class="gl-ico">🔥</span><span class="gl-name">防災カセットコンロ</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B0h60Hjz2" target="_blank" rel="noopener sponsored"><span class="gl-ico">🧊</span><span class="gl-name">ポータブル冷蔵庫</span><span class="gl-arrow">→</span></a>
+        </div>
+        <div class="goods-cat">🔦 電池・照明</div>
+        <div class="goods-list">
+          <a class="goods-link" href="https://link.amazon/B044G8ON2" target="_blank" rel="noopener sponsored"><span class="gl-ico">🔋</span><span class="gl-name">10年保存 単三アルカリ電池</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B07aPimav" target="_blank" rel="noopener sponsored"><span class="gl-ico">🔋</span><span class="gl-name">10年保存 単四アルカリ電池</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B07A6GfTv" target="_blank" rel="noopener sponsored"><span class="gl-ico">🔦</span><span class="gl-name">ヘッドライト（防水）</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B0c15IdA0" target="_blank" rel="noopener sponsored"><span class="gl-ico">💡</span><span class="gl-name">充電式高輝度ライト</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B04b0sSmx" target="_blank" rel="noopener sponsored"><span class="gl-ico">🕯️</span><span class="gl-name">充電式スタンドライト</span><span class="gl-arrow">→</span></a>
+        </div>
+        <div class="goods-cat">🧼 衛生・身だしなみ</div>
+        <div class="goods-list">
+          <a class="goods-link" href="https://link.amazon/B021nht5l" target="_blank" rel="noopener sponsored"><span class="gl-ico">🧻</span><span class="gl-name">10年保存 ウエットティッシュ</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B0hpGRRGh" target="_blank" rel="noopener sponsored"><span class="gl-ico">🚿</span><span class="gl-name">ポータブルシャワー</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B06HiLXrd" target="_blank" rel="noopener sponsored"><span class="gl-ico">🧴</span><span class="gl-name">非常用シャンプー</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B00VUOEbC" target="_blank" rel="noopener sponsored"><span class="gl-ico">🩲</span><span class="gl-name">使い捨て下着</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B0dlSFzFz" target="_blank" rel="noopener sponsored"><span class="gl-ico">🧽</span><span class="gl-name">防災圧縮タオル</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B0cHCiGv1" target="_blank" rel="noopener sponsored"><span class="gl-ico">💨</span><span class="gl-name">ポータブルドライヤー</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B0c9OANOq" target="_blank" rel="noopener sponsored"><span class="gl-ico">⛺</span><span class="gl-name">プライバシーテント</span><span class="gl-arrow">→</span></a>
+        </div>
+        <div class="goods-cat">📻 情報・通信・防犯</div>
+        <div class="goods-list">
+          <a class="goods-link" href="https://link.amazon/B03pRr4US" target="_blank" rel="noopener sponsored"><span class="gl-ico">📻</span><span class="gl-name">防災ラジオ</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B00DaUsrV" target="_blank" rel="noopener sponsored"><span class="gl-ico">📺</span><span class="gl-name">ポータブルテレビ</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B005AH3j8" target="_blank" rel="noopener sponsored"><span class="gl-ico">🛰️</span><span class="gl-name">衛星電話</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B0c4ypLFO" target="_blank" rel="noopener sponsored"><span class="gl-ico">📹</span><span class="gl-name">監視カメラ</span><span class="gl-arrow">→</span></a>
+        </div>
+        <div class="goods-cat">🛏️ 避難生活・寒さ対策</div>
+        <div class="goods-list">
+          <a class="goods-link" href="https://link.amazon/B05qwmTYY" target="_blank" rel="noopener sponsored"><span class="gl-ico">🔌</span><span class="gl-name">電気毛布</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B0iBQF2JD" target="_blank" rel="noopener sponsored"><span class="gl-ico">🟫</span><span class="gl-name">ホットカーペット</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B08tHQjyt" target="_blank" rel="noopener sponsored"><span class="gl-ico">🪑</span><span class="gl-name">折りたたみ椅子</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B0iHvygi2" target="_blank" rel="noopener sponsored"><span class="gl-ico">📦</span><span class="gl-name">折りたたみ収納ボックス</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B0aRh3fIv" target="_blank" rel="noopener sponsored"><span class="gl-ico">🛒</span><span class="gl-name">折りたたみキャリー</span><span class="gl-arrow">→</span></a>
+        </div>
+        <div class="goods-cat">⛑️ 安全・家族</div>
+        <div class="goods-list">
+          <a class="goods-link" href="https://link.amazon/B0doy79Ry" target="_blank" rel="noopener sponsored"><span class="gl-ico">⛑️</span><span class="gl-name">防災用ヘルメット</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B02flkVqX" target="_blank" rel="noopener sponsored"><span class="gl-ico">🍼</span><span class="gl-name">非常用ベビー用品</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B095ucomb" target="_blank" rel="noopener sponsored"><span class="gl-ico">👶</span><span class="gl-name">おむつ</span><span class="gl-arrow">→</span></a>
+          <a class="goods-link" href="https://link.amazon/B0gBbDhte" target="_blank" rel="noopener sponsored"><span class="gl-ico">🐾</span><span class="gl-name">非常用ペット用品</span><span class="gl-arrow">→</span></a>
+        </div>
       </div>
     </details>
   </div>
@@ -2504,7 +2569,8 @@ function togglePet(btn, val) {
 // ==================== 診断結果 ====================
 function showDiagnosis() {
   const total = counts.total || 1;
-  const water = total * 2 * 7;
+  const water = total * 3 * 7;   // 1人1日3L（飲用＋調理）×7日分
+  const toilet = total * 5 * 7;  // 1人1日5回×7日分＝35回分
   const food = total * 3 * 7;
   const elder = counts.elder, child = counts.child, disabled = counts.disabled, pet = counts.pet;
 
@@ -2718,14 +2784,25 @@ function showDiagnosis() {
   // ── 備蓄量の目安 ──
   html += '<div class="card">';
   html += '<div class="card-title">💧 必要な備蓄量（目安・7日分）</div>';
+  html += '<div class="diag-tap-hint">👆 各項目をタップすると「必要な理由」が表示されます</div>';
   html += '<div class="diagnosis-grid">';
-  html += `<div class="diagnosis-item"><div class="diag-label">飲料水（7日分）</div><div class="diag-val">${water}L</div></div>`;
-  html += `<div class="diagnosis-item"><div class="diag-label">食料（7日×3食分）</div><div class="diag-val">${food}食分</div></div>`;
-  html += `<div class="diagnosis-item"><div class="diag-label">家族人数</div><div class="diag-val">${total}名</div></div>`;
-  if (elder > 0) html += `<div class="diagnosis-item"><div class="diag-label">高齢者用品</div><div class="diag-val">${elder}名分必要</div></div>`;
-  if (child > 0) html += `<div class="diagnosis-item"><div class="diag-label">子ども用品</div><div class="diag-val">${child}名分必要</div></div>`;
-  if (disabled > 0) html += `<div class="diagnosis-item"><div class="diag-label">障がい者対応備品</div><div class="diag-val">${disabled}名分必要</div></div>`;
-  if (pet > 0) html += `<div class="diagnosis-item"><div class="diag-label">ペット用品</div><div class="diag-val">${pet}匹分必要</div></div>`;
+  const diagItem = (label, val, reason) => `<details class="diagnosis-item diag-tap"><summary><div class="diag-label">${label}</div><div class="diag-val">${val}</div><span class="diag-caret">理由 ▼</span></summary><div class="diag-reason">${reason}</div></details>`;
+  html += diagItem('飲料水（1人1日3L×7日分）', `${water}L`,
+    '1人1日3L（飲み水＋調理用）が目安です。大規模災害では断水が長引き、給水車が届くまで時間がかかることがあります。<strong>最低3日分、できれば7日分</strong>を備えましょう。2Lペットボトルなら約' + Math.ceil(water/2) + '本です。');
+  html += diagItem('食料（7日×3食分）', `${food}食分`,
+    '発災直後は物流が止まり、支援物資が届くまで<strong>3日以上かかる</strong>こともあります。調理不要・長期保存の食品を中心に、ふだん食べながら買い足す「ローリングストック」で無理なく備えましょう。');
+  html += diagItem('簡易トイレ（1日5回×7日分）', `${toilet}回分` + (total > 1 ? `<span class="diag-sub">（1人35回分×${total}名）</span>` : ''),
+    '人は1日に平均<strong>約5回</strong>トイレに行きます。断水や下水管の損傷で、<strong>水洗トイレは発災直後から使えなくなる</strong>ことが多くあります。トイレを我慢して水分を控えると、脱水症状やエコノミークラス症候群の原因になるため、食料と同じくらい重要な備えです。');
+  html += diagItem('家族人数', `${total}名`,
+    '備蓄量はすべて家族の人数をもとに計算しています。帰省や来客で人数が増える時期も考え、少し多めに備えておくと安心です。');
+  if (elder > 0) html += diagItem('高齢者用品', `${elder}名分必要`,
+    '常備薬・お薬手帳のコピー・入れ歯・老眼鏡・介護用品などは、<strong>避難所ではすぐに手に入りません</strong>。持病の悪化や体力低下を防ぐため、本人専用の備えを用意しましょう。');
+  if (child > 0) html += diagItem('子ども用品', `${child}名分必要`,
+    'おむつ・粉ミルク／液体ミルク・離乳食・おしりふきなどは<strong>年齢やサイズに合ったもの</strong>が必要で、支援物資では不足しがちです。お気に入りのおもちゃや絵本も、慣れない環境での不安をやわらげます。');
+  if (disabled > 0) html += diagItem('障がい者対応備品', `${disabled}名分必要`,
+    '補装具の予備部品・医療機器の電源・服用中の薬など、<strong>本人にしか合わない物</strong>は代わりが見つかりにくいため、事前の準備が欠かせません。避難所での配慮が必要なことも、メモにして持ち歩きましょう。');
+  if (pet > 0) html += diagItem('ペット用品', `${pet}匹分必要`,
+    '避難所では<strong>ペット用の物資はほとんど配られません</strong>。フード・水（5日分以上が目安）、ケージ、トイレ用品、首輪とリード、ワクチン接種の記録などを用意しておきましょう。');
   html += '</div></div>';
 
   if (elder > 0 || disabled > 0) {
