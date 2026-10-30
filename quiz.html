@@ -251,6 +251,17 @@ select.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Cs
 .goods-cat:first-child{margin-top:4px}
 @media (max-width:420px){.goods-list{grid-template-columns:1fr}.goods-btn{font-size:13.5px;padding:12px 14px}}
 .gl-arrow{flex:none;font-size:14px;font-weight:700;color:#dd6b20}
+/* ===== リンク集：リンクコピー・共有表示 ===== */
+.goods-actions{display:flex;justify-content:flex-end;margin:0 0 8px}
+.goods-copy{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1.5px solid #f6ad55;color:#c05621;border-radius:20px;padding:7px 14px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;transition:background .15s}
+.goods-copy:hover{background:#fffaf0}
+.goods-copy.done{background:#f0fff4;border-color:#68d391;color:#276749}
+.goods-ov{display:none;position:fixed;inset:0;z-index:9600;background:rgba(10,20,40,0.55);padding:16px;overflow-y:auto}
+.goods-ov.open{display:flex;align-items:flex-start;justify-content:center}
+.goods-ov-panel{width:100%;max-width:720px;margin:16px auto;background:#fff;border-radius:16px;padding:16px 16px 20px;box-shadow:0 10px 40px rgba(0,0,0,0.3)}
+.goods-ov-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:16px;font-weight:800;color:#c05621;margin-bottom:10px}
+.goods-ov-close{flex-shrink:0;width:34px;height:34px;border-radius:50%;border:none;background:#edf2f7;font-size:16px;cursor:pointer;color:#4a5568}
+.goods-ov .goods-box{margin-top:0}
 </style>
 </head>
 <body>
@@ -556,9 +567,10 @@ select.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Cs
         🔗 備蓄診断ツールへ →
       </a>
     </div>
-    <details class="goods-box">
+    <details class="goods-box" id="goods-src">
       <summary class="goods-btn">🛒 防災グッズリンク集 <span class="goods-count">34件</span><span class="goods-pr">PR</span><span class="goods-caret">▼</span></summary>
       <div class="goods-desc">診断結果をもとに、足りない防災グッズをそろえましょう（Amazonの特集・商品ページが新しいタブで開きます）</div>
+      <div class="goods-actions"><button type="button" class="goods-copy" onclick="goodsCopyLink(this)">🔗 リンク集のリンクをコピー</button></div>
       <div class="goods-body">
         <div class="goods-cat">⭐ 特集</div>
         <div class="goods-list">
@@ -3249,6 +3261,51 @@ function launchConfetti() {
 document.addEventListener('DOMContentLoaded', () => {
   try { setTimeout(initMap, 500); } catch(e) { console.warn(e); }
 });
+</script>
+<script>
+function GOODS_BOX_HTML(){ var src=document.getElementById('goods-src'); return src ? src.outerHTML.replace(' id="goods-src"','') : ''; }
+// ===== 防災グッズリンク集：リンクコピー ＆ #goods で直接表示 =====
+function goodsLinkUrl(){ return location.href.split('#')[0] + '#goods'; }
+function goodsCopyLink(btn){
+  var url = goodsLinkUrl();
+  var label = btn.innerHTML;
+  function done(ok){
+    btn.classList.toggle('done', ok);
+    btn.innerHTML = ok ? '✅ リンクをコピーしました' : '⚠️ コピーできませんでした';
+    if (typeof dwaToast === 'function' && ok) dwaToast('🔗 リンク集のリンクをコピーしました');
+    setTimeout(function(){ btn.innerHTML = label; btn.classList.remove('done'); }, 2200);
+  }
+  function fallback(){
+    var ta = document.createElement('textarea'); ta.value = url; ta.setAttribute('readonly','');
+    ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select();
+    var ok = false; try { ok = document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta); done(ok);
+  }
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(url).then(function(){ done(true); }, fallback);
+  else fallback();
+}
+function goodsOpenOverlay(){
+  var ov = document.getElementById('goods-ov');
+  if (!ov) {
+    ov = document.createElement('div'); ov.id = 'goods-ov'; ov.className = 'goods-ov';
+    ov.innerHTML = '<div class="goods-ov-panel" role="dialog" aria-modal="true" aria-label="防災グッズリンク集">'
+      + '<div class="goods-ov-head">🛒 防災グッズリンク集<button type="button" class="goods-ov-close" aria-label="閉じる" onclick="goodsCloseOverlay()">✕</button></div>'
+      + GOODS_BOX_HTML() + '</div>';
+    ov.addEventListener('click', function(e){ if (e.target === ov) goodsCloseOverlay(); });
+    document.body.appendChild(ov);
+    var box = ov.querySelector('.goods-box'); if (box) box.open = true;
+  }
+  ov.classList.add('open'); document.body.style.overflow = 'hidden';
+}
+function goodsCloseOverlay(){
+  var ov = document.getElementById('goods-ov'); if (ov) ov.classList.remove('open');
+  document.body.style.overflow = '';
+  if (location.hash === '#goods' && history.replaceState) history.replaceState(null, '', location.pathname + location.search);
+}
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') { var ov = document.getElementById('goods-ov'); if (ov && ov.classList.contains('open')) goodsCloseOverlay(); } });
+function goodsCheckHash(){ if (location.hash === '#goods') goodsOpenOverlay(); }
+window.addEventListener('hashchange', goodsCheckHash);
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', goodsCheckHash); else goodsCheckHash();
 </script>
 </body>
 </html>
