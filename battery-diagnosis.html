@@ -359,6 +359,17 @@
   .err.show{display:block;}
 
   footer{margin-top:30px;font-size:12px;color:var(--text-faint);text-align:center;line-height:1.8;}
+  .lfp-feature{display:flex;align-items:center;gap:16px;margin-top:26px;padding:18px 20px;border-radius:14px;border:1px solid var(--line);border-left:4px solid var(--safe);background:var(--bg-panel);text-decoration:none;color:var(--text);transition:transform .15s,border-color .15s,box-shadow .15s;}
+  .lfp-feature:hover{transform:translateY(-1px);border-color:var(--safe);box-shadow:0 6px 18px rgba(78,201,139,0.18);}
+  .lfp-feature .lf-icon{flex:none;width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:24px;background:rgba(78,201,139,0.12);}
+  .lfp-feature .lf-body{flex:1;min-width:0;}
+  .lfp-feature .lf-kicker{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--safe);margin-bottom:3px;}
+  .lfp-feature .lf-pr{display:inline-block;margin-left:6px;padding:0 6px;border:1px solid var(--text-faint);border-radius:4px;font-size:10px;color:var(--text-faint);letter-spacing:0;}
+  .lfp-feature .lf-title{font-family:var(--disp);font-weight:700;font-size:16px;line-height:1.4;}
+  .lfp-feature .lf-desc{font-size:12.5px;color:var(--text-dim);margin-top:4px;line-height:1.6;}
+  .lfp-feature .lf-cta{flex:none;font-size:13px;font-weight:600;padding:9px 14px;border-radius:9px;background:var(--safe);color:#0f1a14;white-space:nowrap;}
+  @media (max-width:560px){.lfp-feature{flex-wrap:wrap;}.lfp-feature .lf-cta{width:100%;text-align:center;}}
+  .chem-amz{display:inline-block;margin-top:10px;font-size:13px;font-weight:600;color:var(--safe);}
   footer a{color:var(--text-dim);}
 
   /* ---- top toolbar ---- */
@@ -725,6 +736,16 @@
       </div>
     </div>
   </div>
+
+  <a class="lfp-feature" href="https://link.amazon/B0ch62TFY" target="_blank" rel="noopener sponsored">
+    <div class="lf-icon">🔋</div>
+    <div class="lf-body">
+      <div class="lf-kicker">特集 ／ LiFePO₄<span class="lf-pr">PR</span></div>
+      <div class="lf-title">リン酸鉄リチウムイオンバッテリー特集</div>
+      <div class="lf-desc">熱的に安定で発火・延焼しにくいとされるリン酸鉄リチウム（LFP）採用の製品をAmazonでチェック。購入前にこの診断計でリコール情報もご確認ください。</div>
+    </div>
+    <span class="lf-cta">Amazonで見る ›</span>
+  </a>
 
   <footer>
     照合データベースは調査時点の公開リコール情報に基づきます（随時追加）。当DBに該当が無い場合は、公式サイトでの検索リンクをご案内します。完全オフラインで動作します。
@@ -1245,7 +1266,7 @@
       accent:'var(--safe)',
       head:'リン酸鉄リチウム（LFP）',
       lowRisk:true,
-      note:'リン酸鉄リチウム（LFP）は、三元系（NMC）やコバルト酸リチウムに比べて<b>熱的に安定で、熱暴走の開始温度が高く、発火・延焼しにくい</b>とされる化学種です。そのため、同種の使用条件では発火リスクは<b>相対的に低い</b>と考えられます。ただし、保護回路の不良・製造欠陥・模倣品・過充電や物理破損による事故はLFPでも起こり得ます。リコール情報は必ず別途ご確認ください。'
+      note:'リン酸鉄リチウム（LFP）は、三元系（NMC）やコバルト酸リチウムに比べて<b>熱的に安定で、熱暴走の開始温度が高く、発火・延焼しにくい</b>とされる化学種です。そのため、同種の使用条件では発火リスクは<b>相対的に低い</b>と考えられます。ただし、保護回路の不良・製造欠陥・模倣品・過充電や物理破損による事故はLFPでも起こり得ます。リコール情報は必ず別途ご確認ください。<br><a class="chem-amz" href="https://link.amazon/B0ch62TFY" target="_blank" rel="noopener sponsored">🔋 リン酸鉄リチウムイオンバッテリー特集をAmazonで見る ›</a> <span style="font-size:10px;color:var(--text-faint);">[PR]</span>'
     },
     semisolid: {
       accent:'var(--safe)',
