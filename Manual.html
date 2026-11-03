@@ -263,6 +263,20 @@
   }
   .link-cta svg{width:20px;height:20px;color:var(--accent);}
 
+  .yt-sec{margin-top:18px;display:flex;flex-direction:column;gap:12px;}
+  .yt-h{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;}
+  .yt-h svg{width:22px;height:22px;color:#ff3d3d;flex:0 0 auto;}
+  .yt-card{border:1px solid var(--line,rgba(127,127,127,.25));border-radius:14px;overflow:hidden;background:var(--card,transparent);}
+  .yt-thumb{position:relative;display:block;width:100%;aspect-ratio:16/9;border:0;padding:0;margin:0;cursor:pointer;background:#111;}
+  .yt-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .yt-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+  .yt-play svg{width:60px;height:60px;color:#fff;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6));}
+  .yt-frame{position:relative;width:100%;aspect-ratio:16/9;background:#000;}
+  .yt-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+  .yt-meta{display:flex;flex-direction:column;gap:4px;padding:10px 12px;}
+  .yt-title{font-weight:700;font-size:14px;line-height:1.5;}
+  .yt-open{font-size:12px;color:var(--accent);text-decoration:none;align-self:flex-end;}
+  @media print{.yt-sec{display:none;}}
   .pagelink-cta{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;padding:12px 14px;border-radius:14px;border:1.5px dashed var(--accent);background:transparent;color:var(--ink);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
   .pagelink-cta svg{width:20px;height:20px;color:var(--accent);flex:0 0 auto;}
   .pagelink-url{margin-top:6px;font-size:11px;color:var(--muted,#888);word-break:break-all;text-align:center;}
@@ -639,7 +653,7 @@
       <p>「119番」「110番」「#7119」「#8000」「#9910」などの電話ボタンを押すと、お使いの端末の電話アプリが起動します。発信や通話は各電話会社・相談窓口の管理下で行われ、本ツールが通話内容を取得することはありません。</p>
 
       <div class="pv-h">5. 外部サイト・外部コンテンツについて</div>
-      <p>本ツールには、外部サイトへのリンクや外部コンテンツの埋め込みが含まれます。具体的には、AED設置場所の検索サイト（日本救急医療財団「全国AEDマップ」、AED財団「AED N@VI」）、避難所・避難場所の検索サイト（国土地理院「指定緊急避難場所マップ」、Yahoo!天気・災害「避難場所マップ」）へのリンク、および胸骨圧迫の解説動画（YouTube）の埋め込み表示です。</p>
+      <p>本ツールには、外部サイトへのリンクや外部コンテンツの埋め込みが含まれます。具体的には、AED設置場所の検索サイト（日本救急医療財団「全国AEDマップ」、AED財団「AED N@VI」）、避難所・避難場所の検索サイト（国土地理院「指定緊急避難場所マップ」、Yahoo!天気・災害「避難場所マップ」）へのリンク、および胸骨圧迫の解説動画・サイバー攻撃と情報漏洩の解説動画（YouTube）の埋め込み表示です。解説動画のサムネイル画像はYouTubeのサーバーから読み込まれます。</p>
       <p>これらのリンク先・埋め込み先では、それぞれの事業者により、Cookie等を用いた情報取得が行われる場合があります。特にYouTube動画を再生した場合、Google社のプライバシーポリシーに基づき情報が取得されることがあります。外部サイト・外部サービスにおける情報の取り扱いについては、各事業者のプライバシーポリシーをご確認ください。</p>
 
       <div class="pv-h">6. 免責事項</div>
@@ -718,6 +732,15 @@ const ICON = {
    result: { badge, level, title, sub, steps:[{icon,head,desc,type}], note, call }
    ========================================================= */
 const r = (o)=>({type:'result', ...o});
+
+/* サイバー攻撃・情報漏洩の解説動画（DWA防災情報センター／YouTube） */
+const VIDEOS = {
+  FCmajOnFVJQ:{title:'個人情報漏洩から悪用までのプロセス'},
+  '-gzeCeNEEFw':{title:'パスポート番号漏洩のリスクと防衛策'},
+  KXIOZRislj4:{title:'スマホ金融アプリを狙う「オーバーレイ攻撃」って何？対策まで解説'},
+  FW4TlKF2V7g:{title:'漏洩対策ツールの使い方 今すぐやるべき「救助」手順 3つの機能でデータを守る！'},
+  VoaCyQ_J1Io:{title:'PHP脆弱性危機とAIサイバー犯罪リスク'},
+};
 
 const TREE = {
   quake: {
@@ -1928,6 +1951,7 @@ const TREE = {
     title:'サイバー攻撃・情報漏洩', icon:'cyber', color:'#00c2d1',
     root:{
       q:'どんなトラブルですか？', lead:'心当たりのある状況を選んでください。被害の拡大を止めることが最優先です。',
+      videos:['FCmajOnFVJQ','-gzeCeNEEFw','KXIOZRislj4','FW4TlKF2V7g','VoaCyQ_J1Io'],
       options:[
         {label:'個人情報漏洩', sub:'自分や顧客の情報が流出した', icon:'lock', next:'pii'},
         {label:'機密情報漏洩', sub:'社内の機密・取引先情報の流出', icon:'lock', next:'secret'},
@@ -1940,6 +1964,7 @@ const TREE = {
     },
     nodes:{
       pii: r({
+        videos:['FCmajOnFVJQ','FW4TlKF2V7g','-gzeCeNEEFw'],
         level:'crit', badge:'個人情報の漏洩', title:'個人情報が流出したかもしれないとき',
         sub:'二次被害（なりすまし・迷惑連絡）を防ぐことが目的です。',
         steps:[
@@ -1954,6 +1979,7 @@ const TREE = {
         tels:[{num:'#9110', label:'#9110 警察相談に電話する', sub:'緊急でない相談', kind:'soft'}]
       }),
       secret: r({
+        videos:['VoaCyQ_J1Io','FCmajOnFVJQ'],
         level:'crit', badge:'機密情報の漏洩', title:'社内の機密情報が流出したとき',
         sub:'拡散を止め、すぐ組織に報告することが最優先です。',
         steps:[
@@ -1966,6 +1992,7 @@ const TREE = {
         note:{type:'danger',text:'個人の判断で「大したことない」と決めつけないこと。組織としての対応が必要かは担当者が判断します。'}
       }),
       takeover: r({
+        videos:['KXIOZRislj4','FCmajOnFVJQ'],
         level:'crit', badge:'アカウントの保護', title:'アカウントが乗っ取られたとき',
         sub:'犯人にログインされている状態を断ち切ることが先です。',
         steps:[
@@ -1978,6 +2005,7 @@ const TREE = {
         note:{type:'danger',text:'同じパスワードを使い回している他のサービスも、すぐに変更してください。'}
       }),
       withdraw: r({
+        videos:['KXIOZRislj4','FCmajOnFVJQ'],
         level:'crit', badge:'不正出金', title:'身に覚えのない引き出しがあったとき',
         sub:'時間との勝負です。すぐに金融機関へ連絡してください。',
         steps:[
@@ -1991,6 +2019,7 @@ const TREE = {
         call110:true
       }),
       contract: r({
+        videos:['-gzeCeNEEFw','FCmajOnFVJQ'],
         level:'warn', badge:'不正契約', title:'身に覚えのない契約があったとき',
         sub:'契約の証拠を残し、契約先と消費生活センターに相談します。',
         steps:[
@@ -2004,6 +2033,7 @@ const TREE = {
         tels:[{num:'188', label:'188 消費生活相談に電話する', sub:'最寄りの消費生活センターへ', kind:'soft'}]
       }),
       network: r({
+        videos:['VoaCyQ_J1Io'],
         level:'warn', badge:'通信障害', title:'電話・インターネットがつながらないとき',
         sub:'自分の環境か、広範囲の障害かを切り分けます。',
         steps:[
@@ -2017,6 +2047,7 @@ const TREE = {
         call:true
       }),
       system: r({
+        videos:['VoaCyQ_J1Io'],
         level:'warn', badge:'システム障害', title:'業務システムが停止・異常動作したとき',
         sub:'被害を広げないことと、すぐ報告することが大切です。',
         steps:[
@@ -2096,6 +2127,35 @@ let _currentNode = null;
    ページごとのURL(#カテゴリ/ページ)で直接開けるようにする
    例: Manual.html#snow/roof
    ========================================================= */
+/* 解説動画：サムネイルを押すと、その場で再生プレーヤーを読み込む */
+function videoSection(ids, heading){
+  if(!Array.isArray(ids) || !ids.length) return '';
+  const cards = ids.filter(id=>VIDEOS[id]).map(id=>{
+    const t = escapeHtml(VIDEOS[id].title);
+    return `<div class="yt-card" data-vid="${escapeHtml(id)}">
+      <button type="button" class="yt-thumb" onclick="playVideo(this)" aria-label="${t} を再生">
+        <img src="https://i.ytimg.com/vi/${encodeURIComponent(id)}/hqdefault.jpg" alt="" loading="lazy" onerror="this.style.display='none'">
+        <span class="yt-play">${ICON.play}</span>
+      </button>
+      <div class="yt-meta">
+        <span class="yt-title">${t}</span>
+        <a class="yt-open" href="https://youtu.be/${encodeURIComponent(id)}" target="_blank" rel="noopener">YouTubeで開く ›</a>
+      </div>
+    </div>`;
+  }).join('');
+  return `<div class="yt-sec"><div class="yt-h">${ICON.play}<span>${heading||'解説動画'}</span></div>${cards}
+    <div class="video-note">出典: DWA防災情報センター（YouTube）。再生ボタンを押すとYouTubeの動画を読み込みます。</div></div>`;
+}
+function playVideo(btn){
+  const card = btn.closest('.yt-card'); if(!card) return;
+  const id = card.getAttribute('data-vid');
+  const t = (VIDEOS[id]||{}).title || '解説動画';
+  const box = document.createElement('div'); box.className = 'yt-frame';
+  box.innerHTML = '<iframe src="https://www.youtube.com/embed/' + encodeURIComponent(id) +
+    '?rel=0&playsinline=1&autoplay=1" title="' + escapeHtml(t) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+  btn.replaceWith(box);
+}
+
 let _routing = false;
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function setHash(h){
@@ -2204,7 +2264,8 @@ function renderNode(catKey, nodeKey){
     <button class="back" onclick="goBack()">‹ もどる</button>
     <div class="section-q">${node.q}</div>
     ${node.lead?`<div class="lead">${node.lead}</div>`:''}
-    <div class="grid"><div style="grid-column:1/-1;display:flex;flex-direction:column;gap:12px">${opts}</div></div>`;
+    <div class="grid"><div style="grid-column:1/-1;display:flex;flex-direction:column;gap:12px">${opts}</div></div>
+    ${videoSection(node.videos, 'この分野の解説動画')}`;
 }
 
 function choose(catKey, next, label){
@@ -2302,6 +2363,7 @@ function renderResult(catKey, res){
       ${cta}
       ${aedCta}
       ${shelterCta}
+      ${videoSection(res.videos, 'あわせて見たい解説動画')}
       <button type="button" class="pagelink-cta" onclick="copyLink()">${ICON.link}<span>このページのリンクをコピー</span></button>
       <div class="pagelink-url">${escapeHtml(location.href)}</div>
     </div>
