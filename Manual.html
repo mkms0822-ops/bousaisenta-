@@ -263,6 +263,9 @@
   }
   .link-cta svg{width:20px;height:20px;color:var(--accent);}
 
+  .pagelink-cta{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:14px;padding:12px 14px;border-radius:14px;border:1.5px dashed var(--accent);background:transparent;color:var(--ink);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .pagelink-cta svg{width:20px;height:20px;color:var(--accent);flex:0 0 auto;}
+  .pagelink-url{margin-top:6px;font-size:11px;color:var(--muted,#888);word-break:break-all;text-align:center;}
   .restart{
     display:block;width:100%;margin-top:22px;
     background:none;border:1px solid var(--line);color:var(--muted);
@@ -511,6 +514,9 @@
     <button type="button" class="tool-btn" onclick="shareCurrent()">
       <span id="shareBtnIcon"></span>共有
     </button>
+    <button type="button" class="tool-btn" onclick="copyLink()" title="いま表示しているページのURLをコピーします">
+      <span id="linkBtnIcon"></span>リンク
+    </button>
   </div>
 
   <div class="search-wrap">
@@ -700,6 +706,7 @@ const ICON = {
   shelter: S('<path d="M6 24 24 8l18 16"/><path d="M11 20v20h26V20"/><path d="M19 40V28h10v12"/>'),
   rescue: S('<circle cx="24" cy="24" r="16"/><circle cx="24" cy="24" r="7"/><path d="M24 8v9M24 31v9M8 24h9M31 24h9"/>'),
   war: S('<path d="M6 40h36"/><path d="M12 40V26a12 12 0 0 1 24 0v14"/><path d="M24 6v6M8 12l4 4M40 12l-4 4"/>'),
+  link: S('<path d="M20 28l8-8"/><path d="M22 14l3-3a8 8 0 0 1 11 11l-3 3"/><path d="M26 34l-3 3a8 8 0 0 1-11-11l3-3"/>'),
   snow: S('<path d="M24 4v40M6.7 14l34.6 20M6.7 34l34.6-20"/><path d="M19 8l5 4 5-4M19 40l5-4 5 4M7 21l6-1-2-6M41 27l-6 1 2 6M7 27l6 1-2 6M41 21l-6-1 2-6"/>'),
   shovel: S('<path d="M30 6l6 6"/><path d="M33 9 19 23"/><path d="M19 23l-6-2-7 7a6 6 0 0 0 0 8l2 2a6 6 0 0 0 8 0l7-7-2-6z"/>'),
   cyber: S('<rect x="6" y="8" width="36" height="24" rx="3"/><path d="M18 40h12M24 32v8"/>'),
@@ -2085,8 +2092,73 @@ let path = []; // {cat, nodeKey, label}
 let _currentRes = null;
 let _currentNode = null;
 
+/* =========================================================
+   ページごとのURL(#カテゴリ/ページ)で直接開けるようにする
+   例: Manual.html#snow/roof
+   ========================================================= */
+let _routing = false;
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function setHash(h){
+  if(_routing) return;
+  const want = h ? '#' + h : '';
+  if(location.hash === want || (!want && !location.hash)) return;
+  try{ history.pushState(null, '', want || (location.pathname + location.search)); }catch(e){}
+}
+/* 親ページをさかのぼってパンくずを作る */
+function buildParentMap(catKey){
+  const cat = TREE[catKey], map = {};
+  const scan = (fromKey, node)=>{
+    (node.options||[]).forEach(o=>{ if(o.next && !map[o.next]) map[o.next] = {parent:fromKey, label:o.label}; });
+  };
+  scan('root', cat.root);
+  Object.entries(cat.nodes).forEach(([k,n])=>scan(k,n));
+  Object.entries(cat.nodes).forEach(([k,n])=>{
+    (n.links||[]).forEach(l=>{ if(!map[l.to]) map[l.to] = {parent:k, label:l.label}; });
+  });
+  return map;
+}
+function openFromHash(){
+  const h = decodeURIComponent((location.hash||'').replace(/^#/,''));
+  const [catKey, nodeKey] = h.split('/');
+  const cat = TREE[catKey];
+  _routing = true;
+  try{
+    if(!cat){ renderHome(); try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){} return; }
+    if(!nodeKey || !cat.nodes[nodeKey]){ pickCat(catKey); return; }
+    const map = buildParentMap(catKey);
+    const chain = []; let k = nodeKey, guard = 0;
+    while(k && k!=='root' && guard++<20){
+      const m = map[k];
+      chain.unshift({label: m ? m.label : (cat.nodes[k].title || cat.nodes[k].q || ''), catKey, nodeKey:k});
+      k = m ? m.parent : null;
+    }
+    path = [{label:cat.title, catKey}].concat(chain);
+    renderNode(catKey, nodeKey);
+  } finally { _routing = false; }
+}
+window.addEventListener('popstate', openFromHash);
+window.addEventListener('hashchange', ()=>{ openFromHash(); });
+
+/* ----- このページのリンクをコピー ----- */
+async function copyLink(){
+  const url = location.href;
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(url);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = url; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    }
+    showToast('このページのリンクをコピーしました');
+  }catch(e){
+    showToast('コピーできませんでした');
+  }
+}
+
 function renderHome(){
   stopSpeak(); resetCprAids();
+  setHash('');
   path = [];
   _currentRes = null; _currentNode = null;
   renderCrumbs();
@@ -2116,6 +2188,7 @@ function renderNode(catKey, nodeKey){
   stopSpeak(); resetCprAids();
   const cat = TREE[catKey];
   const node = nodeKey==='root' ? cat.root : cat.nodes[nodeKey];
+  setHash(catKey + (nodeKey==='root' ? '' : '/' + nodeKey));
   if(node.type==='result'){ return renderResult(catKey, node); }
   _currentRes = null; _currentNode = node;
   renderCrumbs();
@@ -2229,6 +2302,8 @@ function renderResult(catKey, res){
       ${cta}
       ${aedCta}
       ${shelterCta}
+      <button type="button" class="pagelink-cta" onclick="copyLink()">${ICON.link}<span>このページのリンクをコピー</span></button>
+      <div class="pagelink-url">${escapeHtml(location.href)}</div>
     </div>
     <button class="restart" onclick="renderHome()">↺ 最初の画面にもどる</button>`;
   window.scrollTo({top:0,behavior:'smooth'});
@@ -2704,6 +2779,7 @@ document.addEventListener('keydown', function(e){
   set('copyBtnIcon', ICON.copy);
   set('printBtnIcon', ICON.print);
   set('shareBtnIcon', ICON.share);
+  set('linkBtnIcon', ICON.link);
   set('searchIcon', ICON.search);
 })();
 
@@ -2811,7 +2887,7 @@ function closePrivacyModal(){
   if(ov){ ov.classList.remove('open'); }
 }
 
-renderHome();</script>
+if(location.hash.length>1){ openFromHash(); } else { renderHome(); }</script>
 
 <!-- ============================================================
      アクセス計測タグ（緊急対応マニュアル → 防災情報センターGASへ記録）
