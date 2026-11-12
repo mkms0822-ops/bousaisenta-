@@ -321,7 +321,10 @@ html[data-theme="dark"] .marker-cluster-large{background:rgba(225,110,110,.28)}
 html[data-theme="dark"] .marker-cluster-large div{background:rgba(225,110,110,.8);color:#fff}
 
 /* ---------- ポップアップ ---------- */
-.leaflet-popup-content{margin:11px 13px;min-width:250px;font-family:inherit}
+.leaflet-popup-content{margin:11px 13px;font-family:inherit}
+/* 中身が長いときはポップアップ内をスクロール(地図は動かさない) */
+.leaflet-popup-scrolled{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;border:0;padding-right:4px}
+@media (max-width:640px){.pop .note{max-height:none}}
 .pop h4{font-size:14.5px;margin-bottom:7px;color:var(--accent);line-height:1.35}
 .pop table{width:100%;border-collapse:collapse;font-size:12.5px}
 .pop td{padding:3px 0;vertical-align:top}
@@ -1415,7 +1418,19 @@ function init(){
     zoomToBoundsOnClick: true,
     spiderfyDistanceMultiplier: 2.2,
     maxClusterRadius: 38,
-    disableClusteringAtZoom: 12
+    disableClusteringAtZoom: 12,
+    /* 画面外のマーカーを外さない。外すと、長いポップアップで地図が自動スクロールしたとき
+       マーカーが画面外に出て取り外され、ポップアップも一緒に閉じてしまう(スマホで発生) */
+    removeOutsideVisibleBounds: false
+  });
+
+  /* 画面サイズが変わったら、ポップアップの大きさを合わせ直す */
+  map.on('resize', function(){
+    var o = popupOpts();
+    for(var i=0;i<markerList.length;i++){
+      var pp = markerList[i].getPopup && markerList[i].getPopup();
+      if(pp){ pp.options.maxHeight = o.maxHeight; pp.options.maxWidth = o.maxWidth; }
+    }
   });
   map.addLayer(cluster);
 
@@ -1844,7 +1859,7 @@ function renderMarkers(){
       fillOpacity: 0.82
     });
 
-    marker.bindPopup(popupHtml(q), { maxWidth: 320 });
+    marker.bindPopup(popupHtml(q), popupOpts());
     marker.bindTooltip(q.date + ' ' + (q.nickname || q.location) + ' ' + magShort(q.magnitude),
                        { direction:'top' });
 
@@ -1859,6 +1874,20 @@ function renderMarkers(){
       if(b && b.isValid()) map.fitBounds(b, { padding:[40,40], maxZoom:8 });
     }catch(e){ /* 範囲計算できない場合は現在の表示を維持 */ }
   }
+}
+
+/* ポップアップの大きさを地図の大きさに合わせる。
+   地図より高いポップアップは収まりきらず、自動スクロールで消える原因になるため、
+   高さに上限をつけて中をスクロールさせる */
+function popupOpts(){
+  var sz = map ? map.getSize() : { x: 360, y: 400 };
+  return {
+    maxWidth: Math.max(220, Math.min(320, sz.x - 50)),
+    minWidth: Math.max(200, Math.min(250, sz.x - 70)),
+    maxHeight: Math.max(160, Math.round(sz.y * 0.62)),
+    autoPanPadding: [10, 10],
+    keepInView: false
+  };
 }
 
 function popupHtml(q){
