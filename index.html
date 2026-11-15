@@ -9645,32 +9645,69 @@ async function fetchWithRetry(url, { retries = 2, timeout = 12000, backoff = 800
 
 // P2P地震情報API専用の取得ヘルパー。
 // path は '/v2/jma/quake?limit=50' のようなパス部分。
-// P2P_HOSTS を順に試し、最初に成功したホストを以後も優先的に使う。
-// .com がダメになった／.net しか無い環境の双方に自動対応するのが狙い。
-let _p2pHostIndex = 0;  // 直近で成功したホストの番号を覚えておく
+// 【2026-11-15 修正】以前は「最初に成功したホスト」をそのまま使っていたため、
+// 片方のホスト(.com)が古いデータを正常応答(HTTP 200)で返し続けると、
+// 新しいほう(.net)に切り替わらず、画面の地震情報が更新されなくなっていた。
+// そこで全ホストに並行して問い合わせ、中身が最も新しい応答を採用する。
+// 片方が失敗しても、成功したほうのデータで表示を続ける。
+let _p2pHostIndex = 0;  // 直近で採用したホストの番号（同じ新しさのときに優先）
+window._p2pLastHost = null;  // 直近で採用したホスト（確認用）
+
+// P2PのJSONの日時文字列 "2026/11/15 14:03:02.373" をミリ秒に変換する。
+// (Safariは "YYYY/MM/DD HH:MM:SS.sss" を Date で解釈できないため自前で分解する)
+function _p2pTimeMs(s){
+  if(!s || typeof s !== 'string') return 0;
+  const m = s.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})[ T](\d{1,2}):(\d{2})(?::(\d{2}))?(?:\.(\d+))?/);
+  if(!m) return 0;
+  const ms = m[7] ? Number((m[7] + '00').slice(0,3)) : 0;
+  // P2Pの日時は日本時間なので、+9時間を差し引いてUTCに直す
+  return Date.UTC(+m[1], +m[2]-1, +m[3], +m[4]-9, +m[5], +(m[6]||0), ms);
+}
+// 応答データの「新しさ」= 含まれる項目の受信日時の最大値。
+function _p2pFreshness(data){
+  if(!Array.isArray(data)) return -1;
+  let max = 0;
+  for(const it of data){
+    if(!it) continue;
+    const t = Math.max(_p2pTimeMs(it.created_at), _p2pTimeMs(it.time),
+                       _p2pTimeMs(it.issue && it.issue.time));
+    if(t > max) max = t;
+  }
+  return max;
+}
+
 async function fetchP2P(path, opts = {}){
-  let lastErr;
-  // 成功実績のあるホストから順に、全ホストを一巡する。
-  for(let k = 0; k < P2P_HOSTS.length; k++){
-    const idx  = (_p2pHostIndex + k) % P2P_HOSTS.length;
-    const host = P2P_HOSTS[idx];
-    try{
-      const r = await fetchWithRetry(host + path, opts);
-      _p2pHostIndex = idx;  // このホストを次回も最優先にする
-      return r;
-    }catch(e){
-      lastErr = e;
-      // レート制限(429)は「どのホストでも同じIP制限に当たる」ため、
-      // 別ホストへ切り替えても無意味。切り替えず即座に投げる。
-      if(e && e.isRateLimit){ throw e; }
-      // まだ試していないホストが残っていれば、そちらへ切り替えて再挑戦。
-      if(k < P2P_HOSTS.length - 1){
-        try{ document.getElementById('updateBar').textContent =
-          '接続先を切り替えて再試行中...'; }catch(_e){}
-      }
+  const order = P2P_HOSTS.map((_, k) => (_p2pHostIndex + k) % P2P_HOSTS.length);
+  const results = await Promise.allSettled(order.map(async idx => {
+    const r = await fetchWithRetry(P2P_HOSTS[idx] + path, opts);
+    const data = await r.json();
+    return { idx, data, fresh: _p2pFreshness(data) };
+  }));
+
+  let best = null, lastErr = null, rateErr = null;
+  for(const res of results){
+    if(res.status === 'fulfilled'){
+      // より新しいデータを持つ応答を採用（同じなら前回採用したホストを優先）
+      if(!best || res.value.fresh > best.fresh) best = res.value;
+    }else{
+      lastErr = res.reason;
+      if(res.reason && res.reason.isRateLimit) rateErr = res.reason;
     }
   }
-  throw lastErr;
+  if(!best){
+    // 全ホスト失敗。レート制限があれば上位のクールダウン処理に回す。
+    throw rateErr || lastErr || new Error('P2P地震情報APIに接続できません');
+  }
+  // 中身のある応答（地震情報など）のときだけ、採用ホストを記録する。
+  // (津波予報が空配列のときなどに記録を上書きしないため)
+  if(best.fresh > 0){
+    _p2pHostIndex = best.idx;
+    window._p2pLastHost = P2P_HOSTS[best.idx];
+  }
+  // 呼び出し側は従来どおり Response として扱えるよう、採用データを包み直して返す。
+  return new Response(JSON.stringify(best.data), {
+    status: 200, headers: { 'Content-Type': 'application/json' }
+  });
 }
 
 // USGSのGeoJSONを、国内データと同じ形に変換する。
@@ -10177,7 +10214,7 @@ async function fetchQuakes(){
     renderTsunamiBanner(qs, tsunamiApiData);
 
     document.getElementById('updateBar').textContent =
-      '最終更新: '+new Date().toLocaleTimeString('ja-JP')+' (P2P地震情報API / 60秒ごと自動更新)';
+      '最終更新: '+new Date().toLocaleTimeString('ja-JP')+' (P2P地震情報API'+(window._p2pLastHost ? ' '+window._p2pLastHost.replace('https://api.','') : '')+' / 60秒ごと自動更新)';
   } catch(e){
     // レート制限(429)を明示的に受けた場合、または「ブロックされた可能性のある
     // 通信失敗(maybeBlocked)」が連続した場合は、クールダウンに入る。
