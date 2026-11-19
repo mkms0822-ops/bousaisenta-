@@ -9824,17 +9824,133 @@ function isJapanRegion(lat, lon){
   return lat >= 20 && lat <= 50 && lon >= 120 && lon <= 155;
 }
 
+// ===================== 本日の地震ログ =====================
+// 【2026-11-19 修正】最新地震リストはAPIの直近分(limit=50)しか持たないため、
+// 余震などで件数が増えると、本日早い時間の大きな地震(例：震度5弱)がリストから押し出され、
+// 「今日の最大震度」「本日の地震(有感)」「最大M(本日)」が小さく表示されていた。
+// そこで、取得した本日分の有感地震を日付(日本時間)ごとに端末へ蓄積し、
+// 統計と「今日の最大震度」カードはこの蓄積分から計算する。
+// あわせて、ページを開いた時点で既に押し出されていた地震を拾うため、
+// 本日分を遡って取得する補完処理(_maybeBackfillToday)も行う。
+const TODAY_LOG_KEY = 'dwa_today_quakes_v1';
+const TODAY_POINTS_MAX = 400; // 1件あたり保存する観測点の上限（容量対策）
+let _todayLog = null;
+
+// 日本時間の日付キー "YYYY-MM-DD"
+function _jstDateKey(d){
+  const t = (d instanceof Date ? d : new Date(d)).getTime();
+  if(isNaN(t)) return '';
+  const j = new Date(t + 9*3600*1000);
+  return j.getUTCFullYear()+'-'+String(j.getUTCMonth()+1).padStart(2,'0')+'-'+String(j.getUTCDate()).padStart(2,'0');
+}
+function _loadTodayLog(){
+  const today = _jstDateKey(new Date());
+  if(_todayLog && _todayLog.date === today) return _todayLog;
+  let log = null;
+  try{ log = JSON.parse(localStorage.getItem(TODAY_LOG_KEY) || 'null'); }catch(e){ log = null; }
+  if(!log || log.date !== today || typeof log.quakes !== 'object' || !log.quakes){
+    log = { date: today, quakes: {} }; // 日付が変わったらリセット
+  }
+  _todayLog = log;
+  return log;
+}
+function _saveTodayLog(){
+  if(!_todayLog) return;
+  try{ localStorage.setItem(TODAY_LOG_KEY, JSON.stringify(_todayLog)); }
+  catch(e){
+    // 容量不足時は観測点を落として再保存
+    try{
+      Object.values(_todayLog.quakes).forEach(q=>{ q.points = []; });
+      localStorage.setItem(TODAY_LOG_KEY, JSON.stringify(_todayLog));
+    }catch(_e){}
+  }
+}
+// 同じ地震の重複報（震度速報→震源情報→各地の震度…）を1件にまとめるキー：
+// 発生時刻(分単位)＋震源地名
+function _todayKey(q){
+  const t = new Date(q.time);
+  const mm = isNaN(t) ? String(q.time) : new Date(Math.floor(t.getTime()/60000)*60000).toISOString();
+  return mm + '_' + (q.name || '');
+}
+// 取得した地震を本日ログへ統合し、本日分（国内・震度1以上）の一覧を返す
+function _mergeTodayQuakes(qs){
+  const log = _loadTodayLog();
+  let changed = false;
+  (qs || []).forEach(q=>{
+    if(!q || q.isForeign) return;
+    if((q.shindo_num||0) < 10) return;
+    if(!q.time || _jstDateKey(q.time) !== log.date) return;
+    const k = _todayKey(q);
+    const prev = log.quakes[k];
+    const pts = Array.isArray(q.points) ? q.points.slice(0, TODAY_POINTS_MAX) : [];
+    if(!prev){
+      log.quakes[k] = Object.assign({}, q, { points: pts });
+      changed = true;
+    }else{
+      // 震度は大きい方、Mと深さは値がある方を採用（後続の報で確定値が入るため）
+      const next = Object.assign({}, prev);
+      if((q.shindo_num||0) > (prev.shindo_num||0)){ next.shindo_num = q.shindo_num; next.points = pts; }
+      else if((!prev.points || !prev.points.length) && pts.length){ next.points = pts; }
+      if(q.magnitude != null) next.magnitude = q.magnitude;
+      if(q.depth != null) next.depth = q.depth;
+      if(JSON.stringify(next) !== JSON.stringify(prev)){ log.quakes[k] = next; changed = true; }
+    }
+  });
+  if(changed) _saveTodayLog();
+  return Object.values(log.quakes).sort((a,b)=> new Date(b.time) - new Date(a.time));
+}
+
+// 本日分を遡って取得し、ログを補完する（起動時と、以降15分ごとに1回まで）。
+// メインの60秒更新とは別に動かし、失敗しても表示は止めない。
+let _backfillLastAt = 0, _backfillRunning = false;
+async function _maybeBackfillToday(){
+  if(_backfillRunning) return;
+  if(Date.now() - _backfillLastAt < 15*60*1000) return;
+  if(window._p2pCooldownUntil && Date.now() < window._p2pCooldownUntil) return;
+  if(navigator.onLine === false) return;
+  _backfillRunning = true; _backfillLastAt = Date.now();
+  try{
+    const today = _jstDateKey(new Date());
+    const ymd = today.replace(/-/g,'');
+    let all = [];
+    // 1回100件×最大3ページ。本日より前の地震に到達したら打ち切る。
+    for(let page = 0; page < 3; page++){
+      // まず本日・震度1以上に絞った条件で取得。条件指定が受け付けられない場合は
+      // 件数指定だけで取得し直す（日付・震度の判定は取得後に端末側でも行う）。
+      let raw;
+      try{
+        const r = await fetchP2P('/v2/jma/quake?limit=100&offset=' + (page*100) + '&since_date=' + ymd + '&min_scale=10', { retries: 0, timeout: 15000 });
+        raw = await r.json();
+      }catch(e1){
+        if(e1 && e1.isRateLimit) throw e1;
+        const r = await fetchP2P('/v2/jma/quake?limit=100&offset=' + (page*100), { retries: 0, timeout: 15000 });
+        raw = await r.json();
+      }
+      const arr = Array.isArray(raw) ? raw : [];
+      const parsed = parseP2P(arr);
+      all = all.concat(parsed);
+      const reachedPast = parsed.some(q => q.time && _jstDateKey(q.time) < today);
+      if(arr.length < 100 || reachedPast) break;
+      await new Promise(r => setTimeout(r, 1500)); // 連続アクセスを避ける
+    }
+    if(all.length){
+      _mergeTodayQuakes(all);
+      if(_lastQs){ renderStats(_lastQs); renderBig(_lastQs); }
+    }
+  }catch(e){
+    // 補完は補助機能。失敗してもログに残すだけにする（次回15分後に再試行）
+    try{ console.warn('本日分の補完取得に失敗:', e && e.message); }catch(_e){}
+  }finally{
+    _backfillRunning = false;
+  }
+}
+
 function renderStats(qs){
   const now = new Date();
   // 「本日の地震（有感）」は、実際に揺れを観測した＝震度1以上(shindo_num>=10)の
   // 日本国内の地震のみを数える。震度なし(0)や海外(USGS,震度なし)は含めない。
-  const td = qs.filter(q=>{
-    if(q.isForeign) return false;
-    if((q.shindo_num||0) < 10) return false; // 震度1未満(無感/不明)は除外
-    if(!q.time) return false;
-    const d = new Date(q.time);
-    return !isNaN(d) && d.toDateString() === now.toDateString();
-  });
+  // 直近リストに残っているかどうかに関係なく、本日ログ（端末に蓄積）から集計する。
+  const td = _mergeTodayQuakes(qs);
   const base = td; // 本日分（有感）のみ
   const setStat = (id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
   setStat('statToday', td.length);
@@ -10203,6 +10319,8 @@ async function fetchQuakes(){
     window._p2pFailStreak = 0;  // 取得成功したので連続失敗カウンタをリセット
     renderStats(qs); renderBig(qs); renderList(qs);
     try { renderQuakeMode(qs); } catch(e){}
+    // 直近リストから押し出された本日の地震を補完（15分に1回まで・非同期）
+    _maybeBackfillToday();
     try { maybeAutoEmergency(qs); } catch(e){}
 
     // 津波予報APIの結果でバナーを制御
