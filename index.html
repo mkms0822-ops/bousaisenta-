@@ -7116,7 +7116,7 @@ try{ if(localStorage.getItem('headerClosed')==='1'){ document.documentElement.cl
           <button type="button" class="reorder-down" onclick="moveBlock(this,1)" aria-label="下へ">▼</button>
         </span>
       </div>
-      <div id="section-quake" class="section-head anim-ready anim-left">// 最新地震リスト（最大20件・自動更新）</div>
+      <div id="section-quake" class="section-head anim-ready anim-left">// 最新地震リスト（本日の有感地震すべて＋直近分で最低20件・自動更新）</div>
       <div id="quakeList" class="quake-list anim-ready anim-up">
         <div class="loading">
           <div class="loading-spinner"></div>
@@ -9833,7 +9833,7 @@ function isJapanRegion(lat, lon){
 // あわせて、ページを開いた時点で既に押し出されていた地震を拾うため、
 // 本日分を遡って取得する補完処理(_maybeBackfillToday)も行う。
 const TODAY_LOG_KEY = 'dwa_today_quakes_v1';
-const TODAY_POINTS_MAX = 400; // 1件あたり保存する観測点の上限（容量対策）
+const TODAY_POINTS_MAX = 1500; // 1件あたり保存する観測点の上限（容量対策）
 let _todayLog = null;
 
 // 日本時間の日付キー "YYYY-MM-DD"
@@ -9900,6 +9900,30 @@ function _mergeTodayQuakes(qs){
   return Object.values(log.quakes).sort((a,b)=> new Date(b.time) - new Date(a.time));
 }
 
+// 最新地震リストに表示する一覧を作る。
+// 本日の有感地震（本日ログ）はすべて表示し、合計が20件に満たない場合は
+// 直近の地震（前日以前・無感・震度不明を含む）で20件まで補う。新しい順。
+const LIST_MIN = 20;
+function _buildListQs(qs){
+  const map = new Map();
+  const todayAll = _mergeTodayQuakes([]); // 本日ログ（既に統合済み）
+  todayAll.forEach(q => map.set(_todayKey(q), q));
+  const recent = (qs || []).filter(q => !q.isForeign)
+    .slice().sort((a,b)=> new Date(b.time) - new Date(a.time));
+  for(const q of recent){
+    const k = _todayKey(q);
+    if(map.has(k)){
+      // 直近データの方が新しい報（観測点など）を持つことがあるので、震度が同じ以上なら差し替え
+      const prev = map.get(k);
+      if((q.shindo_num||0) >= (prev.shindo_num||0)) map.set(k, Object.assign({}, prev, q, { shindo_num: Math.max(q.shindo_num||0, prev.shindo_num||0) }));
+      continue;
+    }
+    if(map.size >= Math.max(LIST_MIN, todayAll.length)) continue;
+    map.set(k, q);
+  }
+  return Array.from(map.values()).sort((a,b)=> new Date(b.time) - new Date(a.time));
+}
+
 // 本日分を遡って取得し、ログを補完する（起動時と、以降15分ごとに1回まで）。
 // メインの60秒更新とは別に動かし、失敗しても表示は止めない。
 let _backfillLastAt = 0, _backfillRunning = false;
@@ -9935,7 +9959,7 @@ async function _maybeBackfillToday(){
     }
     if(all.length){
       _mergeTodayQuakes(all);
-      if(_lastQs){ renderStats(_lastQs); renderBig(_lastQs); }
+      if(_lastQs){ renderStats(_lastQs); renderBig(_lastQs); renderList(_buildListQs(_lastQs)); }
     }
   }catch(e){
     // 補完は補助機能。失敗してもログに残すだけにする（次回15分後に再試行）
@@ -10292,10 +10316,13 @@ async function fetchQuakes(){
     const raw = await rQuake.json();
     const parsed = parseP2P(Array.isArray(raw) ? raw : []);
 
-    // 同じ震源地・同じマグニチュードの重複を除去（最新1件のみ残す）
+    // 同じ地震の重複報（震度速報・震源情報・各地の震度など）を除去（最新1件のみ残す）
+    // 【2026-11-19 修正】以前は「震源地名＋M」で判定していたため、同じ震源・同じMの
+    // 別の余震まで1件にまとめられ、リスト件数が本日の発生件数より少なくなっていた。
+    // 発生時刻(分単位)＋震源地名で判定する。
     const seen = new Set();
     const jp = parsed.filter(q => {
-      const key = `${q.name}_${q.magnitude}`;
+      const key = _todayKey(q);
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
@@ -10317,7 +10344,7 @@ async function fetchQuakes(){
     if(qs.length === 0) throw new Error('データが空');
     _lastQs = qs;
     window._p2pFailStreak = 0;  // 取得成功したので連続失敗カウンタをリセット
-    renderStats(qs); renderBig(qs); renderList(qs);
+    renderStats(qs); renderBig(qs); renderList(_buildListQs(qs));
     try { renderQuakeMode(qs); } catch(e){}
     // 直近リストから押し出された本日の地震を補完（15分に1回まで・非同期）
     _maybeBackfillToday();
